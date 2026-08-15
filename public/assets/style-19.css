@@ -1,0 +1,151 @@
+/* v30: horizontal-scroll stability, clearer saves, and collection-sheet layout fixes. */
+
+/* Horizontal rails: do not let x-axis snap/animation compete with vertical page scrolling. */
+main .chapter :is(
+  .skills-infinite-row,
+  .curated-links-row,
+  [class*="scroll-row"],
+  [class*="-scroll"],
+  [class*="-rail"],
+  [class*="-carousel"]
+){
+  scroll-snap-type:none!important;
+  scroll-behavior:auto!important;
+  overscroll-behavior-x:contain!important;
+  touch-action:pan-x pan-y!important;
+  overflow-anchor:none!important;
+  will-change:auto!important;
+}
+main .chapter :is(
+  .skills-infinite-row,
+  .curated-links-row,
+  [class*="scroll-row"],
+  [class*="-scroll"],
+  [class*="-rail"],
+  [class*="-carousel"]
+)>*{
+  scroll-snap-align:none!important;
+  overflow-anchor:none!important;
+}
+
+/* Skill cards keep a stable block size while thumbnails and video data settle. */
+.skills-infinite-row{align-items:stretch!important}
+.skill-card--media{contain:layout style!important}
+.skill-card__visual,
+.skill-video-card__visual{overflow:hidden!important}
+.skill-card__visual img,
+.skill-video-card__visual img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important}
+
+/* Matched recommendation bookmark: more breathing room and an unmistakable saved state. */
+.skill-video-card--matched{
+  grid-template-columns:104px minmax(0,1fr) 46px!important;
+}
+.skill-video-card--matched .skill-video-bookmark{
+  width:36px!important;
+  height:36px!important;
+  margin-right:10px!important;
+}
+.skill-video-bookmark svg{fill:none!important;stroke:currentColor!important;stroke-width:1.8!important}
+.skill-video-bookmark.is-favorite{
+  background:linear-gradient(180deg,#3d78e6,#2f63d6)!important;
+  color:#fff!important;
+  border-color:rgba(47,99,214,.32)!important;
+  box-shadow:0 6px 16px rgba(47,99,214,.20),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+.skill-video-bookmark.is-favorite svg,
+.skill-video-bookmark.is-favorite svg path{
+  fill:currentColor!important;
+  stroke:currentColor!important;
+}
+
+/* Discovery cards should end with their content instead of leaving a large blank white block. */
+.skill-video-card--discover{
+  min-height:0!important;
+  height:auto!important;
+}
+.skill-video-card--discover .skill-video-card__copy{
+  min-height:8.2rem!important;
+  padding:1rem 1rem 1.15rem!important;
+}
+.skill-video-card--discover .skill-video-card__source{
+  margin-bottom:.35rem!important;
+}
+.skills-more-sentinel{min-height:22rem!important}
+
+/* The unified collection popup has five actual grid rows. The previous four-row
+   definition made the search/tools row expand and pushed the list toward the bottom. */
+.collection-sheet{
+  grid-template-rows:auto auto auto auto minmax(0,1fr)!important;
+  touch-action:auto!important;
+}
+.collection-tools{
+  position:relative!important;
+  z-index:2!important;
+  flex:none!important;
+  min-height:0!important;
+  padding:0 18px 12px!important;
+  background:rgba(249,250,252,.97)!important;
+}
+.collection-search{
+  position:relative!important;
+  z-index:3!important;
+  width:100%!important;
+  flex:none!important;
+}
+.collection-body{
+  position:relative!important;
+  min-height:0!important;
+  height:100%!important;
+  overflow-y:auto!important;
+  align-self:stretch!important;
+  padding-top:2px!important;
+  overflow-anchor:none!important;
+}
+.collection-list{
+  display:grid!important;
+  align-content:start!important;
+  justify-content:stretch!important;
+  gap:9px!important;
+  min-height:0!important;
+}
+.collection-empty{
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  align-content:center!important;
+  justify-items:center!important;
+  padding:24px!important;
+}
+
+/* Keep the page at its current scroll position while the sheet is open. The old
+   body:fixed lock visibly snapped to the top for one frame when closing. */
+html.collection-open,
+body.collection-open{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.collection-open{
+  position:static!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  width:auto!important;
+}
+.collection-backdrop{touch-action:none!important}
+.collection-body{touch-action:pan-y!important}
+
+/* Move the persistent collection button closer to the lower safe area. */
+.collection-fab{
+  bottom:calc(env(safe-area-inset-bottom) + 52px)!important;
+}
+
+@media(max-width:430px){
+  .skill-video-card--matched{grid-template-columns:92px minmax(0,1fr) 44px!important}
+  .skill-video-card--matched .skill-video-bookmark{width:34px!important;height:34px!important;margin-right:10px!important}
+  .skill-video-card--discover .skill-video-card__copy{min-height:7.6rem!important}
+  .collection-fab{bottom:calc(env(safe-area-inset-bottom) + 48px)!important}
+}
+
+@media(min-width:700px){
+  .collection-fab{bottom:28px!important}
+}
