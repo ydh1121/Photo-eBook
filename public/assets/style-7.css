@@ -1,0 +1,29 @@
+/* v10 equipment table: title is never squeezed by price/meta. */
+.product-row__top{display:block}
+.product-row__budget{
+  display:block;
+  margin-top:.8rem;
+  padding-top:.72rem;
+  border-top:1px solid rgba(0,0,0,.05);
+  color:var(--accent);
+  font-size:14px;
+  font-weight:720;
+  white-space:normal
+}
+
+/* Horizontal card backgrounds stay transparent all the way to the viewport edge. */
+.scroll-row,
+.scroll-row:before,
+.scroll-row:after{
+  background:transparent!important;
+}
+
+/* Slightly narrower cards guarantee a visible next-card peek. */
+.market-card{width:min(76vw,18rem)}
+.case-card{width:min(75vw,17.8rem)}
+.product-card{width:min(71vw,17rem)}
+.offer-card{width:min(75vw,17rem)}
+.phase-card{width:min(75vw,17.2rem)}
+.skill-card{width:min(70vw,16rem)}
+.lesson-preview{width:min(69vw,15rem)}
+.preset-card{width:min(70vw,15.5rem)}
