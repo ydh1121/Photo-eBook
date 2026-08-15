@@ -1,0 +1,12 @@
+/* v32.1: keep capsule progress fixed to the viewport while the chip rail itself scrolls. */
+.nav-scroll{
+  --v32-progress:0%;
+  background:
+    linear-gradient(90deg,
+      rgba(83,146,247,.18) 0,
+      rgba(83,146,247,.13) var(--v32-progress),
+      rgba(255,255,255,0) var(--v32-progress),
+      rgba(255,255,255,0) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.68),rgba(241,247,255,.54))!important;
+}
+.nav-progress-liquid{display:none!important}
