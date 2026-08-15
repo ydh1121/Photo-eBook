@@ -1,13 +1,30 @@
-/* v15: compositor-backed full-capsule reading progress */
+/* v16: transparent sticky wrapper + compositor progress */
 .nav-glass,
 .nav-shell.is-compact .nav-glass,
 .nav-shell.is-scrolled .nav-glass{
   --progress-scale:0;
 }
 
-/* The whole capsule background is the progress indicator. The fill uses a
-   transform instead of width/gradient-stop changes so Safari can composite it
-   without repainting the sticky layout on every scroll frame. */
+/* Only the capsule remains visible. The area from the capsule to the top of
+   the viewport is fully transparent. */
+.nav-shell,
+.nav-shell.is-compact,
+.nav-shell.is-scrolled{
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+.nav-shell::before,
+.nav-shell::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  box-shadow:none!important;
+}
+
+/* The whole capsule background is the reading progress indicator. */
 .nav-glass::before{
   content:""!important;
   position:absolute!important;
@@ -22,17 +39,24 @@
     linear-gradient(90deg,rgba(105,166,255,.18),rgba(75,139,239,.25))!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.48)!important;
   transform-origin:left center!important;
-  transform:translateZ(0) scaleX(var(--progress-scale))!important;
+  transform:translate3d(0,0,0) scaleX(var(--progress-scale))!important;
   will-change:transform!important;
   transition:none!important;
 }
 
 .nav-glass::after{
-  transform:translateZ(0)!important;
+  transform:translate3d(0,0,0)!important;
 }
 
-/* Paint containment is limited to the inner capsule. Keeping containment off
-   the sticky wrapper avoids Safari sticky-position edge cases. */
+/* Avoid animated paint work exactly when a chapter changes. The active chip
+   still changes immediately, but without shadow/background interpolation. */
+.nav-chip,
+.nav-shell.is-compact .nav-chip,
+.nav-shell.is-scrolled .nav-chip,
+.nav-chip.is-active{
+  transition:none!important;
+}
+
 .nav-glass{
   contain:paint!important;
 }
