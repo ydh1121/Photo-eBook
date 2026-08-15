@@ -1,0 +1,113 @@
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{
+  background:var(--grouped);
+  scroll-behavior:smooth;
+  -webkit-text-size-adjust:none;
+  text-size-adjust:none;
+  font-size:16px;
+  overflow-x:clip;
+  touch-action:pan-x pan-y;
+}
+body{
+  margin:0;
+  touch-action:pan-x pan-y;
+  background:var(--grouped);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  font-size:var(--body);
+  line-height:1.68;
+  letter-spacing:-.012em;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+}
+button,a,input,textarea{font:inherit}
+button{touch-action:manipulation}
+a{color:var(--accent);text-decoration:none}
+img{display:block;max-width:100%}
+h1,h2,h3,h4,p{margin-top:0}
+h1,h2,h3{
+  margin-bottom:0;
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Apple SD Gothic Neo",system-ui,sans-serif;
+  text-wrap:balance;
+}
+h1{font-size:var(--display);line-height:1.01;letter-spacing:-.052em;font-weight:740}
+h2{font-size:var(--h2);line-height:1.16;letter-spacing:-.036em;font-weight:700}
+h3{font-size:var(--h3);line-height:1.36;letter-spacing:-.018em;font-weight:650}
+p{max-width:39rem;text-wrap:pretty}
+.app{overflow:visible;min-width:0}
+.content,.wide,.guide-stack,.guide-block,.section{min-width:0;max-width:100%}
+.content{width:min(100%,var(--content));margin-inline:auto;padding-inline:var(--gutter)}
+.wide{width:min(100%,var(--wide));margin-inline:auto;padding-inline:var(--gutter)}
+.chapter{scroll-margin-top:calc(var(--nav-h) + 12px)}
+
+/* v11: every section uses one mobile gutter. Avoid nested double indents. */
+.wide > .content{
+  width:min(100%,var(--content));
+  padding-inline:0;
+}
+.wide > .subhead.content{
+  padding-inline:0;
+}
+
+.section{padding:5.2rem 0 6rem;background:var(--canvas)}
+.section.grouped{background:var(--grouped)}
+.section-heading{margin-bottom:2.2rem}
+.eyebrow{margin:0 0 .7rem;color:var(--accent);font-size:13px;font-weight:720}
+.section-heading p{margin:.95rem 0 0;color:var(--secondary);font-size:17px;line-height:1.66}
+.muted{color:var(--secondary)}
+.micro{font-size:var(--micro);color:var(--secondary)}
+
+/* Horizontal cards:
+   Card faces align with normal text.
+   An invisible shadow gutter extends outside the content edge.
+   The row itself is transparent and the final card gets a matching right gutter. */
+.scroll-row{
+  --shadow-gutter:18px;
+  display:flex;
+  gap:.9rem;
+  width:calc(100% + var(--gutter) + var(--shadow-gutter));
+  margin-left:calc(var(--shadow-gutter) * -1);
+  margin-right:calc(var(--gutter) * -1);
+  padding:24px 0 48px var(--shadow-gutter);
+  overflow-x:auto;
+  overflow-y:hidden;
+  background:transparent!important;
+  box-shadow:none!important;
+  scrollbar-width:none;
+  scroll-snap-type:x mandatory;
+  scroll-padding-left:var(--shadow-gutter);
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  min-width:0;
+}
+.scroll-row::after{
+  content:"";
+  flex:0 0 calc(var(--gutter) + var(--shadow-gutter));
+}
+.scroll-row::-webkit-scrollbar{display:none}
+.scroll-row>*{
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  flex:0 0 auto;
+  min-width:0;
+}
+
+.boot{min-height:100dvh;padding:calc(1.2rem + var(--safe-top)) 1.2rem 2rem;background:var(--grouped)}
+.boot__hero{height:45dvh;min-height:19rem;border-radius:var(--r-lg);background:#e0e0e6;position:relative;overflow:hidden}
+.boot__lines{display:grid;gap:.75rem;margin-top:1.5rem}
+.boot__line{height:1rem;background:#dedee4;border-radius:7px;position:relative;overflow:hidden}
+.boot__line.big{height:3rem;width:88%}.boot__line.mid{width:72%}.boot__line.short{width:48%}
+.boot__hero::after,.boot__line::after{
+  content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.78),transparent);
+  animation:shine 1.25s infinite
+}
+@keyframes shine{to{transform:translateX(100%)}}
+body.is-modal-open{
+  overflow:hidden;
+  overscroll-behavior:none;
+}
