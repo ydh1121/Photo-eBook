@@ -1,12 +1,10 @@
-/* v16: transparent sticky wrapper + compositor progress */
+/* v17: transparent sticky wrapper + compositor-stable progress */
 .nav-glass,
 .nav-shell.is-compact .nav-glass,
 .nav-shell.is-scrolled .nav-glass{
   --progress-scale:0;
 }
 
-/* Only the capsule remains visible. The area from the capsule to the top of
-   the viewport is fully transparent. */
 .nav-shell,
 .nav-shell.is-compact,
 .nav-shell.is-scrolled{
@@ -24,7 +22,7 @@
   box-shadow:none!important;
 }
 
-/* The whole capsule background is the reading progress indicator. */
+/* Progress stays on one GPU transform layer and never changes layout. */
 .nav-glass::before{
   content:""!important;
   position:absolute!important;
@@ -40,25 +38,45 @@
   box-shadow:inset 0 1px 0 rgba(255,255,255,.48)!important;
   transform-origin:left center!important;
   transform:translate3d(0,0,0) scaleX(var(--progress-scale))!important;
+  -webkit-transform:translate3d(0,0,0) scaleX(var(--progress-scale))!important;
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
   will-change:transform!important;
   transition:none!important;
 }
 
 .nav-glass::after{
-  transform:translate3d(0,0,0)!important;
+  transform:none!important;
+  -webkit-transform:none!important;
 }
 
-/* Avoid animated paint work exactly when a chapter changes. The active chip
-   still changes immediately, but without shadow/background interpolation. */
+/* Do not create a paint-containment boundary inside Safari sticky content.
+   That boundary was causing occasional full-page compositor hiccups exactly
+   when the active chapter changed. */
+.nav-glass{
+  contain:none!important;
+  overflow-anchor:none!important;
+}
+
+/* Keep the nested horizontal scroller synchronous while the page is moving.
+   Modern iOS does not require momentum mode here, and removing it avoids a
+   second async scroll layer inside the sticky element. */
+.nav-scroll{
+  -webkit-overflow-scrolling:auto!important;
+  overflow-anchor:none!important;
+}
+
+/* Chapter changes only swap color. No animated shadow/compositing work. */
 .nav-chip,
 .nav-shell.is-compact .nav-chip,
 .nav-shell.is-scrolled .nav-chip,
 .nav-chip.is-active{
   transition:none!important;
+  will-change:auto!important;
+  overflow-anchor:none!important;
 }
-
-.nav-glass{
-  contain:paint!important;
+.nav-chip.is-active{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.27)!important;
 }
 
 @media(max-width:430px){
