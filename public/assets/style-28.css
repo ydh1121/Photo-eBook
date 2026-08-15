@@ -1,0 +1,161 @@
+/* v40: clean single-owner motion, stable question controls, and fixed selection grid. */
+
+/* v39's second loader is retired. Only .curated-discovery-sentinel may render. */
+.curated-v39-sentinel,.curated-v40-sentinel{display:none!important}
+#curatedLinksRow>.curated-discovery-sentinel~.curated-discovery-sentinel{display:none!important}
+
+/* Do not let a stale v39 ready flag force a ghost/fallback state. */
+.nav-scroll.v39-liquid-ready .nav-chip.is-active,
+.collection-tabs.v39-liquid-ready .collection-tab.is-active,
+.theme-choice.v39-liquid-ready button.is-active,
+.v32-question-segment.v39-liquid-ready button.is-active{
+  color:#fff!important;
+}
+
+/* The skin settles subtly; travel itself is owned by the older single controller. */
+.v37-liquid-skin{
+  transform:translate3d(0,0,0) scaleX(1) scaleY(1);
+  backface-visibility:hidden!important;
+}
+
+/* Question controls are outside the replaceable library body. */
+.v40-question-controls{
+  width:100%;
+  margin:10px 0 2px;
+}
+.v40-question-controls[hidden]{display:none!important}
+.v40-question-segment{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:100%!important;
+  min-height:54px!important;
+  padding:5px!important;
+  gap:5px!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+.v40-question-segment button{
+  min-width:0!important;
+  height:44px!important;
+  min-height:44px!important;
+  padding:0 12px!important;
+  border-radius:999px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+/* Never hide search on the question tab. */
+.collection-tab[data-library-tab="question"].is-active~* #collectionTools,
+#collectionTools{
+  min-width:0!important;
+}
+#collectionTools:not([hidden]){display:grid!important}
+#collectionTools .collection-search{
+  display:flex!important;
+  width:100%!important;
+  min-width:0!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#collectionTools .collection-search input{min-width:0!important;width:100%!important}
+
+/* Bulk mode: four explicit columns on question cards, so nothing is pushed right. */
+.collection-body.is-bulk-selecting .collection-item{
+  display:grid!important;
+  align-items:center!important;
+  column-gap:10px!important;
+  padding:12px 10px!important;
+  padding-left:10px!important;
+}
+.collection-body.is-bulk-selecting .collection-item--question{
+  grid-template-columns:34px 50px minmax(0,1fr) 38px!important;
+}
+.collection-body.is-bulk-selecting .collection-item:not(.collection-item--question){
+  grid-template-columns:34px 72px minmax(0,1fr) 38px!important;
+}
+.collection-body.is-bulk-selecting .collection-selectbox{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  grid-column:1!important;
+  grid-row:1!important;
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  min-height:30px!important;
+  margin:0!important;
+  align-self:center!important;
+  justify-self:center!important;
+}
+.collection-body.is-bulk-selecting .collection-item--question .collection-item__question-icon{
+  grid-column:2!important;
+  grid-row:1!important;
+  margin:0!important;
+  justify-self:center!important;
+}
+.collection-body.is-bulk-selecting .collection-item--question .collection-item__main{
+  grid-column:3!important;
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+}
+.collection-body.is-bulk-selecting .collection-item:not(.collection-item--question) .collection-item__thumb{
+  grid-column:2!important;
+  grid-row:1!important;
+  margin:0!important;
+}
+.collection-body.is-bulk-selecting .collection-item:not(.collection-item--question) .collection-item__main{
+  grid-column:3!important;
+  grid-row:1!important;
+  min-width:0!important;
+  margin:0!important;
+}
+.collection-body.is-bulk-selecting .collection-item .collection-item__remove{
+  grid-column:4!important;
+  grid-row:1!important;
+  margin:0!important;
+  justify-self:end!important;
+}
+
+/* Saved question cards stay compact at iPhone widths. */
+.collection-item--question .collection-item__main{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.collection-item--question .collection-item__main strong,
+.collection-item--question .collection-item__main p,
+.collection-item--question .collection-item__main small{
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+/* One loading indicator, restrained size. */
+.curated-discovery-sentinel{
+  flex:0 0 44px!important;
+  width:44px!important;
+  min-width:44px!important;
+  align-self:stretch!important;
+  display:grid!important;
+  place-items:center!important;
+  background:transparent!important;
+}
+.curated-discovery-sentinel::after{
+  width:19px!important;
+  height:19px!important;
+}
+
+@media(max-width:430px){
+  .v40-question-controls{margin-top:8px}
+  .collection-body.is-bulk-selecting .collection-item--question{
+    grid-template-columns:32px 46px minmax(0,1fr) 34px!important;
+    column-gap:8px!important;
+  }
+  .collection-body.is-bulk-selecting .collection-item:not(.collection-item--question){
+    grid-template-columns:32px 64px minmax(0,1fr) 34px!important;
+    column-gap:8px!important;
+  }
+}
