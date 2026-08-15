@@ -1,0 +1,277 @@
+/* v25: richer process lists, contextual skill media and continuous discovery cards. */
+
+/* Process and ranking blocks: replace the old floating blue circles with a compact step system. */
+.flow-card--refined{
+  padding:10px!important;
+  border-color:rgba(34,55,92,.06)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(247,249,253,.96))!important;
+  box-shadow:0 14px 34px rgba(31,45,72,.055)!important;
+}
+.flow-list--refined{display:grid!important;gap:8px!important}
+.flow-row--refined{
+  position:relative;
+  display:grid!important;
+  grid-template-columns:48px minmax(0,1fr)!important;
+  gap:12px!important;
+  align-items:center!important;
+  min-height:72px;
+  padding:11px 13px 11px 10px!important;
+  border:1px solid rgba(34,55,92,.055);
+  border-radius:18px;
+  background:rgba(255,255,255,.86);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 12px rgba(31,45,72,.025);
+}
+.flow-step{
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border-radius:15px;
+  background:linear-gradient(145deg,rgba(64,121,226,.13),rgba(64,121,226,.06));
+  border:1px solid rgba(53,104,212,.12);
+  color:var(--accent);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.84);
+}
+.flow-step span{font-size:13px!important;font-weight:780!important;letter-spacing:.02em!important;color:var(--accent)!important;margin:0!important}
+.flow-row__copy{min-width:0;display:grid;gap:3px}
+.flow-row__copy small{
+  color:#7c8492;
+  font-size:10px;
+  font-weight:720;
+  letter-spacing:.055em;
+  line-height:1.2;
+}
+.flow-row__copy strong{
+  color:#282a2f;
+  font-size:15.5px;
+  font-weight:650;
+  line-height:1.46;
+  overflow-wrap:anywhere;
+}
+.flow-helper{margin-top:.7rem!important;padding-left:2px}
+
+/* Skill cards now show the work before explaining it. */
+.skills-infinite-row{
+  align-items:stretch!important;
+  padding-top:6px!important;
+  padding-bottom:24px!important;
+  scroll-padding-inline:var(--gutter)!important;
+}
+.skill-card--media{
+  width:min(82vw,20rem)!important;
+  min-width:min(82vw,20rem)!important;
+  padding:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  background:#fff!important;
+  border:1px solid rgba(30,43,68,.07)!important;
+  box-shadow:0 15px 36px rgba(27,41,70,.07)!important;
+}
+.skill-card__visual{
+  position:relative;
+  width:100%;
+  height:12rem;
+  overflow:hidden;
+  background:#e8eaf0;
+}
+.skill-card__visual::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,transparent 62%,rgba(0,0,0,.08));
+}
+.skill-card__visual img{width:100%;height:100%;object-fit:cover;display:block}
+.skill-card__body{display:flex;flex:1;flex-direction:column;padding:1rem 1rem 1.05rem}
+.skill-card__topline{display:flex;align-items:center;gap:8px;margin-bottom:.55rem}
+.skill-card__topline>span{
+  display:grid;
+  place-items:center;
+  min-width:34px;
+  height:26px;
+  padding:0 8px;
+  border-radius:9px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  font-size:11px;
+  font-weight:780;
+}
+.skill-card__topline small{font-size:11px;font-weight:690;color:#858993}
+.skill-card--media h3{font-size:19px!important;line-height:1.34!important;margin:0 0 .45rem!important}
+.skill-card--media p{font-size:14px!important;line-height:1.58!important;margin:0!important;color:#656870!important}
+.skill-card__tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:.8rem}
+.skill-card__tags .soft-tag{margin:0!important}
+.skill-card__video-slot{
+  margin-top:auto;
+  padding-top:1rem;
+  min-height:92px;
+}
+.video-slot-loading,.video-slot-empty{
+  display:flex;
+  align-items:center;
+  min-height:80px;
+  padding:0 12px;
+  border-radius:15px;
+  background:#f4f5f8;
+  color:#858993;
+  font-size:12px;
+  line-height:1.45;
+}
+.skills-more-note{margin-top:-.25rem!important;color:#888b93!important;font-size:12px!important}
+.skills-more-sentinel{
+  flex:0 0 30px;
+  width:30px;
+  min-height:10rem;
+  position:relative;
+}
+.skills-more-sentinel.is-loading::after{
+  content:"";
+  position:absolute;
+  top:50%;left:50%;
+  width:18px;height:18px;
+  margin:-9px;
+  border:2px solid rgba(53,104,212,.18);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:skill-spin .75s linear infinite;
+}
+@keyframes skill-spin{to{transform:rotate(360deg)}}
+
+/* Related YouTube cards live in the same horizontal rail as the practical cards. */
+.skill-video-card{
+  position:relative;
+  flex:0 0 min(78vw,18rem);
+  width:min(78vw,18rem);
+  overflow:hidden;
+  border:1px solid rgba(30,43,68,.07);
+  border-radius:var(--r-lg);
+  background:#fff;
+  box-shadow:0 15px 36px rgba(27,41,70,.065);
+}
+.skill-video-card__visual{
+  position:relative;
+  display:block;
+  height:11rem;
+  overflow:hidden;
+  background:#e6e8ed;
+}
+.skill-video-card__visual img{width:100%;height:100%;object-fit:cover;display:block}
+.skill-video-card__visual::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.18));
+  pointer-events:none;
+}
+.skill-video-card__play{
+  position:absolute;
+  z-index:2;
+  left:14px;
+  bottom:12px;
+  display:grid;
+  place-items:center;
+  width:40px;height:40px;
+  border-radius:50%;
+  background:rgba(255,255,255,.92);
+  color:#1f2024;
+  font-size:13px;
+  box-shadow:0 5px 16px rgba(0,0,0,.12);
+}
+.skill-video-card__duration{
+  position:absolute;
+  z-index:2;
+  right:10px;
+  bottom:10px;
+  padding:5px 7px;
+  border-radius:8px;
+  background:rgba(21,22,25,.82);
+  color:#fff;
+  font-size:10px;
+  font-weight:720;
+}
+.skill-video-card__copy{padding:.92rem 1rem 1rem;min-height:8.6rem}
+.skill-video-card__source{
+  padding-right:34px;
+  color:#737780;
+  font-size:10.5px;
+  font-weight:620;
+  line-height:1.4;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.skill-video-card__copy strong{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  overflow:hidden;
+  margin-top:.36rem;
+  color:#202126;
+  font-size:15px;
+  line-height:1.44;
+}
+.skill-video-bookmark{
+  position:absolute;
+  z-index:4;
+  top:10px;
+  right:10px;
+  display:grid;
+  place-items:center;
+  width:38px;height:38px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.56);
+  border-radius:50%;
+  background:rgba(31,32,36,.72);
+  color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.13);
+}
+.skill-video-bookmark svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.75}
+.skill-video-bookmark.is-favorite{background:#fff;color:var(--accent);border-color:rgba(53,104,212,.12)}
+
+.skill-video-card--mini{
+  display:grid;
+  grid-template-columns:86px minmax(0,1fr) 30px;
+  align-items:center;
+  width:100%;
+  min-width:0;
+  border-radius:15px;
+  box-shadow:none;
+  background:#f5f6f9;
+}
+.skill-video-card--mini .skill-video-card__visual{height:76px;border-radius:14px;overflow:hidden}
+.skill-video-card--mini .skill-video-card__play{width:28px;height:28px;left:8px;bottom:8px;font-size:9px}
+.skill-video-card--mini .skill-video-card__duration{display:none}
+.skill-video-card--mini .skill-video-card__copy{min-height:0;padding:9px 9px 9px 10px}
+.skill-video-card--mini .skill-video-card__source{padding:0;font-size:9.5px}
+.skill-video-card--mini .skill-video-card__copy strong{-webkit-line-clamp:2;font-size:12px;line-height:1.38}
+.skill-video-card--mini .skill-video-bookmark{
+  position:static;
+  width:30px;height:30px;
+  margin-right:7px;
+  background:rgba(255,255,255,.9);
+  color:#666b75;
+  border-color:rgba(0,0,0,.04);
+  box-shadow:none;
+}
+.skill-video-card--mini .skill-video-bookmark.is-favorite{color:var(--accent);background:#fff}
+.skill-video-card--mini .skill-video-bookmark svg{width:14px;height:14px}
+
+/* Curated reading rail may extend continuously, so the end never looks like a dead stop. */
+.curated-links-row{overscroll-behavior-x:contain!important}
+.curated-card[data-loop-clone="true"]{content-visibility:auto;contain-intrinsic-size:520px 330px}
+
+/* Keep image crops consistent after contextual replacements. */
+.case-card__image img,.market-card__image img,.lesson-preview__image img,.lesson__visual img{object-position:center center}
+
+@media(max-width:430px){
+  .flow-row--refined{grid-template-columns:44px minmax(0,1fr)!important;gap:10px!important;min-height:68px;padding:10px!important}
+  .flow-step{width:40px;height:40px;border-radius:14px}
+  .flow-row__copy strong{font-size:14.5px}
+  .skill-card--media{width:84vw!important;min-width:84vw!important}
+  .skill-card__visual{height:11.2rem}
+  .skill-video-card{flex-basis:80vw;width:80vw}
+  .skill-video-card__visual{height:10.6rem}
+}
+
+@media(prefers-reduced-motion:reduce){.skills-more-sentinel.is-loading::after{animation:none}}
