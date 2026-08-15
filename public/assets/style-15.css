@@ -1,10 +1,43 @@
-/* v19: do not paint a site-owned color behind Safari chrome.
-   The browser remains free to render its own Liquid Glass UI. */
+/* v24: make Safari 26 bottom Liquid Glass chrome visually blend with the page.
+   Safari derives the obscured toolbar fill from the document surface. A fully
+   transparent root can make that fill look like a separate horizontal panel,
+   so keep the browser-facing root on the same grouped surface as the page and
+   let the actual app remain transparent. */
 html,
 body{
-  background-color:transparent!important;
+  background:var(--grouped)!important;
+  background-color:var(--grouped)!important;
+  min-height:100%;
+}
+
+body{
+  min-height:100dvh;
+  min-height:100lvh;
 }
 
 #app{
   background:transparent!important;
+  min-height:100dvh;
+  min-height:100lvh;
+}
+
+/* Do not add a site-owned footer plate behind Safari's floating address pill. */
+html::before,
+html::after,
+body::before,
+body::after{
+  background-color:transparent;
+}
+
+/* Keep the final page surface continuous below the last visible section so
+   Safari's translucent controls sample the same surface instead of a hard edge. */
+.app,
+.section:last-child{
+  margin-bottom:0!important;
+}
+
+@supports(padding:max(0px)){
+  .app{
+    padding-bottom:max(env(safe-area-inset-bottom,0px),1px);
+  }
 }
