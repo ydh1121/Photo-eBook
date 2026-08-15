@@ -32,8 +32,19 @@ export async function onRequest(context) {
     }
 
     if (request.method === 'GET' && path === 'site-data') {
+      const cache = caches.default;
+      const cacheKey = new Request(request.url, { method: 'GET' });
+      const cached = await cache.match(cacheKey);
+      if (cached) return cached;
+
       const data = await getSiteData(env);
-      return json({ ok: true, data }, 200, { 'Cache-Control': 'no-store' });
+      const response = json(
+        { ok: true, data },
+        200,
+        { 'Cache-Control': 'public, max-age=20, s-maxage=30, stale-while-revalidate=300' }
+      );
+      context.waitUntil(cache.put(cacheKey, response.clone()));
+      return response;
     }
 
     if (request.method === 'POST' && path === 'rpc') {
@@ -55,10 +66,13 @@ export async function onRequest(context) {
 }
 
 async function getSiteData(env) {
+  const entries = Object.entries(SHEETS);
+  const batch = await readSheetBatchValues(env, entries.map(([, sheetName]) => sheetName));
   const raw = {};
-  await Promise.all(Object.entries(SHEETS).map(async ([key, sheetName]) => {
-    raw[key] = await readSheetObjects(env, sheetName);
-  }));
+
+  entries.forEach(([key], index) => {
+    raw[key] = valuesToObjects(batch[index] || []);
+  });
 
   const content = {};
   for (const row of raw.content || []) {
@@ -172,22 +186,42 @@ async function deleteQuestionHistory(env, body) {
   return { ok: true };
 }
 
+function valuesToObjects(values) {
+  if (!values.length) return [];
+  const headers = values[0].map(v => String(v || '').trim());
+  return values.slice(1)
+    .filter(row => row.some(cell => String(cell || '').trim() !== ''))
+    .map(row => {
+      const obj = {};
+      headers.forEach((header, i) => { if (header) obj[header] = row[i] ?? ''; });
+      return obj;
+    });
+}
+
 async function readSheetObjects(env, sheetName, allowMissing = false) {
   try {
-    const values = await readSheetValues(env, sheetName);
-    if (!values.length) return [];
-    const headers = values[0].map(v => String(v || '').trim());
-    return values.slice(1)
-      .filter(row => row.some(cell => String(cell || '').trim() !== ''))
-      .map(row => {
-        const obj = {};
-        headers.forEach((header, i) => { if (header) obj[header] = row[i] ?? ''; });
-        return obj;
-      });
+    return valuesToObjects(await readSheetValues(env, sheetName));
   } catch (error) {
     if (allowMissing) return [];
     throw error;
   }
+}
+
+async function readSheetBatchValues(env, sheetNames) {
+  const token = await getAccessToken(env);
+  const sheetId = requireSheetId(env);
+  const params = new URLSearchParams();
+  sheetNames.forEach(sheetName => params.append('ranges', `${sheetName}!A:ZZ`));
+  params.set('majorDimension', 'ROWS');
+  params.set('valueRenderOption', 'FORMATTED_VALUE');
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values:batchGet?${params.toString()}`;
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data?.error?.message || `Google Sheets 읽기 실패 (${response.status})`);
+
+  const ranges = Array.isArray(data.valueRanges) ? data.valueRanges : [];
+  return sheetNames.map((_, index) => Array.isArray(ranges[index]?.values) ? ranges[index].values : []);
 }
 
 async function readSheetValues(env, sheetName) {
@@ -272,7 +306,7 @@ async function getAccessToken(env) {
   const response = await fetch(tokenUri, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion })
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth-type:jwt-bearer', assertion })
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.access_token) throw new Error(data?.error_description || data?.error || `Google 인증 실패 (${response.status})`);
