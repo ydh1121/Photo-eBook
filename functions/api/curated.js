@@ -14,29 +14,22 @@ export async function onRequest(context) {
 
   try {
     if (request.method === 'GET') {
-      let rows = await readRows(env);
+      const rows = await readRows(env);
       const visible = rows.filter(row => truthy(row.is_visible));
-      const missing = visible.filter(needsInitialFetch).slice(0, 4);
-      let refreshed = false;
+      const missing = visible.filter(needsInitialFetch).slice(0, 18);
+      const stale = visible.filter(row => !needsInitialFetch(row) && isStale(row)).slice(0, 6);
+      const queue = uniqueRows([...missing, ...stale]);
 
-      if (missing.length) {
-        await refreshRows(env, missing, { force: true });
-        rows = await readRows(env);
-        refreshed = true;
-      }
-
-      const stale = rows
-        .filter(row => truthy(row.is_visible) && isStale(row) && !needsInitialFetch(row))
-        .slice(0, 5);
-
-      if (stale.length) {
-        context.waitUntil(refreshRows(env, stale, { force: false }).catch(console.error));
+      if (queue.length) {
+        context.waitUntil(
+          refreshRows(env, queue, { force: true, concurrency: 4 }).catch(console.error)
+        );
       }
 
       return json({
         ok: true,
-        items: sortRows(rows.filter(row => truthy(row.is_visible))).map(publicRow),
-        refreshed
+        items: sortRows(visible).map(publicRow),
+        pendingRefresh: missing.length
       });
     }
 
@@ -47,15 +40,15 @@ export async function onRequest(context) {
       }
 
       const now = Date.now();
-      if (now - lastManualRefresh < 60000) {
+      if (now - lastManualRefresh < 30000) {
         return json({ ok: true, updated: 0, message: '최근에 이미 확인했습니다.' });
       }
 
       lastManualRefresh = now;
       const rows = (await readRows(env))
         .filter(row => truthy(row.is_visible))
-        .slice(0, 10);
-      const updated = await refreshRows(env, rows, { force: true });
+        .slice(0, 20);
+      const updated = await refreshRows(env, rows, { force: true, concurrency: 4 });
       return json({ ok: true, updated });
     }
 
@@ -73,6 +66,14 @@ function publicRow(row) {
     out[key] = row[key] ?? '';
   }
   return out;
+}
+
+function uniqueRows(rows) {
+  const map = new Map();
+  for (const row of rows || []) {
+    if (row?._row) map.set(row._row, row);
+  }
+  return [...map.values()];
 }
 
 function sortRows(rows) {
@@ -120,68 +121,83 @@ async function readRows(env) {
     .filter(row => String(row.url || '').trim());
 }
 
-async function refreshRows(env, rows, { force = false } = {}) {
+async function refreshRows(env, rows, { force = false, concurrency = 4 } = {}) {
+  const targets = (rows || []).filter(row =>
+    row?.url && (force || isStale(row) || needsInitialFetch(row))
+  );
+  if (!targets.length) return 0;
+
+  let cursor = 0;
   let updated = 0;
+  const workerCount = Math.max(1, Math.min(Number(concurrency) || 1, 5, targets.length));
 
-  for (const row of rows) {
-    if (!row.url) continue;
-    if (!force && !isStale(row) && !needsInitialFetch(row)) continue;
-
-    try {
-      const meta = await fetchMetadata(row.url);
-      const cells = Array.from({ length: HEADERS.length }, (_, i) => row._cells[i] ?? '');
-      const set = (name, value, onlyIfBlank = false) => {
-        const i = HEADERS.indexOf(name);
-        if (i < 0) return;
-        if (onlyIfBlank && String(cells[i] ?? '').trim()) return;
-        cells[i] = value ?? '';
-      };
-
-      if (!String(row.id || '').trim()) set('id', `link-${hashUrl(row.url)}`);
-      set('title', meta.title || row.title || '', true);
-      set('platform', meta.platform || row.platform || inferPlatform(row.url), true);
-      set('author', meta.author || row.author || '', true);
-      set('published_at', meta.published || row.published_at || '', true);
-      set('summary', meta.description || row.summary || '', true);
-      set('thumbnail_url', meta.image || row.thumbnail_url || '');
-      set('og_title', meta.title || row.og_title || row.title || '');
-      set('og_description', meta.description || row.og_description || row.summary || '');
-
-      if (!String(row.reaction_text || '').trim() && meta.reactionText) {
-        set('reaction_text', meta.reactionText);
-      }
-      if (!String(row.reaction_value || '').trim() && meta.reactionValue !== '') {
-        set('reaction_value', meta.reactionValue);
-      }
-
-      set('fetch_status', 'ok');
-      set('last_checked_at', koreaTime());
-      set('updated_at', koreaTime());
-
-      await updateValues(env, `${SHEET}!A${row._row}:V${row._row}`, [cells]);
-      updated++;
-    } catch (error) {
-      const cells = Array.from({ length: HEADERS.length }, (_, i) => row._cells[i] ?? '');
-      cells[HEADERS.indexOf('fetch_status')] = `error: ${safeError(error).slice(0, 180)}`;
-      cells[HEADERS.indexOf('last_checked_at')] = koreaTime();
-      cells[HEADERS.indexOf('updated_at')] = koreaTime();
-      await updateValues(env, `${SHEET}!A${row._row}:V${row._row}`, [cells]).catch(() => {});
+  async function worker() {
+    while (cursor < targets.length) {
+      const index = cursor++;
+      const row = targets[index];
+      const ok = await refreshOneRow(env, row);
+      if (ok) updated++;
     }
   }
 
+  await Promise.all(Array.from({ length: workerCount }, worker));
   return updated;
+}
+
+async function refreshOneRow(env, row) {
+  try {
+    const meta = await fetchMetadata(row.url);
+    const cells = Array.from({ length: HEADERS.length }, (_, i) => row._cells[i] ?? '');
+    const set = (name, value, onlyIfBlank = false) => {
+      const i = HEADERS.indexOf(name);
+      if (i < 0) return;
+      if (onlyIfBlank && String(cells[i] ?? '').trim()) return;
+      cells[i] = value ?? '';
+    };
+
+    if (!String(row.id || '').trim()) set('id', `link-${hashUrl(row.url)}`);
+    set('title', meta.title || row.title || '', true);
+    set('platform', meta.platform || row.platform || inferPlatform(row.url), true);
+    set('author', meta.author || row.author || '', true);
+    set('published_at', meta.published || row.published_at || '', true);
+    set('summary', meta.description || row.summary || '', true);
+    set('thumbnail_url', meta.image || row.thumbnail_url || '');
+    set('og_title', meta.title || row.og_title || row.title || '');
+    set('og_description', meta.description || row.og_description || row.summary || '');
+
+    if (!String(row.reaction_text || '').trim() && meta.reactionText) {
+      set('reaction_text', meta.reactionText);
+    }
+    if (!String(row.reaction_value || '').trim() && meta.reactionValue !== '') {
+      set('reaction_value', meta.reactionValue);
+    }
+
+    set('fetch_status', 'ok');
+    set('last_checked_at', koreaTime());
+    set('updated_at', koreaTime());
+
+    await updateValues(env, `${SHEET}!A${row._row}:V${row._row}`, [cells]);
+    return true;
+  } catch (error) {
+    const cells = Array.from({ length: HEADERS.length }, (_, i) => row._cells[i] ?? '');
+    cells[HEADERS.indexOf('fetch_status')] = `error: ${safeError(error).slice(0, 180)}`;
+    cells[HEADERS.indexOf('last_checked_at')] = koreaTime();
+    cells[HEADERS.indexOf('updated_at')] = koreaTime();
+    await updateValues(env, `${SHEET}!A${row._row}:V${row._row}`, [cells]).catch(() => {});
+    return false;
+  }
 }
 
 async function fetchMetadata(url) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 9000);
+  const timer = setTimeout(() => controller.abort(), 7000);
 
   try {
     const response = await fetch(url, {
       redirect: 'follow',
       signal: controller.signal,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Photo-eBook Curator/1.0)',
+        'User-Agent': 'Mozilla/5.0 (compatible; Photo-eBook Curator/1.1)',
         'Accept': 'text/html,application/xhtml+xml'
       }
     });
@@ -281,6 +297,12 @@ function extractEngagement(html) {
     return { text: `댓글 ${value.toLocaleString('ko-KR')}`, value };
   }
 
+  const views = text.match(/조회(?:수)?\s*([\d,]+)/);
+  if (views) {
+    const value = Number(views[1].replace(/,/g, ''));
+    return { text: `조회 ${value.toLocaleString('ko-KR')}`, value };
+  }
+
   return { text: '', value: '' };
 }
 
@@ -340,16 +362,11 @@ async function getAccessToken(env) {
   });
   const input = `${header}.${claims}`;
   const key = await crypto.subtle.importKey(
-    'pkcs8',
-    pemBuffer(account.private_key),
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['sign']
+    'pkcs8', pemBuffer(account.private_key),
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']
   );
   const signature = await crypto.subtle.sign(
-    { name: 'RSASSA-PKCS1-v1_5' },
-    key,
-    new TextEncoder().encode(input)
+    { name: 'RSASSA-PKCS1-v1_5' }, key, new TextEncoder().encode(input)
   );
   const assertion = `${input}.${base64UrlBytes(new Uint8Array(signature))}`;
 
@@ -415,8 +432,7 @@ function pemBuffer(pem) {
 
 function koreaTime() {
   return new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric', month: '2-digit', day: '2-digit',
+    timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
   }).format(new Date()).replace('T', ' ');
 }
