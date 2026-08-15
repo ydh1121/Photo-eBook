@@ -1,0 +1,29 @@
+/* v26: endless discovery and resilient media states. */
+.curated-discovery-sentinel{
+  position:relative;
+  flex:0 0 34px;
+  width:34px;
+  min-height:26rem;
+  align-self:stretch;
+}
+.curated-discovery-sentinel.is-loading::after{
+  content:"";
+  position:absolute;
+  top:46%;
+  left:50%;
+  width:18px;
+  height:18px;
+  margin:-9px;
+  border:2px solid rgba(53,104,212,.18);
+  border-top-color:var(--accent);
+  border-radius:50%;
+  animation:discover-spin .72s linear infinite;
+}
+@keyframes discover-spin{to{transform:rotate(360deg)}}
+.curated-links-row{scroll-snap-type:x proximity}
+.curated-card{scroll-snap-align:start}
+.curated-favorites-list{overflow-x:auto;overflow-y:hidden;display:flex;gap:10px;padding:2px 2px 12px;overscroll-behavior-x:contain}
+.curated-favorite-row{flex:0 0 min(82vw,23rem);min-width:min(82vw,23rem)}
+.skill-card__video-slot .skill-video-card--mini{min-height:82px}
+.skill-card__video-slot .skill-video-card--mini .skill-video-card__visual img{background:#e8eaf0}
+@media(prefers-reduced-motion:reduce){.curated-discovery-sentinel.is-loading::after{animation:none}}
