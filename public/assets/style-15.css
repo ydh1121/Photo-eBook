@@ -1,0 +1,10 @@
+/* v19: do not paint a site-owned color behind Safari chrome.
+   The browser remains free to render its own Liquid Glass UI. */
+html,
+body{
+  background-color:transparent!important;
+}
+
+#app{
+  background:transparent!important;
+}
