@@ -1,4 +1,4 @@
-/* v33: inertial liquid selectors, stable progress, and theme modes. */
+/* v34: stable liquid selectors, smooth rail motion, progress, and theme modes. */
 (function(){
   if(window.__photoV33Installed)return;
   window.__photoV33Installed=true;
@@ -8,7 +8,7 @@
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-  const springJobs=new WeakMap();
+  const motionJobs=new WeakMap();
 
   function waitFor(selector,timeout=14000){
     return new Promise(resolve=>{
@@ -70,42 +70,37 @@
     update();
   }
 
-  function cancelSpring(node){
-    const job=springJobs.get(node);
+  function cancelMotion(node){
+    const job=motionJobs.get(node);
     if(job?.raf)cancelAnimationFrame(job.raf);
-    springJobs.delete(node);
+    motionJobs.delete(node);
   }
 
-  function springRailTo(rail,item){
+  function smoothStep(t){return t*t*(3-2*t);}
+  function smootherStep(t){return t*t*t*(t*(t*6-15)+10);}
+
+  function moveRailTo(rail,item,{slow=false}={}){
     if(!rail||!item)return;
     const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
     const inset=Math.max(8,parseFloat(getComputedStyle(rail).paddingLeft)||8);
     const target=clamp(item.offsetLeft-inset,0,max);
-    cancelSpring(rail);
-    if(reduced()||Math.abs(rail.scrollLeft-target)<1){rail.scrollLeft=target;return;}
+    cancelMotion(rail);
+    const start=rail.scrollLeft;
+    const distance=target-start;
+    if(reduced()||Math.abs(distance)<1){rail.scrollLeft=target;return;}
 
-    let x=rail.scrollLeft;
-    let v=0;
-    let frames=0;
-    const startDistance=Math.abs(target-x);
-    const tick=()=>{
-      const d=target-x;
-      const boost=clamp(startDistance/520,0,1);
-      const k=.048+boost*.050;
-      v=(v+d*k)*.80;
-      x+=v;
-      rail.scrollLeft=x;
-      frames++;
-      if((Math.abs(d)<.35&&Math.abs(v)<.22)||frames>96){
-        rail.scrollLeft=target;
-        springJobs.delete(rail);
-        return;
-      }
+    const duration=clamp((slow?285:235)+Math.abs(distance)*(slow?.16:.11),slow?300:245,slow?470:390);
+    const started=performance.now();
+    const tick=now=>{
+      const t=clamp((now-started)/duration,0,1);
+      const eased=smootherStep(t);
+      rail.scrollLeft=start+distance*eased;
+      if(t>=1){rail.scrollLeft=target;motionJobs.delete(rail);return;}
       const raf=requestAnimationFrame(tick);
-      springJobs.set(rail,{raf});
+      motionJobs.set(rail,{raf});
     };
     const raf=requestAnimationFrame(tick);
-    springJobs.set(rail,{raf});
+    motionJobs.set(rail,{raf});
   }
 
   function patchNavScrollIntoView(){
@@ -115,14 +110,18 @@
     Element.prototype.scrollIntoView=function(options){
       if(this instanceof HTMLElement&&this.matches('.nav-chip')){
         const rail=this.closest('.nav-scroll');
-        if(rail){setTimeout(()=>springRailTo(rail,this),20);return;}
+        if(rail){setTimeout(()=>moveRailTo(rail,this),24);return;}
       }
       return previous.call(this,options);
     };
   }
 
   function makeLiquidController(rail,{itemSelector,indicatorClass,readyClass,slow=false,lead=false}={}){
-    if(!rail||rail.dataset.v33Liquid==='true')return null;
+    if(!rail)return null;
+    if(rail.dataset.v33Liquid==='true'){
+      const existing=rail.querySelector('.'+indicatorClass);
+      return existing?{update:()=>{}}:null;
+    }
     rail.dataset.v33Liquid='true';
     rail.querySelectorAll('.nav-liquid-indicator,.collection-liquid-indicator').forEach(node=>node.remove());
 
@@ -131,13 +130,12 @@
     indicator.setAttribute('aria-hidden','true');
     rail.prepend(indicator);
 
-    const state={x:0,y:0,w:0,h:0,vx:0,vy:0,vw:0,vh:0,tx:0,ty:0,tw:0,th:0,ready:false,raf:0};
+    const state={x:0,y:0,w:0,h:0,tx:0,ty:0,tw:0,th:0,ready:false,raf:0};
 
     function paint(){
       indicator.style.width=`${Math.max(0,state.w)}px`;
       indicator.style.height=`${Math.max(0,state.h)}px`;
-      const stretch=clamp(Math.abs(state.vx)/150,0,.035);
-      indicator.style.transform=`translate3d(${state.x}px,${state.y}px,0) scaleX(${1+stretch})`;
+      indicator.style.transform=`translate3d(${state.x}px,${state.y}px,0)`;
     }
 
     function settleTo(item,instant=false){
@@ -149,39 +147,35 @@
 
       if(!state.ready||instant||reduced()){
         state.x=state.tx;state.y=state.ty;state.w=state.tw;state.h=state.th;
-        state.vx=state.vy=state.vw=state.vh=0;
         paint();
         state.ready=true;
         rail.classList.add(readyClass);
-        if(lead)springRailTo(rail,item);
+        if(lead)moveRailTo(rail,item,{slow});
         return;
       }
 
       if(state.raf)cancelAnimationFrame(state.raf);
-      const initial=Math.max(Math.abs(state.tx-state.x),Math.abs(state.tw-state.w));
-      let frames=0;
-      const tick=()=>{
-        const boost=clamp(initial/(slow?340:460),0,1);
-        const k=slow ? (.036+boost*.024) : (.060+boost*.060);
-        const damping=slow?.835:.77;
-        state.vx=(state.vx+(state.tx-state.x)*k)*damping;
-        state.vy=(state.vy+(state.ty-state.y)*k)*damping;
-        state.vw=(state.vw+(state.tw-state.w)*k)*damping;
-        state.vh=(state.vh+(state.th-state.h)*k)*damping;
-        state.x+=state.vx;state.y+=state.vy;state.w+=state.vw;state.h+=state.vh;
+      const from={x:state.x,y:state.y,w:state.w,h:state.h};
+      const distance=Math.max(Math.abs(state.tx-from.x),Math.abs(state.tw-from.w));
+      const duration=clamp((slow?300:245)+distance*(slow?.18:.10),slow?320:255,slow?470:380);
+      const started=performance.now();
+
+      const tick=now=>{
+        const t=clamp((now-started)/duration,0,1);
+        const eased=smootherStep(t);
+        state.x=from.x+(state.tx-from.x)*eased;
+        state.y=from.y+(state.ty-from.y)*eased;
+        state.w=from.w+(state.tw-from.w)*eased;
+        state.h=from.h+(state.th-from.h)*eased;
         paint();
-        frames++;
-        const error=Math.max(Math.abs(state.tx-state.x),Math.abs(state.tw-state.w),Math.abs(state.ty-state.y),Math.abs(state.th-state.h));
-        const speed=Math.max(Math.abs(state.vx),Math.abs(state.vw),Math.abs(state.vy),Math.abs(state.vh));
-        if((error<.25&&speed<.18)||frames>(slow?120:96)){
+        if(t>=1){
           state.x=state.tx;state.y=state.ty;state.w=state.tw;state.h=state.th;
-          state.vx=state.vy=state.vw=state.vh=0;
           paint();state.raf=0;return;
         }
         state.raf=requestAnimationFrame(tick);
       };
       state.raf=requestAnimationFrame(tick);
-      if(lead)setTimeout(()=>springRailTo(rail,item),slow?110:55);
+      if(lead)setTimeout(()=>moveRailTo(rail,item,{slow}),slow?72:42);
     }
 
     function activeItem(){return $(itemSelector+'.is-active',rail)||$(itemSelector,rail);}
@@ -195,8 +189,8 @@
     const resize=new ResizeObserver(()=>requestAnimationFrame(()=>update(true)));
     resize.observe(rail);
     $$(itemSelector,rail).forEach(item=>resize.observe(item));
-    rail.addEventListener('pointerdown',()=>cancelSpring(rail),{passive:true});
-    rail.addEventListener('touchstart',()=>cancelSpring(rail),{passive:true});
+    rail.addEventListener('pointerdown',()=>cancelMotion(rail),{passive:true});
+    rail.addEventListener('touchstart',()=>cancelMotion(rail),{passive:true});
     requestAnimationFrame(()=>update(true));
     return {update};
   }
@@ -212,7 +206,15 @@
   async function setupCollectionTabs(){
     const tabs=await waitFor('.collection-tabs',18000);
     if(!tabs)return;
-    makeLiquidController(tabs,{itemSelector:'.collection-tab',indicatorClass:'collection-v33-indicator',readyClass:'v33-liquid-ready',slow:true,lead:true});
+    makeLiquidController(tabs,{itemSelector:'.collection-tab',indicatorClass:'collection-v33-indicator',readyClass:'v33-liquid-ready',slow:true,lead:false});
+  }
+
+  function setupThemeChoiceLiquid(root=document){
+    const choice=$('.theme-choice',root)||$('.theme-choice');
+    if(!choice)return;
+    if(choice.dataset.v34ThemeLiquid==='true')return;
+    choice.dataset.v34ThemeLiquid='true';
+    makeLiquidController(choice,{itemSelector:'button',indicatorClass:'theme-v34-indicator',readyClass:'v34-liquid-ready',slow:true,lead:false});
   }
 
   function themeCardMarkup(){
@@ -229,11 +231,17 @@
 
   function injectThemeControls(){
     const settings=$('.collection-settings');
-    if(!settings||$('.theme-setting-card',settings))return;
-    const summary=$('.collection-settings__summary',settings);
-    if(summary)summary.insertAdjacentHTML('afterend',themeCardMarkup());
-    else settings.insertAdjacentHTML('afterbegin',themeCardMarkup());
-    $$('.theme-choice button',settings).forEach(button=>button.addEventListener('click',()=>applyTheme(button.dataset.themeChoice||'light')));
+    if(!settings)return;
+    if(!$('.theme-setting-card',settings)){
+      const summary=$('.collection-settings__summary',settings);
+      if(summary)summary.insertAdjacentHTML('afterend',themeCardMarkup());
+      else settings.insertAdjacentHTML('afterbegin',themeCardMarkup());
+      $$('.theme-choice button',settings).forEach(button=>button.addEventListener('click',()=>{
+        applyTheme(button.dataset.themeChoice||'light');
+        requestAnimationFrame(()=>setupThemeChoiceLiquid(settings));
+      }));
+    }
+    requestAnimationFrame(()=>setupThemeChoiceLiquid(settings));
   }
 
   async function setupThemeControls(){
