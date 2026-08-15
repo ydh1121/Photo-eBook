@@ -26,12 +26,14 @@ function setupNavigation(){
   let raf=0;
   let navStart=0;
   let navEnd=1;
+  let layoutWidth=window.innerWidth;
 
   function computeBounds(){
     const y=window.scrollY||document.documentElement.scrollTop||0;
     const rect=shell.getBoundingClientRect();
-    const layoutTop=rect.top+y;
-    if(!navStart||y<layoutTop+2)navStart=Math.max(0,layoutTop);
+    const offsetTop=Number(shell.offsetTop);
+    const layoutTop=Number.isFinite(offsetTop)&&offsetTop>0?offsetTop:rect.top+y;
+    navStart=Math.max(0,layoutTop);
     navEnd=Math.max(navStart+1,document.documentElement.scrollHeight-window.innerHeight);
   }
 
@@ -64,7 +66,6 @@ function setupNavigation(){
     const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
     const ratio=Math.min(1,Math.max(0,(y-navStart)/(navEnd-navStart)));
     glass.style.setProperty('--progress-pct',`${(ratio*100).toFixed(3)}%`);
-    shell.classList.toggle('is-scrolled',y>navStart+4);
   }
 
   function schedule(){
@@ -112,9 +113,16 @@ function setupNavigation(){
   updateScrollState();
   addEventListener('scroll',schedule,{passive:true});
   addEventListener('orientationchange',()=>{
-    setTimeout(()=>{computeBounds();updateScrollState();},180);
+    setTimeout(()=>{
+      layoutWidth=window.innerWidth;
+      computeBounds();
+      updateScrollState();
+    },220);
   },{passive:true});
   addEventListener('resize',()=>{
+    /* iOS changes viewport height while Safari chrome collapses. Ignore height-only resizes. */
+    if(Math.abs(window.innerWidth-layoutWidth)<8)return;
+    layoutWidth=window.innerWidth;
     clearTimeout(setupNavigation._resizeTimer);
     setupNavigation._resizeTimer=setTimeout(()=>{computeBounds();updateScrollState();},180);
   },{passive:true});
