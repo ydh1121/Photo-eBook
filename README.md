@@ -5,7 +5,8 @@
 ## 현재 구조
 
 - `public/` — Cloudflare Pages 정적 프런트엔드
-- `functions/api/[[path]].js` — Cloudflare Pages Function
+- `functions/api/[[path]].js` — 본문, 질문함용 Cloudflare Pages Function
+- `functions/api/curated.js` — 외부 사진 글 큐레이션과 SEO 메타 파싱
 - Google Sheets API — 기존 Google Sheet를 직접 읽고 씁니다.
 
 Apps Script는 사용하지 않습니다.
@@ -42,6 +43,18 @@ GitHub → Cloudflare Pages / Functions → Google Sheets API → Google Sheet
 - 로그인 서버 없이 브라우저별 임의 동기화 키를 사용합니다.
 - `동기화 키 복사` 후 다른 기기에서 `다른 기기 연결`로 같은 질문 기록을 불러올 수 있습니다.
 - 질문 삭제 시 로컬 기록과 Google Sheet 기록을 함께 정리합니다.
+
+## 외부 사진 글 큐레이션
+
+`CURATED_LINKS` 시트에서 브런치, 티스토리 등 사진 관련 링크를 관리합니다.
+
+- 링크를 추가하면 `/api/curated`가 `og:title`, `og:description`, `og:image`, 작성자, 발행일을 읽어 카드 정보를 채웁니다.
+- 이미지나 SEO 정보가 비어 있는 새 링크는 첫 조회 때 우선 보강합니다.
+- 기존 링크는 마지막 확인 후 7일이 지나면 페이지 조회 시 백그라운드에서 다시 확인합니다.
+- 웹의 `링크 새로고침` 버튼으로 현재 노출 링크를 수동 갱신할 수 있습니다.
+- 카드 즐겨찾기는 브라우저 localStorage에 저장하며 `즐겨찾기만` 필터로 관리합니다.
+
+`CURATED_LINKS` 주요 컬럼: `id`, `title`, `url`, `platform`, `author`, `published_at`, `summary`, `thumbnail_url`, `og_title`, `og_description`, `tags`, `reaction_text`, `manual_score`, `is_visible`, `sort_order`, `fetch_status`, `last_checked_at`.
 
 ## 보안
 
