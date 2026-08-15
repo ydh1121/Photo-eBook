@@ -1,0 +1,17 @@
+/* Safari: blur/backdrop-filter on a sticky ancestor can visibly jitter while the browser chrome moves. */
+.nav-shell{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  transform:none!important;
+  -webkit-transform:none!important;
+  will-change:auto!important;
+}
+.nav-glass{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+
+/* Keep every moving layer inside the fixed-size capsule. */
+.nav-glass::after{
+  contain:paint;
+}
