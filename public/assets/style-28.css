@@ -133,6 +133,19 @@
   text-overflow:ellipsis!important;
 }
 
+/* Three actions remain; App Store/Play is an automatic fallback, not a visible fourth button. */
+#askInstallChatGPT{display:none!important}
+#askOpenChatGPT::before{
+  content:"";
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+  display:block;
+  background:url("https://chatgpt.com/favicon.ico") center/contain no-repeat;
+  border-radius:5px;
+}
+#askOpenChatGPT .v37-platform-icon,#askOpenChatGPT .v39-openai-icon{display:none!important}
+
 /* One loading indicator, restrained size. */
 .curated-discovery-sentinel{
   flex:0 0 44px!important;
