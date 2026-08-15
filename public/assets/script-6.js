@@ -1,18 +1,26 @@
 const CURATED_FAVORITES_KEY='photoRoadmapCuratedFavoritesV1';
+let curatedItemsCache=[];
+let curatedRefreshRetries=0;
+let curatedReloadTimer=0;
 
-/* Later script wins over the legacy navigator. The new version never changes
-   document flow height while scrolling, which removes the iOS jitter. */
+/*
+  Safari stability pass.
+  - no fixed/relative switching
+  - no transforms on the sticky element
+  - no backdrop-filter on the sticky capsule
+  - no scroll-direction geometry changes
+  Only a pseudo-element progress fill is transformed, so document geometry stays fixed.
+*/
 function setupNavigation(){
   const shell=$('.nav-shell');
   const placeholder=$('.nav-placeholder');
   const navScroll=$('.nav-scroll');
   const progress=$('.read-progress');
-  const bar=$('.read-progress__bar');
   const chips=$$('.nav-chip');
   const sections=$$('.chapter[data-chapter]');
   if(!shell||!navScroll||!chips.length)return;
 
-  if(placeholder) placeholder.remove();
+  if(placeholder)placeholder.remove();
 
   let glass=$('.nav-glass',shell);
   if(!glass){
@@ -20,98 +28,80 @@ function setupNavigation(){
     glass.className='nav-glass';
     shell.insertBefore(glass,navScroll);
     glass.appendChild(navScroll);
-    if(progress) glass.appendChild(progress);
+    if(progress)glass.appendChild(progress);
   }
 
   const chipMap=new Map(chips.map(chip=>[chip.dataset.target,chip]));
   let active='';
   let clickLockUntil=0;
   let raf=0;
-  let previousY=window.scrollY;
-  let direction=0;
-  let directionDistance=0;
+  let compact=false;
 
-  function centerChip(chip,animated=true){
+  function centerChip(chip){
     if(!chip)return;
-    const left=chip.offsetLeft-(navScroll.clientWidth-chip.offsetWidth)/2;
-    navScroll.scrollTo({left:Math.max(0,left),behavior:animated&&!reduceMotion()?'smooth':'auto'});
+    const left=Math.max(0,chip.offsetLeft-(navScroll.clientWidth-chip.offsetWidth)/2);
+    if(Math.abs(navScroll.scrollLeft-left)>8)navScroll.scrollTo({left,behavior:'auto'});
   }
 
   function setActive(id,center=true){
     if(!id)return;
-    if(id!==active){
+    const changed=id!==active;
+    if(changed){
       active=id;
       chips.forEach(chip=>chip.classList.toggle('is-active',chip.dataset.target===id));
     }
-    if(center) centerChip(chipMap.get(id),true);
+    if(center&&changed)centerChip(chipMap.get(id));
   }
 
-  function updateMotion(){
+  function updateScrollState(){
     raf=0;
-    const y=Math.max(0,window.scrollY||0);
-    const dy=y-previousY;
-    previousY=y;
+    const y=Math.max(0,window.scrollY||document.documentElement.scrollTop||0);
+    const max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+    const ratio=Math.min(1,Math.max(0,y/max));
+    glass.style.setProperty('--reading-progress',String(ratio));
 
-    if(Math.abs(dy)>.5){
-      const nextDirection=dy>0?1:-1;
-      if(nextDirection!==direction){
-        direction=nextDirection;
-        directionDistance=0;
-      }
-      directionDistance+=Math.abs(dy);
-      if(y<26){
-        shell.classList.remove('is-compact');
-        directionDistance=0;
-      }else if(direction===1&&directionDistance>18){
-        shell.classList.add('is-compact');
-        directionDistance=0;
-      }else if(direction===-1&&directionDistance>24){
-        shell.classList.remove('is-compact');
-        directionDistance=0;
-      }
-    }
-
-    if(bar){
-      const max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
-      bar.style.transform=`scaleX(${Math.min(1,Math.max(0,y/max))})`;
+    if(!compact&&y>76){
+      compact=true;
+      shell.classList.add('is-compact');
+    }else if(compact&&y<34){
+      compact=false;
+      shell.classList.remove('is-compact');
     }
   }
 
   function schedule(){
     if(raf)return;
-    raf=requestAnimationFrame(updateMotion);
+    raf=requestAnimationFrame(updateScrollState);
   }
 
   const observer=new IntersectionObserver(entries=>{
     if(Date.now()<clickLockUntil)return;
     const visible=entries.filter(entry=>entry.isIntersecting);
     if(!visible.length)return;
-    visible.sort((a,b)=>Math.abs(a.boundingClientRect.top-90)-Math.abs(b.boundingClientRect.top-90));
+    visible.sort((a,b)=>Math.abs(a.boundingClientRect.top-92)-Math.abs(b.boundingClientRect.top-92));
     setActive(visible[0].target.dataset.chapter,true);
-  },{root:null,rootMargin:'-86px 0px -68% 0px',threshold:[0,.01,.2]});
+  },{root:null,rootMargin:'-88px 0px -66% 0px',threshold:[0,.01,.15]});
   sections.forEach(section=>observer.observe(section));
 
   chips.forEach(chip=>chip.addEventListener('click',()=>{
     const target=document.getElementById(chip.dataset.target);
     if(!target)return;
-    clickLockUntil=Date.now()+850;
+    clickLockUntil=Date.now()+780;
     setActive(chip.dataset.target,true);
     const top=target.getBoundingClientRect().top+window.scrollY-shell.offsetHeight-8;
     window.scrollTo({top:Math.max(0,top),behavior:reduceMotion()?'auto':'smooth'});
   }));
 
   let initial=sections[0];
-  const line=shell.offsetHeight+18;
+  const line=shell.offsetHeight+16;
   for(const section of sections){
     const rect=section.getBoundingClientRect();
     if(rect.top<=line&&rect.bottom>line){initial=section;break;}
     if(rect.top<=line)initial=section;
   }
   if(initial)setActive(initial.dataset.chapter,false);
-  updateMotion();
-
+  updateScrollState();
   addEventListener('scroll',schedule,{passive:true});
-  addEventListener('resize',schedule,{passive:true});
 }
 
 function sourcesSection(data,n,index){
@@ -128,12 +118,18 @@ function sourcesSection(data,n,index){
       <div class="content section-heading"><div class="eyebrow">사진 관련 자료</div><h2>필요할 때 바로 꺼내 읽을 자료를 모았습니다.</h2><p>촬영 팁은 외부 글을 함께 보고, 교육과 장비 정보는 공식 자료로 다시 확인할 수 있게 구성했습니다.</p></div>
 
       <div class="content curated-head">
-        <div><h3>더 읽어볼 촬영 팁</h3><p>브런치와 티스토리의 실전 글을 시트에서 관리합니다. 새 링크는 SEO 이미지와 설명을 자동으로 읽어옵니다.</p></div>
+        <div><h3>더 읽어볼 촬영 팁</h3><p>브런치와 티스토리 글을 계속 추가할 수 있습니다. 링크의 대표 이미지와 설명은 원문 SEO 정보를 기준으로 갱신합니다.</p></div>
         <div class="curated-tools">
-          <button class="curated-tool" id="curatedFavoriteFilter" type="button">즐겨찾기만</button>
+          <button class="curated-tool" id="curatedFavoritesOpen" type="button">즐겨찾기 <span class="curated-tool__count" id="curatedFavoriteCount">0</span></button>
           <button class="curated-tool" id="curatedRefresh" type="button">링크 새로고침</button>
         </div>
       </div>
+
+      <div class="content curated-favorites-panel" id="curatedFavoritesPanel" hidden>
+        <div class="curated-favorites-panel__top"><strong>즐겨찾기 목록</strong><button class="curated-favorites-close" id="curatedFavoritesClose" type="button">닫기</button></div>
+        <div class="curated-favorites-list" id="curatedFavoritesList"></div>
+      </div>
+
       <div class="scroll-row curated-links-row" id="curatedLinksRow" aria-live="polite">
         <div class="curated-skeleton"></div><div class="curated-skeleton"></div>
       </div>
@@ -156,20 +152,66 @@ function curatedBookmarkSvg(){return `<svg viewBox="0 0 24 24" aria-hidden="true
 function curatedTags(value=''){
   return String(value||'').split(/\s*\/\s*|\s*,\s*|\s*\|\s*/).map(x=>x.trim()).filter(Boolean).slice(0,4);
 }
-function renderCuratedItems(items){
-  const row=$('#curatedLinksRow');
-  if(!row)return;
+function curatedDisplayTitle(item){return item?.og_title||item?.title||'사진 참고 글';}
+function curatedDisplayImage(item){return item?.thumbnail_url||imageFor('portfolio');}
+
+function updateFavoriteCount(){
+  const count=$('#curatedFavoriteCount');
+  if(count)count.textContent=String(curatedFavorites().size);
+}
+
+function renderCuratedFavoritesList(){
+  const list=$('#curatedFavoritesList');
+  if(!list)return;
   const favorites=curatedFavorites();
+  const items=curatedItemsCache.filter(item=>favorites.has(String(item.id||'')));
+  updateFavoriteCount();
+
   if(!items.length){
-    row.innerHTML='<div class="curated-skeleton" style="display:grid;place-items:center;padding:1rem;color:#777;background:#fff">표시할 링크가 없습니다.</div>';
+    list.innerHTML='<div class="curated-favorites-empty">아직 저장한 글이 없습니다. 카드 우측 상단의 북마크 버튼으로 추가할 수 있습니다.</div>';
     return;
   }
 
-  row.innerHTML=items.map(item=>{
+  list.innerHTML=items.map(item=>`<div class="curated-favorite-row" data-favorite-id="${attr(item.id)}">
+    <a href="${attr(item.url)}" target="_blank" rel="noopener"><img src="${attr(curatedDisplayImage(item))}" alt="" loading="lazy" onerror="this.src='${imageFor('portfolio')}'"></a>
+    <div class="curated-favorite-row__copy"><small>${esc(item.platform||'외부 글')}</small><a href="${attr(item.url)}" target="_blank" rel="noopener">${esc(curatedDisplayTitle(item))}</a></div>
+    <button class="curated-favorite-remove" type="button" aria-label="즐겨찾기에서 삭제">×</button>
+  </div>`).join('');
+
+  list.querySelectorAll('.curated-favorite-remove').forEach(button=>button.addEventListener('click',()=>{
+    const row=button.closest('.curated-favorite-row');
+    const id=String(row?.dataset.favoriteId||'');
+    const set=curatedFavorites();
+    set.delete(id);
+    writeCuratedFavorites(set);
+    const card=document.querySelector(`.curated-card[data-curated-id="${CSS.escape(id)}"]`);
+    if(card){
+      card.dataset.favorite='false';
+      const mark=$('.curated-bookmark',card);
+      mark?.classList.remove('is-favorite');
+      mark?.setAttribute('aria-pressed','false');
+    }
+    renderCuratedFavoritesList();
+  }));
+}
+
+function renderCuratedItems(items){
+  const row=$('#curatedLinksRow');
+  if(!row)return;
+  curatedItemsCache=Array.isArray(items)?items:[];
+  const favorites=curatedFavorites();
+
+  if(!curatedItemsCache.length){
+    row.innerHTML='<div class="curated-skeleton" style="display:grid;place-items:center;padding:1rem;color:#777;background:#fff">표시할 링크가 없습니다.</div>';
+    renderCuratedFavoritesList();
+    return;
+  }
+
+  row.innerHTML=curatedItemsCache.map(item=>{
     const id=String(item.id||'');
     const favorite=favorites.has(id);
-    const image=item.thumbnail_url||imageFor('portfolio');
-    const title=item.og_title||item.title||'사진 참고 글';
+    const image=curatedDisplayImage(item);
+    const title=curatedDisplayTitle(item);
     const summary=item.og_description||item.summary||'';
     const meta=[item.published_at,item.reaction_text].filter(Boolean);
     const tags=curatedTags(item.tags);
@@ -190,7 +232,7 @@ function renderCuratedItems(items){
 
   row.querySelectorAll('.curated-bookmark').forEach(button=>button.addEventListener('click',()=>{
     const card=button.closest('.curated-card');
-    const id=card?.dataset.curatedId||'';
+    const id=String(card?.dataset.curatedId||'');
     if(!id)return;
     const set=curatedFavorites();
     if(set.has(id))set.delete(id);else set.add(id);
@@ -199,37 +241,55 @@ function renderCuratedItems(items){
     card.dataset.favorite=saved?'true':'false';
     button.classList.toggle('is-favorite',saved);
     button.setAttribute('aria-pressed',saved?'true':'false');
-    if(row.classList.contains('filter-favorites')&&!saved)card.classList.add('is-filtered-out');
+    renderCuratedFavoritesList();
   }));
+
+  renderCuratedFavoritesList();
 }
 
-async function loadCuratedLinks(){
+async function loadCuratedLinks({background=false}={}){
   const status=$('#curatedStatus');
   try{
     const response=await fetch('/api/curated',{cache:'no-store'});
     const json=await response.json();
     if(!response.ok||!json?.ok)throw new Error(json?.message||'링크를 불러오지 못했습니다.');
-    renderCuratedItems(Array.isArray(json.items)?json.items:[]);
-    if(status)status.textContent=json.refreshed?'SEO 정보를 새로 읽었습니다.':'';
+    const items=Array.isArray(json.items)?json.items:[];
+    renderCuratedItems(items);
+    if(status)status.textContent=`촬영 팁 ${items.length}개${json.pendingRefresh?` / SEO 정보 ${json.pendingRefresh}개 갱신 중`:''}`;
+
+    if(json.pendingRefresh&&curatedRefreshRetries<2){
+      curatedRefreshRetries++;
+      clearTimeout(curatedReloadTimer);
+      curatedReloadTimer=setTimeout(()=>loadCuratedLinks({background:true}),6500);
+    }else if(!background){
+      curatedRefreshRetries=0;
+    }
   }catch(error){
-    const row=$('#curatedLinksRow');
-    if(row)row.innerHTML='<div class="curated-skeleton" style="display:grid;place-items:center;padding:1rem;color:#777;background:#fff">외부 글 목록을 불러오지 못했습니다.</div>';
-    if(status)status.textContent='시트의 CURATED_LINKS 연결 상태를 확인해 주세요.';
+    if(!background){
+      const row=$('#curatedLinksRow');
+      if(row)row.innerHTML='<div class="curated-skeleton" style="display:grid;place-items:center;padding:1rem;color:#777;background:#fff">외부 글 목록을 불러오지 못했습니다.</div>';
+      if(status)status.textContent='시트의 CURATED_LINKS 연결 상태를 확인해 주세요.';
+    }
   }
 }
 
 function setupCuratedControls(){
-  const filter=$('#curatedFavoriteFilter');
+  const favoritesOpen=$('#curatedFavoritesOpen');
+  const favoritesClose=$('#curatedFavoritesClose');
+  const favoritesPanel=$('#curatedFavoritesPanel');
   const refresh=$('#curatedRefresh');
   const row=$('#curatedLinksRow');
   if(!row)return;
 
-  filter?.addEventListener('click',()=>{
-    const active=!row.classList.contains('filter-favorites');
-    row.classList.toggle('filter-favorites',active);
-    filter.classList.toggle('is-active',active);
-    filter.textContent=active?'전체 보기':'즐겨찾기만';
-    row.querySelectorAll('.curated-card').forEach(card=>card.classList.toggle('is-filtered-out',active&&card.dataset.favorite!=='true'));
+  favoritesOpen?.addEventListener('click',()=>{
+    const opening=favoritesPanel?.hidden!==false;
+    if(favoritesPanel)favoritesPanel.hidden=!opening;
+    favoritesOpen.classList.toggle('is-active',opening);
+    renderCuratedFavoritesList();
+  });
+  favoritesClose?.addEventListener('click',()=>{
+    if(favoritesPanel)favoritesPanel.hidden=true;
+    favoritesOpen?.classList.remove('is-active');
   });
 
   refresh?.addEventListener('click',async()=>{
@@ -237,12 +297,16 @@ function setupCuratedControls(){
     refresh.disabled=true;
     refresh.textContent='확인 중';
     try{
-      await fetch('/api/curated',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'refresh'})});
+      const response=await fetch('/api/curated',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'refresh'})});
+      const json=await response.json().catch(()=>({}));
+      if(!response.ok||json?.ok===false)throw new Error(json?.message||'업데이트 실패');
+      curatedRefreshRetries=0;
       await loadCuratedLinks();
       refresh.textContent='업데이트됨';
       setTimeout(()=>refresh.textContent=old,1100);
     }catch{
       refresh.textContent='다시 시도';
+      setTimeout(()=>refresh.textContent=old,1400);
     }finally{refresh.disabled=false;}
   });
 }
