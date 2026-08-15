@@ -1,0 +1,362 @@
+/* v36: canonical flat liquid-glass rules, dark-mode completion, safe rails, bulk-select UI. */
+
+:root{
+  --v36-blue-top:#6598ef;
+  --v36-blue-mid:#4c7fdf;
+  --v36-blue-bottom:#3568d4;
+  --v36-blue-text:#386bd9;
+  --v36-glass-line:rgba(255,255,255,.48);
+  --v36-glass-shadow:0 4px 10px rgba(42,91,185,.14),inset 0 1px 0 rgba(255,255,255,.30),inset 0 -1px 0 rgba(26,65,145,.10);
+  --v36-dark-canvas:#0d0f13;
+  --v36-dark-surface:#171b21;
+  --v36-dark-surface-2:#1b2028;
+  --v36-dark-surface-3:#20252d;
+  --v36-dark-line:rgba(255,255,255,.085);
+  --v36-dark-text:#f2f4f8;
+  --v36-dark-muted:#aeb6c2;
+}
+
+/* --------------------------------------------------------------------------
+   Canonical liquid-glass design.
+   Selected state is a low-profile liquid pill, never a bulbous plastic button.
+   -------------------------------------------------------------------------- */
+.nav-glass,.nav-shell{background:transparent!important;border:0!important;box-shadow:none!important}
+
+.nav-scroll,
+.collection-tabs,
+.theme-choice,
+.v32-question-segment{
+  position:relative!important;
+  isolation:isolate!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.42)!important;
+  background:linear-gradient(180deg,rgba(249,251,254,.54),rgba(237,242,249,.40))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.58),inset 0 -1px 0 rgba(66,83,111,.035),0 5px 16px rgba(31,51,83,.055)!important;
+  -webkit-backdrop-filter:blur(15px) saturate(125%)!important;
+  backdrop-filter:blur(15px) saturate(125%)!important;
+}
+
+/* Legacy moving layers are hidden so an old pill can never remain behind. */
+.nav-liquid-indicator,
+.collection-liquid-indicator,
+.nav-progress-liquid{display:none!important}
+
+.nav-chip,
+.collection-tab,
+.theme-choice button,
+.v32-question-segment button{
+  position:relative!important;
+  z-index:2!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+}
+.nav-chip::before,.nav-chip::after,
+.collection-tab::before,.collection-tab::after,
+.theme-choice button::before,.theme-choice button::after,
+.v32-question-segment button::before,.v32-question-segment button::after{display:none!important}
+
+.nav-chip{color:#505761!important}
+.collection-tab,.theme-choice button,.v32-question-segment button{color:#69717c!important}
+
+/* Fallback if a moving indicator has not mounted yet. */
+:is(.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button).is-active{
+  color:#fff!important;
+  background:linear-gradient(180deg,var(--v36-blue-top) 0%,var(--v36-blue-mid) 48%,var(--v36-blue-bottom) 100%)!important;
+  border-color:var(--v36-glass-line)!important;
+  box-shadow:var(--v36-glass-shadow)!important;
+}
+
+/* When the shared pill exists, only the pill paints blue. */
+.nav-scroll.v33-liquid-ready .nav-chip.is-active,
+.collection-tabs.v33-liquid-ready .collection-tab.is-active,
+.theme-choice.v34-liquid-ready button.is-active,
+.v32-question-segment.v36-liquid-ready button.is-active{
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+  color:#fff!important;
+}
+
+.nav-v33-indicator,
+.collection-v33-indicator,
+.theme-v34-indicator,
+.v36-question-indicator{
+  position:absolute!important;
+  z-index:1!important;
+  pointer-events:none!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  border:1px solid var(--v36-glass-line)!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 31%),
+    linear-gradient(180deg,var(--v36-blue-top) 0%,var(--v36-blue-mid) 49%,var(--v36-blue-bottom) 100%)!important;
+  box-shadow:var(--v36-glass-shadow)!important;
+  -webkit-backdrop-filter:blur(10px) saturate(128%)!important;
+  backdrop-filter:blur(10px) saturate(128%)!important;
+  transform-origin:center center!important;
+}
+
+/* Thin reflected edge, not a raised dome. */
+.nav-v33-indicator::before,
+.collection-v33-indicator::before,
+.theme-v34-indicator::before,
+.v36-question-indicator::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  left:13%!important;
+  right:13%!important;
+  top:1px!important;
+  height:1px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.52)!important;
+  opacity:.52!important;
+  pointer-events:none!important;
+}
+.nav-v33-indicator::after,
+.collection-v33-indicator::after,
+.theme-v34-indicator::after,
+.v36-question-indicator::after{display:none!important}
+
+.collection-tabs,.theme-choice,.v32-question-segment{padding:4px!important;gap:4px!important}
+.v32-question-segment button{min-height:42px!important}
+
+/* Neutralize the reddish grey used by some key/callout cards. */
+.guide-key,.guide-key--soft,.callout-card{background:#f5f7fa!important}
+
+/* --------------------------------------------------------------------------
+   Dark mode audit. Keep all cards on one neutral graphite family.
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .app,
+html[data-theme="dark"] .section,
+html[data-theme="dark"] .section.grouped,
+html[data-theme="dark"] .grouped{background:var(--v36-dark-canvas)!important}
+
+html[data-theme="dark"] :is(.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment){
+  background:linear-gradient(180deg,rgba(48,55,67,.58),rgba(25,29,36,.50))!important;
+  border-color:rgba(255,255,255,.075)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.16),0 7px 20px rgba(0,0,0,.14)!important;
+  -webkit-backdrop-filter:blur(15px) saturate(118%)!important;
+  backdrop-filter:blur(15px) saturate(118%)!important;
+}
+html[data-theme="dark"] :is(.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button){color:#b6beca!important}
+html[data-theme="dark"] :is(.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button).is-active{color:#fff!important}
+
+html[data-theme="dark"] :is(
+  .group-card,.flow-card,.flow-row,.callout-card,.metric-card,.market-card,.market-card__body,.market-card__price,
+  .edu-option,.check-card,.skill-card,.skill-card--media,.case-card,.case-card__body,.product-card,.product-card__body,
+  .product-table,.product-row,.phase-card,.offer-card,.source-card,.script-card,.lesson-preview,.lesson-preview__body,
+  .preset-card,.preset-card__body,.lesson__panel,.mission-card,.message-bubble,.guide-key,.guide-key--soft,
+  .collection-item,.collection-settings__summary,.theme-setting-card,.v32-inline-sync,.login-card,.collection-setting-row,
+  .case-delivery>div,.ask-sheet__quote,.v32-question-write textarea
+){
+  background:var(--v36-dark-surface)!important;
+  color:var(--v36-dark-text)!important;
+  border-color:var(--v36-dark-line)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.13)!important;
+}
+
+html[data-theme="dark"] :is(.metric-card,.market-card__price,.flow-row,.case-delivery>div,.soft-tag,.collection-setting-note,.product-row__meta span){
+  background:var(--v36-dark-surface-2)!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+
+html[data-theme="dark"] :is(
+  .guide-key b,.guide-key strong,.guide-key__text,.metric-card b,.flow-row strong,.case-delivery strong,
+  .check-card span,.edu-option h3,.collection-setting-row strong,.collection-settings strong,.collection-item strong,
+  .ask-sheet__label,.market-card h3,.case-card h3,.product-card h3,.phase-card h3,.offer-card h3,
+  .lesson-preview h3,.preset-card h3,.lesson__panel h4
+){color:var(--v36-dark-text)!important}
+
+html[data-theme="dark"] :is(
+  .guide-key>span,.guide-key p,.metric-card span,.flow-row span,.case-delivery span,.collection-settings small,
+  .collection-item p,.collection-item small,.theme-setting-card__copy small,.market-card p,.edu-option small,
+  .skill-card p,.case-card p,.product-row p,.phase-card p,.offer-card p,.source-card p,.lesson-preview p,
+  .preset-card p,.lesson__lead,.lesson__panel li,.micro,.muted
+){color:var(--v36-dark-muted)!important}
+
+html[data-theme="dark"] :is(.soft-tag,.market-card__price,.product-row__meta span){
+  background:var(--v36-dark-surface-3)!important;
+  color:#bcc4cf!important;
+  border-color:rgba(255,255,255,.055)!important;
+}
+html[data-theme="dark"] .edu-option__rank{
+  background:#202631!important;
+  color:#76a3ff!important;
+  border-color:rgba(118,163,255,.24)!important;
+}
+html[data-theme="dark"] .copy-btn,
+html[data-theme="dark"] :is(.ask-secondary,.v34-chatgpt-install){
+  background:var(--v36-dark-surface-3)!important;
+  color:#cbd2dc!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+html[data-theme="dark"] .copy-btn{color:#77a3ff!important}
+html[data-theme="dark"] .v34-chatgpt-open{color:#fff!important}
+
+/* Inline light backgrounds that belong to guide content should follow the theme. */
+html[data-theme="dark"] .guide-block [style*="background:#fff"],
+html[data-theme="dark"] .guide-block [style*="background: #fff"],
+html[data-theme="dark"] .guide-block [style*="background:white"],
+html[data-theme="dark"] .guide-block [style*="background: white"]{
+  background:var(--v36-dark-surface)!important;
+  color:var(--v36-dark-text)!important;
+}
+
+/* Prevent short-content cards from producing horizontal background seams. */
+:is(.metric-card,.flow-row,.case-delivery>div,.edu-option,.guide-key,.guide-key--soft,.product-row,.phase-card,.offer-card){
+  min-height:0!important;
+  height:auto!important;
+  background-clip:padding-box!important;
+}
+:is(.metric-grid,.flow-list,.case-delivery,.edu-stack){background:transparent!important}
+
+/* --------------------------------------------------------------------------
+   Collection sheet controls and bulk selection.
+   -------------------------------------------------------------------------- */
+.collection-head{padding-right:118px!important}
+.collection-close{
+  top:-12px!important;
+  right:15px!important;
+}
+.collection-select-toggle{
+  position:absolute;
+  top:-8px;
+  right:68px;
+  z-index:8;
+  min-width:48px;
+  height:40px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid rgba(31,44,70,.065);
+  background:rgba(245,247,250,.90);
+  color:#5d6570;
+  font:inherit;
+  font-size:12px;
+  font-weight:760;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72);
+}
+.collection-select-toggle[hidden]{display:none!important}
+.collection-select-toggle.is-active{color:var(--v36-blue-text)!important}
+html[data-theme="dark"] .collection-select-toggle{
+  background:#232831;
+  color:#c6cdd7;
+  border-color:rgba(255,255,255,.075);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.collection-body.is-bulk-selecting{padding-bottom:104px!important}
+.collection-item{transition:border-color .16s ease,box-shadow .16s ease!important}
+.collection-item.is-selected{
+  border-color:rgba(69,120,224,.46)!important;
+  box-shadow:0 0 0 2px rgba(69,120,224,.11),0 8px 22px rgba(0,0,0,.05)!important;
+}
+.collection-selectbox{
+  display:none;
+  position:absolute;
+  z-index:6;
+  left:10px;
+  top:50%;
+  width:30px;
+  height:30px;
+  transform:translateY(-50%);
+  border-radius:50%;
+  border:1px solid rgba(39,54,82,.14);
+  background:rgba(255,255,255,.94);
+  color:transparent;
+  box-shadow:0 3px 9px rgba(30,46,77,.07),inset 0 1px 0 rgba(255,255,255,.85);
+}
+.collection-body.is-bulk-selecting .collection-selectbox{display:grid;place-items:center}
+.collection-body.is-bulk-selecting .collection-item__remove{display:none!important}
+.collection-body.is-bulk-selecting .collection-item__thumb,
+.collection-body.is-bulk-selecting .collection-item__question-icon{margin-left:38px!important}
+.collection-selectbox::after{content:"✓";font-size:15px;font-weight:850;line-height:1}
+.collection-item.is-selected .collection-selectbox{
+  background:linear-gradient(180deg,var(--v36-blue-top),var(--v36-blue-bottom));
+  border-color:rgba(255,255,255,.40);
+  color:#fff;
+}
+html[data-theme="dark"] .collection-selectbox{
+  background:#232831;
+  border-color:rgba(255,255,255,.11);
+}
+
+.collection-bulkbar{
+  position:absolute;
+  z-index:14;
+  left:16px;
+  right:16px;
+  bottom:max(14px,calc(env(safe-area-inset-bottom) + 8px));
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:8px;
+  min-height:58px;
+  padding:8px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.52);
+  background:rgba(248,250,253,.86);
+  box-shadow:0 10px 26px rgba(28,45,77,.12),inset 0 1px 0 rgba(255,255,255,.70);
+  -webkit-backdrop-filter:blur(16px) saturate(125%);
+  backdrop-filter:blur(16px) saturate(125%);
+}
+.collection-bulkbar[hidden]{display:none!important}
+.collection-bulkbar button{
+  min-height:42px;
+  border:0;
+  border-radius:14px;
+  padding:0 13px;
+  font:inherit;
+  font-size:12px;
+  font-weight:780;
+}
+.collection-bulkbar__all{background:rgba(31,44,70,.055);color:#56606c}
+.collection-bulkbar__count{text-align:center;font-size:12px;font-weight:760;color:#555d68}
+.collection-bulkbar__delete{background:#e34f50;color:#fff}
+.collection-bulkbar__delete:disabled{opacity:.36}
+html[data-theme="dark"] .collection-bulkbar{
+  background:rgba(25,29,36,.90);
+  border-color:rgba(255,255,255,.09);
+  box-shadow:0 12px 28px rgba(0,0,0,.27),inset 0 1px 0 rgba(255,255,255,.045);
+}
+html[data-theme="dark"] .collection-bulkbar__all{background:#232831;color:#c5ccd6}
+html[data-theme="dark"] .collection-bulkbar__count{color:#c1c8d2}
+
+/* --------------------------------------------------------------------------
+   Safe horizontal rails. CSS only: never fight a vertical touch with scrollLeft.
+   -------------------------------------------------------------------------- */
+main .chapter :is(.scroll-row,.skills-infinite-row,.curated-links-row,[class*="-rail"],[class*="-carousel"]){
+  scroll-snap-type:none!important;
+  scroll-behavior:auto!important;
+  overscroll-behavior-x:contain!important;
+  overflow-anchor:none!important;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x pan-y;
+}
+main .chapter :is(.scroll-row,.skills-infinite-row,.curated-links-row)>*{
+  flex-shrink:0!important;
+  overflow-anchor:none!important;
+}
+:is(.lesson-preview__image,.case-card__image,.market-card__image,.preset-card__image,.skill-card__visual,.skill-video-card__visual){contain:paint}
+:is(.lesson-preview__image,.case-card__image,.market-card__image,.preset-card__image,.skill-card__visual,.skill-video-card__visual) img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+@media(max-width:430px){
+  .nav-scroll{-webkit-backdrop-filter:blur(13px) saturate(120%)!important;backdrop-filter:blur(13px) saturate(120%)!important}
+  .collection-head{padding-right:112px!important}
+  .collection-close{top:-11px!important;right:13px!important}
+  .collection-select-toggle{top:-7px;right:63px;height:38px;min-width:46px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator,.v36-question-indicator{animation:none!important;transition:none!important}
+}
