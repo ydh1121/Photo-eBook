@@ -1,4 +1,4 @@
-/* v29: keep optional v27 enhancements off the critical path and prevent self-observer lockups. */
+/* v30: keep optional v27 enhancements off the critical path and prevent self-observer lockups. */
 (function(){
   if(window.__photoPostloadV27Installed)return;
   window.__photoPostloadV27Installed=true;
@@ -45,7 +45,6 @@
     });
   }
 
-  /* A hidden sheet must never leave the document in a scroll-locked state. */
   function releaseStaleInteractionLocks(){
     const askSheet=document.querySelector('#askSheet');
     if(!askSheet||askSheet.hidden){
@@ -65,11 +64,6 @@
     if(askBackdrop?.hidden)askBackdrop.style.pointerEvents='none';
   }
 
-  /* script-14 v27 used a document-wide subtree MutationObserver. Its own count
-     updates mutate text nodes, which can recursively re-trigger initialize() and
-     starve the main thread. Suppress only that document-wide observer while the
-     optional enhancement script is evaluated; native observers are restored as
-     soon as the script finishes loading. */
   async function loadEnhancementWithoutGlobalSubtreeObserver(src){
     const NativeMutationObserver=window.MutationObserver;
     if(typeof NativeMutationObserver!=='function')return loadScript(src);
@@ -98,9 +92,6 @@
 
   async function start(){
     await whenAppReady();
-
-    /* apiGetSiteData can replace the first bundled render shortly after boot.
-       Let that settle before touching optional media / collection UI. */
     await wait(900);
     if(!appReady())return;
     releaseStaleInteractionLocks();
@@ -111,7 +102,7 @@
     });
 
     try{
-      await loadScript('/assets/script-asset-fix.js?v=29');
+      await loadScript('/assets/script-asset-fix.js?v=30');
     }catch(error){
       console.warn('postload image helper skipped',error);
     }
