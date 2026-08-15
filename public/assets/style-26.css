@@ -1,0 +1,198 @@
+/* v38: interaction repair for liquid rails and remaining dark-card inconsistencies. */
+
+/* Top rail must remain horizontally draggable. v36 set overflow:hidden with !important. */
+.nav-scroll{
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scrollbar-width:none!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:contain!important;
+  touch-action:pan-x pan-y!important;
+  scroll-behavior:auto!important;
+}
+.nav-scroll::-webkit-scrollbar{display:none!important}
+.nav-chip{flex:0 0 auto!important}
+
+/* Make the rubber deformation visible without turning the selector into a blob. */
+.v37-liquid-skin{
+  transform-origin:center center!important;
+  will-change:transform!important;
+}
+
+/* Question sub-filter is always a real two-cell liquid rail. */
+.v32-question-segment{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  width:100%!important;
+  min-height:54px!important;
+  padding:5px!important;
+  gap:5px!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+.v32-question-segment button{
+  min-width:0!important;
+  min-height:44px!important;
+  height:44px!important;
+  padding:0 12px!important;
+  border-radius:999px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.v32-question-segment button>span{display:inline!important}
+.v32-question-segment.v38-question-ready button.is-active{
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* Settings note is copy, not a card/strip. */
+html[data-theme="dark"] #collectionBody .collection-setting-note,
+html[data-theme="dark"] #collectionBody .collection-settings>p{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0 4px!important;
+}
+
+/* All four question actions share one visual family. */
+.ask-actions,
+.v34-question-actions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.ask-actions button,
+.v34-question-actions button,
+.v34-question-actions a{
+  min-width:0!important;
+  min-height:48px!important;
+  height:48px!important;
+  padding:0 12px!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  border-radius:16px!important;
+  background:
+    linear-gradient(180deg,rgba(105,157,247,.96),rgba(50,104,215,.97))!important;
+  color:#fff!important;
+  box-shadow:
+    0 5px 14px rgba(47,99,214,.16),
+    inset 0 1px 0 rgba(255,255,255,.27),
+    inset 0 -1px 0 rgba(22,63,151,.12)!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  text-align:center!important;
+}
+.ask-actions button>span,
+.v34-question-actions button>span,
+.v34-question-actions a>span:not(.v37-platform-icon){
+  display:inline-block!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  line-height:1!important;
+}
+.v37-platform-icon{
+  flex:0 0 18px!important;
+  width:18px!important;
+  height:18px!important;
+  margin:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.v37-platform-icon svg{width:18px!important;height:18px!important;display:block!important}
+html[data-theme="dark"] .ask-actions button,
+html[data-theme="dark"] .v34-question-actions button,
+html[data-theme="dark"] .v34-question-actions a{
+  background:linear-gradient(180deg,rgba(92,145,239,.96),rgba(45,94,201,.98))!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.18)!important;
+}
+
+/* Script copy block: equal corners and clear separation from its parent card. */
+.message-bubble{
+  border-radius:18px!important;
+}
+html[data-theme="dark"] .script-card .message-bubble{
+  background:#202936!important;
+  border:1px solid rgba(255,255,255,.065)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+
+/* Portfolio body is one continuous card surface; delivery rows sit at the bottom. */
+#portfolio .scroll-row{align-items:stretch!important}
+#portfolio .case-card{
+  align-self:stretch!important;
+  height:auto!important;
+}
+#portfolio .case-card__body{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 auto!important;
+}
+#portfolio .case-card__body>p,
+#portfolio .case-card__body>h3,
+#portfolio .case-card__body>.eyebrow{
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+#portfolio .case-delivery{
+  margin-top:auto!important;
+  padding-top:1rem!important;
+}
+#portfolio .case-delivery>div,
+#portfolio .case-delivery>div>*{
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] #portfolio .case-card,
+html[data-theme="dark"] #portfolio .case-card__body{
+  background:var(--lg-dark-card,#151a22)!important;
+}
+
+/* Nested guidance should read as an inner panel, not merge into the outer card. */
+html[data-theme="dark"] .group-card .guide-key,
+html[data-theme="dark"] .group-card .guide-key--soft,
+html[data-theme="dark"] .callout-card .guide-key,
+html[data-theme="dark"] .callout-card .guide-key--soft{
+  background:#202936!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+
+/* Cut-out product photos require a white media stage even in dark mode.
+   Match the higher-specificity rules from older theme sheets. */
+html[data-theme="dark"] .product-card__image,
+html[data-theme="dark"] .product-card__image img,
+html[data-theme="dark"] #gear .product-card__image,
+html[data-theme="dark"] #gear .product-card__image img{
+  background:#fff!important;
+  background-color:#fff!important;
+}
+html[data-theme="dark"] .product-card__image{
+  border-bottom-color:rgba(20,28,44,.08)!important;
+}
+
+@media(max-width:430px){
+  .nav-scroll{touch-action:pan-x pan-y!important}
+  .ask-actions button,
+  .v34-question-actions button,
+  .v34-question-actions a{
+    padding-inline:9px!important;
+    font-size:12.5px!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .v37-liquid-skin{will-change:auto!important}
+}
