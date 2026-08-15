@@ -1,14 +1,31 @@
 const SITE_DATA_CACHE_KEY='photoRoadmapSiteDataV2';
 let siteDataRequest=null;
 
+function isUsableSiteData(data){
+  return Boolean(data&&Array.isArray(data.nav)&&data.nav.length);
+}
+
 function readCachedSiteData(){
   try{
     const cached=JSON.parse(localStorage.getItem(SITE_DATA_CACHE_KEY)||'null');
-    return cached?.data&&Array.isArray(cached.data.nav)?cached.data:null;
+    return isUsableSiteData(cached?.data)?cached.data:null;
   }catch{return null;}
 }
 
+function readBundledSiteData(){
+  try{
+    const parts=window.__SITE_DATA_FALLBACK_PARTS;
+    if(!Array.isArray(parts)||!parts.length)return null;
+    const parsed=JSON.parse(parts.join(''));
+    return isUsableSiteData(parsed?.data)?parsed.data:null;
+  }catch(error){
+    console.error('Bundled site data parse failed',error);
+    return null;
+  }
+}
+
 function writeCachedSiteData(data){
+  if(!isUsableSiteData(data))return;
   try{
     localStorage.setItem(SITE_DATA_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}));
   }catch{}
@@ -16,11 +33,11 @@ function writeCachedSiteData(data){
 
 async function fetchSiteDataOnce(){
   const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),12000);
+  const timer=setTimeout(()=>controller.abort(),6500);
   try{
     const response=await fetch('/api/site-data',{cache:'no-store',signal:controller.signal});
     const json=await response.json();
-    if(!response.ok||!json?.ok)throw new Error(json?.message||'콘텐츠를 불러오지 못했습니다.');
+    if(!response.ok||!json?.ok||!isUsableSiteData(json.data))throw new Error(json?.message||'콘텐츠를 불러오지 못했습니다.');
     writeCachedSiteData(json.data);
     return json.data;
   }finally{
@@ -28,23 +45,25 @@ async function fetchSiteDataOnce(){
   }
 }
 
+function delay(ms,value){
+  return new Promise(resolve=>setTimeout(()=>resolve(value),ms));
+}
+
 async function apiGetSiteData(){
   if(siteDataRequest)return siteDataRequest;
 
-  siteDataRequest=(async()=>{
-    try{
-      return await fetchSiteDataOnce();
-    }catch(firstError){
-      await new Promise(resolve=>setTimeout(resolve,550));
-      try{
-        return await fetchSiteDataOnce();
-      }catch(secondError){
-        const cached=readCachedSiteData();
-        if(cached)return cached;
-        throw secondError||firstError;
-      }
-    }
-  })();
+  const fallback=readCachedSiteData()||readBundledSiteData();
+  const live=fetchSiteDataOnce();
+
+  // Keep refreshing the local copy even when the bundled snapshot wins first paint.
+  live.catch(()=>{});
+
+  siteDataRequest=fallback
+    ? Promise.race([
+        live.catch(()=>fallback),
+        delay(650,fallback)
+      ])
+    : live;
 
   try{
     return await siteDataRequest;
