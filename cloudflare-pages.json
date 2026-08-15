@@ -1,9 +1,10 @@
 {
-  "build_command": "",
+  "build_command": "exit 0",
   "build_output_directory": "public",
   "root_directory": "",
   "production_branch": "main",
   "environment_variables": [
-    "APPS_SCRIPT_API_URL"
+    "GOOGLE_SHEET_ID",
+    "GOOGLE_SERVICE_ACCOUNT_JSON"
   ]
 }
