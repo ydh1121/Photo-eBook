@@ -10,7 +10,11 @@ const SEARCHES = [
   '스튜디오 제품사진 촬영',
   '음식사진 촬영 조명',
   '아이폰 제품사진 촬영',
-  '사진 포트폴리오 상업사진'
+  '사진 포트폴리오 상업사진',
+  '상업사진 납품 워크플로우',
+  'Capture One 테더 촬영',
+  '제품사진 누끼 포토샵',
+  '인물사진 Dodge Burn'
 ];
 
 export async function onRequestGet(context) {
@@ -21,13 +25,11 @@ export async function onRequestGet(context) {
 
   try {
     const items = await searchYouTube(query);
-    return json({
-      ok: true,
-      query,
-      cursor,
-      nextCursor: cursor + 1,
-      items: rankVideos(items).slice(0, 10)
-    }, 200, { 'Cache-Control': 'public, max-age=120, s-maxage=600' });
+    const ranked = rankVideos(items).slice(0, 10);
+    if (!ranked.length) throw new Error('검색 결과 없음');
+    return json({ ok: true, query, cursor, nextCursor: cursor + 1, items: ranked }, 200, {
+      'Cache-Control': 'public, max-age=120, s-maxage=900'
+    });
   } catch (error) {
     return json({
       ok: true,
@@ -35,77 +37,105 @@ export async function onRequestGet(context) {
       cursor,
       nextCursor: cursor + 1,
       items: [fallbackSearchCard(query)],
-      fallback: true
-    }, 200, { 'Cache-Control': 'public, max-age=60, s-maxage=120' });
+      fallback: true,
+      message: safeError(error)
+    }, 200, { 'Cache-Control': 'public, max-age=45, s-maxage=180' });
   }
 }
 
 async function searchYouTube(query) {
   const target = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&hl=ko&gl=KR`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 7500);
-  try {
-    const response = await fetch(target, {
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126 Safari/537.36',
-        'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.7'
-      }
-    });
-    if (!response.ok) throw new Error(`YouTube ${response.status}`);
-    const html = await response.text();
-    const initial = extractInitialData(html);
-    if (!initial) throw new Error('검색 결과를 읽지 못했습니다.');
+  const response = await fetchWithTimeout(target, 4400, {
+    redirect: 'follow',
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126 Safari/537.36',
+      'Accept-Language': 'ko-KR,ko;q=0.9,en;q=0.7',
+      'Accept': 'text/html,application/xhtml+xml'
+    }
+  });
+  if (!response.ok) throw new Error(`YouTube ${response.status}`);
+  const html = await response.text();
 
-    const found = [];
-    walk(initial, value => {
-      const renderer = value?.videoRenderer;
-      if (!renderer?.videoId) return;
-      const id = String(renderer.videoId || '');
-      const title = textOf(renderer.title);
-      if (!id || !title) return;
-      const channel = textOf(renderer.ownerText) || textOf(renderer.shortBylineText);
-      const views = textOf(renderer.viewCountText) || textOf(renderer.shortViewCountText);
-      const published = textOf(renderer.publishedTimeText);
-      const duration = textOf(renderer.lengthText);
-      const description = (renderer.detailedMetadataSnippets || [])
-        .map(item => textOf(item?.snippetText))
-        .filter(Boolean)
-        .join(' ')
-        .slice(0, 180);
-      const thumbs = renderer.thumbnail?.thumbnails || [];
-      const thumbnail = thumbs.at(-1)?.url || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-      found.push({
-        id,
-        title,
-        channel,
-        views,
-        published,
-        duration,
-        description,
-        thumbnail,
-        url: `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`,
-        platform: 'YouTube',
-        query
-      });
-    });
+  const found = [];
+  const initial = extractInitialData(html);
+  if (initial) collectFromInitial(initial, query, found);
+  if (!found.length) collectFromRendererBlocks(html, query, found);
 
-    const unique = new Map();
-    found.forEach(item => { if (!unique.has(item.id)) unique.set(item.id, item); });
-    if (!unique.size) throw new Error('영상 결과가 없습니다.');
-    return [...unique.values()];
-  } finally {
-    clearTimeout(timer);
+  const unique = new Map();
+  found.forEach(item => { if (item?.id && !unique.has(item.id)) unique.set(item.id, item); });
+  if (!unique.size) throw new Error('영상 결과를 읽지 못했습니다.');
+  return [...unique.values()];
+}
+
+function collectFromInitial(initial, query, out) {
+  walk(initial, value => {
+    const renderer = value?.videoRenderer;
+    if (!renderer?.videoId) return;
+    const item = rendererToItem(renderer, query);
+    if (item) out.push(item);
+  });
+}
+
+function collectFromRendererBlocks(html, query, out) {
+  let start = 0;
+  let count = 0;
+  while (count < 30) {
+    const marker = html.indexOf('"videoRenderer":', start);
+    if (marker < 0) break;
+    const brace = html.indexOf('{', marker + 16);
+    if (brace < 0) break;
+    const raw = balancedObject(html, brace);
+    start = brace + Math.max(raw.length, 1);
+    if (!raw) continue;
+    try {
+      const renderer = JSON.parse(raw);
+      const item = rendererToItem(renderer, query);
+      if (item) out.push(item);
+    } catch {}
+    count++;
   }
 }
 
+function rendererToItem(renderer, query) {
+  const id = String(renderer?.videoId || '');
+  const title = textOf(renderer?.title);
+  if (!id || !title) return null;
+  const channel = textOf(renderer.ownerText) || textOf(renderer.shortBylineText);
+  const views = textOf(renderer.viewCountText) || textOf(renderer.shortViewCountText);
+  const published = textOf(renderer.publishedTimeText);
+  const duration = textOf(renderer.lengthText);
+  const description = (renderer.detailedMetadataSnippets || [])
+    .map(item => textOf(item?.snippetText))
+    .filter(Boolean)
+    .join(' ')
+    .slice(0, 180);
+  const thumbs = renderer.thumbnail?.thumbnails || [];
+  const thumbnail = thumbs.at(-1)?.url || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+  return {
+    id,
+    title,
+    channel,
+    views,
+    published,
+    duration,
+    description,
+    thumbnail,
+    url: `https://www.youtube.com/watch?v=${encodeURIComponent(id)}`,
+    platform: 'YouTube',
+    query
+  };
+}
+
 function extractInitialData(html) {
-  const markers = ['var ytInitialData = ', 'window["ytInitialData"] = ', 'ytInitialData = '];
-  for (const marker of markers) {
-    const pos = html.indexOf(marker);
-    if (pos < 0) continue;
-    const start = html.indexOf('{', pos + marker.length);
+  const patterns = [
+    /(?:var\s+)?ytInitialData\s*=\s*/g,
+    /window\["ytInitialData"\]\s*=\s*/g
+  ];
+  for (const pattern of patterns) {
+    pattern.lastIndex = 0;
+    const match = pattern.exec(html);
+    if (!match) continue;
+    const start = html.indexOf('{', match.index + match[0].length);
     if (start < 0) continue;
     const raw = balancedObject(html, start);
     if (!raw) continue;
@@ -139,11 +169,8 @@ function balancedObject(source, start) {
 function walk(value, visit) {
   if (!value || typeof value !== 'object') return;
   visit(value);
-  if (Array.isArray(value)) {
-    value.forEach(item => walk(item, visit));
-    return;
-  }
-  Object.values(value).forEach(item => walk(item, visit));
+  if (Array.isArray(value)) value.forEach(item => walk(item, visit));
+  else Object.values(value).forEach(item => walk(item, visit));
 }
 
 function textOf(value) {
@@ -164,7 +191,7 @@ function score(item) {
   if (/권학봉|Hakbong/i.test(channel)) result += 5000000;
   if (/데르센|Story Shot/i.test(channel)) result += 3000000;
   if (/사진|포토|스튜디오|phot/i.test(channel)) result += 500000;
-  if (/제품|인물|리터칭|보정|조명|포토샵|라이트룸|촬영/.test(title)) result += 200000;
+  if (/제품|인물|리터칭|보정|조명|포토샵|라이트룸|촬영|테더|누끼/.test(title)) result += 200000;
   result += viewNumber(item.views);
   return result;
 }
@@ -182,18 +209,25 @@ function viewNumber(text) {
 function fallbackSearchCard(query) {
   return {
     id: `search-${hash(query)}`,
-    title: `${query} 관련 영상 더 보기`,
+    title: `${query} 영상 보기`,
     channel: 'YouTube 검색',
     views: '',
     published: '',
     duration: '',
-    description: '관련 촬영 예시와 실무 영상을 확인할 수 있습니다.',
+    description: '관련 촬영 예시와 실무 영상을 바로 확인할 수 있습니다.',
     thumbnail: '',
     url: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
     platform: 'YouTube',
     query,
     isSearchFallback: true
   };
+}
+
+async function fetchWithTimeout(url, timeout, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try { return await fetch(url, { ...options, signal: controller.signal }); }
+  finally { clearTimeout(timer); }
 }
 
 function hash(value) {
@@ -203,6 +237,10 @@ function hash(value) {
     h = Math.imul(h, 16777619);
   }
   return (h >>> 0).toString(36);
+}
+
+function safeError(error) {
+  return String(error?.message || error || '영상 검색 실패').slice(0, 140);
 }
 
 function json(payload, status = 200, extra = {}) {
