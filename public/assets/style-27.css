@@ -1,0 +1,237 @@
+/* v39: stable liquid travel, question hub continuity, OpenAI handoff, and endless curated rail. */
+
+/* Keep the top navigator physically scrollable on touch devices. */
+.nav-scroll{
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-x pan-y!important;
+  overscroll-behavior-x:contain!important;
+  scrollbar-width:none!important;
+}
+.nav-scroll::-webkit-scrollbar{display:none!important}
+.nav-chip{flex:0 0 auto!important}
+
+/* The moving glass owns the blue fill. Individual chips never leave a ghost shape. */
+.nav-chip,
+.collection-tab,
+.theme-choice button,
+.v32-question-segment button{
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  border:0!important;
+}
+.nav-scroll:not(.v39-liquid-ready) .nav-chip.is-active,
+.collection-tabs:not(.v39-liquid-ready) .collection-tab.is-active,
+.theme-choice:not(.v39-liquid-ready) button.is-active,
+.v32-question-segment:not(.v39-liquid-ready) button.is-active{
+  background:linear-gradient(180deg,#5e95ef 0%,#3973dc 56%,#2e62cb 100%)!important;
+  color:#fff!important;
+  box-shadow:0 5px 13px rgba(42,91,181,.18),inset 0 1px 0 rgba(255,255,255,.28)!important;
+}
+
+/* Geometry layer + liquid skin. The edge is a variable reflection, not a hard outline. */
+.nav-v33-indicator,
+.collection-v33-indicator,
+.theme-v34-indicator,
+.v36-question-indicator{
+  position:absolute!important;
+  z-index:1!important;
+  pointer-events:none!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform-origin:center center!important;
+  will-change:transform,width,height!important;
+}
+.v37-liquid-skin{
+  position:absolute!important;
+  inset:0!important;
+  border-radius:inherit!important;
+  overflow:hidden!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 28%),
+    linear-gradient(180deg,rgba(92,149,241,.98) 0%,rgba(57,115,220,.97) 58%,rgba(45,95,198,.98) 100%)!important;
+  box-shadow:
+    0 5px 13px rgba(42,91,181,.18),
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -1px 0 rgba(20,58,137,.12)!important;
+  transform-origin:center center!important;
+  will-change:transform!important;
+}
+.v37-liquid-skin::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  padding:1px!important;
+  border-radius:inherit!important;
+  background:conic-gradient(from 220deg,
+    rgba(255,255,255,.05) 0deg,
+    rgba(255,255,255,.18) 56deg,
+    rgba(255,255,255,.78) 96deg,
+    rgba(192,221,255,.52) 132deg,
+    rgba(255,255,255,.10) 190deg,
+    rgba(255,255,255,.62) 246deg,
+    rgba(170,210,255,.40) 296deg,
+    rgba(255,255,255,.05) 360deg)!important;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0)!important;
+  -webkit-mask-composite:xor!important;
+  mask-composite:exclude!important;
+  opacity:.72!important;
+  pointer-events:none!important;
+}
+.v37-liquid-skin::after{
+  content:""!important;
+  position:absolute!important;
+  left:12%!important;
+  right:14%!important;
+  top:2px!important;
+  height:19%!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.31),rgba(255,255,255,.06) 72%,transparent)!important;
+  opacity:.62!important;
+  pointer-events:none!important;
+}
+.nav-scroll.v39-liquid-ready .nav-chip.is-active,
+.collection-tabs.v39-liquid-ready .collection-tab.is-active,
+.theme-choice.v39-liquid-ready button.is-active,
+.v32-question-segment.v39-liquid-ready button.is-active{
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#fff!important;
+}
+
+/* Search stays available even when a secondary filter/segment is visible. */
+#collectionTools{
+  position:relative!important;
+  z-index:4!important;
+}
+#collectionTools:not([hidden]){
+  display:grid!important;
+}
+#collectionTools .collection-search{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%!important;
+}
+#collectionTools .collection-search input{
+  width:100%!important;
+  min-width:0!important;
+}
+.collection-filters[hidden]{display:none!important}
+
+/* Question segment is always present and uses the same liquid system. */
+.v32-question-hub{display:flex!important;flex-direction:column!important;gap:12px!important}
+.v32-question-segment{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:100%!important;
+  min-height:54px!important;
+  padding:5px!important;
+  gap:5px!important;
+  overflow:hidden!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+.v32-question-segment button{
+  height:44px!important;
+  min-height:44px!important;
+  border-radius:999px!important;
+  white-space:nowrap!important;
+}
+
+/* Selection mode must reserve its own column instead of moving Q/thumb under text. */
+.collection-body.is-bulk-selecting .collection-item{
+  grid-template-columns:34px minmax(0,1fr) auto!important;
+  padding-left:12px!important;
+}
+.collection-body.is-bulk-selecting .collection-item:not(.collection-item--question){
+  grid-template-columns:34px 72px minmax(0,1fr) auto!important;
+}
+.collection-selectbox{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  align-self:center!important;
+  justify-self:center!important;
+  grid-column:1!important;
+  grid-row:1!important;
+}
+.collection-body.is-bulk-selecting .collection-item--question .collection-item__question-icon{grid-column:2!important}
+.collection-body.is-bulk-selecting .collection-item--question .collection-item__main{grid-column:3!important}
+.collection-body.is-bulk-selecting .collection-item:not(.collection-item--question) .collection-item__thumb{grid-column:2!important}
+.collection-body.is-bulk-selecting .collection-item:not(.collection-item--question) .collection-item__main{grid-column:3!important}
+
+/* Three actions only: copy, save, ChatGPT. */
+#askInstallChatGPT{display:none!important}
+.v34-question-actions{
+  display:block!important;
+  margin-top:10px!important;
+}
+#askOpenChatGPT{
+  width:100%!important;
+  min-height:50px!important;
+  height:50px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:9px!important;
+  border-radius:16px!important;
+  background:#fff!important;
+  color:#111!important;
+  border:1px solid rgba(17,17,17,.10)!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+#askOpenChatGPT .v39-openai-icon{
+  width:20px!important;
+  height:20px!important;
+  flex:0 0 20px!important;
+  border-radius:5px!important;
+  object-fit:contain!important;
+}
+html[data-theme="dark"] #askOpenChatGPT{
+  background:#fff!important;
+  color:#111!important;
+  border-color:rgba(255,255,255,.78)!important;
+}
+
+/* Curated endless-loading sentinel never becomes a giant empty card. */
+.curated-v39-sentinel{
+  flex:0 0 46px!important;
+  width:46px!important;
+  min-width:46px!important;
+  align-self:stretch!important;
+  display:grid!important;
+  place-items:center!important;
+  background:transparent!important;
+}
+.curated-v39-sentinel::after{
+  content:"";
+  width:20px;
+  height:20px;
+  border:2px solid rgba(63,119,222,.20);
+  border-top-color:#3f77de;
+  border-radius:50%;
+  opacity:0;
+}
+.curated-v39-sentinel.is-loading::after{opacity:1;animation:v39spin .8s linear infinite}
+@keyframes v39spin{to{transform:rotate(360deg)}}
+
+/* Dark-mode card boundaries stay readable without red/brown tint. */
+html[data-theme="dark"] :is(.collection-item,.skill-video-card,.curated-card,.case-card,.market-card,.product-card,.lesson-preview,.preset-card,.group-card,.callout-card){
+  border-color:rgba(255,255,255,.10)!important;
+}
+
+@media(max-width:430px){
+  #collectionTools:not([hidden]){gap:8px!important}
+  #askOpenChatGPT{font-size:14px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator,.v36-question-indicator,.v37-liquid-skin{will-change:auto!important}
+}
