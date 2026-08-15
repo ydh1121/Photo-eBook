@@ -1,0 +1,5 @@
+/* Middle-dot glyphs are intentionally avoided in the UI copy. */
+.offer-card li::before{
+  content:""!important;
+  margin:0!important;
+}
