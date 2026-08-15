@@ -1,0 +1,477 @@
+/* v37: liquid-glass system, dark-mode consistency, card alignment, and mobile polish. */
+
+:root{
+  --lg-blue-a:rgba(102,157,248,.94);
+  --lg-blue-b:rgba(67,124,231,.92);
+  --lg-blue-c:rgba(44,91,202,.94);
+  --lg-blue-shadow:rgba(35,82,176,.22);
+  --lg-edge-bright:rgba(255,255,255,.88);
+  --lg-edge-soft:rgba(255,255,255,.20);
+  --lg-dark-canvas:#0d0f13;
+  --lg-dark-card:#151a22;
+  --lg-dark-card-2:#19202a;
+  --lg-dark-panel:#1d2530;
+  --lg-dark-line:rgba(255,255,255,.085);
+  --lg-dark-text:#f3f5f8;
+  --lg-dark-muted:#aeb7c3;
+}
+
+/* --------------------------------------------------------------------------
+   Canonical liquid-glass rails.
+   The edge is a varying reflection, not a uniform plastic outline.
+   -------------------------------------------------------------------------- */
+.nav-scroll,
+.collection-tabs,
+.theme-choice,
+.v32-question-segment{
+  position:relative!important;
+  isolation:isolate!important;
+  border:1px solid transparent!important;
+  border-radius:999px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.43),rgba(236,241,248,.24)) padding-box,
+    linear-gradient(125deg,
+      rgba(255,255,255,.86) 0%,
+      rgba(255,255,255,.30) 24%,
+      rgba(169,194,230,.16) 48%,
+      rgba(255,255,255,.64) 76%,
+      rgba(255,255,255,.22) 100%) border-box!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.46),
+    inset 0 -1px 0 rgba(82,104,137,.045),
+    0 7px 22px rgba(35,52,82,.075)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(138%)!important;
+  backdrop-filter:blur(22px) saturate(138%)!important;
+}
+
+.nav-scroll{
+  background:
+    linear-gradient(90deg,
+      rgba(70,132,236,.105) 0%,
+      rgba(70,132,236,.075) var(--v32-progress,0%),
+      rgba(255,255,255,0) var(--v32-progress,0%),
+      rgba(255,255,255,0) 100%) padding-box,
+    linear-gradient(180deg,rgba(255,255,255,.43),rgba(236,241,248,.24)) padding-box,
+    linear-gradient(125deg,
+      rgba(255,255,255,.88) 0%,
+      rgba(255,255,255,.27) 25%,
+      rgba(165,190,225,.14) 49%,
+      rgba(255,255,255,.62) 76%,
+      rgba(255,255,255,.20) 100%) border-box!important;
+}
+
+.nav-chip,
+.collection-tab,
+.theme-choice button,
+.v32-question-segment button{
+  position:relative!important;
+  z-index:3!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  color:#636b76!important;
+}
+.nav-chip::before,.nav-chip::after,
+.collection-tab::before,.collection-tab::after,
+.theme-choice button::before,.theme-choice button::after,
+.v32-question-segment button::before,.v32-question-segment button::after{
+  display:none!important;
+}
+
+/* Outer indicator only tracks geometry. The nested skin paints the glass. */
+.nav-v33-indicator,
+.collection-v33-indicator,
+.theme-v34-indicator,
+.v36-question-indicator{
+  position:absolute!important;
+  z-index:1!important;
+  overflow:visible!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  pointer-events:none!important;
+  border-radius:999px!important;
+  transform-origin:center center!important;
+  backface-visibility:hidden!important;
+  contain:layout style!important;
+}
+.nav-v33-indicator::before,.nav-v33-indicator::after,
+.collection-v33-indicator::before,.collection-v33-indicator::after,
+.theme-v34-indicator::before,.theme-v34-indicator::after,
+.v36-question-indicator::before,.v36-question-indicator::after{
+  display:none!important;
+}
+
+.v37-liquid-skin{
+  position:absolute;
+  inset:0;
+  display:block;
+  overflow:hidden;
+  border-radius:inherit;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.15) 0%,rgba(255,255,255,0) 34%),
+    linear-gradient(180deg,var(--lg-blue-a) 0%,var(--lg-blue-b) 52%,var(--lg-blue-c) 100%);
+  box-shadow:
+    0 5px 14px var(--lg-blue-shadow),
+    inset 0 1px 0 rgba(255,255,255,.30),
+    inset 0 -1px 0 rgba(18,58,146,.13);
+  transform:translate3d(0,0,0) scaleX(1);
+  transform-origin:center;
+  backface-visibility:hidden;
+  will-change:transform;
+}
+.v37-liquid-skin::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:1px;
+  border-radius:inherit;
+  background:conic-gradient(from 218deg,
+    rgba(255,255,255,.10) 0deg,
+    rgba(255,255,255,.16) 54deg,
+    rgba(255,255,255,.92) 93deg,
+    rgba(191,220,255,.68) 132deg,
+    rgba(255,255,255,.16) 184deg,
+    rgba(255,255,255,.76) 242deg,
+    rgba(166,210,255,.58) 292deg,
+    rgba(255,255,255,.11) 360deg);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  opacity:.76;
+  pointer-events:none;
+}
+.v37-liquid-skin::after{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:10%;
+  top:2px;
+  height:31%;
+  border-radius:999px 999px 55% 55%;
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.08) 58%,rgba(255,255,255,0));
+  opacity:.68;
+  pointer-events:none;
+}
+
+/* Fallback while the shared indicator is mounting. */
+:is(.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button).is-active{
+  color:#fff!important;
+  background:linear-gradient(180deg,var(--lg-blue-a),var(--lg-blue-c))!important;
+  box-shadow:0 5px 14px var(--lg-blue-shadow),inset 0 1px 0 rgba(255,255,255,.26)!important;
+}
+.nav-scroll.v33-liquid-ready .nav-chip.is-active,
+.collection-tabs.v33-liquid-ready .collection-tab.is-active,
+.theme-choice.v34-liquid-ready button.is-active,
+.v32-question-segment.v36-liquid-ready button.is-active{
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#fff!important;
+}
+
+/* --------------------------------------------------------------------------
+   Dark liquid glass: translucent rail, no hard white perimeter.
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"] :is(.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment){
+  border:1px solid transparent!important;
+  background:
+    linear-gradient(180deg,rgba(69,80,101,.42),rgba(23,28,36,.47)) padding-box,
+    linear-gradient(125deg,
+      rgba(255,255,255,.25) 0%,
+      rgba(255,255,255,.07) 26%,
+      rgba(120,151,199,.055) 52%,
+      rgba(255,255,255,.18) 77%,
+      rgba(255,255,255,.045) 100%) border-box!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.075),
+    inset 0 -1px 0 rgba(0,0,0,.17),
+    0 9px 24px rgba(0,0,0,.18)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(126%)!important;
+  backdrop-filter:blur(24px) saturate(126%)!important;
+}
+html[data-theme="dark"] .nav-scroll{
+  background:
+    linear-gradient(90deg,
+      rgba(78,137,238,.13) 0%,
+      rgba(78,137,238,.08) var(--v32-progress,0%),
+      transparent var(--v32-progress,0%),
+      transparent 100%) padding-box,
+    linear-gradient(180deg,rgba(69,80,101,.42),rgba(23,28,36,.47)) padding-box,
+    linear-gradient(125deg,
+      rgba(255,255,255,.25) 0%,
+      rgba(255,255,255,.07) 26%,
+      rgba(120,151,199,.055) 52%,
+      rgba(255,255,255,.18) 77%,
+      rgba(255,255,255,.045) 100%) border-box!important;
+}
+html[data-theme="dark"] :is(.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button){
+  color:#b7c0cd!important;
+}
+html[data-theme="dark"] :is(.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button).is-active{
+  color:#fff!important;
+}
+
+/* --------------------------------------------------------------------------
+   Saved-items selection mode. Reserve a real column instead of pushing Q/thumb
+   into the text block.
+   -------------------------------------------------------------------------- */
+.collection-body.is-bulk-selecting .collection-item{
+  padding-left:46px!important;
+}
+.collection-body.is-bulk-selecting .collection-item--question{
+  padding-left:48px!important;
+}
+.collection-body.is-bulk-selecting .collection-item__thumb,
+.collection-body.is-bulk-selecting .collection-item__question-icon{
+  margin-left:0!important;
+}
+.collection-selectbox{
+  left:11px!important;
+  top:50%!important;
+}
+.collection-select-toggle,
+.collection-close{
+  top:-7px!important;
+  height:44px!important;
+  min-height:44px!important;
+}
+.collection-select-toggle{
+  min-width:50px!important;
+  right:69px!important;
+  padding:0 13px!important;
+}
+.collection-close{
+  width:44px!important;
+  right:15px!important;
+}
+.collection-head{padding-right:122px!important}
+
+/* Floating library button: keep Y, trim the shadow so iOS does not clip it. */
+.collection-fab{
+  box-shadow:
+    0 8px 19px rgba(47,91,183,.20),
+    inset 0 1px 0 rgba(255,255,255,.30)!important;
+}
+
+/* --------------------------------------------------------------------------
+   Unified CTA geometry and platform button presentation.
+   -------------------------------------------------------------------------- */
+.ask-actions,
+.v34-question-actions{
+  gap:10px!important;
+}
+.ask-actions button,
+.v34-question-actions button,
+.v34-question-actions a{
+  min-height:48px!important;
+  height:48px!important;
+  border-radius:16px!important;
+  font-size:13px!important;
+  font-weight:760!important;
+}
+.ask-primary,
+.v34-chatgpt-open{
+  background:linear-gradient(180deg,#4f86ec,#3268d7)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:0 5px 14px rgba(47,99,214,.16),inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+.ask-secondary,
+.v34-chatgpt-install{
+  background:#eef1f6!important;
+  color:#4d5561!important;
+  border:1px solid rgba(31,44,70,.07)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.70)!important;
+}
+.v37-platform-icon{
+  display:inline-flex;
+  width:16px;
+  height:16px;
+  margin-right:7px;
+  vertical-align:-3px;
+  align-items:center;
+  justify-content:center;
+}
+.v37-platform-icon svg{display:block;width:100%;height:100%}
+
+/* --------------------------------------------------------------------------
+   Card geometry. Text length must not create seams or move the footer.
+   -------------------------------------------------------------------------- */
+:is(.market-card,.case-card,.product-card,.lesson-preview,.preset-card,.skill-card--media,.phase-card,.offer-card,.source-card){
+  background-clip:padding-box!important;
+}
+:is(.market-card,.case-card,.product-card,.lesson-preview,.preset-card,.skill-card--media){
+  display:flex!important;
+  flex-direction:column!important;
+}
+:is(.market-card__body,.case-card__body,.product-card__body,.lesson-preview__body,.preset-card__body,.skill-card__body){
+  flex:1 1 auto!important;
+}
+.case-delivery{
+  margin-top:auto!important;
+  padding-top:.82rem!important;
+}
+.case-delivery>div{
+  width:100%!important;
+  min-height:0!important;
+}
+.source-card{
+  display:flex!important;
+  flex-direction:column!important;
+}
+.source-card>a{margin-top:auto!important;align-self:flex-start!important}
+.curated-card{display:flex!important;flex-direction:column!important}
+.curated-card :is(.curated-card__body,.curated-card__copy){display:flex!important;flex:1 1 auto!important;flex-direction:column!important}
+.curated-card :is(.curated-card__link,.curated-open){margin-top:auto!important;align-self:flex-start!important}
+
+/* Product comparison media stays white in every theme for cut-out product shots. */
+.product-card__image{
+  background:#fff!important;
+  border-bottom:1px solid rgba(22,31,48,.055)!important;
+}
+.product-card__image img{background:#fff!important}
+
+/* Body text never paints its own accidental strip. */
+:is(
+  .guide-key__text,.guide-key p,.guide-key span,
+  .guide-block__body,.guide-block__body p,
+  .metric-card span,.metric-card b,
+  .flow-row span,.case-delivery span,.case-delivery i,
+  .message-bubble p,.lesson__panel li,.phase-card p,.offer-card p,
+  .script-card p,.source-card p,.case-card p,.market-card p,
+  .market-card__customer,.product-card__line,.product-row p,
+  .lesson-preview p,.preset-card p,.edu-option small,
+  .collection-setting-note,.collection-settings>p,.micro,.muted
+){
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+
+/* Number/metric labels are text, not stray rectangles. */
+.edu-option__rank{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+.case-delivery>div{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+/* --------------------------------------------------------------------------
+   Dark mode completion: neutral graphite hierarchy with visible boundaries.
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .app,
+html[data-theme="dark"] .section,
+html[data-theme="dark"] .section.grouped,
+html[data-theme="dark"] .grouped,
+html[data-theme="dark"] .lesson{
+  background:var(--lg-dark-canvas)!important;
+}
+
+html[data-theme="dark"] :is(
+  .group-card,.callout-card,.flow-card,.market-card,.edu-option,.check-card,.skill-card,.skill-card--media,
+  .case-card,.product-card,.product-table,.phase-card,.offer-card,.source-card,.script-card,
+  .lesson-preview,.preset-card,.lesson__panel,.guide-key,.guide-key--soft,.collection-item,
+  .collection-settings__summary,.theme-setting-card,.collection-setting-row,.login-card
+){
+  background:var(--lg-dark-card)!important;
+  color:var(--lg-dark-text)!important;
+  border-color:var(--lg-dark-line)!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.14)!important;
+}
+
+html[data-theme="dark"] :is(
+  .market-card__body,.case-card__body,.product-card__body,.lesson-preview__body,.preset-card__body,
+  .metric-card,.market-card__price,.flow-row,.message-bubble,.mission-card,.ask-sheet__quote,
+  .v32-question-write textarea
+){
+  background:var(--lg-dark-card-2)!important;
+  color:var(--lg-dark-text)!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+
+/* Full-width rows, no text-sized background bands. */
+html[data-theme="dark"] :is(.metric-card,.flow-row){
+  background:var(--lg-dark-panel)!important;
+  background-clip:padding-box!important;
+}
+html[data-theme="dark"] .case-delivery>div{
+  background:transparent!important;
+}
+html[data-theme="dark"] .edu-option__rank{
+  background:transparent!important;
+  color:#73a2ff!important;
+}
+html[data-theme="dark"] :is(.soft-tag,.product-row__meta span){
+  background:#202836!important;
+  color:#c0c8d3!important;
+  border-color:rgba(255,255,255,.05)!important;
+}
+
+html[data-theme="dark"] :is(
+  .guide-key b,.guide-key strong,.guide-key__text,.metric-card b,.flow-row strong,
+  .check-card span,.edu-option h3,.market-card h3,.case-card h3,.product-card h3,
+  .phase-card h3,.offer-card h3,.source-card h3,.script-card h3,.lesson-preview h3,
+  .preset-card h3,.lesson__panel h4,.message-bubble strong
+){color:var(--lg-dark-text)!important}
+
+html[data-theme="dark"] :is(
+  .guide-key p,.guide-key span,.metric-card span,.flow-row span,.case-delivery span,
+  .market-card p,.market-card__customer,.edu-option small,.skill-card p,.case-card p,
+  .product-card__line,.product-row p,.phase-card p,.offer-card p,.source-card p,
+  .script-card__meta,.message-bubble p,.lesson-preview p,.preset-card p,.lesson__lead,
+  .lesson__panel li,.micro,.muted,.guide-block__body,.guide-block__body p
+){color:var(--lg-dark-muted)!important}
+
+/* Keep media/body edges coherent and prevent a short text block from exposing a second strip. */
+html[data-theme="dark"] :is(.market-card,.case-card,.lesson-preview,.preset-card,.skill-card--media){
+  overflow:hidden!important;
+}
+html[data-theme="dark"] :is(.market-card__body,.case-card__body,.lesson-preview__body,.preset-card__body,.skill-card__body){
+  min-height:0!important;
+  background:var(--lg-dark-card-2)!important;
+}
+html[data-theme="dark"] .product-card__body{background:var(--lg-dark-card-2)!important}
+
+/* Settings copy and question workspace should not retain light strips. */
+html[data-theme="dark"] :is(.collection-setting-note,.collection-settings>p,.theme-setting-card__copy small,.v34-gpt-note,.ask-note){
+  background:transparent!important;
+  color:#929ca9!important;
+}
+html[data-theme="dark"] .ask-secondary,
+html[data-theme="dark"] .v34-chatgpt-install{
+  background:#202630!important;
+  color:#c9d0da!important;
+  border-color:rgba(255,255,255,.07)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile tuning.
+   -------------------------------------------------------------------------- */
+@media(max-width:430px){
+  .collection-head{padding-right:116px!important}
+  .collection-select-toggle{right:65px!important}
+  .collection-close{right:13px!important}
+  .nav-scroll,
+  .collection-tabs,
+  .theme-choice,
+  .v32-question-segment{
+    -webkit-backdrop-filter:blur(19px) saturate(130%)!important;
+    backdrop-filter:blur(19px) saturate(130%)!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .v37-liquid-skin{animation:none!important;transition:none!important}
+}
