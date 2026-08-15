@@ -13,9 +13,10 @@
 Cloudflare Pages에서 GitHub 저장소를 연결하면 `main` 브랜치 push마다 자동 배포됩니다.
 
 - Framework preset: None
-- Build command: `exit 0`
+- Build command: 비워두기
 - Build output directory: `public`
-- Root directory: `/`
+- Root directory: 비워두기
+- Production branch: `main`
 
 환경 변수:
 
