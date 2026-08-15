@@ -1,0 +1,262 @@
+/* v13: stable navigation + question drawer UX */
+:root{--nav-h:76px}
+
+/* Fixed geometry. No compact/scrolled size changes. */
+.nav-shell,
+.nav-shell.is-compact,
+.nav-shell.is-scrolled{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:100!important;
+  height:calc(76px + var(--safe-top))!important;
+  padding:calc(6px + var(--safe-top)) 8px 6px!important;
+  background:rgba(245,245,247,.97)!important;
+  border:0!important;
+  box-shadow:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  transform:none!important;
+  will-change:auto!important;
+  overflow-anchor:none!important;
+}
+.nav-glass,
+.nav-shell.is-compact .nav-glass,
+.nav-shell.is-scrolled .nav-glass{
+  --progress-stop:0%;
+  position:relative!important;
+  width:100%!important;
+  height:62px!important;
+  margin:0!important;
+  border:1px solid rgba(255,255,255,.92)!important;
+  border-radius:31px!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:transparent!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 8px 22px rgba(31,45,72,.065)!important;
+  transform:none!important;
+  will-change:auto!important;
+}
+.nav-glass::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  border-radius:inherit!important;
+  pointer-events:none!important;
+  background:linear-gradient(90deg,
+    rgba(87,149,251,.19) 0%,
+    rgba(87,149,251,.19) var(--progress-stop),
+    rgba(247,249,252,.86) var(--progress-stop),
+    rgba(242,246,251,.86) 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.86)!important;
+  transform:none!important;
+  transition:none!important;
+}
+.nav-glass::after{
+  content:""!important;
+  position:absolute!important;
+  inset:1px!important;
+  z-index:1!important;
+  border-radius:30px!important;
+  pointer-events:none!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.36),rgba(255,255,255,.06) 48%,transparent 78%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.44)!important;
+  transform:none!important;
+}
+.nav-scroll{
+  position:relative!important;
+  z-index:2!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  height:100%!important;
+  width:100%!important;
+  padding:8px!important;
+  margin:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scroll-behavior:auto!important;
+  scroll-snap-type:none!important;
+  scrollbar-width:none!important;
+  overscroll-behavior-x:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.nav-scroll::-webkit-scrollbar{display:none!important}
+.nav-chip,
+.nav-shell.is-compact .nav-chip,
+.nav-shell.is-scrolled .nav-chip{
+  flex:0 0 auto!important;
+  height:44px!important;
+  min-height:44px!important;
+  padding:0 14px!important;
+  margin:0!important;
+  border:1px solid rgba(50,60,82,.075)!important;
+  border-radius:22px!important;
+  background:rgba(255,255,255,.82)!important;
+  color:#4b4c52!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 7px rgba(31,41,63,.03)!important;
+  font-size:13.5px!important;
+  font-weight:680!important;
+  line-height:1!important;
+  letter-spacing:-.025em!important;
+  white-space:nowrap!important;
+  transform:none!important;
+  transition:background .12s ease,color .12s ease,border-color .12s ease,box-shadow .12s ease!important;
+}
+.nav-chip:active{opacity:.76!important;transform:none!important}
+.nav-chip.is-active{
+  background:linear-gradient(180deg,#3e79e8,#2f64d7)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.25)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.27),0 4px 10px rgba(47,99,214,.17)!important;
+}
+.read-progress,.read-progress__bar,.nav-top-btn,.top-tap{display:none!important}
+
+/* Question bubble: visible blue glass instead of black */
+.ask-bubble,
+.ask-fab{
+  background:linear-gradient(180deg,rgba(62,121,232,.96),rgba(47,100,215,.96))!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.24)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 10px 26px rgba(47,99,214,.25)!important;
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+  backdrop-filter:blur(14px) saturate(140%);
+}
+
+/* Drawer frame itself never scrolls. Only the content regions below can scroll. */
+.ask-sheet{
+  height:min(690px,calc(100dvh - 72px))!important;
+  max-height:calc(100dvh - 72px)!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  padding:12px 16px calc(14px + var(--safe-bottom))!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+.ask-sheet__handle-wrap,
+.ask-sheet__top,
+.ask-tabs{flex:0 0 auto!important}
+.ask-sheet__top{margin-bottom:10px!important}
+.ask-sheet__top-actions{display:flex;align-items:center;gap:8px}
+.ask-settings-btn,
+.ask-settings-close{
+  display:grid;place-items:center;
+  width:38px;height:38px;
+  border:0;border-radius:19px;
+  background:var(--grouped);color:#5e6168
+}
+.ask-settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
+.ask-settings-btn.is-active{background:#e8eefb;color:var(--accent)}
+
+#askWritePanel,
+#askHistoryPanel,
+.ask-settings-panel{
+  flex:1 1 auto!important;
+  min-height:0!important;
+}
+#askWritePanel{
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#askWritePanel[hidden]{display:none!important}
+.ask-sheet__quote{flex:0 0 auto!important}
+.ask-sheet__label{flex:0 0 auto!important}
+.ask-sheet textarea{
+  flex:1 1 auto!important;
+  min-height:118px!important;
+  max-height:none!important;
+  resize:none!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.ask-actions,.ask-tertiary,.ask-note{flex:0 0 auto!important}
+.ask-note{margin-bottom:0!important}
+
+#askHistoryPanel{
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#askHistoryPanel[hidden]{display:none!important}
+.history-list{
+  display:flex!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  gap:10px!important;
+  padding:4px 2px 14px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scroll-snap-type:x proximity!important;
+  scrollbar-width:none!important;
+  overscroll-behavior-x:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.history-list::-webkit-scrollbar{display:none!important}
+.history-item{
+  flex:0 0 min(78vw,280px)!important;
+  min-width:min(78vw,280px)!important;
+  height:max-content!important;
+  scroll-snap-align:start!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  padding:14px!important;
+  border-radius:18px!important;
+  box-shadow:0 6px 18px rgba(30,40,62,.045)!important;
+}
+.history-item__q{display:none!important}
+.history-item__s{
+  margin-top:0!important;
+  color:var(--ink)!important;
+  font-size:15px!important;
+  line-height:1.5!important;
+  font-weight:650!important;
+  -webkit-line-clamp:4!important;
+}
+.history-open::after{
+  content:"터치해서 질문 보기";
+  display:block;
+  margin-top:10px;
+  color:var(--accent);
+  font-size:11px;
+  font-weight:680
+}
+.history-delete{align-self:start!important}
+
+/* Sync is a secondary setting, not part of the main history screen. */
+.login-card{margin:0!important;background:#fff!important;border:1px solid var(--border)!important}
+#syncState{display:none!important}
+.ask-settings-panel{
+  display:none;
+  flex-direction:column;
+  overflow-y:auto;
+  padding:2px 0 8px;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch
+}
+.ask-sheet.is-settings-open .ask-settings-panel{display:flex!important}
+.ask-sheet.is-settings-open .ask-tabs,
+.ask-sheet.is-settings-open #askWritePanel,
+.ask-sheet.is-settings-open #askHistoryPanel{display:none!important}
+.ask-settings-panel__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.ask-settings-panel__head strong{font-size:16px;color:var(--ink)}
+.ask-settings-panel__copy{margin:0 0 12px;color:var(--secondary);font-size:13px;line-height:1.55}
+
+/* When the drawer is open, the document is physically pinned. */
+html.ask-modal-locked{overflow:hidden!important;overscroll-behavior:none!important}
+body.ask-modal-locked{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+.ask-backdrop{touch-action:none!important;overscroll-behavior:none!important}
+
+@media(max-width:430px){
+  .ask-sheet{padding-left:14px!important;padding-right:14px!important;height:min(670px,calc(100dvh - 64px))!important;max-height:calc(100dvh - 64px)!important}
+  .history-item{flex-basis:min(82vw,274px)!important;min-width:min(82vw,274px)!important}
+}
