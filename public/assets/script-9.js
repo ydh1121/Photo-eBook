@@ -1,6 +1,6 @@
-/* v15: deterministic navigation, compositor progress, cached chapter metrics */
+/* v16: stable section transitions + front-aligned active chip */
 (function(){
-  function setupNavigationV15(){
+  function setupNavigationV16(){
     const shell=$('.nav-shell');
     const placeholder=$('.nav-placeholder');
     const navScroll=$('.nav-scroll');
@@ -27,10 +27,13 @@
 
     let metrics=[];
     let activeId='';
+    let activeChip=null;
+    let pendingAlignChip=null;
     let progressMax=1;
+    let measuredScrollHeight=0;
     let activeRaf=0;
     let progressRaf=0;
-    let revealTimer=0;
+    let settleTimer=0;
     let layoutTimer=0;
     let clickUnlockTimer=0;
     let clickLockId='';
@@ -47,15 +50,18 @@
         id:section.dataset.chapter,
         top:section.getBoundingClientRect().top+y
       })).sort((a,b)=>a.top-b.top);
-      progressMax=Math.max(1,(Number(root.scrollHeight)||0)-(Number(root.clientHeight)||0));
+
+      measuredScrollHeight=Number(root.scrollHeight)||0;
+      progressMax=Math.max(1,measuredScrollHeight-(Number(root.clientHeight)||0));
     }
 
     function currentChapterAt(y){
       if(!metrics.length)return sections[0]?.dataset.chapter||'';
-      const line=y+shell.offsetHeight+24;
+      const line=y+shell.offsetHeight+20;
       let lo=0;
       let hi=metrics.length-1;
       let answer=0;
+
       while(lo<=hi){
         const mid=(lo+hi)>>1;
         if(metrics[mid].top<=line){
@@ -68,52 +74,44 @@
       return metrics[answer]?.id||metrics[0]?.id||'';
     }
 
-    function revealChipNow(chip){
+    /* Put the active chip at the leading edge. Once the track reaches its
+       maximum scroll position, later chips stay where they naturally fit. */
+    function alignChipToFront(chip){
       if(!chip)return;
       const max=Math.max(0,navScroll.scrollWidth-navScroll.clientWidth);
-      const safe=10;
-      const left=chip.offsetLeft;
-      const right=left+chip.offsetWidth;
-      const viewLeft=navScroll.scrollLeft+safe;
-      const viewRight=navScroll.scrollLeft+navScroll.clientWidth-safe;
-      let next=navScroll.scrollLeft;
-      if(left<viewLeft)next=Math.max(0,left-safe);
-      else if(right>viewRight)next=Math.min(max,right-navScroll.clientWidth+safe);
+      const leadingInset=8;
+      const wanted=Math.max(0,chip.offsetLeft-leadingInset);
+      const next=Math.min(max,wanted);
       if(Math.abs(next-navScroll.scrollLeft)>1)navScroll.scrollLeft=next;
     }
 
-    function revealChipAfterScroll(chip){
-      clearTimeout(revealTimer);
-      revealTimer=setTimeout(()=>{
-        if(performance.now()-lastScrollAt<110){
-          revealChipAfterScroll(chip);
-          return;
-        }
-        revealChipNow(chip);
-      },120);
-    }
+    function setActiveChip(id,{align='idle'}={}){
+      if(!id||id===activeId)return;
+      const nextChip=chipMap.get(id);
+      if(!nextChip)return;
 
-    function setActiveChip(id,{reveal='idle'}={}){
-      if(!id)return;
-      const changed=id!==activeId;
-      if(changed){
-        activeId=id;
-        chips.forEach(chip=>chip.classList.toggle('is-active',chip.dataset.target===id));
+      if(activeChip)activeChip.classList.remove('is-active');
+      nextChip.classList.add('is-active');
+      activeChip=nextChip;
+      activeId=id;
+
+      if(align==='now'){
+        pendingAlignChip=null;
+        alignChipToFront(nextChip);
+      }else if(align==='idle'){
+        pendingAlignChip=nextChip;
       }
-      if(!changed)return;
-      const chip=chipMap.get(id);
-      if(reveal==='now')revealChipNow(chip);
-      else if(reveal==='idle')revealChipAfterScroll(chip);
     }
 
-    /* ACTIVE CHIP: cached section coordinates only. No layout reads per frame. */
+    /* ACTIVE CHIP: cached chapter coordinates only. No geometry reads while
+       the finger is moving. */
     function updateActiveChip(){
       activeRaf=0;
       if(clickLockId){
-        setActiveChip(clickLockId,{reveal:'none'});
+        setActiveChip(clickLockId,{align:'none'});
         return;
       }
-      setActiveChip(currentChapterAt(scrollY()),{reveal:'idle'});
+      setActiveChip(currentChapterAt(scrollY()),{align:'idle'});
     }
 
     function scheduleActiveChip(){
@@ -121,7 +119,7 @@
       activeRaf=requestAnimationFrame(updateActiveChip);
     }
 
-    /* PROGRESS: page-wide scroll ratio, fully independent from chip state. */
+    /* PROGRESS: independent page-wide ratio. */
     function updateProgress(){
       progressRaf=0;
       const ratio=Math.max(0,Math.min(1,scrollY()/Math.max(1,progressMax)));
@@ -135,23 +133,52 @@
       progressRaf=requestAnimationFrame(updateProgress);
     }
 
-    function releaseClickLockSoon(){
+    function releaseClickLockWhenIdle(){
       clearTimeout(clickUnlockTimer);
       clickUnlockTimer=setTimeout(()=>{
-        if(performance.now()-lastScrollAt<120){
-          releaseClickLockSoon();
+        if(performance.now()-lastScrollAt<100){
+          releaseClickLockWhenIdle();
           return;
         }
         clickLockId='';
         updateActiveChip();
-      },140);
+      },120);
+    }
+
+    function settleAfterVerticalScroll(){
+      clearTimeout(settleTimer);
+      settleTimer=setTimeout(()=>{
+        if(performance.now()-lastScrollAt<85){
+          settleAfterVerticalScroll();
+          return;
+        }
+
+        /* Horizontal navigation movement is deliberately delayed until the
+           vertical gesture is idle. This prevents a sticky horizontal scroll
+           from competing with Safari's vertical compositor at chapter edges. */
+        if(pendingAlignChip){
+          const chip=pendingAlignChip;
+          pendingAlignChip=null;
+          alignChipToFront(chip);
+        }
+
+        /* Dynamic content may change the total document height. Re-measure
+           only after the gesture finishes, never at the chapter boundary. */
+        const currentHeight=Number(root.scrollHeight)||0;
+        if(Math.abs(currentHeight-measuredScrollHeight)>6){
+          measure();
+          updateActiveChip();
+          updateProgress();
+        }
+      },105);
     }
 
     function onScroll(){
       lastScrollAt=performance.now();
       scheduleProgress();
       scheduleActiveChip();
-      if(clickLockId)releaseClickLockSoon();
+      settleAfterVerticalScroll();
+      if(clickLockId)releaseClickLockWhenIdle();
     }
 
     chips.forEach(chip=>chip.addEventListener('click',()=>{
@@ -159,57 +186,51 @@
       const target=document.getElementById(id);
       if(!id||!target)return;
 
-      /* A tap is infrequent, so refresh all chapter coordinates here for an
-         exact landing position. This avoids stale offsets from lazy content. */
       measure();
       clickLockId=id;
-      setActiveChip(id,{reveal:'now'});
+      setActiveChip(id,{align:'now'});
 
       const absoluteTop=target.getBoundingClientRect().top+scrollY();
-      const destination=Math.max(0,absoluteTop-shell.offsetHeight+2);
+      const destination=Math.max(0,absoluteTop-shell.offsetHeight+4);
       window.scrollTo({
         top:destination,
         behavior:reduceMotion()?'auto':'smooth'
       });
-      releaseClickLockSoon();
+      releaseClickLockWhenIdle();
     }));
 
-    function remeasureWhenIdle(delay=220){
+    function remeasureWhenIdle(delay=180){
       clearTimeout(layoutTimer);
       layoutTimer=setTimeout(()=>{
-        if(performance.now()-lastScrollAt<160){
-          remeasureWhenIdle(180);
+        if(performance.now()-lastScrollAt<120){
+          remeasureWhenIdle(150);
           return;
         }
         measure();
         updateActiveChip();
         updateProgress();
+        if(activeChip)alignChipToFront(activeChip);
       },delay);
     }
 
     measure();
-    updateActiveChip();
+    setActiveChip(currentChapterAt(scrollY()),{align:'now'});
     updateProgress();
     addEventListener('scroll',onScroll,{passive:true});
 
-    /* Lazy images and remote cards may shift later chapters. Re-measure only
-       after vertical scrolling is idle so the gesture itself stays untouched. */
-    const app=$('#app');
-    if(app&&'ResizeObserver' in window){
-      const ro=new ResizeObserver(()=>remeasureWhenIdle(260));
-      ro.observe(app);
-    }
-
+    /* No ResizeObserver here: repeated size notifications near section
+       boundaries were one of the remaining Safari jitter triggers. */
     if(document.fonts?.ready){
-      document.fonts.ready.then(()=>remeasureWhenIdle(40)).catch(()=>{});
+      document.fonts.ready.then(()=>remeasureWhenIdle(30)).catch(()=>{});
     }
-    addEventListener('load',()=>remeasureWhenIdle(60),{once:true});
-    addEventListener('orientationchange',()=>remeasureWhenIdle(320),{passive:true});
-    setTimeout(()=>remeasureWhenIdle(20),600);
-    setTimeout(()=>remeasureWhenIdle(20),1800);
+    addEventListener('load',()=>remeasureWhenIdle(50),{once:true});
+    addEventListener('pageshow',()=>remeasureWhenIdle(60),{passive:true});
+    addEventListener('orientationchange',()=>remeasureWhenIdle(300),{passive:true});
+    setTimeout(()=>remeasureWhenIdle(20),800);
+    setTimeout(()=>remeasureWhenIdle(20),2400);
   }
 
-  window.setupNavigation=setupNavigationV15;
+  window.setupNavigation=setupNavigationV16;
 
   if(typeof window.__photoUiReadyResolve==='function'){
     window.__photoUiReadyResolve();
