@@ -306,7 +306,7 @@ async function getAccessToken(env) {
   const response = await fetch(tokenUri, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth-type:jwt-bearer', assertion })
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion })
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.access_token) throw new Error(data?.error_description || data?.error || `Google 인증 실패 (${response.status})`);
