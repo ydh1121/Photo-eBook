@@ -31,10 +31,8 @@
   transform:translateZ(0)!important;
 }
 
-/* Keep sticky geometry isolated and static. */
-.nav-shell{
-  contain:layout style!important;
-}
+/* Paint containment is limited to the inner capsule. Keeping containment off
+   the sticky wrapper avoids Safari sticky-position edge cases. */
 .nav-glass{
   contain:paint!important;
 }
