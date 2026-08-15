@@ -36,20 +36,17 @@
     let clickLockId='';
     let lastScrollAt=0;
     let lastProgress=-1;
-    let destroyed=false;
 
     function scrollY(){
       return Math.max(0,Number(root.scrollTop)||0);
     }
 
     function measure(){
-      if(destroyed)return;
       const y=scrollY();
       metrics=sections.map(section=>({
         id:section.dataset.chapter,
         top:section.getBoundingClientRect().top+y
       })).sort((a,b)=>a.top-b.top);
-
       progressMax=Math.max(1,(Number(root.scrollHeight)||0)-(Number(root.clientHeight)||0));
     }
 
@@ -80,10 +77,8 @@
       const viewLeft=navScroll.scrollLeft+safe;
       const viewRight=navScroll.scrollLeft+navScroll.clientWidth-safe;
       let next=navScroll.scrollLeft;
-
       if(left<viewLeft)next=Math.max(0,left-safe);
       else if(right>viewRight)next=Math.min(max,right-navScroll.clientWidth+safe);
-
       if(Math.abs(next-navScroll.scrollLeft)>1)navScroll.scrollLeft=next;
     }
 
@@ -111,7 +106,7 @@
       else if(reveal==='idle')revealChipAfterScroll(chip);
     }
 
-    /* ACTIVE CHIP: only cached section tops are compared during scroll. */
+    /* ACTIVE CHIP: cached section coordinates only. No layout reads per frame. */
     function updateActiveChip(){
       activeRaf=0;
       if(clickLockId){
@@ -126,7 +121,7 @@
       activeRaf=requestAnimationFrame(updateActiveChip);
     }
 
-    /* PROGRESS: page-wide scroll ratio. It does not know about chapter state. */
+    /* PROGRESS: page-wide scroll ratio, fully independent from chip state. */
     function updateProgress(){
       progressRaf=0;
       const ratio=Math.max(0,Math.min(1,scrollY()/Math.max(1,progressMax)));
@@ -159,25 +154,19 @@
       if(clickLockId)releaseClickLockSoon();
     }
 
-    function targetTopFor(id){
-      const row=metrics.find(item=>item.id===id);
-      if(row)return row.top;
-      const target=document.getElementById(id);
-      return target?target.getBoundingClientRect().top+scrollY():0;
-    }
-
     chips.forEach(chip=>chip.addEventListener('click',()=>{
       const id=chip.dataset.target;
       const target=document.getElementById(id);
       if(!id||!target)return;
 
+      /* A tap is infrequent, so refresh all chapter coordinates here for an
+         exact landing position. This avoids stale offsets from lazy content. */
+      measure();
       clickLockId=id;
       setActiveChip(id,{reveal:'now'});
 
-      /* Put the chapter top a few pixels behind the capsule bottom. This keeps
-         the clicked chapter safely past the activation threshold instead of
-         landing on the previous chapter boundary. */
-      const destination=Math.max(0,targetTopFor(id)-shell.offsetHeight+2);
+      const absoluteTop=target.getBoundingClientRect().top+scrollY();
+      const destination=Math.max(0,absoluteTop-shell.offsetHeight+2);
       window.scrollTo({
         top:destination,
         behavior:reduceMotion()?'auto':'smooth'
@@ -201,11 +190,10 @@
     measure();
     updateActiveChip();
     updateProgress();
-
     addEventListener('scroll',onScroll,{passive:true});
 
-    /* Re-measure only after layout has settled. This observer never changes
-       progress while a finger is actively scrolling. */
+    /* Lazy images and remote cards may shift later chapters. Re-measure only
+       after vertical scrolling is idle so the gesture itself stays untouched. */
     const app=$('#app');
     if(app&&'ResizeObserver' in window){
       const ro=new ResizeObserver(()=>remeasureWhenIdle(260));
@@ -215,19 +203,14 @@
     if(document.fonts?.ready){
       document.fonts.ready.then(()=>remeasureWhenIdle(40)).catch(()=>{});
     }
-
     addEventListener('load',()=>remeasureWhenIdle(60),{once:true});
     addEventListener('orientationchange',()=>remeasureWhenIdle(320),{passive:true});
-
-    /* A few delayed passes cover lazy/remote images without touching metrics
-       during the actual gesture. */
     setTimeout(()=>remeasureWhenIdle(20),600);
     setTimeout(()=>remeasureWhenIdle(20),1800);
   }
 
   window.setupNavigation=setupNavigationV15;
 
-  /* Release the bootstrap gate only after the final navigation override is in place. */
   if(typeof window.__photoUiReadyResolve==='function'){
     window.__photoUiReadyResolve();
     window.__photoUiReadyResolve=null;
