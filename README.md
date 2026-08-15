@@ -2,47 +2,49 @@
 
 모바일 우선 사진 수익화 로드맵 웹사이트입니다.
 
-## 구조
+## 현재 구조
 
-- `public/` — Cloudflare Pages에 배포되는 정적 프런트엔드
-- `functions/api/[[path]].js` — 브라우저와 Apps Script 백엔드 사이의 동일 출처 프록시
-- `apps-script/` — Google Sheet DB, 질문 기록, 이메일 OTP 백엔드
-- `.github/workflows/deploy-apps-script.yml` — Apps Script 자동배포
+- `public/` — Cloudflare Pages 정적 프런트엔드
+- `functions/api/[[path]].js` — Cloudflare Pages Function
+- Google Sheets API — 기존 Google Sheet를 직접 읽고 씁니다.
 
-## Cloudflare Pages 설정
+Apps Script는 사용하지 않습니다.
 
-Cloudflare Pages에서 GitHub 저장소를 연결하면 `main` 브랜치 push마다 자동 배포됩니다.
+## 자동 배포
 
-- Framework preset: None
-- Build command: 비워두기
+`main` 브랜치에 push되면 Cloudflare Pages가 자동 배포합니다.
+
+- Production branch: `main`
 - Build output directory: `public`
 - Root directory: 비워두기
-- Production branch: `main`
+- 현재 Cloudflare 프로젝트에서 `exit 0` Build command를 사용해도 됩니다.
 
-환경 변수:
+## Cloudflare 환경 변수
 
-- `APPS_SCRIPT_API_URL`
-  - `https://script.google.com/macros/s/AKfycbzBVn9oXNWbBVCKV46t_0j5qRJ26ao1gNJneIHIA1nm9EyNnYW-_Wa8FX_JI10_O1E6/exec`
-  - 같은 Apps Script 배포를 업데이트하므로 이 URL은 그대로 유지합니다.
+Production 환경에 아래 두 값만 필요합니다.
 
-## Apps Script 자동배포
+- `GOOGLE_SHEET_ID`
+- `GOOGLE_SERVICE_ACCOUNT_JSON` — Secret으로 저장
 
-`apps-script/**`가 `main`에 변경되면 GitHub Actions가 기존 웹앱 배포를 업데이트하도록 구성되어 있습니다.
+서비스 계정 이메일에는 해당 Google Sheet를 편집자로 공유해야 합니다.
 
-Repository secrets에 아래 두 값을 한 번만 등록합니다.
+## 데이터 흐름
 
-- `APPS_SCRIPT_ID` — Apps Script 편집기 → 프로젝트 설정 → 스크립트 ID
-- `CLASPRC_JSON` — `clasp login` 후 생성되는 사용자 OAuth 인증 파일의 전체 JSON
+GitHub → Cloudflare Pages / Functions → Google Sheets API → Google Sheet
 
-배포 ID는 현재 웹앱 URL의 배포 ID를 workflow에 고정해 두었습니다.
-
-최초 설정 후에는 `apps-script/` 변경 → GitHub Actions → 기존 Apps Script 배포 업데이트 순서로 자동 반영됩니다. 새 배포를 만들지 않으므로 `/exec` 주소를 Cloudflare에서 다시 바꿀 필요가 없습니다.
-
-주의: `clasp push`는 Apps Script 프로젝트 소스를 `apps-script/` 폴더 내용으로 교체합니다. 이 프로젝트는 Cloudflare 프런트엔드 + Apps Script 백엔드 구조를 전제로 합니다.
+시트 내용을 수정하면 Git 배포 없이 다음 조회에서 바로 반영됩니다.
+프런트엔드 또는 Function 코드를 수정하면 GitHub push 후 Cloudflare가 자동 배포합니다.
 
 ## 질문함
 
-- 로그인 없이 같은 브라우저에 localStorage 저장
-- 허용 이메일은 Google Sheet `QUESTION_USERS`에서 관리
-- 이메일 OTP 로그인 후 `QUESTION_HISTORY`에 동기화
-- OpenAI API는 사용하지 않음
+- OpenAI API를 사용하지 않습니다.
+- 질문은 브라우저 localStorage와 `QUESTION_HISTORY` 시트에 함께 저장합니다.
+- 로그인 서버 없이 브라우저별 임의 동기화 키를 사용합니다.
+- `동기화 키 복사` 후 다른 기기에서 `다른 기기 연결`로 같은 질문 기록을 불러올 수 있습니다.
+- 질문 삭제 시 로컬 기록과 Google Sheet 기록을 함께 정리합니다.
+
+## 보안
+
+- 서비스 계정 JSON은 GitHub에 넣지 않습니다.
+- Cloudflare의 encrypted Secret에만 저장합니다.
+- 웹 브라우저에는 서비스 계정 키가 전달되지 않습니다.
