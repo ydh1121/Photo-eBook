@@ -1,0 +1,7 @@
+{
+  "build_command": "exit 0",
+  "build_output_directory": "public",
+  "environment_variables": [
+    "APPS_SCRIPT_API_URL"
+  ]
+}
