@@ -1,0 +1,49 @@
+/* v15: compositor-backed full-capsule reading progress */
+.nav-glass,
+.nav-shell.is-compact .nav-glass,
+.nav-shell.is-scrolled .nav-glass{
+  --progress-scale:0;
+}
+
+/* The whole capsule background is the progress indicator. The fill uses a
+   transform instead of width/gradient-stop changes so Safari can composite it
+   without repainting the sticky layout on every scroll frame. */
+.nav-glass::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  z-index:0!important;
+  border-radius:inherit!important;
+  pointer-events:none!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.03)),
+    linear-gradient(90deg,rgba(105,166,255,.18),rgba(75,139,239,.25))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.48)!important;
+  transform-origin:left center!important;
+  transform:translateZ(0) scaleX(var(--progress-scale))!important;
+  will-change:transform!important;
+  transition:none!important;
+}
+
+.nav-glass::after{
+  transform:translateZ(0)!important;
+}
+
+/* Keep sticky geometry isolated and static. */
+.nav-shell{
+  contain:layout style!important;
+}
+.nav-glass{
+  contain:paint!important;
+}
+
+@media(max-width:430px){
+  .nav-shell,
+  .nav-shell.is-compact,
+  .nav-shell.is-scrolled{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+}
