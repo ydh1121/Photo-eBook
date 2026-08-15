@@ -1,4 +1,4 @@
-/* v28: keep v27 enhancements out of the critical boot path. */
+/* v29: keep optional v27 enhancements off the critical path and prevent self-observer lockups. */
 (function(){
   if(window.__photoPostloadV27Installed)return;
   window.__photoPostloadV27Installed=true;
@@ -7,6 +7,8 @@
     const app=document.querySelector('#app');
     return Boolean(app&&!app.hidden&&app.childElementCount);
   }
+
+  function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
   function loadScript(src){
     return new Promise((resolve,reject)=>{
@@ -30,30 +32,102 @@
     if(appReady())return Promise.resolve();
     return new Promise(resolve=>{
       let done=false;
-      const finish=()=>{if(done)return;done=true;observer.disconnect();clearInterval(timer);resolve();};
+      const finish=()=>{
+        if(done)return;
+        done=true;
+        observer.disconnect();
+        clearInterval(timer);
+        resolve();
+      };
       const observer=new MutationObserver(()=>{if(appReady())finish();});
       observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
       const timer=setInterval(()=>{if(appReady())finish();},120);
     });
   }
 
+  /* A hidden sheet must never leave the document in a scroll-locked state. */
+  function releaseStaleInteractionLocks(){
+    const askSheet=document.querySelector('#askSheet');
+    if(!askSheet||askSheet.hidden){
+      document.body.classList.remove('is-modal-open');
+    }
+
+    const collectionSheet=document.querySelector('#collectionSheet');
+    if(!collectionSheet||collectionSheet.hidden){
+      document.documentElement.classList.remove('collection-open');
+      document.body.classList.remove('collection-open');
+      document.body.style.top='';
+    }
+
+    const collectionBackdrop=document.querySelector('#collectionBackdrop');
+    if(collectionBackdrop?.hidden)collectionBackdrop.style.pointerEvents='none';
+    const askBackdrop=document.querySelector('#askBackdrop');
+    if(askBackdrop?.hidden)askBackdrop.style.pointerEvents='none';
+  }
+
+  /* script-14 v27 used a document-wide subtree MutationObserver. Its own count
+     updates mutate text nodes, which can recursively re-trigger initialize() and
+     starve the main thread. Suppress only that document-wide observer while the
+     optional enhancement script is evaluated; native observers are restored as
+     soon as the script finishes loading. */
+  async function loadEnhancementWithoutGlobalSubtreeObserver(src){
+    const NativeMutationObserver=window.MutationObserver;
+    if(typeof NativeMutationObserver!=='function')return loadScript(src);
+
+    function GuardedMutationObserver(callback){
+      const native=new NativeMutationObserver(callback);
+      return {
+        observe(target,options){
+          const isUnsafe=target===document.documentElement&&Boolean(options?.childList)&&Boolean(options?.subtree);
+          if(isUnsafe)return;
+          native.observe(target,options);
+        },
+        disconnect(){native.disconnect();},
+        takeRecords(){return native.takeRecords();}
+      };
+    }
+
+    GuardedMutationObserver.prototype=NativeMutationObserver.prototype;
+    window.MutationObserver=GuardedMutationObserver;
+    try{
+      await loadScript(src);
+    }finally{
+      window.MutationObserver=NativeMutationObserver;
+    }
+  }
+
   async function start(){
     await whenAppReady();
+
+    /* apiGetSiteData can replace the first bundled render shortly after boot.
+       Let that settle before touching optional media / collection UI. */
+    await wait(900);
+    if(!appReady())return;
+    releaseStaleInteractionLocks();
+
     await new Promise(resolve=>{
-      if('requestIdleCallback'in window)requestIdleCallback(()=>resolve(),{timeout:900});
-      else setTimeout(resolve,180);
+      if('requestIdleCallback'in window)requestIdleCallback(()=>resolve(),{timeout:700});
+      else setTimeout(resolve,120);
     });
+
     try{
-      await loadScript('/assets/script-asset-fix.js?v=28');
+      await loadScript('/assets/script-asset-fix.js?v=29');
     }catch(error){
       console.warn('postload image helper skipped',error);
     }
+
     try{
-      await loadScript('/assets/script-14.js?v=28');
+      await loadEnhancementWithoutGlobalSubtreeObserver('/assets/script-14.js?v=29');
     }catch(error){
       console.error('postload enhancement failed',error);
     }
+
+    releaseStaleInteractionLocks();
+    setTimeout(releaseStaleInteractionLocks,120);
+    setTimeout(releaseStaleInteractionLocks,900);
   }
+
+  window.addEventListener('pageshow',()=>setTimeout(releaseStaleInteractionLocks,80),{passive:true});
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
