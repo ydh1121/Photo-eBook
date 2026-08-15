@@ -1,0 +1,19 @@
+.nav-top-btn{
+  position:absolute;
+  right:.7rem;
+  top:calc(.55rem + var(--safe-top));
+  z-index:3;
+  width:2.55rem;
+  height:2.55rem;
+  border:1px solid rgba(0,0,0,.07);
+  border-radius:999px;
+  background:rgba(255,255,255,.93);
+  color:#44464d;
+  box-shadow:0 3px 12px rgba(0,0,0,.06);
+  font-size:20px;
+  font-weight:700;
+  line-height:1;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.nav-top-btn[hidden]{display:none!important}
