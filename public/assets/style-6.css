@@ -1,0 +1,19 @@
+/* v9 card tuning */
+.market-card{width:min(78vw,18.25rem)}
+.case-card{width:min(77vw,18rem)}
+.product-card{width:min(73vw,17.2rem)}
+.offer-card{width:min(77vw,17.2rem)}
+.phase-card{width:min(77vw,17.4rem)}
+.skill-card{width:min(72vw,16.2rem)}
+.lesson-preview{width:min(70vw,15.3rem)}
+.preset-card{width:min(72vw,15.7rem)}
+
+.product-card__image{background:#fff!important}
+.product-card__image img{object-fit:contain;object-position:center}
+.mission-card small{color:#fff!important;opacity:.82}
+
+.script-card,.message-bubble,.offer-card,.phase-card,.product-row,.case-card__body,
+.product-card__body,.source-card,.preset-card__body,.lesson-preview__body{
+  min-width:0;
+  max-width:100%;
+}
