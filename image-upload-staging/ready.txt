@@ -1,3 +1,0 @@
-batch=image-batch-001-repair
-sha256=0592570e2029555ae0adfe8c1ab6a442413c306a9d97e4a3005f219971aaa52f
-triggered_at=2026-08-17T01:43:00+09:00
