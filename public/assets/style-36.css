@@ -1,4 +1,4 @@
-/* v3: light-mode contrast and curated-card badge polish.
+/* v4: light-mode contrast and existing-badge reuse for curated cards.
    Keep Safari chrome handling, liquid rails and motion untouched. */
 
 html[data-theme="light"]{
@@ -80,7 +80,9 @@ html[data-theme="light"] .theme-choice button:not(.is-active){
 }
 
 /* --------------------------------------------------------------------------
-   Curated reading cards: use the actual DOM classes emitted by renderCuratedItems.
+   Curated reading cards.
+   Image-source labels need their own image-safe treatment, but content tags
+   deliberately reuse the same badge language already used in gear rows.
    -------------------------------------------------------------------------- */
 .curated-card .curated-platform{
   min-height:31px!important;
@@ -98,17 +100,27 @@ html[data-theme="light"] .theme-choice button:not(.is-active){
 }
 
 html[data-theme="light"] .curated-card .curated-tags>span{
-  background:#e8edf4!important;
-  color:#465365!important;
-  border:1px solid rgba(55,76,109,.15)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 2px 6px rgba(42,58,85,.035)!important;
-  font-weight:720!important;
+  display:inline-block!important;
+  padding:.34rem .5rem!important;
+  border:0!important;
+  border-radius:7px!important;
+  background:var(--grouped)!important;
+  color:#55555a!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+  font-weight:400!important;
+  line-height:1.2!important;
 }
 
 html[data-theme="dark"] .curated-card .curated-tags>span{
-  background:#2a323e!important;
-  color:#e0e6ef!important;
-  border:1px solid rgba(255,255,255,.13)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 6px rgba(0,0,0,.12)!important;
-  font-weight:720!important;
+  display:inline-block!important;
+  padding:.34rem .5rem!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  border-radius:7px!important;
+  background:var(--v36-dark-surface-3,#20252d)!important;
+  color:#bcc4cf!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+  font-weight:400!important;
+  line-height:1.2!important;
 }
