@@ -3,21 +3,21 @@
    WebP exists and ready=true; otherwise the current production image remains. */
 (function(){
   const slots={
-    'hero-main':{path:'/assets/images/generated/v1/hero/hero-main.webp',fallbackKey:'hero',ready:true},
+    'hero-main':{path:'/assets/images/generated/v1/hero/hero-main.webp',fallbackKey:'hero',ready:true,rev:'b001'},
     'chapter-intro':{path:'/assets/images/generated/v1/chapter/intro.webp',fallbackKey:'intro',ready:false},
     'chapter-market':{path:'/assets/images/generated/v1/chapter/market.webp',fallbackKey:'product',ready:false},
-    'chapter-education':{path:'/assets/images/generated/v1/chapter/education.webp',fallbackKey:'education',ready:true},
+    'chapter-education':{path:'/assets/images/generated/v1/chapter/education.webp',fallbackKey:'education',ready:true,rev:'b001'},
     'chapter-skills':{path:'/assets/images/generated/v1/chapter/skills.webp',fallbackKey:'skills',ready:false},
-    'chapter-portfolio':{path:'/assets/images/generated/v1/chapter/portfolio.webp',fallbackKey:'portfolio',ready:true},
+    'chapter-portfolio':{path:'/assets/images/generated/v1/chapter/portfolio.webp',fallbackKey:'portfolio',ready:true,rev:'b001'},
     'chapter-gear':{path:'/assets/images/generated/v1/chapter/gear.webp',fallbackKey:'gear',ready:false},
     'chapter-plan':{path:'/assets/images/generated/v1/chapter/plan.webp',fallbackKey:'plan',ready:false},
     'chapter-scripts':{path:'/assets/images/generated/v1/chapter/scripts.webp',fallbackKey:'scripts',ready:false},
     'chapter-iphone':{path:'/assets/images/generated/v1/chapter/iphone.webp',fallbackKey:'iphone',ready:false},
     'chapter-sources':{path:'/assets/images/generated/v1/chapter/sources.webp',fallbackKey:'gear',ready:false},
 
-    'market-product-commerce':{path:'/assets/images/generated/v1/market/product-commerce.webp',fallbackKey:'product',ready:true},
-    'market-corporate-profile':{path:'/assets/images/generated/v1/market/corporate-profile.webp',fallbackKey:'profile',ready:true},
-    'market-food-space':{path:'/assets/images/generated/v1/market/food-space.webp',fallbackKey:'food',ready:true},
+    'market-product-commerce':{path:'/assets/images/generated/v1/market/product-commerce.webp',fallbackKey:'product',ready:true,rev:'b001'},
+    'market-corporate-profile':{path:'/assets/images/generated/v1/market/corporate-profile.webp',fallbackKey:'profile',ready:true,rev:'b001'},
+    'market-food-space':{path:'/assets/images/generated/v1/market/food-space.webp',fallbackKey:'food',ready:true,rev:'b001'},
 
     'skill-portrait-retouch':{path:'/assets/images/generated/v1/skills/portrait-retouch.webp',fallbackKey:'edit',ready:false},
     'skill-product-retouch':{path:'/assets/images/generated/v1/skills/product-retouch.webp',fallbackKey:'product',ready:false},
@@ -58,13 +58,19 @@
     'fallback-video-general':{path:'/assets/images/generated/v1/fallback/video-general.webp',fallbackKey:'skills',ready:false}
   };
 
+  function assetUrl(slot){
+    if(!slot?.path)return '';
+    return slot.rev?`${slot.path}${slot.path.includes('?')?'&':'?'}v=${encodeURIComponent(slot.rev)}`:slot.path;
+  }
+
   window.__PHOTO_IMAGE_SLOTS_V1=slots;
   window.photoImageSlot=function(slotId,options={}){
     const slot=slots[slotId];
-    if(slot?.ready&&slot.path)return slot.path;
+    if(slot?.ready&&slot.path)return assetUrl(slot);
     if(options.fallbackUrl)return options.fallbackUrl;
     const key=options.fallbackKey||slot?.fallbackKey;
     if(key&&typeof window.imageFor==='function')return window.imageFor(key);
     return options.fallback||'';
   };
+  window.photoImageAssetUrl=assetUrl;
 })();
