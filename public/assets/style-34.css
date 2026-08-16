@@ -1,4 +1,4 @@
-/* v56: preserve accepted nav/canvas states and align the secondary question selector to the collection column. */
+/* v57: preserve accepted nav/canvas states and balance the secondary question selector. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -58,10 +58,10 @@ body::after{
    Question write/saved selector — secondary hierarchy.
 
    script-25 intentionally moves #v40QuestionControls INSIDE #collectionTools.
-   .collection-tools already owns the 18px horizontal content gutter, so this
-   control must not add a second horizontal inset. Its rail should share the
-   exact left/right edges of .collection-search. Hierarchy is expressed only by
-   the lower height/type scale/material intensity, not by a narrower rail.
+   The outer rail shares the search field's exact left/right edges. The two
+   logical destinations still occupy equal halves, but the visible liquid pill
+   is intentionally narrower than each half and centered inside it. This avoids
+   the oversized half-rail block seen in v56 while keeping symmetric endpoints.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
@@ -98,8 +98,10 @@ body::after{
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
+  justify-self:center!important;
   gap:5px!important;
-  width:100%!important;
+  width:min(calc(100% - 18px),154px)!important;
+  max-width:154px!important;
   min-width:0!important;
   height:40px!important;
   min-height:40px!important;
@@ -141,7 +143,7 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   color:#94a7c9!important;
 }
 
-/* Indicator geometry matches the secondary 40px pill exactly. */
+/* Indicator geometry follows the centered physical button, not the full half. */
 #v40QuestionControls .v36-question-indicator{
   top:0!important;
   left:0!important;
@@ -180,6 +182,8 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 
 @media(max-width:360px){
   #v40QuestionControls .v40-question-segment>button{
+    width:calc(100% - 14px)!important;
+    max-width:146px!important;
     padding-inline:8px!important;
     font-size:12px!important;
   }
