@@ -1,1 +1,1 @@
-diagnose=v1-image-batch-001-cloudflare
+diagnose=v1-image-batch-001-binder-v3
