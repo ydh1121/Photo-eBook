@@ -1,7 +1,7 @@
-/* v65: canonical question cleanup and deterministic contextual-selection handoff. */
+/* v66: canonical question cleanup, label normalization, and deterministic contextual-selection handoff. */
 (function(){
-  if(window.__photoV65QuestionCanonicalInstalled)return;
-  window.__photoV65QuestionCanonicalInstalled=true;
+  if(window.__photoV66QuestionCanonicalInstalled)return;
+  window.__photoV66QuestionCanonicalInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -16,6 +16,9 @@
       node.hidden=true;
       node.setAttribute('aria-hidden','true');
     });
+
+    const write=$('button[data-v40-qmode="write"]',root);
+    if(write&&write.textContent.trim()!=='질문 작성하기')write.textContent='질문 작성하기';
 
     const indicators=$$('.v36-question-indicator',root);
     indicators.slice(1).forEach(node=>node.remove());
