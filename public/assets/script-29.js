@@ -52,8 +52,9 @@
     const padR=parseFloat(cs.paddingRight)||0;
     const padT=parseFloat(cs.paddingTop)||0;
     const slotW=button.offsetWidth;
-    const pillInset=root.clientWidth<=360?14:18;
-    const pillCap=root.clientWidth<=360?146:154;
+    const compact=window.innerWidth<=360;
+    const pillInset=compact?14:18;
+    const pillCap=compact?146:154;
     const pillW=Math.max(0,Math.min(slotW-pillInset,pillCap));
     const inner=(slotW-pillW)/2;
 
