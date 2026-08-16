@@ -1,4 +1,5 @@
-/* v50: keep Safari chrome untinted without touching scroll/gesture paths. */
+/* v52: keep Safari chrome untinted through late theme initialization.
+   No observers, no scroll handlers, no gesture code. */
 (function(){
   if(window.__photoV50ChromeCleanupInstalled)return;
   window.__photoV50ChromeCleanupInstalled=true;
@@ -7,7 +8,15 @@
     document.querySelectorAll('meta[name="theme-color"]').forEach(node=>node.remove());
   }
 
-  clearThemeColor();
-  window.addEventListener('photo-theme-change',clearThemeColor,{passive:true});
-  window.addEventListener('pageshow',clearThemeColor,{passive:true});
+  function sweep(){
+    [0,120,420,900,1800,3200].forEach(delay=>setTimeout(clearThemeColor,delay));
+  }
+
+  sweep();
+  window.addEventListener('photo-theme-change',()=>{
+    clearThemeColor();
+    setTimeout(clearThemeColor,80);
+    setTimeout(clearThemeColor,320);
+  },{passive:true});
+  window.addEventListener('pageshow',sweep,{passive:true});
 })();
