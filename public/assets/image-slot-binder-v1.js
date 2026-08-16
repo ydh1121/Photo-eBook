@@ -1,13 +1,13 @@
 /* V1 semantic image-slot binder.
-   Maps rendered production DOM to reserved contextual WebP slots.
-   v2 keeps rebinding through async/partial renders instead of exiting after the
-   first non-empty app paint. */
+   v3 keeps binding through async/re-rendered content and always uses the
+   slot runtime URL (including the slot cache revision) for ready assets. */
 (function(){
   if(window.__photoImageSlotBinderV1Installed)return;
   window.__photoImageSlotBinderV1Installed=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  let bindRaf=0;
 
   function slotReady(id){
     const slot=window.__PHOTO_IMAGE_SLOTS_V1?.[id];
@@ -16,9 +16,12 @@
 
   function slotUrl(id){
     const slot=window.__PHOTO_IMAGE_SLOTS_V1?.[id];
-    if(!slot)return '';
-    if(typeof window.photoImageAssetUrl==='function')return window.photoImageAssetUrl(slot);
-    return slot.path||'';
+    if(!slot?.ready||!slot.path)return '';
+    if(typeof window.photoImageSlotPath==='function'){
+      const runtime=window.photoImageSlotPath(id);
+      if(runtime)return runtime;
+    }
+    return slot.rev?`${slot.path}?v=${encodeURIComponent(slot.rev)}`:slot.path;
   }
 
   function sameAsset(img,next){
@@ -38,12 +41,16 @@
     const previous=(img.dataset.photoImageFallback||img.getAttribute('src')||'').trim();
     img.dataset.photoImageSlot=slotId;
     if(previous)img.dataset.photoImageFallback=previous;
+    img.dataset.photoImageTarget=next;
 
     if(!img.dataset.photoImageErrorBound){
       img.dataset.photoImageErrorBound='1';
       img.addEventListener('error',()=>{
+        const target=img.dataset.photoImageTarget||'';
         const fallback=img.dataset.photoImageFallback||'';
-        if(fallback&&!sameAsset(img,fallback))img.setAttribute('src',fallback);
+        if(target&&img.getAttribute('src')===target&&fallback&&!sameAsset(img,fallback)){
+          img.setAttribute('src',fallback);
+        }
       });
     }
 
@@ -171,18 +178,19 @@
     return applied;
   }
 
+  function scheduleBind(){
+    if(bindRaf)return;
+    bindRaf=requestAnimationFrame(()=>{
+      bindRaf=0;
+      bindAll();
+    });
+  }
+
   function start(){
     const app=$('#app');
     if(!app)return;
 
-    let raf=0;
-    let stopTimer=0;
-    const schedule=()=>{
-      if(raf)return;
-      raf=requestAnimationFrame(()=>{raf=0;bindAll();});
-    };
-
-    const observer=new MutationObserver(schedule);
+    const observer=new MutationObserver(scheduleBind);
     observer.observe(app,{
       childList:true,
       subtree:true,
@@ -190,15 +198,15 @@
       attributeFilter:['hidden','src']
     });
 
-    schedule();
-    [80,220,600,1200,2400,4200,7000].forEach(ms=>setTimeout(schedule,ms));
-    addEventListener('load',schedule,{once:true});
-    addEventListener('pageshow',()=>setTimeout(schedule,80),{passive:true});
+    scheduleBind();
+    [80,220,600,1200,2400,4200,7000].forEach(ms=>setTimeout(scheduleBind,ms));
+    addEventListener('load',scheduleBind,{once:true});
+    addEventListener('pageshow',()=>setTimeout(scheduleBind,80),{passive:true});
 
-    stopTimer=setTimeout(()=>observer.disconnect(),10000);
+    const stopTimer=setTimeout(()=>observer.disconnect(),10000);
     window.__photoImageRebindV1=()=>{
       clearTimeout(stopTimer);
-      schedule();
+      scheduleBind();
     };
   }
 
