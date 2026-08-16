@@ -1,0 +1,58 @@
+name: Import staged WebP batch
+
+on:
+  push:
+    paths:
+      - 'image-upload-staging/ready.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat image-upload-staging/part-*.txt | base64 -d > /tmp/image-batch.tar.gz
+          echo '0592570e2029555ae0adfe8c1ab6a442413c306a9d97e4a3005f219971aaa52f  /tmp/image-batch.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/image-batch.tar.gz
+          for f in \
+            public/assets/images/generated/v1/hero/hero-main.webp \
+            public/assets/images/generated/v1/chapter/education.webp \
+            public/assets/images/generated/v1/chapter/portfolio.webp \
+            public/assets/images/generated/v1/market/product-commerce.webp \
+            public/assets/images/generated/v1/market/corporate-profile.webp \
+            public/assets/images/generated/v1/market/food-space.webp; do
+            test -s "$f"
+            file "$f" | grep -qi 'Web/P image'
+          done
+      - name: Refresh runtime cache revision
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('public/assets/image-slots-v1.js')
+          s=p.read_text()
+          s=s.replace("rev:'b001'", "rev:'b003'")
+          p.write_text(s)
+          p=Path('public/index.html')
+          s=p.read_text()
+          s=s.replace('/assets/image-slots-v1.js?v=2','/assets/image-slots-v1.js?v=3')
+          p.write_text(s)
+          PY
+      - name: Commit repaired binary assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf image-upload-staging
+          git config user.name 'photo-ebook-image-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add public/assets/images/generated/v1 public/assets/image-slots-v1.js public/index.html image-upload-staging
+          git commit -m 'Repair V1 image batch 001 binaries'
+          git push origin HEAD:main
