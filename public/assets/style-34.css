@@ -1,10 +1,6 @@
-/* v72: grid-owned question rail geometry, exposed spring overshoot, and stable Safari under-page surfaces. */
+/* v73: stable Safari glass surface + grid-owned question rail. */
 
-/* --------------------------------------------------------------------------
-   Top navigation land
-   The rail itself owns the glass. The area behind it must stay transparent.
-   Reading progress remains inside .nav-scroll via --v32-progress.
-   -------------------------------------------------------------------------- */
+/* Top navigation land */
 .nav-shell,
 html[data-theme="light"] .nav-shell,
 html[data-theme="dark"] .nav-shell{
@@ -16,62 +12,71 @@ html[data-theme="dark"] .nav-shell{
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
 }
-
 .nav-progress-liquid,
-.read-progress{
-  pointer-events:none!important;
-}
+.read-progress{pointer-events:none!important}
 
 /* --------------------------------------------------------------------------
-   Safari bottom chrome / page canvas
+   Safari bottom chrome
 
-   iOS 26 Safari can expose the browser's own black under-page whenever normal
-   document content ends, or whenever a fixed sheet is clipped at the visual
-   viewport edge. A transparent root therefore produces a black strip even
-   though the floating browser chrome itself is translucent.
-
-   Keep the actual overlay layer transparent, but give html/body the same solid
-   surface as the visible page. Real content still shows through Safari's glass
-   wherever it physically extends underneath the toolbar; only empty/clipped
-   under-page space receives this fallback surface.
+   Keep the browser-facing root transparent. More importantly, do not replace
+   the page scroll container with overflow:hidden while the collection sheet is
+   open: iOS Safari rebuilds its bottom chrome compositor when the root scroller
+   disappears. The fixed backdrop already blocks background touch gestures, so
+   the document scroller can stay alive beneath the sheet.
    -------------------------------------------------------------------------- */
 html,
-body{
-  min-height:100%!important;
-  background-image:none!important;
-}
 body,
-#app,
-.app{
-  min-height:100dvh!important;
-}
-
-html[data-theme="dark"],
-html[data-theme="dark"] body{
-  background-color:var(--lg-dark-canvas,#0d0f13)!important;
-}
-html[data-theme="light"],
-html[data-theme="light"] body{
-  background-color:var(--canvas,#fff)!important;
-}
-
-/* When the fixed collection sheet hits Safari's visual-viewport boundary,
-   continue the sheet surface into the browser under-page instead of exposing
-   pure black. This is only a fallback behind Safari chrome; the sheet itself
-   remains the visible foreground. */
-html[data-theme="dark"].collection-open,
-html[data-theme="dark"].collection-open body{
-  background-color:#111418!important;
-}
-html[data-theme="light"].collection-open,
-html[data-theme="light"].collection-open body{
-  background-color:#fff!important;
-}
-
+html[data-theme="light"] body,
+html[data-theme="dark"] body,
+html.collection-open,
+body.collection-open,
 #collectionLayer{
   background:transparent!important;
   background-color:transparent!important;
   background-image:none!important;
+}
+
+html,
+body,
+#app,
+.app{
+  min-height:100%!important;
+  min-height:100dvh!important;
+}
+
+/* The iOS-only class is installed by script-30. Keep the root scroller alive
+   and suppress rubber-band under-page exposure at the hard scroll edges. */
+html.ios-webkit-chrome,
+html.ios-webkit-chrome body{
+  overscroll-behavior-y:none!important;
+}
+html.ios-webkit-chrome.collection-open,
+html.ios-webkit-chrome.collection-open body{
+  overflow-x:clip!important;
+  overflow-y:auto!important;
+  overscroll-behavior:none!important;
+}
+html.ios-webkit-chrome.collection-open body{
+  position:static!important;
+  top:auto!important;
+  left:auto!important;
+  right:auto!important;
+  width:auto!important;
+}
+
+#collectionLayer{
+  pointer-events:none;
+}
+#collectionLayer :is(#collectionFab,#collectionBackdrop,#collectionSheet){
+  pointer-events:auto;
+}
+.collection-backdrop{
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+.collection-body{
+  overscroll-behavior:contain!important;
+  touch-action:pan-y!important;
 }
 
 html[data-theme="dark"] #app,
@@ -95,12 +100,6 @@ body::after{
 
 /* --------------------------------------------------------------------------
    Question write/saved selector — grid-owned geometry + exposed spring.
-
-   The rail itself owns the only 5px inset. The indicator is a real grid item in
-   column 1, so both endpoints stay mathematically symmetric. The rail does not
-   clip its child: the Breeze easing can overshoot beyond the rail edge and
-   settle back in, matching the other liquid selectors. The pill sits above the
-   rail surface, while the button labels remain above the pill.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
@@ -163,15 +162,9 @@ body::after{
   white-space:nowrap!important;
   text-align:center!important;
 }
-#v40QuestionControls .v40-question-segment>button[data-v40-qmode="write"]{
-  grid-column:1!important;
-}
-#v40QuestionControls .v40-question-segment>button[data-v40-qmode="saved"]{
-  grid-column:2!important;
-}
+#v40QuestionControls .v40-question-segment>button[data-v40-qmode="write"]{grid-column:1!important}
+#v40QuestionControls .v40-question-segment>button[data-v40-qmode="saved"]{grid-column:2!important}
 
-/* Keep the label and count as one centered group. A normal flex gap remains
-   stable when the count grows from one to two or three digits. */
 #v40QuestionControls .v40-question-segment>button>span{
   position:static!important;
   left:auto!important;
@@ -231,14 +224,12 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   will-change:transform!important;
   isolation:isolate!important;
 }
-
 #v40QuestionControls .v40-question-segment:has(>button[data-v40-qmode="saved"].is-active)>.v36-question-indicator{
   transform:translate3d(calc(100% + 5px),0,0)!important;
 }
 #v40QuestionControls .v40-question-segment:has(>button[data-v40-qmode="write"].is-active)>.v36-question-indicator{
   transform:translate3d(0,0,0)!important;
 }
-
 #v40QuestionControls .v36-question-indicator>.v37-liquid-skin{
   inset:0!important;
   z-index:1!important;
@@ -253,11 +244,6 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   transform:translate3d(0,0,0)!important;
 }
 
-/* --------------------------------------------------------------------------
-   Question quote / selected sentence
-   A one-line placeholder must sit on the visual Y center of the quote field.
-   Multiline selected text can grow naturally without changing this alignment.
-   -------------------------------------------------------------------------- */
 #askQuote,
 #askWritePanel .ask-sheet__quote{
   display:flex!important;
@@ -272,11 +258,8 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 }
 
 @media(prefers-reduced-motion:reduce){
-  #v40QuestionControls .v36-question-indicator{
-    transition:none!important;
-  }
+  #v40QuestionControls .v36-question-indicator{transition:none!important}
 }
-
 @media(max-width:360px){
   #v40QuestionControls .v40-question-segment>button{
     gap:6px!important;
