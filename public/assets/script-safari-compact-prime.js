@@ -1,5 +1,4 @@
-/* v1: prime Safari's compact bottom address-pill composition only after the
-   browser UI has actually collapsed from the expanded toolbar state. */
+/* v2: track Safari expanded/compact toolbar cycles and re-prime every compact entry. */
 (function(){
   if(window.__photoSafariCompactPrimeInstalled)return;
   window.__photoSafariCompactPrimeInstalled=true;
@@ -10,6 +9,7 @@
   if(!vv)return;
 
   let baseline=0;
+  let compact=false;
   let primed=false;
   let priming=false;
   let settleTimer=0;
@@ -36,12 +36,33 @@
       Boolean(sheet&&!sheet.hidden);
   }
 
-  function compactNow(){
+  function growth(){return baseline?vv.height-baseline:0;}
+  function shouldEnterCompact(){return Boolean(baseline&&growth()>=28&&(window.scrollY||0)>8);}
+  function shouldLeaveCompact(){return Boolean(baseline&&(growth()<=12||(window.scrollY||0)<=4));}
+
+  function syncCompactState(){
     if(!baseline)return false;
-    const growth=vv.height-baseline;
-    return growth>=28 && (window.scrollY||0)>8;
+
+    if(!compact&&shouldEnterCompact()){
+      compact=true;
+      primed=false;
+      root.classList.add('safari-compact-active');
+      schedule();
+      return true;
+    }
+
+    if(compact&&shouldLeaveCompact()){
+      compact=false;
+      primed=false;
+      clearTimeout(settleTimer);
+      root.classList.remove('safari-compact-active','safari-compact-prime');
+      return true;
+    }
+
+    return false;
   }
 
+  function compactNow(){return compact&&shouldEnterCompact();}
   function nextFrame(){return new Promise(resolve=>requestAnimationFrame(resolve));}
   function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
@@ -59,7 +80,8 @@
       if(layer)void layer.offsetHeight;
       await nextFrame();
 
-      /* Use the production handlers rather than recreating modal state. */
+      /* Replay the exact production interaction that is known to refresh
+         Safari's compact scroll-pocket composition. */
       document.querySelector('#collectionFab')?.click();
       await nextFrame();
       await nextFrame();
@@ -73,19 +95,21 @@
       await nextFrame();
     }catch(error){
       console.warn('Safari compact chrome prime skipped',error);
+      primed=false;
     }finally{
       root.classList.remove('safari-compact-prime');
       if(Math.abs((window.scrollY||0)-y)>1)window.scrollTo(0,y);
       priming=false;
+      syncCompactState();
     }
     return true;
   }
 
   function schedule(){
-    if(primed||priming)return;
+    if(primed||priming||!compact)return;
     clearTimeout(settleTimer);
     settleTimer=setTimeout(()=>{
-      if(!prime()&&!primed)schedule();
+      if(!prime()&&!primed&&compact)schedule();
     },180);
   }
 
@@ -97,7 +121,8 @@
 
   function onViewportChange(){
     if(!baseline)captureBaseline();
-    if(compactNow())schedule();
+    syncCompactState();
+    if(compact&&!primed)schedule();
   }
 
   window.addEventListener('scroll',()=>{
@@ -107,12 +132,16 @@
   vv.addEventListener('resize',onViewportChange,{passive:true});
   vv.addEventListener('scroll',onViewportChange,{passive:true});
 
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')setTimeout(onViewportChange,80);
+  },{passive:true});
+
   function boot(){
     if(!captureBaseline()){
       setTimeout(boot,100);
       return;
     }
-    onViewportChange();
+    syncCompactState();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
