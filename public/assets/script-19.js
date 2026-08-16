@@ -1,4 +1,4 @@
-/* v36: event-driven liquid polish and bulk collection actions. No global DOM observer or touchmove scroll writes. */
+/* v37: event-driven liquid polish and bulk collection actions. Current v40 question motion is excluded here and owned by script-25. */
 (function(){
   if(window.__photoV36Installed)return;
   window.__photoV36Installed=true;
@@ -25,11 +25,11 @@
   function writeObject(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
 
   /* ------------------------------------------------------------------------
-     Question rail: one shared, low-profile liquid pill. It only updates on
-     explicit question-tab actions, so it cannot create a render loop.
+     Legacy question rail only. The current .v40-question-segment keeps the
+     shared visual class but must never be moved by this retired controller.
      ------------------------------------------------------------------------ */
   function syncQuestionIndicator(root,instant=false){
-    if(!root||!root.isConnected)return;
+    if(!root||!root.isConnected||root.classList.contains('v40-question-segment'))return;
     const active=$('button.is-active',root)||$('button',root);
     if(!active)return;
 
@@ -80,7 +80,7 @@
   }
 
   function ensureQuestionIndicator(instant=true){
-    const root=$('.v32-question-segment');
+    const root=$('.v32-question-segment:not(.v40-question-segment)');
     if(root)requestAnimationFrame(()=>syncQuestionIndicator(root,instant));
   }
 
