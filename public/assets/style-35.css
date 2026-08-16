@@ -1,4 +1,4 @@
-/* v5: canonical liquid fallback + hidden compact-Safari chrome prime. */
+/* v6: canonical liquid fallback + Safari compact chrome isolation. */
 
 /* The canonical liquid controller normally installs the moving skin before first
    paint. If JS is delayed, keep the active state in the same raised glass
@@ -24,11 +24,8 @@
   display:block!important;
 }
 
-/* iOS Safari only: when the browser has already collapsed to the compact
-   address pill, script-safari-compact-prime briefly replays the real collection
-   open/tab/close lifecycle to refresh Safari's scroll-pocket composition.
-   Keep that replay painted (opacity must not be exactly zero) but visually
-   imperceptible. This does not change normal popup/FAB geometry. */
+/* Hidden compact-Safari prime. Keep the production collection lifecycle painted
+   for WebKit, but make the automatic replay visually imperceptible. */
 html.safari-compact-prime #collectionLayer{
   opacity:.001!important;
   pointer-events:none!important;
@@ -37,4 +34,63 @@ html.safari-compact-prime #collectionSheet,
 html.safari-compact-prime #collectionBackdrop{
   transition:none!important;
   animation:none!important;
+}
+
+/* --------------------------------------------------------------------------
+   Compact Safari + open collection sheet
+
+   Safari 26 can use the background of a viewport-constrained fixed element as
+   the solid scroll-pocket tint behind the compact address pill. The collection
+   sheet and backdrop therefore keep their fixed geometry and hit targets, but
+   their own fixed surfaces are transparent. The sheet face is painted by an
+   inner pseudo-layer and the page is dimmed directly instead of through a dark
+   fixed backdrop.
+   -------------------------------------------------------------------------- */
+html.ios-webkit-chrome.safari-compact-active.collection-open #collectionBackdrop{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+
+html.ios-webkit-chrome.safari-compact-active.collection-open #app{
+  filter:brightness(.68) saturate(.90)!important;
+  transition:filter 160ms ease!important;
+}
+
+html.ios-webkit-chrome.safari-compact-active.collection-open #collectionSheet{
+  position:fixed!important;
+  isolation:isolate!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+
+html.ios-webkit-chrome.safari-compact-active.collection-open #collectionSheet::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0;
+  border-radius:inherit;
+  background:rgba(249,250,252,.96);
+  pointer-events:none;
+  -webkit-backdrop-filter:blur(26px) saturate(135%);
+  backdrop-filter:blur(26px) saturate(135%);
+}
+
+html.ios-webkit-chrome[data-theme="dark"].safari-compact-active.collection-open #collectionSheet::before{
+  background:rgba(17,20,25,.97);
+}
+
+html.ios-webkit-chrome.safari-compact-active.collection-open #collectionSheet>
+:is(.collection-handle-wrap,.collection-head,.collection-tabs,.collection-tools,.collection-body){
+  position:relative!important;
+  z-index:1!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  html.ios-webkit-chrome.safari-compact-active.collection-open #app{transition:none!important}
 }
