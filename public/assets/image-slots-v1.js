@@ -3,21 +3,21 @@
    WebP exists and ready=true; otherwise the current production image remains. */
 (function(){
   const slots={
-    'hero-main':{path:'/assets/images/generated/v1/hero/hero-main.webp',fallbackKey:'hero',ready:false},
+    'hero-main':{path:'/assets/images/generated/v1/hero/hero-main.webp',fallbackKey:'hero',ready:true},
     'chapter-intro':{path:'/assets/images/generated/v1/chapter/intro.webp',fallbackKey:'intro',ready:false},
     'chapter-market':{path:'/assets/images/generated/v1/chapter/market.webp',fallbackKey:'product',ready:false},
-    'chapter-education':{path:'/assets/images/generated/v1/chapter/education.webp',fallbackKey:'education',ready:false},
+    'chapter-education':{path:'/assets/images/generated/v1/chapter/education.webp',fallbackKey:'education',ready:true},
     'chapter-skills':{path:'/assets/images/generated/v1/chapter/skills.webp',fallbackKey:'skills',ready:false},
-    'chapter-portfolio':{path:'/assets/images/generated/v1/chapter/portfolio.webp',fallbackKey:'portfolio',ready:false},
+    'chapter-portfolio':{path:'/assets/images/generated/v1/chapter/portfolio.webp',fallbackKey:'portfolio',ready:true},
     'chapter-gear':{path:'/assets/images/generated/v1/chapter/gear.webp',fallbackKey:'gear',ready:false},
     'chapter-plan':{path:'/assets/images/generated/v1/chapter/plan.webp',fallbackKey:'plan',ready:false},
     'chapter-scripts':{path:'/assets/images/generated/v1/chapter/scripts.webp',fallbackKey:'scripts',ready:false},
     'chapter-iphone':{path:'/assets/images/generated/v1/chapter/iphone.webp',fallbackKey:'iphone',ready:false},
     'chapter-sources':{path:'/assets/images/generated/v1/chapter/sources.webp',fallbackKey:'gear',ready:false},
 
-    'market-product-commerce':{path:'/assets/images/generated/v1/market/product-commerce.webp',fallbackKey:'product',ready:false},
-    'market-corporate-profile':{path:'/assets/images/generated/v1/market/corporate-profile.webp',fallbackKey:'profile',ready:false},
-    'market-food-space':{path:'/assets/images/generated/v1/market/food-space.webp',fallbackKey:'food',ready:false},
+    'market-product-commerce':{path:'/assets/images/generated/v1/market/product-commerce.webp',fallbackKey:'product',ready:true},
+    'market-corporate-profile':{path:'/assets/images/generated/v1/market/corporate-profile.webp',fallbackKey:'profile',ready:true},
+    'market-food-space':{path:'/assets/images/generated/v1/market/food-space.webp',fallbackKey:'food',ready:true},
 
     'skill-portrait-retouch':{path:'/assets/images/generated/v1/skills/portrait-retouch.webp',fallbackKey:'edit',ready:false},
     'skill-product-retouch':{path:'/assets/images/generated/v1/skills/product-retouch.webp',fallbackKey:'product',ready:false},
