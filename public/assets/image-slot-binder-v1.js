@@ -1,8 +1,7 @@
 /* V1 semantic image-slot binder.
-   This layer does not render or generate images. It maps the already-rendered
-   production DOM to reserved contextual WebP slots. A slot is applied only
-   when image-slots-v1.js marks it ready=true. Until then the existing image
-   src remains untouched. */
+   Maps rendered production DOM to reserved contextual WebP slots.
+   v2 keeps rebinding through async/partial renders instead of exiting after the
+   first non-empty app paint. */
 (function(){
   if(window.__photoImageSlotBinderV1Installed)return;
   window.__photoImageSlotBinderV1Installed=true;
@@ -15,17 +14,39 @@
     return Boolean(slot?.ready&&slot.path);
   }
 
+  function slotUrl(id){
+    const slot=window.__PHOTO_IMAGE_SLOTS_V1?.[id];
+    if(!slot)return '';
+    if(typeof window.photoImageAssetUrl==='function')return window.photoImageAssetUrl(slot);
+    return slot.path||'';
+  }
+
+  function sameAsset(img,next){
+    if(!img||!next)return false;
+    const raw=img.getAttribute('src')||'';
+    if(raw===next)return true;
+    try{
+      return new URL(img.src,location.href).href===new URL(next,location.href).href;
+    }catch{return false;}
+  }
+
   function apply(img,slotId){
     if(!img||!slotReady(slotId))return false;
-    const next=window.__PHOTO_IMAGE_SLOTS_V1[slotId].path;
-    if(!next||img.src.endsWith(next))return false;
-    const previous=img.getAttribute('src')||'';
+    const next=slotUrl(slotId);
+    if(!next||sameAsset(img,next))return false;
+
+    const previous=(img.dataset.photoImageFallback||img.getAttribute('src')||'').trim();
     img.dataset.photoImageSlot=slotId;
-    img.dataset.photoImageFallback=previous;
-    img.addEventListener('error',function restore(){
-      const fallback=img.dataset.photoImageFallback||'';
-      if(fallback&&img.getAttribute('src')!==fallback)img.setAttribute('src',fallback);
-    },{once:true});
+    if(previous)img.dataset.photoImageFallback=previous;
+
+    if(!img.dataset.photoImageErrorBound){
+      img.dataset.photoImageErrorBound='1';
+      img.addEventListener('error',()=>{
+        const fallback=img.dataset.photoImageFallback||'';
+        if(fallback&&!sameAsset(img,fallback))img.setAttribute('src',fallback);
+      });
+    }
+
     img.setAttribute('src',next);
     return true;
   }
@@ -133,8 +154,11 @@
 
   function bindAll(){
     const app=$('#app');
-    if(!app||app.hidden||!app.childElementCount)return false;
-    apply($('.hero__image',app),'hero-main');
+    if(!app||app.hidden||!app.childElementCount)return 0;
+    let applied=0;
+    applied+=apply($('.hero__image',app),'hero-main')?1:0;
+
+    const before=$$('[data-photo-image-slot]',app).length;
     chapterHeroes(app);
     market(app);
     skills(app);
@@ -142,21 +166,42 @@
     gear(app);
     iphoneLessons(app);
     iphonePresets(app);
-    return true;
+    const after=$$('[data-photo-image-slot]',app).length;
+    applied+=Math.max(0,after-before);
+    return applied;
   }
 
   function start(){
     const app=$('#app');
     if(!app)return;
-    if(bindAll())return;
-    const observer=new MutationObserver(()=>{
-      if(bindAll())observer.disconnect();
+
+    let raf=0;
+    let stopTimer=0;
+    const schedule=()=>{
+      if(raf)return;
+      raf=requestAnimationFrame(()=>{raf=0;bindAll();});
+    };
+
+    const observer=new MutationObserver(schedule);
+    observer.observe(app,{
+      childList:true,
+      subtree:true,
+      attributes:true,
+      attributeFilter:['hidden','src']
     });
-    observer.observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
-    setTimeout(()=>observer.disconnect(),5000);
+
+    schedule();
+    [80,220,600,1200,2400,4200,7000].forEach(ms=>setTimeout(schedule,ms));
+    addEventListener('load',schedule,{once:true});
+    addEventListener('pageshow',()=>setTimeout(schedule,80),{passive:true});
+
+    stopTimer=setTimeout(()=>observer.disconnect(),10000);
+    window.__photoImageRebindV1=()=>{
+      clearTimeout(stopTimer);
+      schedule();
+    };
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
-  window.addEventListener('pageshow',()=>setTimeout(bindAll,120),{passive:true});
 })();
