@@ -11,7 +11,6 @@
     const root=$('.v40-question-segment',controls||document);
     if(!controls||!root)return;
 
-    root.classList.remove('v32-question-segment');
     $$('[id="v40QuestionControls"]').filter(node=>node!==controls).forEach(node=>node.remove());
     $$('.v32-question-hub>.v32-question-segment').forEach(node=>{
       node.hidden=true;
@@ -75,9 +74,9 @@
 
     setTimeout(()=>{
       questionTab.click();
-      /* The collection renderer and older cleanup layers can finish on later
-         frames. The v40 owner keeps write mode authoritative through that
-         short render window, then clears the pending flag itself. */
+      /* The collection renderer and cleanup layers can finish on later frames.
+         The v40 owner keeps write mode authoritative through that short render
+         window, then clears the pending flag itself. */
       [30,120,300].forEach(delay=>setTimeout(()=>{
         ensureQuestionStructure();
         forceWrite();
@@ -85,8 +84,6 @@
     },70);
   }
 
-  /* Handle the contextual bubble before any retired document-capture route can
-     open the old question sheet. */
   window.addEventListener('click',event=>{
     if(!event.target?.closest?.('#askBubble'))return;
     event.preventDefault();
