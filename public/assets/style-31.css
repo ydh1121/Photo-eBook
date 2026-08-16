@@ -1,0 +1,61 @@
+/* v49: native top-rail pan ownership and bottom floating-button shadow clearance. */
+
+/* The top chapter rail must be a real overflow scroller. No ancestor or chip
+   may claim a conflicting touch gesture. */
+.nav-shell,
+.nav-glass,
+.nav-scroll,
+.nav-chip{
+  touch-action:pan-x pan-y!important;
+}
+
+.nav-scroll{
+  position:relative!important;
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:auto!important;
+  scroll-behavior:auto!important;
+  scroll-snap-type:none!important;
+  scrollbar-width:none!important;
+  pointer-events:auto!important;
+}
+.nav-scroll::-webkit-scrollbar{display:none!important}
+.nav-chip{
+  flex:0 0 auto!important;
+  min-width:max-content!important;
+  pointer-events:auto!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+}
+.nav-scroll :is(.nav-v33-indicator,.nav-liquid-indicator,.v37-liquid-skin,.nav-progress-liquid){
+  pointer-events:none!important;
+}
+
+/* Keep Safari's bottom chrome visually clear while giving the collection FAB
+   enough physical room for its shadow to render completely. */
+.collection-fab{
+  bottom:calc(env(safe-area-inset-bottom,0px) + 20px)!important;
+  overflow:visible!important;
+  box-shadow:
+    0 3px 11px -1px rgba(47,91,183,.19),
+    0 1px 3px rgba(47,91,183,.09),
+    inset 0 1px 0 rgba(255,255,255,.40)!important;
+}
+
+@media(max-width:430px){
+  .collection-fab{
+    right:max(14px,env(safe-area-inset-right,0px))!important;
+    bottom:calc(env(safe-area-inset-bottom,0px) + 20px)!important;
+    box-shadow:
+      0 3px 10px -1px rgba(47,91,183,.18),
+      0 1px 2px rgba(47,91,183,.08),
+      inset 0 1px 0 rgba(255,255,255,.40)!important;
+  }
+}
