@@ -1,4 +1,4 @@
-/* v40: single-owner liquid motion, stable question controls, selection geometry, and one curated loader. */
+/* v43: stable question controls, selection geometry, and one curated loader. Liquid motion is owned by the Breeze spring controller. */
 (function(){
   if(window.__photoV40Installed)return;
   window.__photoV40Installed=true;
@@ -6,8 +6,6 @@
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const QUESTION_KEY='photoRoadmapQuestionsV2';
-  const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
-  const springTimers=new WeakMap();
   let questionMode='saved';
   let restoringSaved=false;
   let curatedCursor=0;
@@ -19,52 +17,6 @@
       return Array.isArray(value)?value:[];
     }catch{return [];}
   }
-
-  /* ------------------------------------------------------------------
-     Liquid motion: v34/v36 keep ownership of indicator travel. v40 only
-     gives the skin one restrained settle deformation after travel ends.
-     This avoids competing transform writers and the jitter seen in v39.
-     ------------------------------------------------------------------ */
-  function skinFor(root){
-    const indicator=root?.querySelector('.nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator,.v36-question-indicator');
-    if(!indicator)return null;
-    let skin=indicator.querySelector(':scope > .v37-liquid-skin');
-    if(!skin){
-      skin=document.createElement('span');
-      skin.className='v37-liquid-skin';
-      skin.setAttribute('aria-hidden','true');
-      indicator.appendChild(skin);
-    }
-    return skin;
-  }
-
-  function settleSkin(root,direction){
-    if(!root||reduced())return;
-    clearTimeout(springTimers.get(root));
-    const timer=setTimeout(()=>{
-      const skin=skinFor(root);
-      if(!skin||typeof skin.animate!=='function')return;
-      skin.getAnimations().forEach(animation=>animation.cancel());
-      const dir=direction||1;
-      skin.animate([
-        {transform:'translate3d(0,0,0) scaleX(1) scaleY(1)',offset:0},
-        {transform:`translate3d(${dir*2.2}px,0,0) scaleX(1.022) scaleY(.989)`,offset:.42},
-        {transform:`translate3d(${-dir*.9}px,0,0) scaleX(.995) scaleY(1.004)`,offset:.76},
-        {transform:'translate3d(0,0,0) scaleX(1) scaleY(1)',offset:1}
-      ],{duration:220,easing:'cubic-bezier(.22,.72,.2,1)'});
-    },310);
-    springTimers.set(root,timer);
-  }
-
-  document.addEventListener('click',event=>{
-    const chip=event.target.closest?.('.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button');
-    if(!chip)return;
-    const root=chip.closest('.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment');
-    if(!root)return;
-    const active=root.querySelector('.is-active');
-    const direction=Math.sign((chip.offsetLeft||0)-(active?.offsetLeft||chip.offsetLeft||0))||1;
-    settleSkin(root,direction);
-  },true);
 
   /* ------------------------------------------------------------------
      Stable question UI. Controls live outside #collectionBody so normal
