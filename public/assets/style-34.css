@@ -1,5 +1,4 @@
-/* v53: restore the previously accepted transparent nav land, keep the real page canvas,
-   preserve Safari bottom chrome cleanup, and correct question-selector proportions. */
+/* v54: preserve accepted nav/canvas states and rebalance the secondary question selector. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -25,10 +24,8 @@ html[data-theme="dark"] .nav-shell{
 
 /* --------------------------------------------------------------------------
    Safari bottom chrome / page canvas
-   v52 incorrectly made #app transparent as well. In dark mode that exposed the
-   browser's pure-black canvas through gaps between sections. Keep only the root
-   chrome-facing layer transparent; let the existing app/section theme rules
-   paint their normal graphite/white canvas again.
+   Only the browser-facing root stays transparent. The actual app canvas keeps
+   the established theme surface so gaps never expose Safari's pure-black base.
    -------------------------------------------------------------------------- */
 html,
 body,
@@ -38,8 +35,6 @@ html[data-theme="dark"] body{
   background-image:none!important;
 }
 
-/* Explicitly stop overriding the app canvas. These values match the established
-   site theme instead of the browser's black underlay. */
 html[data-theme="dark"] #app,
 html[data-theme="dark"] .app{
   background:var(--v36-dark-canvas,#0d0f13)!important;
@@ -60,11 +55,11 @@ body::after{
 }
 
 /* --------------------------------------------------------------------------
-   Question write/saved selector
-   Two labels do not need a near-full-width rail. Keep the same liquid language
-   as the other filters, but use a compact 260px rail with a real 48px pill.
-   Force the indicator height so legacy measurements cannot collapse it into the
-   thin blue strip seen in the screenshot.
+   Question write/saved selector — secondary hierarchy.
+
+   This control sits BELOW the primary collection tabs, so it must never be as
+   large or visually dominant as the primary tab rail. Keep it compact while
+   retaining the same liquid-glass material and Breeze motion language.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:flex!important;
@@ -78,10 +73,10 @@ body::after{
 #v40QuestionControls .v40-question-segment{
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  width:min(calc(100% - 24px),260px)!important;
+  width:min(calc(100% - 32px),224px)!important;
   min-width:0!important;
-  height:58px!important;
-  min-height:58px!important;
+  height:52px!important;
+  min-height:52px!important;
   margin-inline:auto!important;
   padding:5px!important;
   gap:5px!important;
@@ -90,25 +85,60 @@ body::after{
 }
 
 #v40QuestionControls .v40-question-segment>button{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
   width:100%!important;
   min-width:0!important;
-  height:48px!important;
-  min-height:48px!important;
+  height:42px!important;
+  min-height:42px!important;
   margin:0!important;
-  padding:0 11px!important;
+  padding:0 8px!important;
   border-radius:999px!important;
-  font-size:13.5px!important;
+  font-size:12.5px!important;
+  font-weight:720!important;
   line-height:1!important;
   white-space:nowrap!important;
 }
 
+/* Saved-question count is tertiary metadata, not a second accent chip. */
+#v40QuestionControls .v40-question-segment>button>span{
+  display:inline-grid!important;
+  place-items:center!important;
+  flex:0 0 auto!important;
+  min-width:18px!important;
+  height:18px!important;
+  margin:0!important;
+  padding:0 5px!important;
+  border:1px solid rgba(66,91,132,.08)!important;
+  border-radius:999px!important;
+  background:rgba(71,105,166,.09)!important;
+  color:#6c7f9f!important;
+  box-shadow:none!important;
+  font-size:10.5px!important;
+  font-weight:780!important;
+  line-height:1!important;
+}
+#v40QuestionControls .v40-question-segment>button.is-active>span{
+  border-color:rgba(255,255,255,.13)!important;
+  background:rgba(255,255,255,.16)!important;
+  color:#fff!important;
+}
+html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.is-active)>span{
+  border-color:rgba(120,160,225,.09)!important;
+  background:rgba(92,139,218,.10)!important;
+  color:#91abe0!important;
+}
+
+/* Indicator geometry must match the secondary 42px pill exactly. */
 #v40QuestionControls .v36-question-indicator{
   top:0!important;
   left:0!important;
   bottom:auto!important;
-  height:48px!important;
-  min-height:48px!important;
-  max-height:48px!important;
+  height:42px!important;
+  min-height:42px!important;
+  max-height:42px!important;
   border-radius:999px!important;
   overflow:visible!important;
 }
@@ -122,10 +152,16 @@ body::after{
 
 @media(max-width:360px){
   #v40QuestionControls .v40-question-segment{
-    width:min(calc(100% - 20px),248px)!important;
+    width:min(calc(100% - 28px),216px)!important;
   }
   #v40QuestionControls .v40-question-segment>button{
-    padding-inline:9px!important;
-    font-size:13px!important;
+    padding-inline:7px!important;
+    font-size:12px!important;
+  }
+  #v40QuestionControls .v40-question-segment>button>span{
+    min-width:17px!important;
+    height:17px!important;
+    padding-inline:4px!important;
+    font-size:10px!important;
   }
 }
