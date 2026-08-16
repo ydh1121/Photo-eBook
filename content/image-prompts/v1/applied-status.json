@@ -1,0 +1,53 @@
+{
+  "version": "v1",
+  "batch_id": "image-batch-001",
+  "status": "applied",
+  "asset_commit_sha": "c4a6b0801561e94b59d83aa4dffb35b7899036ae",
+  "runtime_activation_commit_sha": "af88652911e85b7889f88d81fbdb235ac65f7798",
+  "manifest_ready_commit_sha": "19146a23559da30fc7cd094229bc97e4045c4233",
+  "workflow_rule_commit_sha": "15fc467da6d6267c4631441b44a1074e1b216fa6",
+  "slots": [
+    {
+      "slot_id": "hero-main",
+      "path": "/assets/images/generated/v1/hero/hero-main.webp",
+      "ready": true,
+      "drive_file_id": "1wZq1S1jxVPOhNgk68VzzZb-LPWUaaohk",
+      "status": "applied"
+    },
+    {
+      "slot_id": "chapter-education",
+      "path": "/assets/images/generated/v1/chapter/education.webp",
+      "ready": true,
+      "drive_file_id": "14vrntf1cThfcoL_krxeCaciXHCPYG9UJ",
+      "status": "applied"
+    },
+    {
+      "slot_id": "chapter-portfolio",
+      "path": "/assets/images/generated/v1/chapter/portfolio.webp",
+      "ready": true,
+      "drive_file_id": "1OpfsI4Iskrojob8DgDcYed20mhBoxGqO",
+      "status": "applied"
+    },
+    {
+      "slot_id": "market-product-commerce",
+      "path": "/assets/images/generated/v1/market/product-commerce.webp",
+      "ready": true,
+      "drive_file_id": "15rYsYg_XQ0UQ14hYu1c82l1KdqDiotWS",
+      "status": "applied"
+    },
+    {
+      "slot_id": "market-corporate-profile",
+      "path": "/assets/images/generated/v1/market/corporate-profile.webp",
+      "ready": true,
+      "drive_file_id": "17ChLOCp8E0ttKY6Abl1edvN0o7A6u-S1",
+      "status": "applied"
+    },
+    {
+      "slot_id": "market-food-space",
+      "path": "/assets/images/generated/v1/market/food-space.webp",
+      "ready": true,
+      "drive_file_id": "1Lkyr10UytKvm6-ETruBrOvVK6g1BO-xR",
+      "status": "applied"
+    }
+  ]
+}
