@@ -50,12 +50,12 @@ jobs:
             out="/tmp/deployed-$i.webp"
             echo "=== deployed:$p ==="
             curl -sS -L --retry 3 --retry-delay 2 -D "/tmp/h-$i" -o "$out" "$base$p" || true
-            head -n 20 "/tmp/h-$i" || true
+            head -n 12 "/tmp/h-$i" || true
             wc -c "$out" || true
             file "$out" || true
             i=$((i+1))
           done
-          echo '=== deployed:image-slots-v1.js?v=2 ==='
-          curl -sS -L --retry 3 "$base/assets/image-slots-v1.js?v=2" | grep -E "hero-main|market-food-space|rev:'b001'" | head -n 10 || true
-          echo '=== deployed:image-slot-binder-v1.js?v=2 ==='
-          curl -sS -L --retry 3 "$base/assets/image-slot-binder-v1.js?v=2" | grep -E "market-food-space|chapterHeroes|v2 keeps" | head -n 10 || true
+          echo '=== deployed:image-slots-v1.js?v=3 ==='
+          curl -sS -L --retry 3 "$base/assets/image-slots-v1.js?v=3" | grep -E "photoImageSlotPath|rev:'b001'" | head -n 10 || true
+          echo '=== deployed:image-slot-binder-v1.js?v=3 ==='
+          curl -sS -L --retry 3 "$base/assets/image-slot-binder-v1.js?v=3" | grep -E "photoImageSlotPath|v3 keeps" | head -n 10 || true
