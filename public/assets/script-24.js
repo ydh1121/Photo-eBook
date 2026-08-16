@@ -1,4 +1,4 @@
-/* v43: stable question controls, selection geometry, and one curated loader. Liquid motion is owned by the Breeze spring controller. */
+/* v44: stable question controls, deterministic write-mode handoff, and one curated loader. Liquid motion is owned by the Breeze spring controller. */
 (function(){
   if(window.__photoV40Installed)return;
   window.__photoV40Installed=true;
@@ -20,8 +20,9 @@
 
   /* ------------------------------------------------------------------
      Stable question UI. Controls live outside #collectionBody so normal
-     library rerenders cannot delete them. The write panel is parked before
-     any tab render and only mounted while "질문 작성" is selected.
+     library rerenders cannot delete them. The current v40 rail deliberately
+     does NOT use the retired .v32-question-segment class; that prevents older
+     question-indicator controllers from touching the current pill.
      ------------------------------------------------------------------ */
   function ensureParking(){
     let parking=$('#v40QuestionParking');
@@ -50,7 +51,7 @@
       controls.id='v40QuestionControls';
       controls.className='v40-question-controls';
       controls.hidden=true;
-      controls.innerHTML=`<div class="v32-question-segment v40-question-segment" role="tablist" aria-label="질문 관리">
+      controls.innerHTML=`<div class="v40-question-segment" role="tablist" aria-label="질문 관리">
         <button type="button" data-v40-qmode="write">질문 작성</button>
         <button type="button" data-v40-qmode="saved" class="is-active">저장한 질문 <span>${readQuestions().length}</span></button>
       </div>`;
@@ -61,6 +62,8 @@
         setQuestionMode(button.dataset.v40Qmode||'saved');
       });
     }
+    const root=$('.v40-question-segment',controls);
+    root?.classList.remove('v32-question-segment');
     const badge=$('[data-v40-qmode="saved"] span',controls);
     if(badge)badge.textContent=String(readQuestions().length);
     return controls;
@@ -121,7 +124,7 @@
     const panel=$('#askWritePanel')||$('#v40QuestionParking #askWritePanel');
     if(!body||!panel)return;
     stripLegacyQuestionHub();
-    if(panel.parentNode!==body){
+    if(panel.parentNode!==body||body.childElementCount!==1){
       body.replaceChildren(panel);
     }
     body.classList.remove('is-bulk-selecting');
@@ -140,6 +143,10 @@
       tab.click();
       setTimeout(()=>{
         restoringSaved=false;
+        if(window.__photoPendingQuestionWrite===true){
+          forceQuestionWrite();
+          return;
+        }
         questionMode='saved';
         showQuestionChrome();
         setControlState();
@@ -161,8 +168,31 @@
     }
   }
 
+  function forceQuestionWrite(){
+    window.__photoPendingQuestionWrite=true;
+    questionMode='write';
+
+    const apply=()=>{
+      if(!isQuestionTab())return;
+      questionMode='write';
+      showQuestionChrome();
+      setControlState();
+      parkAskPanel();
+      mountWritePanel();
+    };
+
+    apply();
+    [40,120,280].forEach(delay=>setTimeout(apply,delay));
+    setTimeout(()=>{
+      apply();
+      window.__photoPendingQuestionWrite=false;
+    },420);
+  }
+  window.__photoForceQuestionWrite=forceQuestionWrite;
+
   function repairQuestionAfterRender(){
     if(!isQuestionTab())return;
+    if(window.__photoPendingQuestionWrite===true)questionMode='write';
     showQuestionChrome();
     setControlState();
     stripLegacyQuestionHub();
@@ -188,6 +218,7 @@
         box.type='button';
         box.className='collection-selectbox';
         box.setAttribute('aria-label','항목 선택');
+        box.prepend();
         box.setAttribute('aria-pressed','false');
         card.prepend(box);
       }
@@ -300,7 +331,7 @@
         questionMode='saved';
         hideQuestionChrome();
       }else if(!restoringSaved){
-        questionMode='saved';
+        questionMode=window.__photoPendingQuestionWrite===true?'write':'saved';
       }
       scheduleRepair();
     }
