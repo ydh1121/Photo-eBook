@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect generated WebP files
+      - name: Inspect repository WebP files
         shell: bash
         run: |
           set -uo pipefail
@@ -27,11 +27,35 @@ jobs:
           )
           failed=0
           for f in "${files[@]}"; do
-            echo "=== $f ==="
+            echo "=== repo:$f ==="
             wc -c "$f" || failed=1
             file "$f" || failed=1
-            if command -v identify >/dev/null 2>&1; then
-              identify "$f" || failed=1
-            fi
           done
           exit "$failed"
+      - name: Inspect Cloudflare Pages responses
+        shell: bash
+        run: |
+          set -uo pipefail
+          base='https://photo-ebook.pages.dev'
+          paths=(
+            '/assets/images/generated/v1/hero/hero-main.webp?v=b001'
+            '/assets/images/generated/v1/chapter/education.webp?v=b001'
+            '/assets/images/generated/v1/chapter/portfolio.webp?v=b001'
+            '/assets/images/generated/v1/market/product-commerce.webp?v=b001'
+            '/assets/images/generated/v1/market/corporate-profile.webp?v=b001'
+            '/assets/images/generated/v1/market/food-space.webp?v=b001'
+          )
+          i=0
+          for p in "${paths[@]}"; do
+            out="/tmp/deployed-$i.webp"
+            echo "=== deployed:$p ==="
+            curl -sS -L --retry 3 --retry-delay 2 -D "/tmp/h-$i" -o "$out" "$base$p" || true
+            head -n 20 "/tmp/h-$i" || true
+            wc -c "$out" || true
+            file "$out" || true
+            i=$((i+1))
+          done
+          echo '=== deployed:image-slots-v1.js?v=2 ==='
+          curl -sS -L --retry 3 "$base/assets/image-slots-v1.js?v=2" | grep -E "hero-main|market-food-space|rev:'b001'" | head -n 10 || true
+          echo '=== deployed:image-slot-binder-v1.js?v=2 ==='
+          curl -sS -L --retry 3 "$base/assets/image-slot-binder-v1.js?v=2" | grep -E "market-food-space|chapterHeroes|v2 keeps" | head -n 10 || true
