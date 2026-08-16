@@ -1,4 +1,4 @@
-/* v54: preserve accepted nav/canvas states and rebalance the secondary question selector. */
+/* v55: preserve accepted nav/canvas states and align the secondary question selector to the collection column. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -57,27 +57,27 @@ body::after{
 /* --------------------------------------------------------------------------
    Question write/saved selector — secondary hierarchy.
 
-   This control sits BELOW the primary collection tabs, so it must never be as
-   large or visually dominant as the primary tab rail. Keep it compact while
-   retaining the same liquid-glass material and Breeze motion language.
+   The outer rail aligns to the same collection content column as the search
+   field and primary tabs. Hierarchy is expressed by height, type scale and
+   material intensity — not by making this rail arbitrarily narrower.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
-  display:flex!important;
-  justify-content:center!important;
+  display:block!important;
   width:100%!important;
   margin:0!important;
-  padding:0!important;
+  padding:0 18px 12px!important;
 }
 #v40QuestionControls[hidden]{display:none!important}
 
 #v40QuestionControls .v40-question-segment{
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  width:min(calc(100% - 32px),224px)!important;
+  width:100%!important;
+  max-width:none!important;
   min-width:0!important;
-  height:52px!important;
-  min-height:52px!important;
-  margin-inline:auto!important;
+  height:50px!important;
+  min-height:50px!important;
+  margin:0!important;
   padding:5px!important;
   gap:5px!important;
   border-radius:999px!important;
@@ -91,13 +91,13 @@ body::after{
   gap:5px!important;
   width:100%!important;
   min-width:0!important;
-  height:42px!important;
-  min-height:42px!important;
+  height:40px!important;
+  min-height:40px!important;
   margin:0!important;
-  padding:0 8px!important;
+  padding:0 10px!important;
   border-radius:999px!important;
   font-size:12.5px!important;
-  font-weight:720!important;
+  font-weight:710!important;
   line-height:1!important;
   white-space:nowrap!important;
 }
@@ -111,34 +111,34 @@ body::after{
   height:18px!important;
   margin:0!important;
   padding:0 5px!important;
-  border:1px solid rgba(66,91,132,.08)!important;
+  border:1px solid rgba(79,101,137,.07)!important;
   border-radius:999px!important;
-  background:rgba(71,105,166,.09)!important;
-  color:#6c7f9f!important;
+  background:rgba(77,101,143,.07)!important;
+  color:#71809a!important;
   box-shadow:none!important;
   font-size:10.5px!important;
   font-weight:780!important;
   line-height:1!important;
 }
 #v40QuestionControls .v40-question-segment>button.is-active>span{
-  border-color:rgba(255,255,255,.13)!important;
-  background:rgba(255,255,255,.16)!important;
-  color:#fff!important;
+  border-color:rgba(255,255,255,.12)!important;
+  background:rgba(255,255,255,.14)!important;
+  color:rgba(255,255,255,.94)!important;
 }
 html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.is-active)>span{
-  border-color:rgba(120,160,225,.09)!important;
-  background:rgba(92,139,218,.10)!important;
-  color:#91abe0!important;
+  border-color:rgba(137,164,208,.07)!important;
+  background:rgba(107,135,181,.08)!important;
+  color:#94a7c9!important;
 }
 
-/* Indicator geometry must match the secondary 42px pill exactly. */
+/* Indicator geometry matches the secondary 40px pill exactly. */
 #v40QuestionControls .v36-question-indicator{
   top:0!important;
   left:0!important;
   bottom:auto!important;
-  height:42px!important;
-  min-height:42px!important;
-  max-height:42px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
   border-radius:999px!important;
   overflow:visible!important;
 }
@@ -169,11 +169,11 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 }
 
 @media(max-width:360px){
-  #v40QuestionControls .v40-question-segment{
-    width:min(calc(100% - 28px),216px)!important;
+  #v40QuestionControls{
+    padding-inline:16px!important;
   }
   #v40QuestionControls .v40-question-segment>button{
-    padding-inline:7px!important;
+    padding-inline:8px!important;
     font-size:12px!important;
   }
   #v40QuestionControls .v40-question-segment>button>span{
