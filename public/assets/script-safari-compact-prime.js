@@ -1,4 +1,5 @@
-/* v2: track Safari expanded/compact toolbar cycles and re-prime every compact entry. */
+/* v3: preserve the known-good compact prime and only rearm after Safari truly
+   returns to the expanded top toolbar state. */
 (function(){
   if(window.__photoSafariCompactPrimeInstalled)return;
   window.__photoSafariCompactPrimeInstalled=true;
@@ -9,7 +10,6 @@
   if(!vv)return;
 
   let baseline=0;
-  let compact=false;
   let primed=false;
   let priming=false;
   let settleTimer=0;
@@ -36,33 +36,18 @@
       Boolean(sheet&&!sheet.hidden);
   }
 
-  function growth(){return baseline?vv.height-baseline:0;}
-  function shouldEnterCompact(){return Boolean(baseline&&growth()>=28&&(window.scrollY||0)>8);}
-  function shouldLeaveCompact(){return Boolean(baseline&&(growth()<=12||(window.scrollY||0)<=4));}
-
-  function syncCompactState(){
+  function compactNow(){
     if(!baseline)return false;
-
-    if(!compact&&shouldEnterCompact()){
-      compact=true;
-      primed=false;
-      root.classList.add('safari-compact-active');
-      schedule();
-      return true;
-    }
-
-    if(compact&&shouldLeaveCompact()){
-      compact=false;
-      primed=false;
-      clearTimeout(settleTimer);
-      root.classList.remove('safari-compact-active','safari-compact-prime');
-      return true;
-    }
-
-    return false;
+    const growth=vv.height-baseline;
+    return growth>=28&&(window.scrollY||0)>8;
   }
 
-  function compactNow(){return compact&&shouldEnterCompact();}
+  function trulyExpandedAgain(){
+    if(!baseline)return false;
+    const growth=vv.height-baseline;
+    return growth<=12&&(window.scrollY||0)<=4;
+  }
+
   function nextFrame(){return new Promise(resolve=>requestAnimationFrame(resolve));}
   function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
@@ -80,8 +65,8 @@
       if(layer)void layer.offsetHeight;
       await nextFrame();
 
-      /* Replay the exact production interaction that is known to refresh
-         Safari's compact scroll-pocket composition. */
+      /* Keep the exact production sequence that already proved it can refresh
+         Safari's compact address-pill composition on this site. */
       document.querySelector('#collectionFab')?.click();
       await nextFrame();
       await nextFrame();
@@ -100,16 +85,15 @@
       root.classList.remove('safari-compact-prime');
       if(Math.abs((window.scrollY||0)-y)>1)window.scrollTo(0,y);
       priming=false;
-      syncCompactState();
     }
     return true;
   }
 
   function schedule(){
-    if(primed||priming||!compact)return;
+    if(primed||priming)return;
     clearTimeout(settleTimer);
     settleTimer=setTimeout(()=>{
-      if(!prime()&&!primed&&compact)schedule();
+      if(!prime()&&!primed)schedule();
     },180);
   }
 
@@ -121,8 +105,15 @@
 
   function onViewportChange(){
     if(!baseline)captureBaseline();
-    syncCompactState();
-    if(compact&&!primed)schedule();
+
+    /* Do not reset during the hidden modal replay. Rearm only after the user has
+       genuinely returned to the top and Safari has expanded its toolbar again. */
+    if(!priming&&primed&&trulyExpandedAgain()){
+      primed=false;
+      clearTimeout(settleTimer);
+    }
+
+    if(compactNow()&&!primed)schedule();
   }
 
   window.addEventListener('scroll',()=>{
@@ -141,7 +132,7 @@
       setTimeout(boot,100);
       return;
     }
-    syncCompactState();
+    onViewportChange();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
