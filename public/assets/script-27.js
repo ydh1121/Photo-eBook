@@ -1,5 +1,4 @@
-/* v52: single-owner liquid selectors, native top-rail scrolling, and lightweight reading progress.
-   No nav auto-centering, no scrollIntoView monkey patch, no scrollLeft writes. */
+/* v53: self-healing liquid selectors, native top-rail scrolling, and lightweight reading progress. */
 (function(){
   if(window.__photoV49CoreInstalled)return;
   window.__photoV49CoreInstalled=true;
@@ -11,6 +10,9 @@
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
+  const controllers=new WeakMap();
+  let documentObserver=null;
+  let documentRepairRaf=0;
 
   function waitFor(selector,timeout=14000){
     return new Promise(resolve=>{
@@ -58,6 +60,7 @@
   }
 
   function ensureSkin(indicator){
+    if(!indicator)return null;
     let skin=$(':scope > .v37-liquid-skin',indicator);
     if(!skin){
       skin=document.createElement('span');
@@ -65,6 +68,21 @@
       skin.setAttribute('aria-hidden','true');
       indicator.appendChild(skin);
     }
+    return skin;
+  }
+
+  function ensureIndicator(root,indicatorClass){
+    if(!root)return null;
+    $$(`:scope > .${indicatorClass}`,root).slice(1).forEach(node=>node.remove());
+    let indicator=$(`:scope > .${indicatorClass}`,root);
+    if(!indicator){
+      indicator=document.createElement('span');
+      indicator.className=indicatorClass;
+      indicator.setAttribute('aria-hidden','true');
+      root.prepend(indicator);
+    }
+    ensureSkin(indicator);
+    return indicator;
   }
 
   function installReadingProgress(nav){
@@ -88,20 +106,17 @@
   }
 
   function makeLiquidController(root,{itemSelector,indicatorClass,readyClass,slow=false,durationScale=1}={}){
-    if(!root||root.dataset.v49Liquid==='true')return;
-    root.dataset.v49Liquid='true';
+    if(!root)return null;
 
-    $$(`:scope > .${indicatorClass}`,root).slice(1).forEach(node=>node.remove());
-    let indicator=$(`:scope > .${indicatorClass}`,root);
-    if(!indicator){
-      indicator=document.createElement('span');
-      indicator.className=indicatorClass;
-      indicator.setAttribute('aria-hidden','true');
-      root.prepend(indicator);
+    const existing=controllers.get(root);
+    if(existing){
+      existing.repair();
+      return existing;
     }
-    ensureSkin(indicator);
 
+    root.dataset.v49Liquid='true';
     const state={x:0,y:0,w:0,h:0,ready:false};
+    let repairRaf=0;
 
     function durationFor(x,w){
       const distance=Math.max(Math.abs(x-state.x),Math.abs(w-state.w));
@@ -110,8 +125,11 @@
     }
 
     function update({instant=false}={}){
+      if(!root.isConnected)return;
       const item=$(itemSelector+'.is-active',root)||$(itemSelector,root);
       if(!item)return;
+      const indicator=ensureIndicator(root,indicatorClass);
+      if(!indicator)return;
       const x=item.offsetLeft,y=item.offsetTop,w=item.offsetWidth,h=item.offsetHeight;
       if(!w||!h)return;
 
@@ -120,6 +138,8 @@
       const firstItem=$(itemSelector,root);
       const edgeTarget=root.matches('.nav-scroll')&&item===firstItem;
       const easing=edgeTarget?EDGE_EASING:BREEZE_EASING;
+
+      indicator.getAnimations?.().forEach(animation=>animation.cancel());
       indicator.style.transition=(first||instant||reduced())
         ? 'none'
         : `transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
@@ -135,27 +155,50 @@
       state.x=x;state.y=y;state.w=w;state.h=h;state.ready=true;
       root.classList.add(readyClass,'v41-skin-ready','v39-liquid-ready');
 
-      if(first&&!reduced())requestAnimationFrame(()=>{
-        if(indicator.isConnected)indicator.style.transition=`transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
+      if((first||instant)&&!reduced())requestAnimationFrame(()=>{
+        if(indicator.isConnected){
+          indicator.style.transition=`transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
+        }
+      });
+    }
+
+    function repair(){
+      if(repairRaf||!root.isConnected)return;
+      repairRaf=requestAnimationFrame(()=>{
+        repairRaf=0;
+        ensureIndicator(root,indicatorClass);
+        root.classList.add(readyClass,'v41-skin-ready','v39-liquid-ready');
+        update({instant:true});
       });
     }
 
     const observer=new MutationObserver(records=>{
-      if(records.some(record=>record.type==='attributes'&&record.attributeName==='class'&&record.target.matches?.(itemSelector))){
-        requestAnimationFrame(()=>update({instant:false}));
+      let animate=false;
+      let structural=false;
+      for(const record of records){
+        if(record.type==='childList')structural=true;
+        if(record.type==='attributes'&&record.attributeName==='class'){
+          if(record.target===root)structural=true;
+          else if(record.target.matches?.(itemSelector))animate=true;
+        }
       }
+      if(structural)repair();
+      else if(animate)requestAnimationFrame(()=>update({instant:false}));
     });
-    observer.observe(root,{subtree:true,attributes:true,attributeFilter:['class']});
+    observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
 
     let resizeTimer=0;
     const onResize=()=>{
       clearTimeout(resizeTimer);
-      resizeTimer=setTimeout(()=>update({instant:true}),90);
+      resizeTimer=setTimeout(repair,90);
     };
     window.addEventListener('resize',onResize,{passive:true});
     window.visualViewport?.addEventListener?.('resize',onResize,{passive:true});
 
+    const controller={update,repair,observer};
+    controllers.set(root,controller);
     requestAnimationFrame(()=>update({instant:true}));
+    return controller;
   }
 
   function themeCardMarkup(){
@@ -191,6 +234,14 @@
     }
   }
 
+  function repairTopLiquid(){
+    const nav=$('.nav-scroll');
+    if(!nav)return;
+    installReadingProgress(nav);
+    makeLiquidController(nav,{itemSelector:'.nav-chip',indicatorClass:'nav-v33-indicator',readyClass:'v33-liquid-ready',slow:false,durationScale:1.10})?.repair();
+  }
+  window.__photoRepairTopLiquid=repairTopLiquid;
+
   async function initLiquid(){
     const nav=await waitFor('.nav-scroll');
     if(nav){
@@ -204,13 +255,47 @@
     injectThemeControls();
   }
 
+  function installDocumentRepairObserver(){
+    if(documentObserver||!document.body)return;
+    documentObserver=new MutationObserver(records=>{
+      if(!records.some(record=>record.type==='childList'))return;
+      if(documentRepairRaf)return;
+      documentRepairRaf=requestAnimationFrame(()=>{
+        documentRepairRaf=0;
+        repairTopLiquid();
+      });
+    });
+    documentObserver.observe(document.body,{childList:true,subtree:true});
+  }
+
+  function scheduleGlobalRepair(){
+    [0,80,220].forEach(delay=>setTimeout(()=>{
+      repairTopLiquid();
+      injectThemeControls();
+      const tabs=$('.collection-tabs');
+      if(tabs)makeLiquidController(tabs,{itemSelector:'.collection-tab',indicatorClass:'collection-v33-indicator',readyClass:'v33-liquid-ready',slow:true})?.repair();
+    },delay));
+  }
+
   document.addEventListener('click',event=>{
     const tab=event.target.closest?.('.collection-tab[data-library-tab="settings"]');
     if(tab)setTimeout(injectThemeControls,70);
     if(event.target.closest?.('#collectionFab'))setTimeout(injectThemeControls,120);
+    if(event.target.closest?.('#collectionFab,#collectionClose,#collectionBackdrop,.collection-tab'))scheduleGlobalRepair();
   },{passive:true});
 
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')scheduleGlobalRepair();
+  },{passive:true});
+  window.addEventListener('focus',scheduleGlobalRepair,{passive:true});
+  window.addEventListener('photo-theme-change',scheduleGlobalRepair,{passive:true});
+
   installTheme();
+  installDocumentRepairObserver();
   initLiquid();
-  window.addEventListener('pageshow',()=>setTimeout(()=>{initLiquid();injectThemeControls();},120),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(()=>{
+    initLiquid();
+    installDocumentRepairObserver();
+    scheduleGlobalRepair();
+  },120),{passive:true});
 })();
