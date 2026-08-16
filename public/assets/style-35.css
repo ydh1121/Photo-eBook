@@ -1,4 +1,4 @@
-/* v3: canonical liquid fallback only. Safari bottom geometry is intentionally untouched. */
+/* v4: canonical liquid fallback + iOS first-paint app surface. */
 
 /* The canonical liquid controller normally installs the moving skin before first
    paint. If JS is delayed, keep the active state in the same raised glass
@@ -22,4 +22,36 @@
 }
 :is(.nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator)>.v37-liquid-skin{
   display:block!important;
+}
+
+/* --------------------------------------------------------------------------
+   iOS Safari first paint
+
+   The normal boot skeleton is a separate full-viewport surface while #app is
+   still hidden. Safari 26 can sample that early surface for its browser-owned
+   bottom chrome and keep the sample even after the real app replaces it.
+
+   On iOS WebKit only, remove the separate boot surface from first paint and let
+   the actual #app canvas exist from the first rendered frame. The hidden
+   attribute remains intact for the application bootstrap logic; CSS only makes
+   that element paint until renderApp() fills it and clears `hidden`.
+   -------------------------------------------------------------------------- */
+html.ios-webkit-chrome #boot{
+  display:none!important;
+}
+
+html.ios-webkit-chrome #app[hidden]{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+}
+
+html.ios-webkit-chrome[data-theme="dark"] #app[hidden]{
+  background:var(--v36-dark-canvas,#0d0f13)!important;
+}
+
+html.ios-webkit-chrome[data-theme="light"] #app[hidden]{
+  background:var(--canvas,#fff)!important;
 }
