@@ -1,4 +1,4 @@
-/* v2: light-mode contrast and curated-card badge polish.
+/* v3: light-mode contrast and curated-card badge polish.
    Keep Safari chrome handling, liquid rails and motion untouched. */
 
 html[data-theme="light"]{
@@ -80,32 +80,35 @@ html[data-theme="light"] .theme-choice button:not(.is-active){
 }
 
 /* --------------------------------------------------------------------------
-   Curated reading cards: badges must remain legible on both image and card
-   surfaces. Keep this scoped to curated cards so unrelated chips do not change.
+   Curated reading cards: use the actual DOM classes emitted by renderCuratedItems.
    -------------------------------------------------------------------------- */
 .curated-card .curated-platform{
-  border:1px solid rgba(255,255,255,.22)!important;
-  background:rgba(28,31,38,.84)!important;
+  min-height:31px!important;
+  padding:0 11px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  border:1px solid rgba(255,255,255,.34)!important;
+  background:rgba(20,24,31,.91)!important;
   color:#fff!important;
-  box-shadow:0 5px 14px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.13)!important;
-  -webkit-backdrop-filter:blur(12px) saturate(118%)!important;
-  backdrop-filter:blur(12px) saturate(118%)!important;
-  font-weight:760!important;
-  text-shadow:0 1px 1px rgba(0,0,0,.18)!important;
+  box-shadow:0 6px 17px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.18)!important;
+  -webkit-backdrop-filter:blur(16px) saturate(130%)!important;
+  backdrop-filter:blur(16px) saturate(130%)!important;
+  font-weight:780!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.28)!important;
 }
 
-html[data-theme="light"] .curated-card .soft-tag{
-  background:#edf1f6!important;
-  color:#566171!important;
-  border:1px solid rgba(56,76,108,.09)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.78)!important;
-  font-weight:690!important;
+html[data-theme="light"] .curated-card .curated-tags>span{
+  background:#e8edf4!important;
+  color:#465365!important;
+  border:1px solid rgba(55,76,109,.15)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 2px 6px rgba(42,58,85,.035)!important;
+  font-weight:720!important;
 }
 
-html[data-theme="dark"] .curated-card .soft-tag{
-  background:#252c36!important;
-  color:#c7d0dc!important;
-  border:1px solid rgba(255,255,255,.085)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
-  font-weight:700!important;
+html[data-theme="dark"] .curated-card .curated-tags>span{
+  background:#2a323e!important;
+  color:#e0e6ef!important;
+  border:1px solid rgba(255,255,255,.13)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 6px rgba(0,0,0,.12)!important;
+  font-weight:720!important;
 }
