@@ -1,4 +1,4 @@
-/* v74: stable Safari glass edge + restored liquid motion compatibility. */
+/* v75: stable liquid question rail; no Safari geometry overrides. */
 
 /* Top navigation land */
 .nav-shell,
@@ -15,17 +15,9 @@ html[data-theme="dark"] .nav-shell{
 .nav-progress-liquid,
 .read-progress{pointer-events:none!important}
 
-/* --------------------------------------------------------------------------
-   Safari bottom chrome
-
-   Keep the browser-facing root transparent and preserve the document scroller.
-   On iOS Safari 26, a fixed/background layer attached exactly to bottom:0 can
-   trigger Safari's solid bottom color extension behind the floating address
-   pill. The collection overlay is therefore detached from the hard bottom edge
-   by one physical CSS pixel on iOS only. The gap is below the usable content
-   surface and is visually covered by Safari chrome, but it prevents the sheet
-   and backdrop from being classified as edge-attached bottom surfaces.
-   -------------------------------------------------------------------------- */
+/* Browser-facing surfaces stay transparent, but Safari/viewport geometry is
+   deliberately left to the original layout rules. Do not move the sheet,
+   launcher or root scroller here. */
 html,
 body,
 html[data-theme="light"] body,
@@ -46,24 +38,6 @@ body,
   min-height:100dvh!important;
 }
 
-html.ios-webkit-chrome,
-html.ios-webkit-chrome body{
-  overscroll-behavior-y:none!important;
-}
-html.ios-webkit-chrome.collection-open,
-html.ios-webkit-chrome.collection-open body{
-  overflow-x:clip!important;
-  overflow-y:auto!important;
-  overscroll-behavior:none!important;
-}
-html.ios-webkit-chrome.collection-open body{
-  position:static!important;
-  top:auto!important;
-  left:auto!important;
-  right:auto!important;
-  width:auto!important;
-}
-
 #collectionLayer{
   pointer-events:none;
 }
@@ -77,16 +51,6 @@ html.ios-webkit-chrome.collection-open body{
 .collection-body{
   overscroll-behavior:contain!important;
   touch-action:pan-y!important;
-}
-
-/* Do not let either fixed overlay surface physically touch Safari's hard
-   bottom edge. This is intentionally iOS-only and only while the library is
-   open; other platforms keep their existing geometry. */
-html.ios-webkit-chrome.collection-open #collectionBackdrop{
-  bottom:1px!important;
-}
-html.ios-webkit-chrome.collection-open #collectionSheet{
-  bottom:1px!important;
 }
 
 html[data-theme="dark"] #app,
