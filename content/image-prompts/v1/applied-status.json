@@ -2,10 +2,15 @@
   "version": "v1",
   "batch_id": "image-batch-001",
   "status": "applied",
-  "asset_commit_sha": "c4a6b0801561e94b59d83aa4dffb35b7899036ae",
+  "asset_commit_sha": "701d567c72bb9c0d32adaff2045c110d5306987a",
+  "initial_corrupted_asset_commit_sha": "c4a6b0801561e94b59d83aa4dffb35b7899036ae",
+  "binary_repair_commit_sha": "701d567c72bb9c0d32adaff2045c110d5306987a",
   "runtime_activation_commit_sha": "af88652911e85b7889f88d81fbdb235ac65f7798",
   "manifest_ready_commit_sha": "19146a23559da30fc7cd094229bc97e4045c4233",
   "workflow_rule_commit_sha": "15fc467da6d6267c4631441b44a1074e1b216fa6",
+  "deployment_validation_commit_sha": "00e51b6ad897c9ce9ab5d6923f3e4e782ddd58a3",
+  "deployment_validation_run_id": 31960537304,
+  "runtime_revision": "b003",
   "slots": [
     {
       "slot_id": "hero-main",

@@ -71,11 +71,34 @@
 
 실제 장비/제품처럼 `source_class: reference_required`인 항목은 자유 생성하지 않는다. 신뢰 가능한 참조 원본의 형상·마킹·비율을 보존하는 정규화/편집 작업으로 처리한다.
 
-## WORK-IMG-006 — Git binary commit
+## WORK-IMG-006 — Git binary commit / 무결성 검증
 
-최종 이미지는 base64 문자열, JS inline data URI 또는 임시 외부 URL로 production에 넣지 않는다.
+최종 이미지는 base64 문자열, JS inline data URI 또는 임시 외부 URL로 production에 넣지 않는다. 최종 상태는 반드시 실제 binary WebP가 manifest에 예약된 `public/assets/images/generated/v1/...` 경로에 존재해야 한다.
 
-실제 binary WebP를 manifest에 예약된 `public/assets/images/generated/v1/...` 경로에 commit한다. Git connector가 Contents API로 binary upload를 지원하지 않는 환경에서는 `create_blob → create_tree → create_commit → update_ref` 순서를 사용한다.
+### 기본 원칙
+
+Git connector를 통해 대용량 binary/base64를 한 번에 직접 `create_blob` 하는 방식은 사용하지 않는다. connector/runtime 전송 과정에서 payload가 잘리거나 변형되어도 Git object 생성 자체는 성공할 수 있기 때문이다.
+
+이미지 binary를 connector 환경에서 Git으로 옮길 때는 다음 **검증형 staging → GitHub Actions 복원 방식**을 기본으로 한다.
+
+1. 적용할 WebP들을 tar.gz 등 단일 archive로 묶는다.
+2. archive의 SHA-256을 로컬에서 계산한다.
+3. archive를 base64 text로 변환한다.
+4. 충분히 작은 고정 크기 text chunk로 나눈다.
+5. 각 chunk의 예상 Git blob SHA를 로컬에서 계산한다.
+6. chunk를 `image-upload-staging/part-*.txt`로 올리며 생성된 blob SHA가 예상 SHA와 일치하는지 검증한다.
+7. 모든 chunk가 정확히 올라간 뒤에만 `image-upload-staging/ready.txt`를 추가한다.
+8. `.github/workflows/image-binary-import.yml` 또는 동등한 import workflow가 chunk를 순서대로 결합하고 base64 decode한다.
+9. Actions에서 archive SHA-256을 다시 검증한다. 불일치하면 즉시 실패하고 production asset을 변경하지 않는다.
+10. archive를 풀고 각 대상 파일이 non-empty WebP인지 `file`/size 검사한다.
+11. 검증 통과 시에만 production 경로를 교체하고 cache revision을 올린다.
+12. staging 파일을 삭제한 뒤 bot commit으로 `main`에 반영한다.
+
+직접 binary API가 해당 환경에서 원본 bytes와 hash를 보존한다고 검증된 경우에만 더 단순한 binary upload 방식을 사용할 수 있다.
+
+### 캐시 규칙
+
+이미지 파일을 동일 경로에서 교체한 경우 `image-slots-v1.js`의 해당 slot `rev`와 `index.html`의 slot runtime script version을 증가시켜 Safari/CDN/browser의 이전 응답을 우회한다.
 
 ## WORK-IMG-007 — Drive mirror
 
@@ -102,6 +125,8 @@ Git과 Drive 중 한 곳만 반영된 상태는 완료로 보고하지 않는다
 - Drive file id
 - applied_at
 
+binary repair가 발생한 경우 최초 commit을 최종 적용 commit으로 남겨두지 않고, 최종 검증된 repair/application commit SHA로 갱신한다. 필요하면 최초 실패 SHA는 별도 history 필드로 보존한다.
+
 ## WORK-IMG-009 — 사용자 검수 배치
 
 사용자가 “일단 반영된 걸 보고 다음으로 가겠다”고 한 경우에도 현재 승인 배치는 실제 사이트에 적용한 뒤 멈춘다. 다음 미승인 배치를 선행 생성·활성화하지 않는다.
@@ -113,15 +138,17 @@ Git과 Drive 중 한 곳만 반영된 상태는 완료로 보고하지 않는다
 다음을 수행하기 전에는 “반영 완료”라고 보고하지 않는다.
 
 1. Git binary 존재 확인.
-2. `ready:true` 확인.
-3. manifest 일치 확인.
-4. Drive mirror 확인.
-5. Prompt Queue applied 확인.
-6. Git compare 확인.
-7. 가능한 경우 실제 배포 URL 응답/표시 확인.
+2. Git 파일 size/hash가 최종 검수 원본과 일치하는지 확인.
+3. `ready:true` 확인.
+4. manifest/runtime path 및 cache revision 일치 확인.
+5. Drive mirror 확인.
+6. Prompt Queue applied 및 최종 Git commit SHA 확인.
+7. 시작 SHA와 종료 SHA Git compare 확인.
+8. 가능한 경우 실제 배포 URL에서 HTTP 200, content type/file signature, expected size를 확인.
+9. 실제 page/binder에서 대상 slot이 올바른 DOM에 연결되는지 확인.
 
 배포 전파 중이면 `Git 적용 완료 / 배포 전파 대기`로 구분한다.
 
 ## WORK-IMG-011 — Skill 구현 기준
 
-향후 프로젝트 전용 이미지 Skill을 만들 때 이 문서를 그대로 작업 contract로 사용한다. Skill의 기본 명령은 “이미지를 만들어 보여준다”가 아니라 **prompt/context 해석 → 생성 → QA → WebP → Git → Drive → ready → queue → deploy validation** 전체 트랜잭션이다.
+향후 프로젝트 전용 이미지 Skill을 만들 때 이 문서를 그대로 작업 contract로 사용한다. Skill의 기본 명령은 “이미지를 만들어 보여준다”가 아니라 **prompt/context 해석 → 생성 → QA → WebP → 검증형 Git binary transfer → Drive → ready → queue → deploy validation** 전체 트랜잭션이다.
