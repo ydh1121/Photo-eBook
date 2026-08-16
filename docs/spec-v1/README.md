@@ -36,6 +36,7 @@
 - `13-function-registry.md` — 함수 및 스크립트 책임 최소단위 목록
 - `14-legacy-and-tech-debt.md` — 누적 override, dormant controller, 위험 영역
 - `15-regression-checklist.md` — 모든 후속 작업의 사전/사후 검증 절차
+- `16-ai-workflow-contract.md` — ChatGPT/Codex/향후 Skill이 V1을 적용하는 강제 작업 순서
 
 ## 규칙 ID
 
@@ -58,6 +59,7 @@
 - `LIFE-*` 초기화/lifecycle
 - `OWN-*` 코드 소유권
 - `REG-*` 회귀 방지
+- `WORK-*` AI/Codex/Skill 작업 수행 규약
 
 ## V1의 의미
 
