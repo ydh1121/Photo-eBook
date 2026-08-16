@@ -1,4 +1,4 @@
-/* v67: deterministic question rail geometry and Safari collection chrome blending. */
+/* v68: deterministic question rail geometry and Safari collection chrome blending. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -178,9 +178,9 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   left:5px!important;
   right:auto!important;
   bottom:auto!important;
-  width:calc((100% - 15px)/2)!important;
-  min-width:calc((100% - 15px)/2)!important;
-  max-width:calc((100% - 15px)/2)!important;
+  width:calc(50% - 7.5px)!important;
+  min-width:calc(50% - 7.5px)!important;
+  max-width:calc(50% - 7.5px)!important;
   height:40px!important;
   min-height:40px!important;
   max-height:40px!important;
