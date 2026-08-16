@@ -1,1 +1,1 @@
-diagnose=v1-image-batch-001
+diagnose=v1-image-batch-001-cloudflare
