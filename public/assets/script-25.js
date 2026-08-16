@@ -1,4 +1,4 @@
-/* v45: Breeze spring liquid motion, stable question controls, symmetric question geometry, persistent bulk affordances, and reliable ChatGPT handoff. */
+/* v46: Breeze spring liquid motion, isolated v40 question controls, centered question geometry, persistent bulk affordances, and reliable ChatGPT handoff. */
 (function(){
   if(window.__photoV41Installed)return;
   window.__photoV41Installed=true;
@@ -52,6 +52,7 @@
     if(root?.matches('.nav-scroll'))return {indicator:'.nav-v33-indicator',active:'.nav-chip.is-active',ready:'v33-liquid-ready',duration:d=>clamp(245+d*.10,255,380)};
     if(root?.matches('.collection-tabs'))return {indicator:'.collection-v33-indicator',active:'.collection-tab.is-active',ready:'v33-liquid-ready',duration:d=>clamp(300+d*.18,320,470)};
     if(root?.matches('.theme-choice'))return {indicator:'.theme-v34-indicator',active:'button.is-active',ready:'v34-liquid-ready',duration:d=>clamp(300+d*.18,320,470)};
+    if(root?.matches('.v40-question-segment'))return {indicator:'.v36-question-indicator',active:'button.is-active',ready:'v36-liquid-ready',duration:d=>clamp(300+d*.16,330,430)};
     if(root?.matches('.v32-question-segment'))return {indicator:'.v36-question-indicator',active:'button.is-active',ready:'v36-liquid-ready',duration:d=>clamp(300+d*.16,330,430)};
     return null;
   }
@@ -63,27 +64,19 @@
 
   function questionGeometry(root,button,indicator){
     if(!root||!button?.matches?.('[data-v40-qmode]'))return null;
-    const buttons=$$('button[data-v40-qmode]',root);
-    const index=buttons.indexOf(button);
-    if(index<0)return null;
+    const slotX=button.offsetLeft;
+    const slotY=button.offsetTop;
+    const slotW=button.offsetWidth;
+    const slotH=button.offsetHeight;
+    if(!slotW||!slotH)return null;
 
-    const cs=getComputedStyle(root);
-    const padL=parseFloat(cs.paddingLeft)||0;
-    const padR=parseFloat(cs.paddingRight)||0;
-    const padT=parseFloat(cs.paddingTop)||0;
-    const borderL=parseFloat(cs.borderLeftWidth)||0;
-    const borderR=parseFloat(cs.borderRightWidth)||0;
-    const gap=parseFloat(cs.columnGap)||parseFloat(cs.gap)||0;
-    const boxW=Math.max(0,root.getBoundingClientRect().width-borderL-borderR);
-    const slotW=Math.max(0,(boxW-padL-padR-gap)/2);
-    const indicatorW=parseFloat(getComputedStyle(indicator).width)||button.offsetWidth;
-    const w=Math.min(slotW,indicatorW);
-    const inner=Math.max(0,(slotW-w)/2);
-    const x=index===0
-      ? padL+inner
-      : boxW-padR-inner-w;
-
-    return {x,y:padT,w,h:button.offsetHeight};
+    /* The real grid button IS the slot. Center the narrower visual pill inside
+       that measured slot instead of rebuilding grid math from the rail width.
+       This makes outer/inner gutters identical for both halves at every DPR. */
+    const cssW=parseFloat(getComputedStyle(indicator).width)||slotW;
+    const w=Math.min(slotW,cssW);
+    const x=slotX+(slotW-w)/2;
+    return {x,y:slotY,w,h:slotH};
   }
 
   function ensureSkin(root){
@@ -134,13 +127,14 @@
       $('.nav-scroll'),
       $('.collection-tabs'),
       $('.theme-choice'),
-      $('#v40QuestionControls .v32-question-segment')||$('.v32-question-segment')
+      $('#v40QuestionControls .v40-question-segment')||$('.v40-question-segment'),
+      $('.v32-question-segment')
     ].filter(Boolean);
-    roots.forEach(ensureSkin);
+    [...new Set(roots)].forEach(ensureSkin);
   }
 
   function moveV40QuestionIndicator(chip){
-    const root=chip?.closest?.('.v32-question-segment');
+    const root=chip?.closest?.('.v40-question-segment');
     if(!root||!chip.matches('[data-v40-qmode]'))return false;
     let indicator=$('.v36-question-indicator',root);
     if(!indicator){
@@ -158,6 +152,10 @@
     const distance=Math.abs(tx-oldX);
     const duration=indicatorSpec(root)?.duration(distance)||380;
 
+    /* Retired controllers used Web Animations on this same transform. Cancel
+       any stale animation before the single v40 CSS spring starts, otherwise
+       Safari can interpolate two transform owners and visibly jitter. */
+    indicator.getAnimations?.().forEach(animation=>animation.cancel());
     indicator.style.transition=springTransition(duration);
     indicator.style.width=tw+'px';
     indicator.style.height=th+'px';
@@ -226,8 +224,9 @@
   function dedupeQuestionControls(){
     const controls=$$('[id="v40QuestionControls"]');
     controls.slice(1).forEach(node=>node.remove());
-    const root=$('#v40QuestionControls .v32-question-segment');
+    const root=$('#v40QuestionControls .v40-question-segment');
     if(root){
+      root.classList.remove('v32-question-segment');
       $$('.v36-question-indicator',root).slice(1).forEach(node=>node.remove());
       ensureSkin(root);
     }
@@ -327,10 +326,10 @@
   }
 
   document.addEventListener('click',event=>{
-    const liquid=event.target.closest?.('.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button');
+    const liquid=event.target.closest?.('.nav-chip,.collection-tab,.theme-choice button,.v40-question-segment button,.v32-question-segment button');
     if(liquid){
       if(!moveV40QuestionIndicator(liquid)){
-        const root=liquid.closest('.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment');
+        const root=liquid.closest('.nav-scroll,.collection-tabs,.theme-choice,.v40-question-segment,.v32-question-segment');
         if(root)ensureSkin(root);
       }
     }
