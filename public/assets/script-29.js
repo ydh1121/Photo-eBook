@@ -1,7 +1,7 @@
-/* v61: exact mirrored geometry for the question sub-filter. */
+/* v62: fractional mirrored geometry for the question sub-filter. */
 (function(){
-  if(window.__photoV61QuestionGeometryInstalled)return;
-  window.__photoV61QuestionGeometryInstalled=true;
+  if(window.__photoV62QuestionGeometryInstalled)return;
+  window.__photoV62QuestionGeometryInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -51,22 +51,29 @@
     const padL=parseFloat(cs.paddingLeft)||0;
     const padR=parseFloat(cs.paddingRight)||0;
     const padT=parseFloat(cs.paddingTop)||0;
-    const slotW=button.offsetWidth;
+    const borderL=parseFloat(cs.borderLeftWidth)||0;
+    const borderR=parseFloat(cs.borderRightWidth)||0;
+    const gap=parseFloat(cs.columnGap)||parseFloat(cs.gap)||0;
+    const rootRect=root.getBoundingClientRect();
+
+    /* Absolute-positioned children use the rail's padding box as their
+       coordinate space. Derive both grid slots from that one fractional-width
+       box instead of mixing integer-rounded clientWidth/offsetWidth values.
+       This makes the left outer gutter and right outer gutter exact mirrors,
+       including on DPR / viewport widths that produce half-pixel grid tracks. */
+    const boxW=Math.max(0,rootRect.width-borderL-borderR);
+    const slotW=Math.max(0,(boxW-padL-padR-gap)/2);
     const compact=window.innerWidth<=360;
     const pillInset=compact?14:18;
     const pillCap=compact?146:154;
     const pillW=Math.max(0,Math.min(slotW-pillInset,pillCap));
     const inner=(slotW-pillW)/2;
-
-    /* One coordinate system only: the positioned padding box. The left endpoint
-       is measured from the left content edge; the right endpoint is mirrored
-       from the right content edge. This avoids accumulating grid gap/padding a
-       second time on the right-hand destination. */
     const x=index===0
       ? padL+inner
-      : root.clientWidth-padR-inner-pillW;
+      : boxW-padR-inner-pillW;
+    const buttonRect=button.getBoundingClientRect();
 
-    return {x,y:padT,w:pillW,h:button.offsetHeight};
+    return {x,y:padT,w:pillW,h:buttonRect.height||button.offsetHeight};
   }
 
   function syncTo(button,{animate=false}={}){
@@ -94,7 +101,7 @@
     indicator.dataset.h=String(next.h);
     indicator.dataset.ready='true';
     indicator.dataset.v41Measured='true';
-    indicator.dataset.v61GeometryReady='true';
+    indicator.dataset.v62GeometryReady='true';
 
     if(!animate){
       requestAnimationFrame(()=>{
