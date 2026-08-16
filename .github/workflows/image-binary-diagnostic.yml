@@ -1,0 +1,37 @@
+name: Diagnose V1 WebP assets
+
+on:
+  push:
+    paths:
+      - 'image-diagnostic-trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect generated WebP files
+        shell: bash
+        run: |
+          set -uo pipefail
+          files=(
+            public/assets/images/generated/v1/hero/hero-main.webp
+            public/assets/images/generated/v1/chapter/education.webp
+            public/assets/images/generated/v1/chapter/portfolio.webp
+            public/assets/images/generated/v1/market/product-commerce.webp
+            public/assets/images/generated/v1/market/corporate-profile.webp
+            public/assets/images/generated/v1/market/food-space.webp
+          )
+          failed=0
+          for f in "${files[@]}"; do
+            echo "=== $f ==="
+            wc -c "$f" || failed=1
+            file "$f" || failed=1
+            if command -v identify >/dev/null 2>&1; then
+              identify "$f" || failed=1
+            fi
+          done
+          exit "$failed"
