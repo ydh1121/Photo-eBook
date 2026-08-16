@@ -1,4 +1,4 @@
-/* v59: preserve accepted nav/canvas states and make the secondary question selector geometrically symmetric. */
+/* v61: preserve accepted nav/canvas states and keep the secondary question selector geometrically symmetric. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -58,9 +58,9 @@ body::after{
    Question write/saved selector — secondary hierarchy.
 
    The rail shares the search field's exact left/right edges. Each destination
-   owns one exact 1/2 interaction slot. The visible liquid pill is narrower than
-   that slot, but is centered inside it. This keeps left/right travel perfectly
-   symmetric while preserving the lighter secondary-filter hierarchy.
+   owns one exact 1/2 interaction slot. JS v61 owns the visible pill geometry
+   from one coordinate system (the rail padding box) so the two outside gutters
+   are exact mirrors. Do not reintroduce margin-left based centering here.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
@@ -82,10 +82,6 @@ body::after{
 }
 
 #v40QuestionControls .v40-question-segment{
-  --q-slot-width:calc((100% - 15px)/2);
-  --q-pill-inset:18px;
-  --q-pill-cap:154px;
-  --q-pill-width:min(calc(var(--q-slot-width) - var(--q-pill-inset)),var(--q-pill-cap));
   position:relative!important;
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -98,9 +94,6 @@ body::after{
   overflow:visible!important;
 }
 
-/* The buttons fill their logical half. Only the moving visual pill is narrower.
-   This prevents old intrinsic/max-width rules from shifting the left and right
-   destinations by different amounts. */
 #v40QuestionControls .v40-question-segment>button{
   position:relative!important;
   z-index:3!important;
@@ -159,22 +152,22 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   color:#94a7c9!important;
 }
 
-/* Existing JS moves the indicator to the active button's slot origin. CSS owns
-   only the visible pill width and centers it inside that slot with margin-left.
-   The two endpoints therefore have identical pill width and mirrored gutters. */
+/* Fallback dimensions are used only before script-29 v61 measures the rail.
+   v61 replaces width and X with inline !important values and mirrors the two
+   outside gutters exactly. */
 #v40QuestionControls .v36-question-indicator{
   position:absolute!important;
   z-index:2!important;
   top:0!important;
   left:0!important;
   bottom:auto!important;
-  width:var(--q-pill-width)!important;
-  min-width:var(--q-pill-width)!important;
-  max-width:var(--q-pill-width)!important;
+  width:min(calc((100% - 15px)/2 - 18px),154px)!important;
+  min-width:0!important;
+  max-width:154px!important;
   height:40px!important;
   min-height:40px!important;
   max-height:40px!important;
-  margin-left:calc((var(--q-slot-width) - var(--q-pill-width))/2)!important;
+  margin-left:0!important;
   border-radius:999px!important;
   overflow:visible!important;
   pointer-events:none!important;
@@ -206,10 +199,6 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 }
 
 @media(max-width:360px){
-  #v40QuestionControls .v40-question-segment{
-    --q-pill-inset:14px;
-    --q-pill-cap:146px;
-  }
   #v40QuestionControls .v40-question-segment>button{
     padding-inline:8px!important;
     font-size:12px!important;
@@ -220,5 +209,9 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
     height:17px!important;
     padding-inline:4px!important;
     font-size:10px!important;
+  }
+  #v40QuestionControls .v36-question-indicator{
+    width:min(calc((100% - 15px)/2 - 14px),146px)!important;
+    max-width:146px!important;
   }
 }
