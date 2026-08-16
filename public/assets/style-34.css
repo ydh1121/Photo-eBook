@@ -1,4 +1,4 @@
-/* v71: grid-owned question rail geometry, exposed spring overshoot, and transparent Safari page underlay. */
+/* v72: grid-owned question rail geometry, exposed spring overshoot, and stable Safari under-page surfaces. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -25,20 +25,49 @@ html[data-theme="dark"] .nav-shell{
 /* --------------------------------------------------------------------------
    Safari bottom chrome / page canvas
 
-   Do not tint the browser-facing page root while the collection sheet is open.
-   The previous collection-open graphite fill was visible behind Safari's
-   address pill. Keep the root/layer fully transparent in every sheet state.
+   iOS 26 Safari can expose the browser's own black under-page whenever normal
+   document content ends, or whenever a fixed sheet is clipped at the visual
+   viewport edge. A transparent root therefore produces a black strip even
+   though the floating browser chrome itself is translucent.
+
+   Keep the actual overlay layer transparent, but give html/body the same solid
+   surface as the visible page. Real content still shows through Safari's glass
+   wherever it physically extends underneath the toolbar; only empty/clipped
+   under-page space receives this fallback surface.
    -------------------------------------------------------------------------- */
 html,
+body{
+  min-height:100%!important;
+  background-image:none!important;
+}
 body,
-html[data-theme="light"] body,
-html[data-theme="dark"] body,
-html.collection-open,
-body.collection-open,
-html[data-theme="light"].collection-open,
-html[data-theme="light"].collection-open body,
+#app,
+.app{
+  min-height:100dvh!important;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body{
+  background-color:var(--lg-dark-canvas,#0d0f13)!important;
+}
+html[data-theme="light"],
+html[data-theme="light"] body{
+  background-color:var(--canvas,#fff)!important;
+}
+
+/* When the fixed collection sheet hits Safari's visual-viewport boundary,
+   continue the sheet surface into the browser under-page instead of exposing
+   pure black. This is only a fallback behind Safari chrome; the sheet itself
+   remains the visible foreground. */
 html[data-theme="dark"].collection-open,
-html[data-theme="dark"].collection-open body,
+html[data-theme="dark"].collection-open body{
+  background-color:#111418!important;
+}
+html[data-theme="light"].collection-open,
+html[data-theme="light"].collection-open body{
+  background-color:#fff!important;
+}
+
 #collectionLayer{
   background:transparent!important;
   background-color:transparent!important;
