@@ -1,0 +1,80 @@
+/* v1: canonical liquid fallback + iOS Safari bottom-toolbar clearance. */
+
+/* --------------------------------------------------------------------------
+   Liquid selectors
+   The canonical controller normally installs the moving skin before first
+   paint. If JS is delayed for any reason, the active chip still uses the same
+   raised glass language instead of falling back to a flat blue button.
+   -------------------------------------------------------------------------- */
+:is(.nav-scroll,.collection-tabs,.theme-choice):not(.v41-skin-ready) :is(.nav-chip,.collection-tab,button).is-active{
+  border-color:rgba(255,255,255,.20)!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,0) 32%),
+    linear-gradient(180deg,rgba(95,151,244,.90),rgba(60,118,226,.91) 54%,rgba(43,92,200,.93))!important;
+  box-shadow:
+    0 7px 18px rgba(38,84,176,.22),
+    0 2px 5px rgba(27,67,151,.12),
+    inset 0 1px 0 rgba(255,255,255,.30),
+    inset 0 -1px 0 rgba(13,48,120,.13)!important;
+  color:#fff!important;
+}
+
+:is(.nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator){
+  will-change:transform,width,height!important;
+  transform-origin:center center!important;
+}
+:is(.nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator)>.v37-liquid-skin{
+  display:block!important;
+}
+
+/* --------------------------------------------------------------------------
+   iOS Safari 26 bottom chrome
+
+   Safari creates a solid color extension behind its compact bottom toolbar when
+   a viewport-constrained fixed/sticky surface sits close to the obscured bottom
+   inset. Do not place any site-owned fixed surface in that detection zone.
+
+   The collection button and the open collection sheet therefore stop above the
+   browser's floating address-pill zone. The lower strip remains actual page
+   content, so Safari's Liquid Glass can sample the page instead of extending a
+   solid black sheet/background into its own UI.
+   -------------------------------------------------------------------------- */
+html.ios-webkit-chrome{
+  --ios-safari-bottom-clearance:max(78px,calc(env(safe-area-inset-bottom,0px) + 52px));
+}
+
+html.ios-webkit-chrome .collection-fab{
+  bottom:var(--ios-safari-bottom-clearance)!important;
+}
+
+html.ios-webkit-chrome.collection-open #collectionBackdrop{
+  top:0!important;
+  right:0!important;
+  left:0!important;
+  bottom:var(--ios-safari-bottom-clearance)!important;
+  height:auto!important;
+}
+
+html.ios-webkit-chrome.collection-open #collectionSheet{
+  bottom:var(--ios-safari-bottom-clearance)!important;
+  max-height:calc(100dvh - var(--ios-safari-bottom-clearance) - 10px)!important;
+  border-radius:30px!important;
+}
+
+/* The layer itself must never become a colored safe-area plate. */
+html.ios-webkit-chrome #collectionLayer,
+html.ios-webkit-chrome #collectionLayer::before,
+html.ios-webkit-chrome #collectionLayer::after{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+
+/* Do not use a programmatic root-scroll trick to influence Safari chrome.
+   The chrome state is driven by Safari; site geometry only avoids its solid
+   fixed-edge extension trigger. */
+html.ios-webkit-chrome,
+html.ios-webkit-chrome body{
+  scroll-padding-bottom:0!important;
+}
