@@ -1,4 +1,4 @@
-/* v44: Breeze spring liquid motion, stable question controls, persistent bulk affordances, and reliable ChatGPT handoff. */
+/* v45: Breeze spring liquid motion, stable question controls, symmetric question geometry, persistent bulk affordances, and reliable ChatGPT handoff. */
 (function(){
   if(window.__photoV41Installed)return;
   window.__photoV41Installed=true;
@@ -61,6 +61,31 @@
     return `transform ${duration}ms ${BREEZE_EASING}, width ${duration}ms ${BREEZE_EASING}, height ${duration}ms ${BREEZE_EASING}`;
   }
 
+  function questionGeometry(root,button,indicator){
+    if(!root||!button?.matches?.('[data-v40-qmode]'))return null;
+    const buttons=$$('button[data-v40-qmode]',root);
+    const index=buttons.indexOf(button);
+    if(index<0)return null;
+
+    const cs=getComputedStyle(root);
+    const padL=parseFloat(cs.paddingLeft)||0;
+    const padR=parseFloat(cs.paddingRight)||0;
+    const padT=parseFloat(cs.paddingTop)||0;
+    const borderL=parseFloat(cs.borderLeftWidth)||0;
+    const borderR=parseFloat(cs.borderRightWidth)||0;
+    const gap=parseFloat(cs.columnGap)||parseFloat(cs.gap)||0;
+    const boxW=Math.max(0,root.getBoundingClientRect().width-borderL-borderR);
+    const slotW=Math.max(0,(boxW-padL-padR-gap)/2);
+    const indicatorW=parseFloat(getComputedStyle(indicator).width)||button.offsetWidth;
+    const w=Math.min(slotW,indicatorW);
+    const inner=Math.max(0,(slotW-w)/2);
+    const x=index===0
+      ? padL+inner
+      : boxW-padR-inner-w;
+
+    return {x,y:padT,w,h:button.offsetHeight};
+  }
+
   function ensureSkin(root){
     const spec=indicatorSpec(root);
     if(!root||!spec)return false;
@@ -79,7 +104,11 @@
 
     const active=$(spec.active,root);
     if(active&&(!indicator.offsetWidth||!indicator.offsetHeight||indicator.dataset.v41Measured!=='true')){
-      const w=active.offsetWidth,h=active.offsetHeight,x=active.offsetLeft,y=active.offsetTop;
+      const q=questionGeometry(root,active,indicator);
+      const w=q?.w||active.offsetWidth;
+      const h=q?.h||active.offsetHeight;
+      const x=q?.x??active.offsetLeft;
+      const y=q?.y??active.offsetTop;
       if(w&&h){
         indicator.getAnimations?.().forEach(animation=>animation.cancel());
         indicator.style.transition='none';
@@ -122,8 +151,9 @@
     }
     ensureSkin(root);
 
-    const tx=chip.offsetLeft,ty=chip.offsetTop,tw=chip.offsetWidth,th=chip.offsetHeight;
-    if(!tw||!th)return true;
+    const next=questionGeometry(root,chip,indicator);
+    if(!next||!next.w||!next.h)return true;
+    const tx=next.x,ty=next.y,tw=next.w,th=next.h;
     const oldX=Number(indicator.dataset.x||tx);
     const distance=Math.abs(tx-oldX);
     const duration=indicatorSpec(root)?.duration(distance)||380;
