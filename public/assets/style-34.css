@@ -1,4 +1,4 @@
-/* v73: stable Safari glass surface + grid-owned question rail. */
+/* v74: stable Safari glass edge + restored liquid motion compatibility. */
 
 /* Top navigation land */
 .nav-shell,
@@ -18,11 +18,13 @@ html[data-theme="dark"] .nav-shell{
 /* --------------------------------------------------------------------------
    Safari bottom chrome
 
-   Keep the browser-facing root transparent. More importantly, do not replace
-   the page scroll container with overflow:hidden while the collection sheet is
-   open: iOS Safari rebuilds its bottom chrome compositor when the root scroller
-   disappears. The fixed backdrop already blocks background touch gestures, so
-   the document scroller can stay alive beneath the sheet.
+   Keep the browser-facing root transparent and preserve the document scroller.
+   On iOS Safari 26, a fixed/background layer attached exactly to bottom:0 can
+   trigger Safari's solid bottom color extension behind the floating address
+   pill. The collection overlay is therefore detached from the hard bottom edge
+   by one physical CSS pixel on iOS only. The gap is below the usable content
+   surface and is visually covered by Safari chrome, but it prevents the sheet
+   and backdrop from being classified as edge-attached bottom surfaces.
    -------------------------------------------------------------------------- */
 html,
 body,
@@ -44,8 +46,6 @@ body,
   min-height:100dvh!important;
 }
 
-/* The iOS-only class is installed by script-30. Keep the root scroller alive
-   and suppress rubber-band under-page exposure at the hard scroll edges. */
 html.ios-webkit-chrome,
 html.ios-webkit-chrome body{
   overscroll-behavior-y:none!important;
@@ -77,6 +77,16 @@ html.ios-webkit-chrome.collection-open body{
 .collection-body{
   overscroll-behavior:contain!important;
   touch-action:pan-y!important;
+}
+
+/* Do not let either fixed overlay surface physically touch Safari's hard
+   bottom edge. This is intentionally iOS-only and only while the library is
+   open; other platforms keep their existing geometry. */
+html.ios-webkit-chrome.collection-open #collectionBackdrop{
+  bottom:1px!important;
+}
+html.ios-webkit-chrome.collection-open #collectionSheet{
+  bottom:1px!important;
 }
 
 html[data-theme="dark"] #app,
