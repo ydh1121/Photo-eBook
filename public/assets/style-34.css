@@ -1,4 +1,4 @@
-/* v69: grid-owned question rail geometry and Safari collection chrome blending. */
+/* v70: grid-owned question rail geometry, exposed spring overshoot, and Safari collection chrome blending. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -72,12 +72,13 @@ body::after{
 }
 
 /* --------------------------------------------------------------------------
-   Question write/saved selector — grid-owned geometry.
+   Question write/saved selector — grid-owned geometry + exposed spring.
 
    The rail itself owns the only 5px inset. The indicator is a real grid item in
-   column 1, so the left endpoint cannot pick up a second absolute-positioning
-   offset. Moving to "saved" is exactly one grid-cell width + the 5px gap.
-   Initial render and later motion therefore share the same coordinate system.
+   column 1, so both endpoints stay mathematically symmetric. Unlike v69, the
+   rail no longer clips its child: the Breeze easing can overshoot beyond the
+   rail edge and settle back in, matching the other liquid selectors. The pill
+   sits above the rail surface, while the button labels remain above the pill.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
@@ -87,6 +88,7 @@ body::after{
   margin:9px 0 0!important;
   padding:0!important;
   box-sizing:border-box!important;
+  overflow:visible!important;
 }
 #v40QuestionControls[hidden]{display:none!important}
 
@@ -100,6 +102,7 @@ body::after{
 
 #v40QuestionControls .v40-question-segment{
   position:relative!important;
+  z-index:1!important;
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-template-rows:40px!important;
@@ -110,13 +113,13 @@ body::after{
   padding:5px!important;
   gap:5px!important;
   border-radius:999px!important;
-  overflow:hidden!important;
+  overflow:visible!important;
   box-sizing:border-box!important;
 }
 
 #v40QuestionControls .v40-question-segment>button{
   position:relative!important;
-  z-index:3!important;
+  z-index:5!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
@@ -182,7 +185,7 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 
 #v40QuestionControls .v36-question-indicator{
   position:relative!important;
-  z-index:2!important;
+  z-index:4!important;
   grid-column:1!important;
   grid-row:1!important;
   align-self:stretch!important;
@@ -202,8 +205,9 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   overflow:visible!important;
   pointer-events:none!important;
   transform:translate3d(0,0,0)!important;
-  transition:transform 390ms cubic-bezier(0.34,1.56,0.64,1)!important;
+  transition:transform 410ms cubic-bezier(0.34,1.56,0.64,1)!important;
   will-change:transform!important;
+  isolation:isolate!important;
 }
 
 #v40QuestionControls .v40-question-segment:has(>button[data-v40-qmode="saved"].is-active)>.v36-question-indicator{
@@ -215,6 +219,7 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 
 #v40QuestionControls .v36-question-indicator>.v37-liquid-skin{
   inset:0!important;
+  z-index:1!important;
   width:100%!important;
   height:100%!important;
   min-width:100%!important;
