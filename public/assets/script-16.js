@@ -1,9 +1,10 @@
-/* v34: stable liquid selectors, smooth rail motion, progress, and theme modes. */
+/* v43: stable liquid selectors with Breeze spring easing, smooth rail motion, progress, and theme modes. */
 (function(){
   if(window.__photoV33Installed)return;
   window.__photoV33Installed=true;
 
   const THEME_KEY='photoRoadmapThemeV1';
+  const BREEZE_EASING='cubic-bezier(0.34, 1.56, 0.64, 1)';
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   const $=(s,r=document)=>r.querySelector(s);
@@ -76,7 +77,6 @@
     motionJobs.delete(node);
   }
 
-  function smoothStep(t){return t*t*(3-2*t);}
   function smootherStep(t){return t*t*t*(t*(t*6-15)+10);}
 
   function moveRailTo(rail,item,{slow=false}={}){
@@ -130,56 +130,49 @@
     indicator.setAttribute('aria-hidden','true');
     rail.prepend(indicator);
 
-    const state={x:0,y:0,w:0,h:0,tx:0,ty:0,tw:0,th:0,ready:false,raf:0};
+    const state={x:0,y:0,w:0,h:0,ready:false};
 
-    function paint(){
-      indicator.style.width=`${Math.max(0,state.w)}px`;
-      indicator.style.height=`${Math.max(0,state.h)}px`;
-      indicator.style.transform=`translate3d(${state.x}px,${state.y}px,0)`;
+    function durationFor(x,w){
+      const distance=Math.max(Math.abs(x-state.x),Math.abs(w-state.w));
+      return clamp((slow?300:245)+distance*(slow?.18:.10),slow?320:255,slow?470:380);
     }
 
-    function settleTo(item,instant=false){
+    function setGeometry(item,{instant=false}={}){
       if(!item)return;
-      state.tx=item.offsetLeft;
-      state.ty=item.offsetTop;
-      state.tw=item.offsetWidth;
-      state.th=item.offsetHeight;
+      const x=item.offsetLeft;
+      const y=item.offsetTop;
+      const w=item.offsetWidth;
+      const h=item.offsetHeight;
+      if(!w||!h)return;
 
-      if(!state.ready||instant||reduced()){
-        state.x=state.tx;state.y=state.ty;state.w=state.tw;state.h=state.th;
-        paint();
-        state.ready=true;
-        rail.classList.add(readyClass);
-        if(lead)moveRailTo(rail,item,{slow});
-        return;
+      const first=!state.ready;
+      const duration=durationFor(x,w);
+      indicator.getAnimations?.().forEach(animation=>animation.cancel());
+      indicator.style.transition=(first||instant||reduced())
+        ? 'none'
+        : `transform ${duration}ms ${BREEZE_EASING}, width ${duration}ms ${BREEZE_EASING}, height ${duration}ms ${BREEZE_EASING}`;
+      indicator.style.width=`${w}px`;
+      indicator.style.height=`${h}px`;
+      indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
+      indicator.dataset.x=String(x);
+      indicator.dataset.y=String(y);
+      indicator.dataset.w=String(w);
+      indicator.dataset.h=String(h);
+      indicator.dataset.ready='true';
+
+      state.x=x;state.y=y;state.w=w;state.h=h;state.ready=true;
+      rail.classList.add(readyClass);
+
+      if(first&&!reduced()){
+        requestAnimationFrame(()=>{
+          indicator.style.transition=`transform ${duration}ms ${BREEZE_EASING}, width ${duration}ms ${BREEZE_EASING}, height ${duration}ms ${BREEZE_EASING}`;
+        });
       }
-
-      if(state.raf)cancelAnimationFrame(state.raf);
-      const from={x:state.x,y:state.y,w:state.w,h:state.h};
-      const distance=Math.max(Math.abs(state.tx-from.x),Math.abs(state.tw-from.w));
-      const duration=clamp((slow?300:245)+distance*(slow?.18:.10),slow?320:255,slow?470:380);
-      const started=performance.now();
-
-      const tick=now=>{
-        const t=clamp((now-started)/duration,0,1);
-        const eased=smootherStep(t);
-        state.x=from.x+(state.tx-from.x)*eased;
-        state.y=from.y+(state.ty-from.y)*eased;
-        state.w=from.w+(state.tw-from.w)*eased;
-        state.h=from.h+(state.th-from.h)*eased;
-        paint();
-        if(t>=1){
-          state.x=state.tx;state.y=state.ty;state.w=state.tw;state.h=state.th;
-          paint();state.raf=0;return;
-        }
-        state.raf=requestAnimationFrame(tick);
-      };
-      state.raf=requestAnimationFrame(tick);
       if(lead)setTimeout(()=>moveRailTo(rail,item,{slow}),slow?72:42);
     }
 
     function activeItem(){return $(itemSelector+'.is-active',rail)||$(itemSelector,rail);}
-    function update(instant=false){const item=activeItem();if(item)settleTo(item,instant);}
+    function update(instant=false){const item=activeItem();if(item)setGeometry(item,{instant});}
 
     const observer=new MutationObserver(records=>{
       if(records.some(record=>record.type==='attributes'&&record.attributeName==='class'))requestAnimationFrame(()=>update(false));
