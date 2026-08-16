@@ -1,5 +1,5 @@
-/* v51: single-owner liquid selectors and truly native top-rail scrolling.
-   No nav auto-centering, no scrollIntoView monkey patch, no scroll-linked RAF. */
+/* v52: single-owner liquid selectors, native top-rail scrolling, and lightweight reading progress.
+   No nav auto-centering, no scrollIntoView monkey patch, no scrollLeft writes. */
 (function(){
   if(window.__photoV49CoreInstalled)return;
   window.__photoV49CoreInstalled=true;
@@ -65,6 +65,26 @@
       skin.setAttribute('aria-hidden','true');
       indicator.appendChild(skin);
     }
+  }
+
+  function installReadingProgress(nav){
+    if(!nav||nav.dataset.v52ProgressBound==='true')return;
+    nav.dataset.v52ProgressBound='true';
+    let raf=0;
+    const update=()=>{
+      raf=0;
+      const max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
+      const ratio=clamp((window.scrollY||window.pageYOffset||0)/max,0,1);
+      nav.style.setProperty('--v32-progress',`${(ratio*100).toFixed(3)}%`);
+    };
+    const schedule=()=>{
+      if(raf)return;
+      raf=requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    window.visualViewport?.addEventListener?.('resize',schedule,{passive:true});
+    update();
   }
 
   function makeLiquidController(root,{itemSelector,indicatorClass,readyClass,slow=false,durationScale=1}={}){
@@ -174,7 +194,7 @@
   async function initLiquid(){
     const nav=await waitFor('.nav-scroll');
     if(nav){
-      nav.style.setProperty('--v32-progress','0%');
+      installReadingProgress(nav);
       makeLiquidController(nav,{itemSelector:'.nav-chip',indicatorClass:'nav-v33-indicator',readyClass:'v33-liquid-ready',slow:false,durationScale:1.10});
     }
 
