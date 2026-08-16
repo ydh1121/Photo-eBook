@@ -1,196 +1,125 @@
-/* v46: iOS-safe horizontal drag for the top chapter rail.
-   The rail keeps native vertical page scrolling, while horizontal movement is
-   owned explicitly by pointer events. */
+/* v47: native iOS horizontal scrolling for the top chapter rail.
+   Previous v46 owned every pointermove + momentum frame in JavaScript. That
+   fought Safari's gesture engine and could keep the main thread/GPU busy.
+   v47 gives panning back to WebKit and only pauses legacy auto-lead timers
+   while the user is touching the rail. */
 (function(){
-  if(window.__photoV46NavDragInstalled)return;
-  window.__photoV46NavDragInstalled=true;
+  if(window.__photoV47NavNativeInstalled)return;
+  window.__photoV47NavNativeInstalled=true;
 
-  const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
   const bound=new WeakSet();
-  const inertiaJobs=new WeakMap();
-
-  function cancelInertia(rail){
-    const raf=inertiaJobs.get(rail);
-    if(raf)cancelAnimationFrame(raf);
-    inertiaJobs.delete(rail);
-  }
 
   function cancelLegacyLead(rail){
     clearTimeout(rail.__v32NavTimer);
     clearTimeout(rail.__v32LeadTimer);
   }
 
-  function maxScroll(rail){
-    return Math.max(0,rail.scrollWidth-rail.clientWidth);
-  }
+  function applyNativePolicy(rail){
+    if(!rail)return;
 
-  function applyTouchPolicy(rail){
-    rail.style.setProperty('overflow-x','auto','important');
+    /* The important part: a gesture that begins on a button must still be
+       eligible for native horizontal panning. Global button CSS uses
+       touch-action:manipulation, so override both the rail and its chips. */
+    rail.style.setProperty('display','flex','important');
+    rail.style.setProperty('width','100%','important');
+    rail.style.setProperty('max-width','100%','important');
+    rail.style.setProperty('min-width','0','important');
+    rail.style.setProperty('overflow-x','scroll','important');
     rail.style.setProperty('overflow-y','hidden','important');
     rail.style.setProperty('-webkit-overflow-scrolling','touch','important');
-    rail.style.setProperty('touch-action','pan-y','important');
+    rail.style.setProperty('touch-action','pan-x pan-y','important');
     rail.style.setProperty('overscroll-behavior-x','contain','important');
     rail.style.setProperty('scroll-behavior','auto','important');
+    rail.style.setProperty('scroll-snap-type','none','important');
+
     rail.querySelectorAll('.nav-chip').forEach(chip=>{
-      chip.style.setProperty('touch-action','pan-y','important');
       chip.style.setProperty('flex','0 0 auto','important');
+      chip.style.setProperty('touch-action','pan-x pan-y','important');
+      chip.style.setProperty('-webkit-user-select','none','important');
+      chip.style.setProperty('user-select','none','important');
+    });
+
+    /* Moving glass is visual only. Never let it become the gesture target. */
+    rail.querySelectorAll('.nav-v33-indicator,.nav-liquid-indicator,.v37-liquid-skin,.nav-progress-liquid').forEach(node=>{
+      node.style.setProperty('pointer-events','none','important');
+      node.style.setProperty('touch-action','none','important');
     });
   }
 
-  function startInertia(rail,velocity){
-    cancelInertia(rail);
-    const max=maxScroll(rail);
-    if(max<=0||!Number.isFinite(velocity)||Math.abs(velocity)<0.015)return;
-
-    let v=clamp(velocity*16,-34,34);
-    let previous=performance.now();
-    const tick=now=>{
-      const dt=Math.min(34,Math.max(8,now-previous));
-      previous=now;
-      v*=Math.pow(0.91,dt/16.67);
-
-      const before=rail.scrollLeft;
-      const next=clamp(before+v*(dt/16.67),0,maxScroll(rail));
-      rail.scrollLeft=next;
-
-      const atEdge=(next<=0&&v<0)||(next>=maxScroll(rail)&&v>0);
-      if(atEdge||Math.abs(v)<0.18){
-        inertiaJobs.delete(rail);
-        return;
-      }
-      const raf=requestAnimationFrame(tick);
-      inertiaJobs.set(rail,raf);
-    };
-    const raf=requestAnimationFrame(tick);
-    inertiaJobs.set(rail,raf);
-  }
-
   function bind(rail){
-    if(!rail||bound.has(rail))return;
+    if(!rail)return;
+    applyNativePolicy(rail);
+    if(bound.has(rail))return;
     bound.add(rail);
-    rail.dataset.v46HorizontalScroll='true';
-    applyTouchPolicy(rail);
+    rail.dataset.v47NativeScroll='true';
 
-    let gesture=null;
-    let suppressClickUntil=0;
+    let touching=false;
+    let moved=false;
+    let startX=0;
+    let startY=0;
 
-    rail.addEventListener('pointerdown',event=>{
-      if(!event.isPrimary)return;
-      if(event.pointerType==='mouse'&&event.button!==0)return;
-      applyTouchPolicy(rail);
-      cancelInertia(rail);
+    rail.addEventListener('touchstart',event=>{
+      const touch=event.touches&&event.touches[0];
+      touching=true;
+      moved=false;
+      if(touch){startX=touch.clientX;startY=touch.clientY;}
       cancelLegacyLead(rail);
-      gesture={
-        id:event.pointerId,
-        startX:event.clientX,
-        startY:event.clientY,
-        startScroll:rail.scrollLeft,
-        axis:null,
-        dragging:false,
-        lastScroll:rail.scrollLeft,
-        lastTime:performance.now(),
-        velocity:0
-      };
-    },{capture:true,passive:true});
+      rail.classList.add('is-native-touching');
+    },{passive:true});
 
-    rail.addEventListener('pointermove',event=>{
-      const g=gesture;
-      if(!g||event.pointerId!==g.id)return;
-
-      const dx=event.clientX-g.startX;
-      const dy=event.clientY-g.startY;
-      if(!g.axis){
-        const ax=Math.abs(dx),ay=Math.abs(dy);
-        if(Math.max(ax,ay)<5)return;
-        if(ax>ay*1.06)g.axis='x';
-        else if(ay>ax*1.06){
-          g.axis='y';
-          return;
-        }else return;
-      }
-      if(g.axis!=='x')return;
-
-      if(!g.dragging){
-        g.dragging=true;
-        rail.classList.add('is-horizontal-dragging');
-        try{rail.setPointerCapture(event.pointerId);}catch{}
-      }
-      if(event.cancelable)event.preventDefault();
+    rail.addEventListener('touchmove',event=>{
+      if(!touching)return;
+      const touch=event.touches&&event.touches[0];
+      if(!touch)return;
+      const dx=Math.abs(touch.clientX-startX);
+      const dy=Math.abs(touch.clientY-startY);
+      if(dx>7&&dx>dy)moved=true;
+      /* Deliberately do not preventDefault and do not write scrollLeft here.
+         WebKit owns the scrolling/momentum path. */
       cancelLegacyLead(rail);
+    },{passive:true});
 
-      const next=clamp(g.startScroll-dx,0,maxScroll(rail));
-      rail.scrollLeft=next;
-
-      const now=performance.now();
-      const dt=Math.max(1,now-g.lastTime);
-      const instant=(next-g.lastScroll)/dt;
-      g.velocity=g.velocity*.45+instant*.55;
-      g.lastScroll=next;
-      g.lastTime=now;
-    },{capture:true,passive:false});
-
-    function finish(event){
-      const g=gesture;
-      if(!g||event.pointerId!==g.id)return;
-      if(g.dragging){
-        suppressClickUntil=performance.now()+420;
-        rail.classList.remove('is-horizontal-dragging');
-        try{if(rail.hasPointerCapture?.(g.id))rail.releasePointerCapture(g.id);}catch{}
-        startInertia(rail,g.velocity);
+    const endTouch=()=>{
+      touching=false;
+      rail.classList.remove('is-native-touching');
+      /* Keep old auto-leading code from snapping the rail back immediately
+         after a manual swipe. */
+      if(moved){
+        cancelLegacyLead(rail);
+        rail.__v47ManualUntil=performance.now()+650;
       }
-      gesture=null;
-    }
+      moved=false;
+    };
+    rail.addEventListener('touchend',endTouch,{passive:true});
+    rail.addEventListener('touchcancel',endTouch,{passive:true});
 
-    rail.addEventListener('pointerup',finish,{capture:true,passive:true});
-    rail.addEventListener('pointercancel',event=>{
-      const g=gesture;
-      if(!g||event.pointerId!==g.id)return;
-      rail.classList.remove('is-horizontal-dragging');
-      gesture=null;
-    },{capture:true,passive:true});
-
+    /* Suppress accidental chapter activation after a real swipe, without
+       taking ownership of the gesture itself. */
     rail.addEventListener('click',event=>{
-      if(performance.now()<suppressClickUntil){
+      if(performance.now()<(rail.__v47ManualUntil||0)){
         event.preventDefault();
         event.stopImmediatePropagation();
       }
     },true);
-
-    /* Desktop trackpads / shift-wheel should remain useful as well. */
-    rail.addEventListener('wheel',event=>{
-      const horizontal=Math.abs(event.deltaX)>Math.abs(event.deltaY)
-        ? event.deltaX
-        : (event.shiftKey?event.deltaY:0);
-      if(!horizontal)return;
-      const before=rail.scrollLeft;
-      const next=clamp(before+horizontal,0,maxScroll(rail));
-      if(next===before)return;
-      cancelInertia(rail);
-      cancelLegacyLead(rail);
-      rail.scrollLeft=next;
-      if(event.cancelable)event.preventDefault();
-    },{passive:false});
   }
 
-  function scan(root=document){
-    if(root.matches?.('.nav-scroll'))bind(root);
-    root.querySelectorAll?.('.nav-scroll').forEach(bind);
+  function findAndBind(){
+    document.querySelectorAll('.nav-scroll').forEach(bind);
+  }
+
+  function waitForNav(attempt=0){
+    findAndBind();
+    if(document.querySelector('.nav-scroll')||attempt>=80)return;
+    setTimeout(()=>waitForNav(attempt+1),100);
   }
 
   function init(){
-    scan();
-    const observer=new MutationObserver(records=>{
-      for(const record of records){
-        for(const node of record.addedNodes){
-          if(node.nodeType===1)scan(node);
-        }
-      }
-      document.querySelectorAll('.nav-scroll').forEach(applyTouchPolicy);
-    });
-    observer.observe(document.documentElement,{childList:true,subtree:true});
+    waitForNav();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
-  window.addEventListener('pageshow',()=>setTimeout(()=>{scan();document.querySelectorAll('.nav-scroll').forEach(applyTouchPolicy);},80),{passive:true});
+
+  window.addEventListener('pageshow',()=>setTimeout(findAndBind,80),{passive:true});
+  window.addEventListener('resize',()=>document.querySelectorAll('.nav-scroll').forEach(applyNativePolicy),{passive:true});
 })();
