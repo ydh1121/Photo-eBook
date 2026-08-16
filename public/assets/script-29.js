@@ -1,21 +1,20 @@
-/* v51: canonicalize the question sub-filter without a global observer. */
+/* v60: canonical question-subfilter geometry with local resize resync. */
 (function(){
-  if(window.__photoV51QuestionCanonicalInstalled)return;
-  window.__photoV51QuestionCanonicalInstalled=true;
+  if(window.__photoV60QuestionGeometryInstalled)return;
+  window.__photoV60QuestionGeometryInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  const BREEZE='cubic-bezier(0.34, 1.56, 0.64, 1)';
+  let resizeObserver=null;
+  let observedRoot=null;
 
-  function ensureQuestionIndicator(){
+  function getParts(){
     const controls=$('#v40QuestionControls');
     const root=$('.v40-question-segment',controls||document);
-    if(!controls||!root)return;
+    if(!controls||!root)return null;
 
-    /* Remove duplicate stable-control containers first. */
     $$('[id="v40QuestionControls"]').filter(node=>node!==controls).forEach(node=>node.remove());
-
-    /* Legacy question hubs can be recreated briefly by older collection code.
-       Their own segment must never become a second visible control. */
     $$('.v32-question-hub>.v32-question-segment').forEach(node=>{
       node.hidden=true;
       node.setAttribute('aria-hidden','true');
@@ -39,43 +38,78 @@
       indicator.appendChild(skin);
     }
 
-    const active=$('button.is-active',root)||$('button',root);
-    if(!active)return;
-    const w=active.offsetWidth;
-    const h=active.offsetHeight;
-    if(!w||!h)return;
+    root.classList.add('v41-skin-ready','v39-liquid-ready','v36-liquid-ready');
+    return {controls,root,indicator};
+  }
 
-    if(indicator.dataset.v51CanonicalReady!=='true'){
-      indicator.style.transition='none';
-      indicator.style.width=w+'px';
-      indicator.style.height=h+'px';
-      indicator.style.transform=`translate3d(${active.offsetLeft}px,${active.offsetTop}px,0)`;
-      indicator.dataset.x=String(active.offsetLeft);
-      indicator.dataset.y=String(active.offsetTop);
-      indicator.dataset.w=String(w);
-      indicator.dataset.h=String(h);
-      indicator.dataset.ready='true';
-      indicator.dataset.v41Measured='true';
-      indicator.dataset.v51CanonicalReady='true';
-      root.classList.add('v41-skin-ready','v39-liquid-ready','v36-liquid-ready');
+  function syncTo(button,{animate=false}={}){
+    const parts=getParts();
+    if(!parts||!button||!parts.root.contains(button))return;
+    const {root,indicator}=parts;
+    const x=button.offsetLeft;
+    const y=button.offsetTop;
+    if(!Number.isFinite(x)||!Number.isFinite(y))return;
+
+    indicator.getAnimations?.().forEach(animation=>animation.cancel());
+    indicator.style.transition=animate
+      ?`transform 380ms ${BREEZE}`
+      :'none';
+    indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
+    indicator.dataset.x=String(x);
+    indicator.dataset.y=String(y);
+    indicator.dataset.ready='true';
+    indicator.dataset.v41Measured='true';
+    indicator.dataset.v60GeometryReady='true';
+
+    if(!animate){
       requestAnimationFrame(()=>{
-        if(indicator.isConnected){
-          indicator.style.transition='transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 380ms cubic-bezier(0.34, 1.56, 0.64, 1), height 380ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-        }
+        if(indicator.isConnected)indicator.style.transition=`transform 380ms ${BREEZE}`;
       });
     }
   }
 
-  function schedule(){
-    [0,70,180].forEach(delay=>setTimeout(ensureQuestionIndicator,delay));
+  function syncActive({animate=false}={}){
+    const parts=getParts();
+    if(!parts)return;
+    const active=$('button.is-active',parts.root)||$('button',parts.root);
+    if(active)syncTo(active,{animate});
+  }
+
+  function bindResize(){
+    const parts=getParts();
+    if(!parts||typeof ResizeObserver==='undefined')return;
+    if(observedRoot===parts.root&&resizeObserver)return;
+    resizeObserver?.disconnect();
+    observedRoot=parts.root;
+    resizeObserver=new ResizeObserver(()=>requestAnimationFrame(()=>syncActive({animate:false})));
+    resizeObserver.observe(parts.root);
+  }
+
+  function repair(){
+    const parts=getParts();
+    if(!parts)return;
+    bindResize();
+    syncActive({animate:false});
+  }
+
+  function scheduleRepair(){
+    [0,70,180,360].forEach(delay=>setTimeout(repair,delay));
   }
 
   document.addEventListener('click',event=>{
-    if(event.target.closest?.('.collection-tab[data-library-tab="question"],#collectionFab,[data-v40-qmode]'))schedule();
+    const qmode=event.target.closest?.('[data-v40-qmode]');
+    if(qmode){
+      /* script-25 may also see this click; this later-loaded controller owns the
+         final question-indicator transform and always uses the CURRENT slot. */
+      syncTo(qmode,{animate:true});
+      setTimeout(()=>syncActive({animate:false}),430);
+      return;
+    }
+    if(event.target.closest?.('.collection-tab[data-library-tab="question"],#collectionFab'))scheduleRepair();
   },true);
 
-  function init(){schedule();}
+  function init(){scheduleRepair();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
-  window.addEventListener('pageshow',()=>setTimeout(schedule,100),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(scheduleRepair,100),{passive:true});
 })();
