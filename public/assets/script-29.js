@@ -1,7 +1,7 @@
-/* v64: canonical question cleanup and one safe route from contextual text selection into the current question UI. */
+/* v65: canonical question cleanup and deterministic contextual-selection handoff. */
 (function(){
-  if(window.__photoV64QuestionCanonicalInstalled)return;
-  window.__photoV64QuestionCanonicalInstalled=true;
+  if(window.__photoV65QuestionCanonicalInstalled)return;
+  window.__photoV65QuestionCanonicalInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -11,6 +11,7 @@
     const root=$('.v40-question-segment',controls||document);
     if(!controls||!root)return;
 
+    root.classList.remove('v32-question-segment');
     $$('[id="v40QuestionControls"]').filter(node=>node!==controls).forEach(node=>node.remove());
     $$('.v32-question-hub>.v32-question-segment').forEach(node=>{
       node.hidden=true;
@@ -36,7 +37,7 @@
     }
 
     /* Geometry and motion are intentionally NOT written here. script-25 is the
-       single owner of the question pill's spring and mirrored endpoints. */
+       sole owner of the current v40 pill's spring and endpoint coordinates. */
     root.classList.add('v41-skin-ready','v39-liquid-ready','v36-liquid-ready');
   }
 
@@ -44,32 +45,48 @@
     [0,70,180].forEach(delay=>setTimeout(ensureQuestionStructure,delay));
   }
 
+  function forceWrite(){
+    if(typeof window.__photoForceQuestionWrite==='function'){
+      window.__photoForceQuestionWrite();
+      return;
+    }
+    const write=$('#v40QuestionControls [data-v40-qmode="write"]');
+    write?.click();
+  }
+
   function openCurrentQuestionUi(){
     const bubble=$('#askBubble');
     if(bubble)bubble.hidden=true;
+
+    /* showBubble() already copied the selected text into #askQuote/state before
+       this click. Keep that data, then release the browser selection highlight. */
     try{window.getSelection?.().removeAllRanges();}catch{}
 
+    window.__photoPendingQuestionWrite=true;
     const fab=$('#collectionFab');
     const sheet=$('#collectionSheet');
     const questionTab=$('.collection-tab[data-library-tab="question"]');
-    if(!fab||!questionTab)return;
+    if(!fab||!questionTab){
+      window.__photoPendingQuestionWrite=false;
+      return;
+    }
 
     if(sheet?.hidden)fab.click();
 
     setTimeout(()=>{
       questionTab.click();
-      setTimeout(()=>{
+      /* The collection renderer and older cleanup layers can finish on later
+         frames. The v40 owner keeps write mode authoritative through that
+         short render window, then clears the pending flag itself. */
+      [30,120,300].forEach(delay=>setTimeout(()=>{
         ensureQuestionStructure();
-        const write=$('#v40QuestionControls [data-v40-qmode="write"]');
-        if(write&&!write.classList.contains('is-active'))write.click();
-        else if(write)write.dispatchEvent(new Event('click',{bubbles:true}));
-      },130);
+        forceWrite();
+      },delay));
     },70);
   }
 
-  /* script-15 still has the retired v32 document-capture route for #askBubble.
-     Window capture runs before document capture, so stop that legacy route here
-     and send the selection straight into the current v40 collection workflow. */
+  /* Handle the contextual bubble before any retired document-capture route can
+     open the old question sheet. */
   window.addEventListener('click',event=>{
     if(!event.target?.closest?.('#askBubble'))return;
     event.preventDefault();
