@@ -20,9 +20,8 @@
 
   /* ------------------------------------------------------------------
      Stable question UI. Controls live outside #collectionBody so normal
-     library rerenders cannot delete them. The current v40 rail deliberately
-     does NOT use the retired .v32-question-segment class; that prevents older
-     question-indicator controllers from touching the current pill.
+     library rerenders cannot delete them. The v32 visual class is kept for
+     established glass styling; script-19 explicitly ignores v40 motion.
      ------------------------------------------------------------------ */
   function ensureParking(){
     let parking=$('#v40QuestionParking');
@@ -51,7 +50,7 @@
       controls.id='v40QuestionControls';
       controls.className='v40-question-controls';
       controls.hidden=true;
-      controls.innerHTML=`<div class="v40-question-segment" role="tablist" aria-label="질문 관리">
+      controls.innerHTML=`<div class="v32-question-segment v40-question-segment" role="tablist" aria-label="질문 관리">
         <button type="button" data-v40-qmode="write">질문 작성</button>
         <button type="button" data-v40-qmode="saved" class="is-active">저장한 질문 <span>${readQuestions().length}</span></button>
       </div>`;
@@ -62,8 +61,6 @@
         setQuestionMode(button.dataset.v40Qmode||'saved');
       });
     }
-    const root=$('.v40-question-segment',controls);
-    root?.classList.remove('v32-question-segment');
     const badge=$('[data-v40-qmode="saved"] span',controls);
     if(badge)badge.textContent=String(readQuestions().length);
     return controls;
@@ -218,7 +215,6 @@
         box.type='button';
         box.className='collection-selectbox';
         box.setAttribute('aria-label','항목 선택');
-        box.prepend();
         box.setAttribute('aria-pressed','false');
         card.prepend(box);
       }
