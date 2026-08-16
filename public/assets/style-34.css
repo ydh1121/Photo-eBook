@@ -1,4 +1,4 @@
-/* v66: preserve accepted nav/canvas states and make the secondary question rail use exact slot geometry. */
+/* v67: deterministic question rail geometry and Safari collection chrome blending. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -24,17 +24,31 @@ html[data-theme="dark"] .nav-shell{
 
 /* --------------------------------------------------------------------------
    Safari bottom chrome / page canvas
-   Keep every browser-facing web layer transparent. Safari's own toolbar is
-   system chrome, but the webpage must not contribute an extra black underlay.
+
+   Safari 26 can derive browser chrome from the root/page background. A fully
+   transparent root can therefore fall back to the system's black under-page
+   surface instead of showing the blurred page behind the toolbar. Keep the
+   normal page transparent, but while the collection sheet is open give Safari
+   a neutral surface that visually continues the surrounding glass instead of
+   introducing a pure-black strip.
    -------------------------------------------------------------------------- */
 html,
 body,
 html[data-theme="light"] body,
 html[data-theme="dark"] body,
-html.collection-open,
-body.collection-open,
 #collectionLayer{
   background-color:transparent!important;
+  background-image:none!important;
+}
+
+html[data-theme="dark"].collection-open,
+html[data-theme="dark"].collection-open body{
+  background-color:#25282e!important;
+  background-image:none!important;
+}
+html[data-theme="light"].collection-open,
+html[data-theme="light"].collection-open body{
+  background-color:#d9dbe0!important;
   background-image:none!important;
 }
 
@@ -58,12 +72,13 @@ body::after{
 }
 
 /* --------------------------------------------------------------------------
-   Question write/saved selector — secondary hierarchy.
+   Question write/saved selector — exact CSS-owned geometry.
 
-   The rail is 50px high with 5px padding. Each destination button is therefore
-   exactly 40px high. The selected pill now uses the full measured grid slot,
-   so top, bottom, left-selected outer edge and right-selected outer edge all
-   resolve to the same 5px inset instead of relying on visual compensation.
+   This control only has two destinations. CSS owns all geometry so initial
+   render and animated movement use the same coordinate system. The rail is
+   50px high with 5px inset; the 40px pill therefore has exactly 5px above,
+   below and at the selected outer edge. JS may still maintain state/labels,
+   but any old inline transform is intentionally overridden here.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
@@ -85,8 +100,6 @@ body::after{
 }
 
 #v40QuestionControls .v40-question-segment{
-  --q-slot-width:calc((100% - 15px)/2);
-  --q-pill-width:var(--q-slot-width);
   position:relative!important;
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -96,7 +109,8 @@ body::after{
   padding:5px!important;
   gap:5px!important;
   border-radius:999px!important;
-  overflow:visible!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
 }
 
 #v40QuestionControls .v40-question-segment>button{
@@ -160,20 +174,32 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 #v40QuestionControls .v36-question-indicator{
   position:absolute!important;
   z-index:2!important;
-  top:0!important;
-  left:0!important;
+  top:5px!important;
+  left:5px!important;
+  right:auto!important;
   bottom:auto!important;
-  width:var(--q-pill-width)!important;
-  min-width:var(--q-pill-width)!important;
-  max-width:var(--q-pill-width)!important;
+  width:calc((100% - 15px)/2)!important;
+  min-width:calc((100% - 15px)/2)!important;
+  max-width:calc((100% - 15px)/2)!important;
   height:40px!important;
   min-height:40px!important;
   max-height:40px!important;
-  margin-left:0!important;
+  margin:0!important;
   border-radius:999px!important;
   overflow:visible!important;
   pointer-events:none!important;
+  transform:translate3d(0,0,0)!important;
+  transition:transform 390ms cubic-bezier(0.34,1.56,0.64,1)!important;
+  will-change:transform!important;
 }
+
+#v40QuestionControls .v40-question-segment:has(>button[data-v40-qmode="saved"].is-active)>.v36-question-indicator{
+  transform:translate3d(calc(100% + 5px),0,0)!important;
+}
+#v40QuestionControls .v40-question-segment:has(>button[data-v40-qmode="write"].is-active)>.v36-question-indicator{
+  transform:translate3d(0,0,0)!important;
+}
+
 #v40QuestionControls .v36-question-indicator>.v37-liquid-skin{
   inset:0!important;
   width:100%!important;
@@ -198,6 +224,12 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   box-sizing:border-box!important;
   font-size:14px!important;
   line-height:1.5!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  #v40QuestionControls .v36-question-indicator{
+    transition:none!important;
+  }
 }
 
 @media(max-width:360px){
