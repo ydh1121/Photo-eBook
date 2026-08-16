@@ -1,0 +1,134 @@
+/* v51: top-rail pacing runway + canonical question liquid selector. */
+
+/* The first top-nav target needs real runway because a horizontal overflow
+   scroller clips paint at its scrollport regardless of z-index. Keep the chip
+   visually close to the edge, but leave enough room for the capped Breeze
+   overshoot used by script-27. */
+.nav-scroll{
+  padding-left:28px!important;
+  padding-right:54px!important;
+}
+@media(max-width:430px){
+  .nav-scroll{padding-left:26px!important;padding-right:50px!important}
+}
+
+/* Only the stable v40 question selector is allowed to paint. Legacy question
+   hubs may exist briefly while old collection code rerenders; hide their old
+   selector so it can never appear as a second pill. */
+.v32-question-hub>.v32-question-segment{
+  display:none!important;
+}
+#v40QuestionControls~#v40QuestionControls{
+  display:none!important;
+}
+#v40QuestionControls .v36-question-indicator~.v36-question-indicator{
+  display:none!important;
+}
+
+/* Match the same rail language used by top nav / collection tabs / theme. */
+#v40QuestionControls{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  position:relative!important;
+  z-index:7!important;
+}
+#v40QuestionControls[hidden]{display:none!important}
+
+#v40QuestionControls .v40-question-segment{
+  position:relative!important;
+  isolation:isolate!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:100%!important;
+  min-height:54px!important;
+  height:54px!important;
+  padding:5px!important;
+  gap:5px!important;
+  overflow:visible!important;
+  border:1px solid transparent!important;
+  border-radius:999px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.43),rgba(236,241,248,.24)) padding-box,
+    linear-gradient(125deg,
+      rgba(255,255,255,.86) 0%,
+      rgba(255,255,255,.30) 24%,
+      rgba(169,194,230,.16) 48%,
+      rgba(255,255,255,.64) 76%,
+      rgba(255,255,255,.22) 100%) border-box!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.46),
+    inset 0 -1px 0 rgba(82,104,137,.045),
+    0 7px 22px rgba(35,52,82,.075)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(138%)!important;
+  backdrop-filter:blur(22px) saturate(138%)!important;
+}
+
+#v40QuestionControls .v40-question-segment>button{
+  position:relative!important;
+  z-index:8!important;
+  min-width:0!important;
+  height:44px!important;
+  min-height:44px!important;
+  margin:0!important;
+  padding:0 14px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+  color:#636b76!important;
+  white-space:nowrap!important;
+}
+#v40QuestionControls .v40-question-segment>button::before,
+#v40QuestionControls .v40-question-segment>button::after{
+  display:none!important;
+}
+#v40QuestionControls .v40-question-segment>button.is-active{
+  color:#fff!important;
+}
+#v40QuestionControls .v40-question-segment.v41-skin-ready>button.is-active,
+#v40QuestionControls .v40-question-segment.v36-liquid-ready>button.is-active{
+  background:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+
+#v40QuestionControls .v36-question-indicator{
+  position:absolute!important;
+  z-index:6!important;
+  left:0!important;
+  top:0!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border-radius:999px!important;
+}
+#v40QuestionControls .v36-question-indicator>.v37-liquid-skin{
+  overflow:visible!important;
+}
+
+html[data-theme="dark"] #v40QuestionControls .v40-question-segment{
+  background:
+    linear-gradient(180deg,rgba(69,80,101,.42),rgba(23,28,36,.47)) padding-box,
+    linear-gradient(125deg,
+      rgba(255,255,255,.25) 0%,
+      rgba(255,255,255,.07) 26%,
+      rgba(120,151,199,.055) 52%,
+      rgba(255,255,255,.18) 77%,
+      rgba(255,255,255,.045) 100%) border-box!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.075),
+    inset 0 -1px 0 rgba(0,0,0,.17),
+    0 9px 24px rgba(0,0,0,.18)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(126%)!important;
+  backdrop-filter:blur(24px) saturate(126%)!important;
+}
+html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button{
+  color:#b7c0cd!important;
+}
+html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button.is-active{
+  color:#fff!important;
+}
