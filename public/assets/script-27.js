@@ -1,4 +1,4 @@
-/* v49: single-owner liquid selectors and truly native top-rail scrolling.
+/* v51: single-owner liquid selectors and truly native top-rail scrolling.
    No nav auto-centering, no scrollIntoView monkey patch, no scroll-linked RAF. */
 (function(){
   if(window.__photoV49CoreInstalled)return;
@@ -6,6 +6,7 @@
 
   const THEME_KEY='photoRoadmapThemeV1';
   const BREEZE_EASING='cubic-bezier(0.34, 1.56, 0.64, 1)';
+  const EDGE_EASING='cubic-bezier(0.34, 1.24, 0.64, 1)';
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
@@ -66,7 +67,7 @@
     }
   }
 
-  function makeLiquidController(root,{itemSelector,indicatorClass,readyClass,slow=false}={}){
+  function makeLiquidController(root,{itemSelector,indicatorClass,readyClass,slow=false,durationScale=1}={}){
     if(!root||root.dataset.v49Liquid==='true')return;
     root.dataset.v49Liquid='true';
 
@@ -84,7 +85,8 @@
 
     function durationFor(x,w){
       const distance=Math.max(Math.abs(x-state.x),Math.abs(w-state.w));
-      return clamp((slow?300:245)+distance*(slow?.18:.10),slow?320:255,slow?470:380);
+      const base=clamp((slow?300:245)+distance*(slow?.18:.10),slow?320:255,slow?470:380);
+      return Math.round(base*durationScale);
     }
 
     function update({instant=false}={}){
@@ -95,9 +97,12 @@
 
       const first=!state.ready;
       const duration=durationFor(x,w);
+      const firstItem=$(itemSelector,root);
+      const edgeTarget=root.matches('.nav-scroll')&&item===firstItem;
+      const easing=edgeTarget?EDGE_EASING:BREEZE_EASING;
       indicator.style.transition=(first||instant||reduced())
         ? 'none'
-        : `transform ${duration}ms ${BREEZE_EASING}, width ${duration}ms ${BREEZE_EASING}, height ${duration}ms ${BREEZE_EASING}`;
+        : `transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
       indicator.style.width=w+'px';
       indicator.style.height=h+'px';
       indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
@@ -111,7 +116,7 @@
       root.classList.add(readyClass,'v41-skin-ready','v39-liquid-ready');
 
       if(first&&!reduced())requestAnimationFrame(()=>{
-        if(indicator.isConnected)indicator.style.transition=`transform ${duration}ms ${BREEZE_EASING}, width ${duration}ms ${BREEZE_EASING}, height ${duration}ms ${BREEZE_EASING}`;
+        if(indicator.isConnected)indicator.style.transition=`transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
       });
     }
 
@@ -170,7 +175,7 @@
     const nav=await waitFor('.nav-scroll');
     if(nav){
       nav.style.setProperty('--v32-progress','0%');
-      makeLiquidController(nav,{itemSelector:'.nav-chip',indicatorClass:'nav-v33-indicator',readyClass:'v33-liquid-ready',slow:false});
+      makeLiquidController(nav,{itemSelector:'.nav-chip',indicatorClass:'nav-v33-indicator',readyClass:'v33-liquid-ready',slow:false,durationScale:1.10});
     }
 
     const tabs=await waitFor('.collection-tabs',18000);
