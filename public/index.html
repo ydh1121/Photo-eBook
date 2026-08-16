@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <script>
     (function(){
+      const ua=navigator.userAgent||'';
+      const ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      if(ios&&/WebKit/i.test(ua))document.documentElement.classList.add('ios-webkit-chrome');
       try{
         const key='photoRoadmapThemeV1';
         const choice=['light','dark','system'].includes(localStorage.getItem(key))?localStorage.getItem(key):'light';
