@@ -1,4 +1,4 @@
-/* v43: stable liquid selectors with Breeze spring easing, smooth rail motion, progress, and theme modes. */
+/* v44: stable liquid selectors with Breeze spring easing, smooth rail motion, progress, and theme modes. */
 (function(){
   if(window.__photoV33Installed)return;
   window.__photoV33Installed=true;
@@ -147,7 +147,6 @@
 
       const first=!state.ready;
       const duration=durationFor(x,w);
-      indicator.getAnimations?.().forEach(animation=>animation.cancel());
       indicator.style.transition=(first||instant||reduced())
         ? 'none'
         : `transform ${duration}ms ${BREEZE_EASING}, width ${duration}ms ${BREEZE_EASING}, height ${duration}ms ${BREEZE_EASING}`;
