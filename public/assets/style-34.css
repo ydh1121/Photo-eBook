@@ -1,4 +1,4 @@
-/* v70: grid-owned question rail geometry, exposed spring overshoot, and Safari collection chrome blending. */
+/* v71: grid-owned question rail geometry, exposed spring overshoot, and transparent Safari page underlay. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -25,30 +25,23 @@ html[data-theme="dark"] .nav-shell{
 /* --------------------------------------------------------------------------
    Safari bottom chrome / page canvas
 
-   Safari 26 can derive browser chrome from the root/page background. A fully
-   transparent root can therefore fall back to the system's black under-page
-   surface instead of showing the blurred page behind the toolbar. Keep the
-   normal page transparent, but while the collection sheet is open give Safari
-   a neutral surface that visually continues the surrounding glass instead of
-   introducing a pure-black strip.
+   Do not tint the browser-facing page root while the collection sheet is open.
+   The previous collection-open graphite fill was visible behind Safari's
+   address pill. Keep the root/layer fully transparent in every sheet state.
    -------------------------------------------------------------------------- */
 html,
 body,
 html[data-theme="light"] body,
 html[data-theme="dark"] body,
-#collectionLayer{
-  background-color:transparent!important;
-  background-image:none!important;
-}
-
-html[data-theme="dark"].collection-open,
-html[data-theme="dark"].collection-open body{
-  background-color:#25282e!important;
-  background-image:none!important;
-}
+html.collection-open,
+body.collection-open,
 html[data-theme="light"].collection-open,
-html[data-theme="light"].collection-open body{
-  background-color:#d9dbe0!important;
+html[data-theme="light"].collection-open body,
+html[data-theme="dark"].collection-open,
+html[data-theme="dark"].collection-open body,
+#collectionLayer{
+  background:transparent!important;
+  background-color:transparent!important;
   background-image:none!important;
 }
 
@@ -75,10 +68,10 @@ body::after{
    Question write/saved selector — grid-owned geometry + exposed spring.
 
    The rail itself owns the only 5px inset. The indicator is a real grid item in
-   column 1, so both endpoints stay mathematically symmetric. Unlike v69, the
-   rail no longer clips its child: the Breeze easing can overshoot beyond the
-   rail edge and settle back in, matching the other liquid selectors. The pill
-   sits above the rail surface, while the button labels remain above the pill.
+   column 1, so both endpoints stay mathematically symmetric. The rail does not
+   clip its child: the Breeze easing can overshoot beyond the rail edge and
+   settle back in, matching the other liquid selectors. The pill sits above the
+   rail surface, while the button labels remain above the pill.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
