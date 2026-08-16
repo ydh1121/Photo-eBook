@@ -1,0 +1,110 @@
+/* v50: elevated liquid pills + overshoot-safe rail edges + Safari bottom chrome cleanup. */
+
+/* --------------------------------------------------------------------------
+   Liquid filter hierarchy
+   Keep the moving glass visually above the rail surface and the label above
+   the glass. Non-scrolling segmented controls may let the spring overshoot
+   outside their rail; the top chapter rail keeps native x scrolling, so it
+   gets a larger inner gutter instead of clipping the first/last overshoot.
+   -------------------------------------------------------------------------- */
+:is(.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment,.v40-question-segment){
+  position:relative!important;
+  isolation:isolate!important;
+}
+
+:is(.nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator,.v36-question-indicator){
+  z-index:6!important;
+  overflow:visible!important;
+}
+
+:is(.nav-v33-indicator,.collection-v33-indicator,.theme-v34-indicator,.v36-question-indicator)>.v37-liquid-skin{
+  z-index:1!important;
+  overflow:visible!important;
+}
+
+:is(.nav-chip,.collection-tab,.theme-choice>button,.v32-question-segment>button,.v40-question-segment>button,.collection-filter){
+  position:relative!important;
+  z-index:8!important;
+}
+
+/* The native horizontal chapter scroller must still clip at its scrollport.
+   Give the spring enough runway so the Breeze overshoot is visible instead of
+   hitting the left/right edge of that scrollport. */
+.nav-scroll{
+  padding-left:14px!important;
+  padding-right:54px!important;
+}
+
+/* These rails do not need to own a horizontal scrolling viewport, so the
+   moving pill may visibly rise/overshoot beyond the rail edge. */
+:is(.collection-tabs,.theme-choice,.v32-question-segment,.v40-question-segment){
+  overflow:visible!important;
+}
+
+/* Secondary category chips should also sit above their local tool surface. */
+#collectionFilters,
+.collection-filters{
+  position:relative!important;
+  z-index:5!important;
+}
+.collection-filter{
+  z-index:7!important;
+}
+
+/* Give the liquid surface a little more separation from the recessed rail.
+   This affects only paint; geometry and the accepted Breeze spring stay intact. */
+.v37-liquid-skin{
+  box-shadow:
+    0 7px 18px rgba(38,84,176,.22),
+    0 2px 5px rgba(27,67,151,.12),
+    inset 0 1px 0 rgba(255,255,255,.30),
+    inset 0 -1px 0 rgba(13,48,120,.13)!important;
+}
+html[data-theme="dark"] .v37-liquid-skin{
+  box-shadow:
+    0 8px 20px rgba(9,29,73,.34),
+    0 2px 6px rgba(18,58,136,.18),
+    inset 0 1px 0 rgba(255,255,255,.27),
+    inset 0 -1px 0 rgba(4,29,82,.18)!important;
+}
+
+/* --------------------------------------------------------------------------
+   Safari bottom address-pill area
+   Higher-specificity dark-theme rules from older layers could repaint body
+   after v48. Make the browser-facing canvas explicitly transparent again while
+   keeping actual page sections responsible for their own light/dark surfaces.
+   -------------------------------------------------------------------------- */
+html,
+html[data-theme="light"],
+html[data-theme="dark"],
+body,
+html[data-theme="light"] body,
+html[data-theme="dark"] body{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+}
+
+html,
+body{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+
+/* No site-owned safe-area plate/pseudo surface behind Safari chrome. */
+html::before,
+html::after,
+body::before,
+body::after{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+
+@media(max-width:430px){
+  .nav-scroll{
+    padding-left:14px!important;
+    padding-right:48px!important;
+  }
+}
