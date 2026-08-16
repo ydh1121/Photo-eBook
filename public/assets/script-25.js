@@ -99,6 +99,54 @@
     roots.forEach(ensureSkin);
   }
 
+  function moveV40QuestionIndicator(chip){
+    const root=chip?.closest?.('.v32-question-segment');
+    if(!root||!chip.matches('[data-v40-qmode]'))return false;
+    let indicator=$('.v36-question-indicator',root);
+    if(!indicator){
+      indicator=document.createElement('span');
+      indicator.className='v36-question-indicator';
+      indicator.setAttribute('aria-hidden','true');
+      root.prepend(indicator);
+    }
+    ensureSkin(root);
+
+    const active=$('button.is-active',root)||chip;
+    const oldX=Number(indicator.dataset.x||active.offsetLeft||0);
+    const oldY=Number(indicator.dataset.y||active.offsetTop||0);
+    const oldW=Number(indicator.dataset.w||active.offsetWidth||chip.offsetWidth||1);
+    const oldH=Number(indicator.dataset.h||active.offsetHeight||chip.offsetHeight||1);
+    const tx=chip.offsetLeft,ty=chip.offsetTop,tw=chip.offsetWidth,th=chip.offsetHeight;
+    if(!tw||!th)return true;
+
+    const dx=tx-oldX;
+    const direction=Math.sign(dx)||1;
+    const distance=Math.abs(dx);
+    const overshoot=direction*clamp(distance*.022,2.2,5.8);
+    const duration=clamp(300+distance*.16,330,430);
+
+    indicator.dataset.x=String(tx);
+    indicator.dataset.y=String(ty);
+    indicator.dataset.w=String(tw);
+    indicator.dataset.h=String(th);
+    indicator.dataset.ready='true';
+    indicator.dataset.v41Measured='true';
+    indicator.style.width=tw+'px';
+    indicator.style.height=th+'px';
+    indicator.style.transform=`translate3d(${tx}px,${ty}px,0)`;
+
+    if(typeof indicator.animate==='function'&&distance>.5){
+      indicator.getAnimations().forEach(animation=>animation.cancel());
+      indicator.animate([
+        {transform:`translate3d(${oldX}px,${oldY}px,0) scaleX(${oldW/Math.max(1,tw)}) scaleY(${oldH/Math.max(1,th)})`,offset:0},
+        {transform:`translate3d(${tx+overshoot}px,${ty}px,0) scaleX(1.018) scaleY(.992)`,offset:.82},
+        {transform:`translate3d(${tx-direction*.75}px,${ty}px,0) scaleX(.998) scaleY(1.002)`,offset:.94},
+        {transform:`translate3d(${tx}px,${ty}px,0) scaleX(1) scaleY(1)`,offset:1}
+      ],{duration,easing:'cubic-bezier(.18,.76,.18,1)'});
+    }
+    return true;
+  }
+
   function scheduleBounce(chip){
     const root=chip?.closest?.('.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment');
     const spec=indicatorSpec(root);
@@ -284,7 +332,9 @@
 
   document.addEventListener('click',event=>{
     const liquid=event.target.closest?.('.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button');
-    if(liquid)scheduleBounce(liquid);
+    if(liquid){
+      if(!moveV40QuestionIndicator(liquid))scheduleBounce(liquid);
+    }
 
     if(openChatGPTReliably(event))return;
 
