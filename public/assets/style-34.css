@@ -1,4 +1,4 @@
-/* v63: preserve accepted nav/canvas states and keep the secondary question selector symmetric without competing JS geometry. */
+/* v64: preserve accepted nav/canvas states and let the spring owner place the secondary question pill symmetrically. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -57,10 +57,9 @@ body::after{
 /* --------------------------------------------------------------------------
    Question write/saved selector — secondary hierarchy.
 
-   The buttons own two exact, equal grid tracks. The existing spring controller
-   moves the indicator to each button's slot origin. CSS alone supplies the same
-   visual inset inside both tracks, so left/right edge gutters remain mirrored
-   without a second JS transform owner.
+   The rail and its two logical destinations stay full-width. The visible pill
+   keeps the accepted narrower width, but script-25 now owns BOTH movement and
+   its symmetric endpoint coordinates. CSS must not add a second X offset.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
@@ -86,7 +85,6 @@ body::after{
   --q-pill-inset:18px;
   --q-pill-cap:154px;
   --q-pill-width:min(calc(var(--q-slot-width) - var(--q-pill-inset)),var(--q-pill-cap));
-  --q-pill-offset:calc((var(--q-slot-width) - var(--q-pill-width))/2);
   position:relative!important;
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -157,8 +155,6 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   color:#94a7c9!important;
 }
 
-/* The spring animation keeps its original transform path. The indicator width
-   and the visual offset are CSS-owned and identical on both grid tracks. */
 #v40QuestionControls .v36-question-indicator{
   position:absolute!important;
   z-index:2!important;
@@ -171,7 +167,7 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
   height:40px!important;
   min-height:40px!important;
   max-height:40px!important;
-  margin-left:var(--q-pill-offset)!important;
+  margin-left:0!important;
   border-radius:999px!important;
   overflow:visible!important;
   pointer-events:none!important;
