@@ -1,4 +1,4 @@
-/* v41: one liquid settle, stable question controls, persistent bulk affordances, and reliable ChatGPT handoff. */
+/* v43: Breeze spring liquid motion, stable question controls, persistent bulk affordances, and reliable ChatGPT handoff. */
 (function(){
   if(window.__photoV41Installed)return;
   window.__photoV41Installed=true;
@@ -6,8 +6,9 @@
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+  const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
+  const BREEZE_EASING='cubic-bezier(0.34, 1.56, 0.64, 1)';
   const QUESTION_KEY='photoRoadmapQuestionsV2';
-  const bounceTimers=new WeakMap();
   let repairRaf=0;
 
   function readQuestions(){
@@ -51,8 +52,13 @@
     if(root?.matches('.nav-scroll'))return {indicator:'.nav-v33-indicator',active:'.nav-chip.is-active',ready:'v33-liquid-ready',duration:d=>clamp(245+d*.10,255,380)};
     if(root?.matches('.collection-tabs'))return {indicator:'.collection-v33-indicator',active:'.collection-tab.is-active',ready:'v33-liquid-ready',duration:d=>clamp(300+d*.18,320,470)};
     if(root?.matches('.theme-choice'))return {indicator:'.theme-v34-indicator',active:'button.is-active',ready:'v34-liquid-ready',duration:d=>clamp(300+d*.18,320,470)};
-    if(root?.matches('.v32-question-segment'))return {indicator:'.v36-question-indicator',active:'button.is-active',ready:'v36-liquid-ready',duration:()=>340};
+    if(root?.matches('.v32-question-segment'))return {indicator:'.v36-question-indicator',active:'button.is-active',ready:'v36-liquid-ready',duration:d=>clamp(300+d*.16,330,430)};
     return null;
+  }
+
+  function springTransition(duration){
+    if(reduced())return 'none';
+    return `transform ${duration}ms ${BREEZE_EASING}, width ${duration}ms ${BREEZE_EASING}, height ${duration}ms ${BREEZE_EASING}`;
   }
 
   function ensureSkin(root){
@@ -75,6 +81,8 @@
     if(active&&(!indicator.offsetWidth||!indicator.offsetHeight||indicator.dataset.v41Measured!=='true')){
       const w=active.offsetWidth,h=active.offsetHeight,x=active.offsetLeft,y=active.offsetTop;
       if(w&&h){
+        indicator.getAnimations?.().forEach(animation=>animation.cancel());
+        indicator.style.transition='none';
         indicator.style.width=w+'px';
         indicator.style.height=h+'px';
         indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
@@ -84,6 +92,9 @@
         indicator.dataset.h=String(h);
         indicator.dataset.ready='true';
         indicator.dataset.v41Measured='true';
+        requestAnimationFrame(()=>{
+          if(indicator.isConnected)indicator.style.transition=springTransition(spec.duration(0));
+        });
       }
     }
     return true;
@@ -111,69 +122,25 @@
     }
     ensureSkin(root);
 
-    const active=$('button.is-active',root)||chip;
-    const oldX=Number(indicator.dataset.x||active.offsetLeft||0);
-    const oldY=Number(indicator.dataset.y||active.offsetTop||0);
-    const oldW=Number(indicator.dataset.w||active.offsetWidth||chip.offsetWidth||1);
-    const oldH=Number(indicator.dataset.h||active.offsetHeight||chip.offsetHeight||1);
     const tx=chip.offsetLeft,ty=chip.offsetTop,tw=chip.offsetWidth,th=chip.offsetHeight;
     if(!tw||!th)return true;
+    const oldX=Number(indicator.dataset.x||tx);
+    const distance=Math.abs(tx-oldX);
+    const duration=indicatorSpec(root)?.duration(distance)||380;
 
-    const dx=tx-oldX;
-    const direction=Math.sign(dx)||1;
-    const distance=Math.abs(dx);
-    const overshoot=direction*clamp(distance*.022,2.2,5.8);
-    const duration=clamp(300+distance*.16,330,430);
-
+    indicator.getAnimations?.().forEach(animation=>animation.cancel());
+    indicator.style.transition=springTransition(duration);
+    indicator.style.width=tw+'px';
+    indicator.style.height=th+'px';
+    indicator.style.transform=`translate3d(${tx}px,${ty}px,0)`;
     indicator.dataset.x=String(tx);
     indicator.dataset.y=String(ty);
     indicator.dataset.w=String(tw);
     indicator.dataset.h=String(th);
     indicator.dataset.ready='true';
     indicator.dataset.v41Measured='true';
-    indicator.style.width=tw+'px';
-    indicator.style.height=th+'px';
-    indicator.style.transform=`translate3d(${tx}px,${ty}px,0)`;
-
-    if(typeof indicator.animate==='function'&&distance>.5){
-      indicator.getAnimations().forEach(animation=>animation.cancel());
-      indicator.animate([
-        {transform:`translate3d(${oldX}px,${oldY}px,0) scaleX(${oldW/Math.max(1,tw)}) scaleY(${oldH/Math.max(1,th)})`,offset:0},
-        {transform:`translate3d(${tx+overshoot}px,${ty}px,0) scaleX(1.018) scaleY(.992)`,offset:.82},
-        {transform:`translate3d(${tx-direction*.75}px,${ty}px,0) scaleX(.998) scaleY(1.002)`,offset:.94},
-        {transform:`translate3d(${tx}px,${ty}px,0) scaleX(1) scaleY(1)`,offset:1}
-      ],{duration,easing:'cubic-bezier(.18,.76,.18,1)'});
-    }
+    root.classList.add('v41-skin-ready','v39-liquid-ready','v36-liquid-ready');
     return true;
-  }
-
-  function scheduleBounce(chip){
-    const root=chip?.closest?.('.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment');
-    const spec=indicatorSpec(root);
-    if(!root||!spec)return;
-    const current=$(spec.active,root);
-    const oldX=current?.offsetLeft??chip.offsetLeft;
-    const dx=chip.offsetLeft-oldX;
-    if(Math.abs(dx)<1)return;
-    clearTimeout(bounceTimers.get(root));
-    const travel=spec.duration(Math.abs(dx));
-    const timer=setTimeout(()=>{
-      if(!chip.isConnected||!chip.classList.contains('is-active'))return;
-      ensureSkin(root);
-      const indicator=$(spec.indicator,root);
-      if(!indicator||typeof indicator.animate!=='function')return;
-      const tx=chip.offsetLeft,ty=chip.offsetTop;
-      const direction=Math.sign(dx)||1;
-      const overshoot=direction*clamp(Math.abs(dx)*.018,2.1,5.4);
-      indicator.getAnimations().forEach(animation=>animation.cancel());
-      indicator.animate([
-        {transform:`translate3d(${tx}px,${ty}px,0) scaleX(1) scaleY(1)`,offset:0},
-        {transform:`translate3d(${tx+overshoot}px,${ty}px,0) scaleX(1.012) scaleY(.994)`,offset:.42},
-        {transform:`translate3d(${tx-direction*.7}px,${ty}px,0) scaleX(.998) scaleY(1.002)`,offset:.78},
-        {transform:`translate3d(${tx}px,${ty}px,0) scaleX(1) scaleY(1)`,offset:1}
-      ],{duration:185,easing:'cubic-bezier(.18,.78,.18,1)'});
-    },travel+8);
-    bounceTimers.set(root,timer);
   }
 
   function parking(){
@@ -333,7 +300,10 @@
   document.addEventListener('click',event=>{
     const liquid=event.target.closest?.('.nav-chip,.collection-tab,.theme-choice button,.v32-question-segment button');
     if(liquid){
-      if(!moveV40QuestionIndicator(liquid))scheduleBounce(liquid);
+      if(!moveV40QuestionIndicator(liquid)){
+        const root=liquid.closest('.nav-scroll,.collection-tabs,.theme-choice,.v32-question-segment');
+        if(root)ensureSkin(root);
+      }
     }
 
     if(openChatGPTReliably(event))return;
