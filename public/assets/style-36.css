@@ -1,0 +1,80 @@
+/* v1: light-mode contrast and surface polish.
+   Keep dark mode, Safari chrome handling, liquid rails and motion untouched. */
+
+html[data-theme="light"]{
+  --light-card-ink:#252a33;
+  --light-card-copy:#525b68;
+  --light-card-muted:#6f7988;
+  --light-card-line:rgba(54,72,101,.10);
+  --light-card-shadow:0 12px 30px rgba(34,52,82,.065),inset 0 1px 0 rgba(255,255,255,.82);
+}
+
+/* style-24 neutralized the former dark guide-key surface without changing the
+   original white typography. Restore a complete light-mode color system. */
+html[data-theme="light"] .guide-key{
+  background:
+    linear-gradient(180deg,rgba(248,250,253,.98),rgba(242,246,251,.96))!important;
+  color:var(--light-card-ink)!important;
+  border:1px solid var(--light-card-line)!important;
+  box-shadow:var(--light-card-shadow)!important;
+}
+html[data-theme="light"] .guide-key b,
+html[data-theme="light"] .guide-key strong{
+  color:#687487!important;
+}
+html[data-theme="light"] .guide-key .guide-key__text,
+html[data-theme="light"] .guide-key .key-flow__item{
+  color:var(--light-card-ink)!important;
+}
+html[data-theme="light"] .guide-key>span:not(.key-flow),
+html[data-theme="light"] .guide-key p{
+  color:var(--light-card-copy)!important;
+}
+html[data-theme="light"] .guide-key .key-flow__arrow{
+  color:#929cab!important;
+}
+
+/* Soft callouts should remain quieter than key callouts but still read as a
+   deliberate card instead of a washed-out patch on a white page. */
+html[data-theme="light"] .guide-key--soft{
+  background:rgba(247,249,252,.92)!important;
+  color:var(--light-card-ink)!important;
+  border-color:rgba(54,72,101,.085)!important;
+  box-shadow:0 8px 22px rgba(34,52,82,.04),inset 0 1px 0 rgba(255,255,255,.78)!important;
+}
+html[data-theme="light"] .guide-key--soft b{
+  color:#6d7684!important;
+}
+html[data-theme="light"] .guide-key--soft .guide-key__text,
+html[data-theme="light"] .guide-key--soft .key-flow__item{
+  color:#303640!important;
+}
+html[data-theme="light"] .guide-key--soft>span:not(.key-flow){
+  color:#626b78!important;
+}
+
+/* Regular callouts and compact metric cards need a visible edge on the white
+   canvas, but not the heavy dark-mode elevation. */
+html[data-theme="light"] .callout-card{
+  background:rgba(249,250,252,.96)!important;
+  border-color:rgba(48,65,94,.09)!important;
+  box-shadow:0 10px 26px rgba(36,50,77,.05),inset 0 1px 0 rgba(255,255,255,.88)!important;
+}
+html[data-theme="light"] .callout-card strong{
+  color:#252a31!important;
+}
+html[data-theme="light"] .callout-card p{
+  color:#4e5662!important;
+}
+html[data-theme="light"] .metric-card{
+  border:1px solid rgba(48,65,94,.055)!important;
+  background:#f5f7fa!important;
+}
+
+/* Preserve the existing liquid navigation language; only keep inactive labels
+   comfortably readable against the very bright rail. */
+html[data-theme="light"] .nav-chip:not(.is-active),
+html[data-theme="light"] .collection-tab:not(.is-active),
+html[data-theme="light"] .theme-choice button:not(.is-active){
+  color:#596270!important;
+}
