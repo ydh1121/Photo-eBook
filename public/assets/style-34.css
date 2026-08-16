@@ -1,4 +1,4 @@
-/* v64: preserve accepted nav/canvas states and let the spring owner place the secondary question pill symmetrically. */
+/* v66: preserve accepted nav/canvas states and make the secondary question rail use exact slot geometry. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -24,13 +24,16 @@ html[data-theme="dark"] .nav-shell{
 
 /* --------------------------------------------------------------------------
    Safari bottom chrome / page canvas
-   Only the browser-facing root stays transparent. The actual app canvas keeps
-   the established theme surface so gaps never expose Safari's pure-black base.
+   Keep every browser-facing web layer transparent. Safari's own toolbar is
+   system chrome, but the webpage must not contribute an extra black underlay.
    -------------------------------------------------------------------------- */
 html,
 body,
 html[data-theme="light"] body,
-html[data-theme="dark"] body{
+html[data-theme="dark"] body,
+html.collection-open,
+body.collection-open,
+#collectionLayer{
   background-color:transparent!important;
   background-image:none!important;
 }
@@ -57,9 +60,10 @@ body::after{
 /* --------------------------------------------------------------------------
    Question write/saved selector — secondary hierarchy.
 
-   The rail and its two logical destinations stay full-width. The visible pill
-   keeps the accepted narrower width, but script-25 now owns BOTH movement and
-   its symmetric endpoint coordinates. CSS must not add a second X offset.
+   The rail is 50px high with 5px padding. Each destination button is therefore
+   exactly 40px high. The selected pill now uses the full measured grid slot,
+   so top, bottom, left-selected outer edge and right-selected outer edge all
+   resolve to the same 5px inset instead of relying on visual compensation.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
@@ -82,9 +86,7 @@ body::after{
 
 #v40QuestionControls .v40-question-segment{
   --q-slot-width:calc((100% - 15px)/2);
-  --q-pill-inset:18px;
-  --q-pill-cap:154px;
-  --q-pill-width:min(calc(var(--q-slot-width) - var(--q-pill-inset)),var(--q-pill-cap));
+  --q-pill-width:var(--q-slot-width);
   position:relative!important;
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -104,7 +106,7 @@ body::after{
   align-items:center!important;
   justify-content:center!important;
   justify-self:stretch!important;
-  gap:0!important;
+  gap:7px!important;
   width:100%!important;
   max-width:none!important;
   min-width:0!important;
@@ -120,20 +122,20 @@ body::after{
   text-align:center!important;
 }
 
-/* Saved-question count is tertiary metadata. It is removed from flex flow so
-   the label stays on the exact center of the 1/2 destination slot. */
+/* Keep the label and count as one centered group. A normal flex gap remains
+   stable when the count grows from one to two or three digits. */
 #v40QuestionControls .v40-question-segment>button>span{
-  position:absolute!important;
-  left:calc(50% + 3.75em)!important;
-  top:50%!important;
-  transform:translate(-50%,-50%)!important;
+  position:static!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
   display:inline-grid!important;
   place-items:center!important;
   flex:0 0 auto!important;
-  min-width:18px!important;
+  min-width:20px!important;
   height:18px!important;
   margin:0!important;
-  padding:0 5px!important;
+  padding:0 6px!important;
   border:1px solid rgba(79,101,137,.07)!important;
   border-radius:999px!important;
   background:rgba(77,101,143,.07)!important;
@@ -199,19 +201,15 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 }
 
 @media(max-width:360px){
-  #v40QuestionControls .v40-question-segment{
-    --q-pill-inset:14px;
-    --q-pill-cap:146px;
-  }
   #v40QuestionControls .v40-question-segment>button{
+    gap:6px!important;
     padding-inline:8px!important;
     font-size:12px!important;
   }
   #v40QuestionControls .v40-question-segment>button>span{
-    left:calc(50% + 3.7em)!important;
-    min-width:17px!important;
+    min-width:19px!important;
     height:17px!important;
-    padding-inline:4px!important;
+    padding-inline:5px!important;
     font-size:10px!important;
   }
 }
