@@ -1,20 +1,18 @@
-/* v62: fractional mirrored geometry for the question sub-filter. */
+/* v63: canonicalize the question sub-filter without competing with its spring owner. */
 (function(){
-  if(window.__photoV62QuestionGeometryInstalled)return;
-  window.__photoV62QuestionGeometryInstalled=true;
+  if(window.__photoV63QuestionCanonicalInstalled)return;
+  window.__photoV63QuestionCanonicalInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-  const BREEZE='cubic-bezier(0.34, 1.56, 0.64, 1)';
-  let resizeObserver=null;
-  let observedRoot=null;
 
-  function getParts(){
+  function ensureQuestionIndicator(){
     const controls=$('#v40QuestionControls');
     const root=$('.v40-question-segment',controls||document);
-    if(!controls||!root)return null;
+    if(!controls||!root)return;
 
     $$('[id="v40QuestionControls"]').filter(node=>node!==controls).forEach(node=>node.remove());
+
     $$('.v32-question-hub>.v32-question-segment').forEach(node=>{
       node.hidden=true;
       node.setAttribute('aria-hidden','true');
@@ -38,120 +36,46 @@
       indicator.appendChild(skin);
     }
 
-    root.classList.add('v41-skin-ready','v39-liquid-ready','v36-liquid-ready');
-    return {controls,root,indicator};
-  }
+    const active=$('button[data-v40-qmode].is-active',root)||$('button[data-v40-qmode]',root);
+    if(!active)return;
+    const w=active.offsetWidth;
+    const h=active.offsetHeight;
+    if(!w||!h)return;
 
-  function geometryFor(root,button){
-    const buttons=$$('button[data-v40-qmode]',root);
-    const index=buttons.indexOf(button);
-    if(index<0)return null;
-
-    const cs=getComputedStyle(root);
-    const padL=parseFloat(cs.paddingLeft)||0;
-    const padR=parseFloat(cs.paddingRight)||0;
-    const padT=parseFloat(cs.paddingTop)||0;
-    const borderL=parseFloat(cs.borderLeftWidth)||0;
-    const borderR=parseFloat(cs.borderRightWidth)||0;
-    const gap=parseFloat(cs.columnGap)||parseFloat(cs.gap)||0;
-    const rootRect=root.getBoundingClientRect();
-
-    /* Absolute-positioned children use the rail's padding box as their
-       coordinate space. Derive both grid slots from that one fractional-width
-       box instead of mixing integer-rounded clientWidth/offsetWidth values.
-       This makes the left outer gutter and right outer gutter exact mirrors,
-       including on DPR / viewport widths that produce half-pixel grid tracks. */
-    const boxW=Math.max(0,rootRect.width-borderL-borderR);
-    const slotW=Math.max(0,(boxW-padL-padR-gap)/2);
-    const compact=window.innerWidth<=360;
-    const pillInset=compact?14:18;
-    const pillCap=compact?146:154;
-    const pillW=Math.max(0,Math.min(slotW-pillInset,pillCap));
-    const inner=(slotW-pillW)/2;
-    const x=index===0
-      ? padL+inner
-      : boxW-padR-inner-pillW;
-    const buttonRect=button.getBoundingClientRect();
-
-    return {x,y:padT,w:pillW,h:buttonRect.height||button.offsetHeight};
-  }
-
-  function syncTo(button,{animate=false}={}){
-    const parts=getParts();
-    if(!parts||!button||!parts.root.contains(button))return;
-    const {root,indicator}=parts;
-    const next=geometryFor(root,button);
-    if(!next||!next.w||!next.h)return;
-
-    indicator.getAnimations?.().forEach(animation=>animation.cancel());
-    indicator.style.setProperty('margin-left','0px','important');
-    indicator.style.setProperty('width',`${next.w}px`,'important');
-    indicator.style.setProperty('min-width',`${next.w}px`,'important');
-    indicator.style.setProperty('max-width',`${next.w}px`,'important');
-    indicator.style.setProperty('height',`${next.h}px`,'important');
-    indicator.style.setProperty('min-height',`${next.h}px`,'important');
-    indicator.style.setProperty('max-height',`${next.h}px`,'important');
-    indicator.style.transition=animate
-      ?`transform 380ms ${BREEZE}`
-      :'none';
-    indicator.style.transform=`translate3d(${next.x}px,${next.y}px,0)`;
-    indicator.dataset.x=String(next.x);
-    indicator.dataset.y=String(next.y);
-    indicator.dataset.w=String(next.w);
-    indicator.dataset.h=String(next.h);
-    indicator.dataset.ready='true';
-    indicator.dataset.v41Measured='true';
-    indicator.dataset.v62GeometryReady='true';
-
-    if(!animate){
+    /* Initialization only. script-25 remains the sole movement/animation owner.
+       The visual left/right inset is handled by CSS so no second controller can
+       fight the spring transform or create jitter. */
+    if(indicator.dataset.v63CanonicalReady!=='true'){
+      indicator.style.transition='none';
+      indicator.style.width=w+'px';
+      indicator.style.height=h+'px';
+      indicator.style.transform=`translate3d(${active.offsetLeft}px,${active.offsetTop}px,0)`;
+      indicator.dataset.x=String(active.offsetLeft);
+      indicator.dataset.y=String(active.offsetTop);
+      indicator.dataset.w=String(w);
+      indicator.dataset.h=String(h);
+      indicator.dataset.ready='true';
+      indicator.dataset.v41Measured='true';
+      indicator.dataset.v63CanonicalReady='true';
+      root.classList.add('v41-skin-ready','v39-liquid-ready','v36-liquid-ready');
       requestAnimationFrame(()=>{
-        if(indicator.isConnected)indicator.style.transition=`transform 380ms ${BREEZE}`;
+        if(indicator.isConnected){
+          indicator.style.transition='transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1), width 380ms cubic-bezier(0.34, 1.56, 0.64, 1), height 380ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+        }
       });
     }
   }
 
-  function syncActive({animate=false}={}){
-    const parts=getParts();
-    if(!parts)return;
-    const active=$('button[data-v40-qmode].is-active',parts.root)||$('button[data-v40-qmode]',parts.root);
-    if(active)syncTo(active,{animate});
-  }
-
-  function bindResize(){
-    const parts=getParts();
-    if(!parts||typeof ResizeObserver==='undefined')return;
-    if(observedRoot===parts.root&&resizeObserver)return;
-    resizeObserver?.disconnect();
-    observedRoot=parts.root;
-    resizeObserver=new ResizeObserver(()=>requestAnimationFrame(()=>syncActive({animate:false})));
-    resizeObserver.observe(parts.root);
-  }
-
-  function repair(){
-    const parts=getParts();
-    if(!parts)return;
-    bindResize();
-    syncActive({animate:false});
-  }
-
-  function scheduleRepair(){
-    [0,70,180,360].forEach(delay=>setTimeout(repair,delay));
+  function schedule(){
+    [0,70,180].forEach(delay=>setTimeout(ensureQuestionIndicator,delay));
   }
 
   document.addEventListener('click',event=>{
-    const qmode=event.target.closest?.('[data-v40-qmode]');
-    if(qmode){
-      /* script-25 runs earlier. This later-loaded controller owns the final
-         question-indicator endpoint and rewrites it to the mirrored geometry. */
-      syncTo(qmode,{animate:true});
-      setTimeout(()=>syncActive({animate:false}),430);
-      return;
-    }
-    if(event.target.closest?.('.collection-tab[data-library-tab="question"],#collectionFab'))scheduleRepair();
+    if(event.target.closest?.('.collection-tab[data-library-tab="question"],#collectionFab,[data-v40-qmode]'))schedule();
   },true);
 
-  function init(){scheduleRepair();}
+  function init(){schedule();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
-  window.addEventListener('pageshow',()=>setTimeout(scheduleRepair,100),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(schedule,100),{passive:true});
 })();
