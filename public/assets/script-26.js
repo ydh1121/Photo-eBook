@@ -1,7 +1,9 @@
-/* v45: reliable horizontal touch scrolling for the top chapter rail. */
+/* v46: iOS-safe horizontal drag for the top chapter rail.
+   The rail keeps native vertical page scrolling, while horizontal movement is
+   owned explicitly by pointer events. */
 (function(){
-  if(window.__photoV45NavDragInstalled)return;
-  window.__photoV45NavDragInstalled=true;
+  if(window.__photoV46NavDragInstalled)return;
+  window.__photoV46NavDragInstalled=true;
 
   const clamp=(value,min,max)=>Math.min(max,Math.max(min,value));
   const bound=new WeakSet();
@@ -13,24 +15,46 @@
     inertiaJobs.delete(rail);
   }
 
+  function cancelLegacyLead(rail){
+    clearTimeout(rail.__v32NavTimer);
+    clearTimeout(rail.__v32LeadTimer);
+  }
+
+  function maxScroll(rail){
+    return Math.max(0,rail.scrollWidth-rail.clientWidth);
+  }
+
+  function applyTouchPolicy(rail){
+    rail.style.setProperty('overflow-x','auto','important');
+    rail.style.setProperty('overflow-y','hidden','important');
+    rail.style.setProperty('-webkit-overflow-scrolling','touch','important');
+    rail.style.setProperty('touch-action','pan-y','important');
+    rail.style.setProperty('overscroll-behavior-x','contain','important');
+    rail.style.setProperty('scroll-behavior','auto','important');
+    rail.querySelectorAll('.nav-chip').forEach(chip=>{
+      chip.style.setProperty('touch-action','pan-y','important');
+      chip.style.setProperty('flex','0 0 auto','important');
+    });
+  }
+
   function startInertia(rail,velocity){
     cancelInertia(rail);
-    if(!Number.isFinite(velocity)||Math.abs(velocity)<0.04)return;
+    const max=maxScroll(rail);
+    if(max<=0||!Number.isFinite(velocity)||Math.abs(velocity)<0.015)return;
 
-    let v=velocity*16;
+    let v=clamp(velocity*16,-34,34);
     let previous=performance.now();
     const tick=now=>{
-      const dt=Math.min(32,Math.max(8,now-previous));
+      const dt=Math.min(34,Math.max(8,now-previous));
       previous=now;
-      const decay=Math.pow(0.94,dt/16.67);
-      v*=decay;
+      v*=Math.pow(0.91,dt/16.67);
 
-      const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
       const before=rail.scrollLeft;
-      rail.scrollLeft=clamp(before+v*(dt/16.67),0,max);
-      const hitEdge=(rail.scrollLeft<=0&&v<0)||(rail.scrollLeft>=max&&v>0);
+      const next=clamp(before+v*(dt/16.67),0,maxScroll(rail));
+      rail.scrollLeft=next;
 
-      if(hitEdge||Math.abs(v)<0.22){
+      const atEdge=(next<=0&&v<0)||(next>=maxScroll(rail)&&v>0);
+      if(atEdge||Math.abs(v)<0.18){
         inertiaJobs.delete(rail);
         return;
       }
@@ -44,73 +68,86 @@
   function bind(rail){
     if(!rail||bound.has(rail))return;
     bound.add(rail);
-    rail.dataset.v45HorizontalScroll='true';
-
-    /* Keep native scrolling enabled; the touch handler below is an iOS-safe
-       fallback for cases where the glass/indicator stack swallows pan-x. */
-    rail.style.setProperty('overflow-x','auto','important');
-    rail.style.setProperty('overflow-y','hidden','important');
-    rail.style.setProperty('-webkit-overflow-scrolling','touch','important');
-    rail.style.setProperty('touch-action','pan-x pan-y','important');
-    rail.style.setProperty('overscroll-behavior-x','contain','important');
+    rail.dataset.v46HorizontalScroll='true';
+    applyTouchPolicy(rail);
 
     let gesture=null;
     let suppressClickUntil=0;
 
-    rail.addEventListener('touchstart',event=>{
-      if(event.touches.length!==1)return;
+    rail.addEventListener('pointerdown',event=>{
+      if(!event.isPrimary)return;
+      if(event.pointerType==='mouse'&&event.button!==0)return;
+      applyTouchPolicy(rail);
       cancelInertia(rail);
-      clearTimeout(rail.__v32NavTimer);
-      clearTimeout(rail.__v32LeadTimer);
-      const touch=event.touches[0];
+      cancelLegacyLead(rail);
       gesture={
-        x:touch.clientX,
-        y:touch.clientY,
-        scrollLeft:rail.scrollLeft,
+        id:event.pointerId,
+        startX:event.clientX,
+        startY:event.clientY,
+        startScroll:rail.scrollLeft,
         axis:null,
-        moved:false,
+        dragging:false,
         lastScroll:rail.scrollLeft,
         lastTime:performance.now(),
         velocity:0
       };
-    },{passive:true,capture:true});
+    },{capture:true,passive:true});
 
-    rail.addEventListener('touchmove',event=>{
-      if(!gesture||event.touches.length!==1)return;
-      const touch=event.touches[0];
-      const dx=touch.clientX-gesture.x;
-      const dy=touch.clientY-gesture.y;
+    rail.addEventListener('pointermove',event=>{
+      const g=gesture;
+      if(!g||event.pointerId!==g.id)return;
 
-      if(!gesture.axis){
-        if(Math.max(Math.abs(dx),Math.abs(dy))<6)return;
-        gesture.axis=Math.abs(dx)>Math.abs(dy)*1.12?'x':'y';
+      const dx=event.clientX-g.startX;
+      const dy=event.clientY-g.startY;
+      if(!g.axis){
+        const ax=Math.abs(dx),ay=Math.abs(dy);
+        if(Math.max(ax,ay)<5)return;
+        if(ax>ay*1.06)g.axis='x';
+        else if(ay>ax*1.06){
+          g.axis='y';
+          return;
+        }else return;
       }
-      if(gesture.axis!=='x')return;
+      if(g.axis!=='x')return;
 
+      if(!g.dragging){
+        g.dragging=true;
+        rail.classList.add('is-horizontal-dragging');
+        try{rail.setPointerCapture(event.pointerId);}catch{}
+      }
       if(event.cancelable)event.preventDefault();
-      gesture.moved=true;
-      const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
-      const next=clamp(gesture.scrollLeft-dx,0,max);
+      cancelLegacyLead(rail);
+
+      const next=clamp(g.startScroll-dx,0,maxScroll(rail));
       rail.scrollLeft=next;
 
       const now=performance.now();
-      const dt=Math.max(1,now-gesture.lastTime);
-      const instant=(next-gesture.lastScroll)/dt;
-      gesture.velocity=gesture.velocity*.38+instant*.62;
-      gesture.lastScroll=next;
-      gesture.lastTime=now;
-    },{passive:false,capture:true});
+      const dt=Math.max(1,now-g.lastTime);
+      const instant=(next-g.lastScroll)/dt;
+      g.velocity=g.velocity*.45+instant*.55;
+      g.lastScroll=next;
+      g.lastTime=now;
+    },{capture:true,passive:false});
 
-    const finish=()=>{
-      if(!gesture)return;
-      if(gesture.axis==='x'&&gesture.moved){
-        suppressClickUntil=performance.now()+360;
-        startInertia(rail,gesture.velocity);
+    function finish(event){
+      const g=gesture;
+      if(!g||event.pointerId!==g.id)return;
+      if(g.dragging){
+        suppressClickUntil=performance.now()+420;
+        rail.classList.remove('is-horizontal-dragging');
+        try{if(rail.hasPointerCapture?.(g.id))rail.releasePointerCapture(g.id);}catch{}
+        startInertia(rail,g.velocity);
       }
       gesture=null;
-    };
-    rail.addEventListener('touchend',finish,{passive:true,capture:true});
-    rail.addEventListener('touchcancel',finish,{passive:true,capture:true});
+    }
+
+    rail.addEventListener('pointerup',finish,{capture:true,passive:true});
+    rail.addEventListener('pointercancel',event=>{
+      const g=gesture;
+      if(!g||event.pointerId!==g.id)return;
+      rail.classList.remove('is-horizontal-dragging');
+      gesture=null;
+    },{capture:true,passive:true});
 
     rail.addEventListener('click',event=>{
       if(performance.now()<suppressClickUntil){
@@ -118,6 +155,21 @@
         event.stopImmediatePropagation();
       }
     },true);
+
+    /* Desktop trackpads / shift-wheel should remain useful as well. */
+    rail.addEventListener('wheel',event=>{
+      const horizontal=Math.abs(event.deltaX)>Math.abs(event.deltaY)
+        ? event.deltaX
+        : (event.shiftKey?event.deltaY:0);
+      if(!horizontal)return;
+      const before=rail.scrollLeft;
+      const next=clamp(before+horizontal,0,maxScroll(rail));
+      if(next===before)return;
+      cancelInertia(rail);
+      cancelLegacyLead(rail);
+      rail.scrollLeft=next;
+      if(event.cancelable)event.preventDefault();
+    },{passive:false});
   }
 
   function scan(root=document){
@@ -133,11 +185,12 @@
           if(node.nodeType===1)scan(node);
         }
       }
+      document.querySelectorAll('.nav-scroll').forEach(applyTouchPolicy);
     });
     observer.observe(document.documentElement,{childList:true,subtree:true});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
-  window.addEventListener('pageshow',()=>setTimeout(()=>scan(),80),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(()=>{scan();document.querySelectorAll('.nav-scroll').forEach(applyTouchPolicy);},80),{passive:true});
 })();
