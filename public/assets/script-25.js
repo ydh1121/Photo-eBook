@@ -152,9 +152,6 @@
     const distance=Math.abs(tx-oldX);
     const duration=indicatorSpec(root)?.duration(distance)||380;
 
-    /* Retired controllers used Web Animations on this same transform. Cancel
-       any stale animation before the single v40 CSS spring starts, otherwise
-       Safari can interpolate two transform owners and visibly jitter. */
     indicator.getAnimations?.().forEach(animation=>animation.cancel());
     indicator.style.transition=springTransition(duration);
     indicator.style.width=tw+'px';
@@ -226,7 +223,6 @@
     controls.slice(1).forEach(node=>node.remove());
     const root=$('#v40QuestionControls .v40-question-segment');
     if(root){
-      root.classList.remove('v32-question-segment');
       $$('.v36-question-indicator',root).slice(1).forEach(node=>node.remove());
       ensureSkin(root);
     }
