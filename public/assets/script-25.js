@@ -1,4 +1,4 @@
-/* v43: Breeze spring liquid motion, stable question controls, persistent bulk affordances, and reliable ChatGPT handoff. */
+/* v44: Breeze spring liquid motion, stable question controls, persistent bulk affordances, and reliable ChatGPT handoff. */
 (function(){
   if(window.__photoV41Installed)return;
   window.__photoV41Installed=true;
@@ -128,7 +128,6 @@
     const distance=Math.abs(tx-oldX);
     const duration=indicatorSpec(root)?.duration(distance)||380;
 
-    indicator.getAnimations?.().forEach(animation=>animation.cancel());
     indicator.style.transition=springTransition(duration);
     indicator.style.width=tw+'px';
     indicator.style.height=th+'px';
