@@ -1,4 +1,4 @@
-/* v55: preserve accepted nav/canvas states and align the secondary question selector to the collection column. */
+/* v56: preserve accepted nav/canvas states and align the secondary question selector to the collection column. */
 
 /* --------------------------------------------------------------------------
    Top navigation land
@@ -57,24 +57,34 @@ body::after{
 /* --------------------------------------------------------------------------
    Question write/saved selector — secondary hierarchy.
 
-   The outer rail aligns to the same collection content column as the search
-   field and primary tabs. Hierarchy is expressed by height, type scale and
-   material intensity — not by making this rail arbitrarily narrower.
+   script-25 intentionally moves #v40QuestionControls INSIDE #collectionTools.
+   .collection-tools already owns the 18px horizontal content gutter, so this
+   control must not add a second horizontal inset. Its rail should share the
+   exact left/right edges of .collection-search. Hierarchy is expressed only by
+   the lower height/type scale/material intensity, not by a narrower rail.
    -------------------------------------------------------------------------- */
 #v40QuestionControls{
   display:block!important;
   width:100%!important;
-  margin:0!important;
-  padding:0 18px 12px!important;
+  max-width:none!important;
+  min-width:0!important;
+  margin:9px 0 0!important;
+  padding:0!important;
+  box-sizing:border-box!important;
 }
 #v40QuestionControls[hidden]{display:none!important}
+
+#collectionTools>#v40QuestionControls,
+#v40QuestionControls .v40-question-segment{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
 
 #v40QuestionControls .v40-question-segment{
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  width:100%!important;
-  max-width:none!important;
-  min-width:0!important;
   height:50px!important;
   min-height:50px!important;
   margin:0!important;
@@ -169,9 +179,6 @@ html[data-theme="dark"] #v40QuestionControls .v40-question-segment>button:not(.i
 }
 
 @media(max-width:360px){
-  #v40QuestionControls{
-    padding-inline:16px!important;
-  }
   #v40QuestionControls .v40-question-segment>button{
     padding-inline:8px!important;
     font-size:12px!important;
