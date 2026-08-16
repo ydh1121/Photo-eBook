@@ -1,4 +1,4 @@
-/* v53: self-healing liquid selectors, native top-rail scrolling, and lightweight reading progress. */
+/* v54: restore single-owner liquid spring motion with surgical self-heal only. */
 (function(){
   if(window.__photoV49CoreInstalled)return;
   window.__photoV49CoreInstalled=true;
@@ -10,9 +10,6 @@
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
-  const controllers=new WeakMap();
-  let documentObserver=null;
-  let documentRepairRaf=0;
 
   function waitFor(selector,timeout=14000){
     return new Promise(resolve=>{
@@ -71,20 +68,6 @@
     return skin;
   }
 
-  function ensureIndicator(root,indicatorClass){
-    if(!root)return null;
-    $$(`:scope > .${indicatorClass}`,root).slice(1).forEach(node=>node.remove());
-    let indicator=$(`:scope > .${indicatorClass}`,root);
-    if(!indicator){
-      indicator=document.createElement('span');
-      indicator.className=indicatorClass;
-      indicator.setAttribute('aria-hidden','true');
-      root.prepend(indicator);
-    }
-    ensureSkin(indicator);
-    return indicator;
-  }
-
   function installReadingProgress(nav){
     if(!nav||nav.dataset.v52ProgressBound==='true')return;
     nav.dataset.v52ProgressBound='true';
@@ -107,16 +90,23 @@
 
   function makeLiquidController(root,{itemSelector,indicatorClass,readyClass,slow=false,durationScale=1}={}){
     if(!root)return null;
-
-    const existing=controllers.get(root);
-    if(existing){
-      existing.repair();
-      return existing;
+    if(root.dataset.v49Liquid==='true'){
+      root.__photoLiquidRepair?.();
+      return root.__photoLiquidController||null;
     }
-
     root.dataset.v49Liquid='true';
+
+    $$(`:scope > .${indicatorClass}`,root).slice(1).forEach(node=>node.remove());
+    let indicator=$(`:scope > .${indicatorClass}`,root);
+    if(!indicator){
+      indicator=document.createElement('span');
+      indicator.className=indicatorClass;
+      indicator.setAttribute('aria-hidden','true');
+      root.prepend(indicator);
+    }
+    ensureSkin(indicator);
+
     const state={x:0,y:0,w:0,h:0,ready:false};
-    let repairRaf=0;
 
     function durationFor(x,w){
       const distance=Math.max(Math.abs(x-state.x),Math.abs(w-state.w));
@@ -124,12 +114,32 @@
       return Math.round(base*durationScale);
     }
 
+    function liveIndicator(){
+      let changed=false;
+      if(!indicator?.isConnected||indicator.parentNode!==root){
+        $$(`:scope > .${indicatorClass}`,root).slice(1).forEach(node=>node.remove());
+        indicator=$(`:scope > .${indicatorClass}`,root);
+        if(!indicator){
+          indicator=document.createElement('span');
+          indicator.className=indicatorClass;
+          indicator.setAttribute('aria-hidden','true');
+          root.prepend(indicator);
+        }
+        changed=true;
+      }
+      if(!$(':scope > .v37-liquid-skin',indicator)){
+        ensureSkin(indicator);
+        changed=true;
+      }
+      return {indicator,changed};
+    }
+
     function update({instant=false}={}){
       if(!root.isConnected)return;
       const item=$(itemSelector+'.is-active',root)||$(itemSelector,root);
       if(!item)return;
-      const indicator=ensureIndicator(root,indicatorClass);
-      if(!indicator)return;
+      const live=liveIndicator();
+      const current=live.indicator;
       const x=item.offsetLeft,y=item.offsetTop,w=item.offsetWidth,h=item.offsetHeight;
       if(!w||!h)return;
 
@@ -138,65 +148,54 @@
       const firstItem=$(itemSelector,root);
       const edgeTarget=root.matches('.nav-scroll')&&item===firstItem;
       const easing=edgeTarget?EDGE_EASING:BREEZE_EASING;
-
-      indicator.getAnimations?.().forEach(animation=>animation.cancel());
-      indicator.style.transition=(first||instant||reduced())
+      current.style.transition=(first||instant||reduced())
         ? 'none'
         : `transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
-      indicator.style.width=w+'px';
-      indicator.style.height=h+'px';
-      indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
-      indicator.dataset.x=String(x);
-      indicator.dataset.y=String(y);
-      indicator.dataset.w=String(w);
-      indicator.dataset.h=String(h);
-      indicator.dataset.ready='true';
-      indicator.dataset.v41Measured='true';
+      current.style.width=w+'px';
+      current.style.height=h+'px';
+      current.style.transform=`translate3d(${x}px,${y}px,0)`;
+      current.dataset.x=String(x);
+      current.dataset.y=String(y);
+      current.dataset.w=String(w);
+      current.dataset.h=String(h);
+      current.dataset.ready='true';
+      current.dataset.v41Measured='true';
       state.x=x;state.y=y;state.w=w;state.h=h;state.ready=true;
       root.classList.add(readyClass,'v41-skin-ready','v39-liquid-ready');
 
       if((first||instant)&&!reduced())requestAnimationFrame(()=>{
-        if(indicator.isConnected){
-          indicator.style.transition=`transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
-        }
+        if(current.isConnected)current.style.transition=`transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
       });
     }
 
     function repair(){
-      if(repairRaf||!root.isConnected)return;
-      repairRaf=requestAnimationFrame(()=>{
-        repairRaf=0;
-        ensureIndicator(root,indicatorClass);
-        root.classList.add(readyClass,'v41-skin-ready','v39-liquid-ready');
-        update({instant:true});
-      });
+      if(!root.isConnected)return;
+      const hadIndicator=Boolean(indicator?.isConnected&&indicator.parentNode===root);
+      const hadSkin=hadIndicator&&Boolean($(':scope > .v37-liquid-skin',indicator));
+      const hadReady=root.classList.contains(readyClass)&&root.classList.contains('v41-skin-ready');
+      if(hadIndicator&&hadSkin&&hadReady)return;
+      liveIndicator();
+      update({instant:true});
     }
 
     const observer=new MutationObserver(records=>{
-      let animate=false;
-      let structural=false;
-      for(const record of records){
-        if(record.type==='childList')structural=true;
-        if(record.type==='attributes'&&record.attributeName==='class'){
-          if(record.target===root)structural=true;
-          else if(record.target.matches?.(itemSelector))animate=true;
-        }
+      if(records.some(record=>record.type==='attributes'&&record.attributeName==='class'&&record.target.matches?.(itemSelector))){
+        requestAnimationFrame(()=>update({instant:false}));
       }
-      if(structural)repair();
-      else if(animate)requestAnimationFrame(()=>update({instant:false}));
     });
-    observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    observer.observe(root,{subtree:true,attributes:true,attributeFilter:['class']});
 
     let resizeTimer=0;
     const onResize=()=>{
       clearTimeout(resizeTimer);
-      resizeTimer=setTimeout(repair,90);
+      resizeTimer=setTimeout(()=>update({instant:true}),90);
     };
     window.addEventListener('resize',onResize,{passive:true});
     window.visualViewport?.addEventListener?.('resize',onResize,{passive:true});
 
-    const controller={update,repair,observer};
-    controllers.set(root,controller);
+    const controller={update,repair};
+    root.__photoLiquidRepair=repair;
+    root.__photoLiquidController=controller;
     requestAnimationFrame(()=>update({instant:true}));
     return controller;
   }
@@ -234,13 +233,12 @@
     }
   }
 
-  function repairTopLiquid(){
-    const nav=$('.nav-scroll');
-    if(!nav)return;
-    installReadingProgress(nav);
-    makeLiquidController(nav,{itemSelector:'.nav-chip',indicatorClass:'nav-v33-indicator',readyClass:'v33-liquid-ready',slow:false,durationScale:1.10})?.repair();
+  function repairExistingLiquids(){
+    $('.nav-scroll')?.__photoLiquidRepair?.();
+    $('.collection-tabs')?.__photoLiquidRepair?.();
+    $('.theme-choice')?.__photoLiquidRepair?.();
   }
-  window.__photoRepairTopLiquid=repairTopLiquid;
+  window.__photoRepairTopLiquid=()=>$('.nav-scroll')?.__photoLiquidRepair?.();
 
   async function initLiquid(){
     const nav=await waitFor('.nav-scroll');
@@ -255,47 +253,14 @@
     injectThemeControls();
   }
 
-  function installDocumentRepairObserver(){
-    if(documentObserver||!document.body)return;
-    documentObserver=new MutationObserver(records=>{
-      if(!records.some(record=>record.type==='childList'))return;
-      if(documentRepairRaf)return;
-      documentRepairRaf=requestAnimationFrame(()=>{
-        documentRepairRaf=0;
-        repairTopLiquid();
-      });
-    });
-    documentObserver.observe(document.body,{childList:true,subtree:true});
-  }
-
-  function scheduleGlobalRepair(){
-    [0,80,220].forEach(delay=>setTimeout(()=>{
-      repairTopLiquid();
-      injectThemeControls();
-      const tabs=$('.collection-tabs');
-      if(tabs)makeLiquidController(tabs,{itemSelector:'.collection-tab',indicatorClass:'collection-v33-indicator',readyClass:'v33-liquid-ready',slow:true})?.repair();
-    },delay));
-  }
-
   document.addEventListener('click',event=>{
     const tab=event.target.closest?.('.collection-tab[data-library-tab="settings"]');
     if(tab)setTimeout(injectThemeControls,70);
-    if(event.target.closest?.('#collectionFab'))setTimeout(injectThemeControls,120);
-    if(event.target.closest?.('#collectionFab,#collectionClose,#collectionBackdrop,.collection-tab'))scheduleGlobalRepair();
+    if(event.target.closest?.('#collectionFab'))setTimeout(()=>{injectThemeControls();repairExistingLiquids();},120);
+    if(event.target.closest?.('#collectionClose,#collectionBackdrop'))setTimeout(repairExistingLiquids,260);
   },{passive:true});
-
-  document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible')scheduleGlobalRepair();
-  },{passive:true});
-  window.addEventListener('focus',scheduleGlobalRepair,{passive:true});
-  window.addEventListener('photo-theme-change',scheduleGlobalRepair,{passive:true});
 
   installTheme();
-  installDocumentRepairObserver();
   initLiquid();
-  window.addEventListener('pageshow',()=>setTimeout(()=>{
-    initLiquid();
-    installDocumentRepairObserver();
-    scheduleGlobalRepair();
-  },120),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(()=>{initLiquid();injectThemeControls();repairExistingLiquids();},120),{passive:true});
 })();
