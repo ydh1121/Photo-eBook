@@ -58,19 +58,22 @@
     'fallback-video-general':{path:'/assets/images/generated/v1/fallback/video-general.webp',fallbackKey:'skills',ready:false}
   };
 
-  function assetUrl(slot){
+  function runtimePath(slot){
     if(!slot?.path)return '';
-    return slot.rev?`${slot.path}${slot.path.includes('?')?'&':'?'}v=${encodeURIComponent(slot.rev)}`:slot.path;
+    return slot.rev?`${slot.path}?v=${encodeURIComponent(slot.rev)}`:slot.path;
   }
 
   window.__PHOTO_IMAGE_SLOTS_V1=slots;
   window.photoImageSlot=function(slotId,options={}){
     const slot=slots[slotId];
-    if(slot?.ready&&slot.path)return assetUrl(slot);
+    if(slot?.ready&&slot.path)return runtimePath(slot);
     if(options.fallbackUrl)return options.fallbackUrl;
     const key=options.fallbackKey||slot?.fallbackKey;
     if(key&&typeof window.imageFor==='function')return window.imageFor(key);
     return options.fallback||'';
   };
-  window.photoImageAssetUrl=assetUrl;
+  window.photoImageSlotPath=function(slotId){
+    const slot=slots[slotId];
+    return slot?.ready?runtimePath(slot):'';
+  };
 })();
