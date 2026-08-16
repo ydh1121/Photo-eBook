@@ -1,0 +1,82 @@
+/* v48: native top-rail scrolling + Safari bottom chrome cleanup.
+   Keep this layer deliberately boring: no JS-owned pan, no scroll-linked paint. */
+
+/* Horizontal panning must remain a browser-native overflow scroll. Explicitly
+   reset every ancestor that previously experimented with axis locking. */
+.nav-shell,
+.nav-glass,
+.nav-scroll{
+  touch-action:auto!important;
+}
+
+.nav-shell{
+  overflow:visible!important;
+}
+
+.nav-glass{
+  min-width:0!important;
+}
+
+.nav-scroll{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:auto!important;
+  scroll-snap-type:none!important;
+  scroll-behavior:auto!important;
+  touch-action:auto!important;
+  pointer-events:auto!important;
+  scrollbar-width:none!important;
+}
+.nav-scroll::-webkit-scrollbar{display:none!important}
+
+.nav-chip{
+  flex:0 0 auto!important;
+  touch-action:auto!important;
+  pointer-events:auto!important;
+  -webkit-user-select:none!important;
+  user-select:none!important;
+}
+
+/* Decorative layers may never become a hit target for the rail. */
+.nav-scroll :is(.nav-v33-indicator,.nav-liquid-indicator,.v37-liquid-skin,.nav-progress-liquid),
+.nav-glass::before,
+.nav-glass::after{
+  pointer-events:none!important;
+}
+
+/* Safari's floating bottom address pill should sit over page content, not over
+   a site-owned safe-area plate. The old app padding + root fill produced the
+   horizontal strip visible behind the browser chrome. */
+html,
+body{
+  background:transparent!important;
+  background-color:transparent!important;
+}
+
+#app,
+.app{
+  padding-bottom:0!important;
+  margin-bottom:0!important;
+}
+
+.section:last-child{
+  margin-bottom:0!important;
+  padding-bottom:calc(6rem + env(safe-area-inset-bottom,0px))!important;
+}
+
+html::before,
+html::after,
+body::before,
+body::after{
+  background:transparent!important;
+  background-color:transparent!important;
+  box-shadow:none!important;
+}
