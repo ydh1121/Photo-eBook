@@ -1,7 +1,7 @@
-/* v60: canonical question-subfilter geometry with local resize resync. */
+/* v61: exact mirrored geometry for the question sub-filter. */
 (function(){
-  if(window.__photoV60QuestionGeometryInstalled)return;
-  window.__photoV60QuestionGeometryInstalled=true;
+  if(window.__photoV61QuestionGeometryInstalled)return;
+  window.__photoV61QuestionGeometryInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -42,24 +42,58 @@
     return {controls,root,indicator};
   }
 
+  function geometryFor(root,button){
+    const buttons=$$('button[data-v40-qmode]',root);
+    const index=buttons.indexOf(button);
+    if(index<0)return null;
+
+    const cs=getComputedStyle(root);
+    const padL=parseFloat(cs.paddingLeft)||0;
+    const padR=parseFloat(cs.paddingRight)||0;
+    const padT=parseFloat(cs.paddingTop)||0;
+    const slotW=button.offsetWidth;
+    const pillInset=root.clientWidth<=360?14:18;
+    const pillCap=root.clientWidth<=360?146:154;
+    const pillW=Math.max(0,Math.min(slotW-pillInset,pillCap));
+    const inner=(slotW-pillW)/2;
+
+    /* One coordinate system only: the positioned padding box. The left endpoint
+       is measured from the left content edge; the right endpoint is mirrored
+       from the right content edge. This avoids accumulating grid gap/padding a
+       second time on the right-hand destination. */
+    const x=index===0
+      ? padL+inner
+      : root.clientWidth-padR-inner-pillW;
+
+    return {x,y:padT,w:pillW,h:button.offsetHeight};
+  }
+
   function syncTo(button,{animate=false}={}){
     const parts=getParts();
     if(!parts||!button||!parts.root.contains(button))return;
     const {root,indicator}=parts;
-    const x=button.offsetLeft;
-    const y=button.offsetTop;
-    if(!Number.isFinite(x)||!Number.isFinite(y))return;
+    const next=geometryFor(root,button);
+    if(!next||!next.w||!next.h)return;
 
     indicator.getAnimations?.().forEach(animation=>animation.cancel());
+    indicator.style.setProperty('margin-left','0px','important');
+    indicator.style.setProperty('width',`${next.w}px`,'important');
+    indicator.style.setProperty('min-width',`${next.w}px`,'important');
+    indicator.style.setProperty('max-width',`${next.w}px`,'important');
+    indicator.style.setProperty('height',`${next.h}px`,'important');
+    indicator.style.setProperty('min-height',`${next.h}px`,'important');
+    indicator.style.setProperty('max-height',`${next.h}px`,'important');
     indicator.style.transition=animate
       ?`transform 380ms ${BREEZE}`
       :'none';
-    indicator.style.transform=`translate3d(${x}px,${y}px,0)`;
-    indicator.dataset.x=String(x);
-    indicator.dataset.y=String(y);
+    indicator.style.transform=`translate3d(${next.x}px,${next.y}px,0)`;
+    indicator.dataset.x=String(next.x);
+    indicator.dataset.y=String(next.y);
+    indicator.dataset.w=String(next.w);
+    indicator.dataset.h=String(next.h);
     indicator.dataset.ready='true';
     indicator.dataset.v41Measured='true';
-    indicator.dataset.v60GeometryReady='true';
+    indicator.dataset.v61GeometryReady='true';
 
     if(!animate){
       requestAnimationFrame(()=>{
@@ -71,7 +105,7 @@
   function syncActive({animate=false}={}){
     const parts=getParts();
     if(!parts)return;
-    const active=$('button.is-active',parts.root)||$('button',parts.root);
+    const active=$('button[data-v40-qmode].is-active',parts.root)||$('button[data-v40-qmode]',parts.root);
     if(active)syncTo(active,{animate});
   }
 
@@ -99,8 +133,8 @@
   document.addEventListener('click',event=>{
     const qmode=event.target.closest?.('[data-v40-qmode]');
     if(qmode){
-      /* script-25 may also see this click; this later-loaded controller owns the
-         final question-indicator transform and always uses the CURRENT slot. */
+      /* script-25 runs earlier. This later-loaded controller owns the final
+         question-indicator endpoint and rewrites it to the mirrored geometry. */
       syncTo(qmode,{animate:true});
       setTimeout(()=>syncActive({animate:false}),430);
       return;
