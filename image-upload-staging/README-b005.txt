@@ -1,0 +1,1 @@
+Batch b005 staging. Do not use directly. GitHub Actions verifies archive SHA-256 and each WebP SHA-256 before production activation.
