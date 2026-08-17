@@ -14,7 +14,7 @@
 
 사용자가 이미지 생성/교체를 요청하고 반영을 금지하지 않았다면 다음을 자동 수행한다.
 
-`본문/slot 확인 → 생성 → QA → WebP → Drive mirror → Git binary → ready:true → Prompt Queue applied → 배포 검증`
+`본문/slot 확인 → slot별 독립 prompt → 고화질 PNG 생성 → QA → Drive PNG 보관 → 결정론적 WebP 변환 → Drive WebP 보관 → Git 최종 WebP → ready:true → Prompt Queue applied → 배포 검증`
 
 사용자가 단계별로 다시 지시하게 만들지 않는다.
 
@@ -44,6 +44,8 @@ Image Factory는 Git의 prompt library와 최소 이미지 규칙만 읽고, 기
 한 번의 사용자 지시로 4~8개 slot을 처리할 수 있다. 결과는 반드시 slot별 독립 이미지 파일이어야 한다. collage/dashboard/contact sheet/web mockup은 production 실패다.
 
 실제 generation은 slot별 독립 call을 연속 수행한다. 여러 slot을 한 canvas에 합치는 multi-image 요청은 금지한다.
+
+신규 작업에서 tar/base64/blob staging/orphan blob 복구를 정상 파이프라인으로 사용하지 않는다. 한 slot의 실패는 그 slot에서만 멈추고 다른 완료 slot은 보존한다.
 
 ## Photo-eBook 인물 기본값
 
