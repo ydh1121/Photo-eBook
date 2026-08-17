@@ -8,9 +8,18 @@ For a normal generated slot, pass exactly one `slots/<slot-id>.md` visual descri
 
 Do not include repository state, paths, queue/status data, storage details, deployment details, QA history, or other slot prompts in the generation call.
 
-## 2. One slot, one call
+## 2. One call = one image = one slot
 
-A batch may contain several slots, but each slot is generated independently and saved independently. A failure affects only that slot.
+This is a hard rule.
+
+- Every image-generation tool call must contain exactly one slot.
+- Every image-generation tool call must request exactly one output image (`n=1` when the tool exposes an output-count parameter).
+- Never put two or more slot descriptions in the same generation call.
+- Never ask one generation call to produce a batch, grid, contact sheet, collage, dashboard, comparison board, or multiple candidate images.
+- To generate 10 images, make 10 separate generation calls. To generate 30 images, make 30 separate generation calls.
+- Each returned image is saved and QA'd independently before moving to the next slot.
+
+A batch may contain several slots operationally, but the batch is executed only as a sequence of independent one-slot/one-image calls. A failure affects only that slot.
 
 ## 3. Prompt shape
 
