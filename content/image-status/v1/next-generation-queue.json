@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "status": "generation_required",
+  "generation_context": "fresh_outside_poisoned_project",
+  "png_drive_folder_id": "14w5IoZIq8-dfSL7qHBrriu_hGuv9NRip",
+  "webp_drive_folder_id": "1d6cd98YVh-HW6EarUEqlbCBXhFNd5279",
+  "converter": "scripts/image/png-to-webp.py",
+  "slots": [
+    {"slot_id":"skill-space-correction","prompt":"content/image-prompts/v1/slots/skill-space-correction.md","status":"prompt_ready"},
+    {"slot_id":"skill-raw-culling","prompt":"content/image-prompts/v1/slots/skill-raw-culling.md","status":"prompt_ready"},
+    {"slot_id":"skill-batch-basic-edit","prompt":"content/image-prompts/v1/slots/skill-batch-basic-edit.md","status":"prompt_ready"},
+    {"slot_id":"skill-tether-shooting","prompt":"content/image-prompts/v1/slots/skill-tether-shooting.md","status":"prompt_ready"},
+    {"slot_id":"skill-portfolio-building","prompt":"content/image-prompts/v1/slots/skill-portfolio-building.md","status":"prompt_ready"},
+    {"slot_id":"skill-delivery-process","prompt":"content/image-prompts/v1/slots/skill-delivery-process.md","status":"prompt_ready"}
+  ]
+}
