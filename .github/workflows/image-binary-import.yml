@@ -3,7 +3,7 @@ name: Import staged WebP batch
 on:
   push:
     paths:
-      - 'image-upload-staging/ready.txt'
+      - 'image-upload-staging/ready.json'
 
 permissions:
   contents: write
@@ -20,69 +20,114 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -f image-upload-staging/manifest.json
-          test -n "$(find image-upload-staging -maxdepth 1 -name 'part-*.txt' -print -quit)"
-          cat image-upload-staging/part-*.txt | base64 -d > /tmp/image-batch.tar.gz
           python - <<'PY'
-          import hashlib, json, pathlib, sys
-          meta=json.loads(pathlib.Path('image-upload-staging/manifest.json').read_text())
-          archive=pathlib.Path('/tmp/image-batch.tar.gz').read_bytes()
-          actual=hashlib.sha256(archive).hexdigest()
-          expected=meta['archive_sha256']
-          print('archive sha256', actual)
+          from pathlib import Path
+          import base64, hashlib, json, tarfile
+
+          stage = Path('image-upload-staging')
+          cfg = json.loads((stage / 'ready.json').read_text())
+          parts = sorted(stage.glob('part-*.txt'))
+          if not parts:
+              raise SystemExit('no staged parts')
+
+          encoded = ''.join(p.read_text() for p in parts)
+          archive = base64.b64decode(encoded, validate=True)
+          actual = hashlib.sha256(archive).hexdigest()
+          expected = cfg['archive_sha256']
           if actual != expected:
               raise SystemExit(f'archive sha mismatch: {actual} != {expected}')
-          if not meta.get('files'):
-              raise SystemExit('manifest files is empty')
-          for item in meta['files']:
-              path=item['path']
-              if not path.startswith('public/assets/images/generated/v1/') or not path.endswith('.webp'):
-                  raise SystemExit(f'unsafe image path: {path}')
-          PY
-          tar -xzf /tmp/image-batch.tar.gz
 
-      - name: Verify extracted WebP assets
+          archive_path = Path('/tmp/image-batch.tar.gz')
+          archive_path.write_bytes(archive)
+          with tarfile.open(archive_path, 'r:gz') as tf:
+              tf.extractall('.')
+
+          for slot in cfg['slots']:
+              p = Path(slot['repo_path'])
+              if not p.is_file() or p.stat().st_size == 0:
+                  raise SystemExit(f'missing asset: {p}')
+              head = p.read_bytes()[:12]
+              if len(head) < 12 or head[:4] != b'RIFF' or head[8:12] != b'WEBP':
+                  raise SystemExit(f'not webp: {p}')
+              if p.stat().st_size != slot['size']:
+                  raise SystemExit(f'size mismatch: {p} {p.stat().st_size} != {slot["size"]}')
+              digest = hashlib.sha256(p.read_bytes()).hexdigest()
+              if digest != slot['sha256']:
+                  raise SystemExit(f'asset sha mismatch: {p}: {digest} != {slot["sha256"]}')
+          PY
+
+      - name: Activate slots and refresh cache revision
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY' > /tmp/image-files.txt
-          import hashlib, json, pathlib
-          meta=json.loads(pathlib.Path('image-upload-staging/manifest.json').read_text())
-          for item in meta['files']:
-              p=pathlib.Path(item['path'])
-              if not p.is_file() or p.stat().st_size <= 0:
-                  raise SystemExit(f'missing/empty asset: {p}')
-              actual=hashlib.sha256(p.read_bytes()).hexdigest()
-              expected=item['sha256']
-              if actual != expected:
-                  raise SystemExit(f'asset sha mismatch: {p}: {actual} != {expected}')
-              print(str(p))
-          PY
-          while IFS= read -r f; do
-            file "$f" | grep -qi 'Web/P image'
-          done < /tmp/image-files.txt
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
 
-      - name: Commit verified binary assets
+          cfg = json.loads(Path('image-upload-staging/ready.json').read_text())
+          slot_ids = {x['slot_id'] for x in cfg['slots']}
+          rev = cfg['runtime_revision']
+          script_version = str(cfg['runtime_script_version'])
+
+          runtime = Path('public/assets/image-slots-v1.js')
+          lines = runtime.read_text().splitlines()
+          out = []
+          seen = set()
+          for line in lines:
+              matched = next((slot_id for slot_id in slot_ids if f"'{slot_id}':{{" in line), None)
+              if matched:
+                  seen.add(matched)
+                  line = line.replace('ready:false', 'ready:true')
+                  if re.search(r"rev:'[^']+'", line):
+                      line = re.sub(r"rev:'[^']+'", f"rev:'{rev}'", line)
+                  else:
+                      pos = line.rfind('}')
+                      if pos < 0:
+                          raise SystemExit(f'cannot add revision for {matched}')
+                      line = line[:pos] + f",rev:'{rev}'" + line[pos:]
+              out.append(line)
+          missing = slot_ids - seen
+          if missing:
+              raise SystemExit(f'runtime slots missing: {sorted(missing)}')
+          runtime.write_text('\n'.join(out) + '\n')
+
+          manifest_path = Path('content/image-prompts/v1/manifest.json')
+          manifest = json.loads(manifest_path.read_text())
+          manifest_seen = set()
+          for slot in manifest['slots']:
+              if slot['slot_id'] in slot_ids:
+                  slot['ready'] = True
+                  manifest_seen.add(slot['slot_id'])
+          missing = slot_ids - manifest_seen
+          if missing:
+              raise SystemExit(f'manifest slots missing: {sorted(missing)}')
+          manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+
+          index = Path('public/index.html')
+          text = index.read_text()
+          text, count = re.subn(
+              r'/assets/image-slots-v1\.js\?v=\d+',
+              f'/assets/image-slots-v1.js?v={script_version}',
+              text,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('image-slots script tag not found')
+          index.write_text(text)
+          PY
+
+      - name: Commit verified assets and activation
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name 'photo-ebook-image-bot'
-          git config user.email 'actions@users.noreply.github.com'
-          while IFS= read -r f; do
-            git add -- "$f"
-          done < /tmp/image-files.txt
-          rm -rf image-upload-staging
-          git add -A image-upload-staging
           message=$(python - <<'PY'
-          import json, pathlib
-          meta=json.loads(pathlib.Path('/tmp/image-import-manifest.json').read_text()) if pathlib.Path('/tmp/image-import-manifest.json').exists() else None
-          print((meta or {}).get('commit_message','Import verified generated WebP assets'))
+          import json
+          print(json.load(open('image-upload-staging/ready.json')).get('commit_message', 'Apply verified generated image batch'))
           PY
           )
-          # staging manifest is removed before commit; preserve it temporarily for message metadata
-          if git diff --cached --quiet; then
-            echo 'No binary changes to commit.'
-            exit 0
-          fi
+          rm -rf image-upload-staging
+          git config user.name 'photo-ebook-image-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add public/assets/images/generated/v1 public/assets/image-slots-v1.js public/index.html content/image-prompts/v1/manifest.json image-upload-staging
           git commit -m "$message"
           git push origin HEAD:main
