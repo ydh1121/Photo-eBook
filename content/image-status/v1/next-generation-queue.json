@@ -1,7 +1,7 @@
 {
   "version": "v1",
   "status": "generation_required",
-  "generation_context": "requires_fresh_context_after_poisoned_attempt",
+  "generation_input_mode": "slot_prompt_only",
   "png_drive_folder_id": "14w5IoZIq8-dfSL7qHBrriu_hGuv9NRip",
   "webp_drive_folder_id": "1d6cd98YVh-HW6EarUEqlbCBXhFNd5279",
   "converter": "scripts/image/png-to-webp.py",

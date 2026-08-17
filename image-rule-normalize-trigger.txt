@@ -1,1 +1,0 @@
-normalize automatic image generation rules after b005 verification
