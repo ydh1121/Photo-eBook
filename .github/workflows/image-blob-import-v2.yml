@@ -1,0 +1,84 @@
+name: Import generated WebP blobs v2
+on:
+  push:
+    paths: ['image-upload-staging/blob-ready-v2.json']
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Rebuild archive from verified Git blobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, json, os, tarfile, urllib.request
+          cfg=json.load(open('image-upload-staging/blob-ready-v2.json'))
+          cache={}
+          def blob(sha):
+              if sha not in cache:
+                  req=urllib.request.Request(f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/git/blobs/{sha}",headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json'})
+                  with urllib.request.urlopen(req) as r: data=json.load(r)
+                  cache[sha]=base64.b64decode(data['content'])
+              return cache[sha]
+          def source(spec):
+              if isinstance(spec,str): return blob(spec)
+              b=blob(spec['sha'])
+              return b[spec.get('start',0):spec.get('end',len(b))]
+          chosen=None
+          for candidate in cfg['part2_candidates']:
+              encoded=b''.join(source(x) for x in cfg['prefix']) + source(candidate) + b''.join(source(x) for x in cfg['suffix'])
+              try: archive=base64.b64decode(encoded,validate=True)
+              except Exception: continue
+              if hashlib.sha256(archive).hexdigest()==cfg['archive_sha256']:
+                  chosen=archive; break
+          if chosen is None: raise SystemExit('no candidate reconstructed expected archive SHA-256')
+          ap=Path('/tmp/batch.tar.gz'); ap.write_bytes(chosen)
+          with tarfile.open(ap,'r:gz') as tf: tf.extractall('.')
+          for s in cfg['slots']:
+              p=Path(s['repo_path']); b=p.read_bytes()
+              if len(b)!=s['size']: raise SystemExit(f'size mismatch {p}: {len(b)} != {s["size"]}')
+              if b[:4]!=b'RIFF' or b[8:12]!=b'WEBP': raise SystemExit(f'not webp {p}')
+              if hashlib.sha256(b).hexdigest()!=s['sha256']: raise SystemExit(f'asset sha mismatch {p}')
+          PY
+      - name: Activate slots and cache revision
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import json,re
+          cfg=json.load(open('image-upload-staging/blob-ready-v2.json')); ids={s['slot_id'] for s in cfg['slots']}; rev=cfg['runtime_revision']
+          p=Path('public/assets/image-slots-v1.js'); lines=p.read_text().splitlines(); out=[]; seen=set()
+          for line in lines:
+              hit=next((x for x in ids if f"'{x}':{{" in line),None)
+              if hit:
+                  seen.add(hit); line=line.replace('ready:false','ready:true')
+                  if re.search(r"rev:'[^']+'",line): line=re.sub(r"rev:'[^']+'",f"rev:'{rev}'",line)
+                  else: line=line[:line.rfind('}')]+f",rev:'{rev}'"+line[line.rfind('}'):]
+              out.append(line)
+          if seen!=ids: raise SystemExit(f'runtime slots missing {ids-seen}')
+          p.write_text('\n'.join(out)+'\n')
+          mp=Path('content/image-prompts/v1/manifest.json'); m=json.loads(mp.read_text()); ms=set()
+          for s in m['slots']:
+              if s['slot_id'] in ids: s['ready']=True; ms.add(s['slot_id'])
+          if ms!=ids: raise SystemExit(f'manifest slots missing {ids-ms}')
+          mp.write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n')
+          ip=Path('public/index.html'); t=ip.read_text(); t,n=re.subn(r'/assets/image-slots-v1\.js\?v=\d+',f"/assets/image-slots-v1.js?v={cfg['runtime_script_version']}",t,count=1)
+          if n!=1: raise SystemExit('image-slots script tag missing')
+          ip.write_text(t)
+          PY
+      - name: Commit verified batch
+        run: |
+          set -euo pipefail
+          msg=$(python -c "import json;print(json.load(open('image-upload-staging/blob-ready-v2.json'))['commit_message'])")
+          rm -rf image-upload-staging
+          git config user.name photo-ebook-image-bot
+          git config user.email actions@users.noreply.github.com
+          git add public/assets/images/generated/v1 public/assets/image-slots-v1.js public/index.html content/image-prompts/v1/manifest.json image-upload-staging
+          git commit -m "$msg"
+          git push origin HEAD:main
