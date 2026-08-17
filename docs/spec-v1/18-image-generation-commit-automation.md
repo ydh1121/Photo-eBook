@@ -28,6 +28,8 @@
 
 그러나 **한 슬롯 = 한 독립 최종 이미지 파일** 규칙은 유지한다.
 
+배치 생성의 구현 의미는 **동일한 작업 흐름 안에서 슬롯별 독립 generation call을 연속 실행하는 것**이다. `n>1` 한 번 호출이나 한 프롬프트에 여러 슬롯 장면을 동시에 요구해서 결과를 한 캔버스에 합치는 방식은 사용하지 않는다.
+
 금지:
 
 - 여러 슬롯을 한 캔버스에 합친 dashboard
@@ -42,16 +44,34 @@
 
 ## WORK-IMG-003 — 실패 결과 처리
 
-생성 결과가 prompt와 어긋나거나 다음 문제가 있으면 해당 결과는 폐기한다.
+생성 결과가 prompt와 어긋나거나 다음 문제가 있으면 해당 결과는 자동 QA 실패로 판정하고 폐기한다.
 
 - 본문과 다른 장면
 - 생성 프로젝트를 설명하는 dashboard/infographic으로 오해한 결과
+- progress report, admin UI, website mockup, presentation slide
+- contact sheet, comparison grid, mood board, collage
+- 여러 슬롯/여러 완성 이미지를 한 캔버스에 카드처럼 배치한 결과
+- slot id, 파일명, Git/Drive/Cloudflare/적용 상태/진행률이 이미지 안에 들어간 결과
 - 읽을 수 있는 가짜 UI/문구가 핵심에 포함됨
 - 비현실적 손, 카메라, 렌즈, 조명, 제품 구조
 - 슬롯 crop에서 핵심 피사체가 사라짐
 - 다른 slot과 사실상 동일한 장면
 
 폐기 결과는 Git, Drive Generated WebP, `ready:true`, Prompt Queue `applied`에 반영하지 않는다.
+
+### 자동 재시도
+
+실패한 슬롯은 사용자에게 새 지시를 요구하지 않고 자동으로 재시도한다.
+
+1. 원래 slot context/prompt를 유지한다.
+2. 생성 입력에서 프로젝트 운영·Git·Drive·배포 등 메타 문맥을 제거한다.
+3. 해당 슬롯 하나의 장면만 남긴다.
+4. `single standalone photograph`, `one scene only`, `no text`, `no UI`, `no dashboard`, `no collage`, `no contact sheet`를 강제한다.
+5. 별도 generation call로 다시 생성한다.
+6. 같은 context-bleed 실패가 연속 2회 발생하면 그 슬롯만 `qa_failed`로 기록한다.
+7. 그 경우에도 다음 슬롯으로 자동 진행하며 성공한 슬롯의 적용은 계속한다.
+
+실패 슬롯 때문에 전체 배치를 멈추거나 사용자에게 슬롯별 재지시를 요구하지 않는다.
 
 ## WORK-IMG-004 — ready gate
 
@@ -151,4 +171,4 @@ binary repair가 발생한 경우 최초 commit을 최종 적용 commit으로 �
 
 ## WORK-IMG-011 — Skill 구현 기준
 
-향후 프로젝트 전용 이미지 Skill을 만들 때 이 문서를 그대로 작업 contract로 사용한다. Skill의 기본 명령은 “이미지를 만들어 보여준다”가 아니라 **prompt/context 해석 → 생성 → QA → WebP → 검증형 Git binary transfer → Drive → ready → queue → deploy validation** 전체 트랜잭션이다.
+향후 프로젝트 전용 이미지 Skill을 만들 때 이 문서를 그대로 작업 contract로 사용한다. Skill의 기본 명령은 “이미지를 만들어 보여준다”가 아니라 **prompt/context 해석 → 슬롯별 독립 생성 호출들의 배치 → 자동 실패 판정/재시도 → QA → WebP → 검증형 Git binary transfer → Drive → ready → queue → deploy validation** 전체 트랜잭션이다.
