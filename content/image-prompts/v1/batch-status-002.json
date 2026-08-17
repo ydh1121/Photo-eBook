@@ -1,0 +1,66 @@
+{
+  "version": "v1",
+  "batch_id": "image-batch-002",
+  "status": "in_progress",
+  "updated_at": "2026-08-17T10:02:00+09:00",
+  "rules_commit_sha": "ab1076fcfc66fb8d2578b26b9d9341844080a497",
+  "slots": [
+    {
+      "slot_id": "portfolio-studio-process",
+      "prompt_id": "IMG-026",
+      "status": "generated_pending_apply",
+      "drive_file_id": "1LOEaZyA2CBm2iUQf424DGpXZ8zJS-OXd",
+      "target_path": "/assets/images/generated/v1/portfolio/studio-process.webp",
+      "qa": {
+        "context_match": true,
+        "single_scene": true,
+        "no_meta_ui": true,
+        "crop_ready": true
+      }
+    },
+    {
+      "slot_id": "portfolio-product-brand",
+      "prompt_id": "IMG-023",
+      "status": "qa_failed",
+      "failure_code": "context_bleed_meta_dashboard",
+      "retry_count": 3,
+      "target_path": "/assets/images/generated/v1/portfolio/product-brand.webp"
+    },
+    {
+      "slot_id": "portfolio-professional-profile",
+      "prompt_id": "IMG-024",
+      "status": "qa_failed",
+      "failure_code": "context_bleed_meta_dashboard",
+      "retry_count": 2,
+      "target_path": "/assets/images/generated/v1/portfolio/professional-profile.webp"
+    },
+    {
+      "slot_id": "portfolio-food-store",
+      "prompt_id": "IMG-025",
+      "status": "qa_failed",
+      "failure_code": "context_bleed_meta_dashboard",
+      "retry_count": 3,
+      "target_path": "/assets/images/generated/v1/portfolio/food-store.webp"
+    },
+    {
+      "slot_id": "skill-portrait-retouch",
+      "prompt_id": "IMG-015",
+      "status": "prompt_ready",
+      "target_path": "/assets/images/generated/v1/skills/portrait-retouch.webp"
+    },
+    {
+      "slot_id": "skill-product-retouch",
+      "prompt_id": "IMG-016",
+      "status": "prompt_ready",
+      "target_path": "/assets/images/generated/v1/skills/product-retouch.webp"
+    }
+  ],
+  "resume_order": [
+    "portfolio-studio-process",
+    "portfolio-product-brand",
+    "portfolio-professional-profile",
+    "portfolio-food-store",
+    "skill-portrait-retouch",
+    "skill-product-retouch"
+  ]
+}
