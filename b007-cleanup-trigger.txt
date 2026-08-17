@@ -1,0 +1,1 @@
+finalize simplified image pipeline
