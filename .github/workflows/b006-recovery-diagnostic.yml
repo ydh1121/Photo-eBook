@@ -1,0 +1,81 @@
+name: Diagnose b006 image recovery
+
+on:
+  push:
+    paths:
+      - 'image-upload-staging/b006-diagnostic-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Diagnose orphan reconstruction
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, json, os, tarfile, traceback, urllib.request
+
+          result={'status':'started','blob_count':0,'blob_results':[]}
+          try:
+              cfg=json.loads(Path('image-upload-staging/ready.json').read_text())
+              result['configured_blob_count']=len(cfg['blob_shas'])
+              repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GITHUB_TOKEN']
+              chunks=[]
+              for i,sha in enumerate(cfg['blob_shas']):
+                  try:
+                      req=urllib.request.Request(
+                          f'https://api.github.com/repos/{repo}/git/blobs/{sha}',
+                          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+                      with urllib.request.urlopen(req) as resp: data=json.load(resp)
+                      raw=base64.b64decode(data['content'])
+                      text=raw.decode('utf-8')
+                      chunks.append(text)
+                      result['blob_results'].append({'index':i,'sha':sha,'ok':True,'chars':len(text),'encoding':data.get('encoding')})
+                      result['blob_count']=i+1
+                  except Exception as e:
+                      result['blob_results'].append({'index':i,'sha':sha,'ok':False,'error':repr(e)})
+                      raise
+              encoded=''.join(chunks)
+              result['encoded_chars']=len(encoded)
+              archive=base64.b64decode(encoded,validate=True)
+              result['archive_bytes']=len(archive)
+              result['archive_sha256']=hashlib.sha256(archive).hexdigest()
+              p=Path('/tmp/b006-diagnostic.tar.gz'); p.write_bytes(archive)
+              with tarfile.open(p,'r:gz') as tf:
+                  result['tar_members']=[m.name for m in tf.getmembers()]
+                  tf.extractall('/tmp/b006-extract')
+              checks=[]
+              for s in cfg['slots']:
+                  f=Path('/tmp/b006-extract')/s['repo_path']
+                  item={'slot_id':s['slot_id'],'path':s['repo_path'],'exists':f.is_file()}
+                  if f.is_file():
+                      b=f.read_bytes(); item.update(size=len(b),sha256=hashlib.sha256(b).hexdigest(),webp=(b[:4]==b'RIFF' and b[8:12]==b'WEBP'),expected_size=s['size'],expected_sha256=s['sha256'])
+                      item['ok']=item['size']==s['size'] and item['sha256']==s['sha256'] and item['webp']
+                  checks.append(item)
+              result['asset_checks']=checks
+              result['status']='ok' if all(x.get('ok') for x in checks) else 'asset_check_failed'
+          except Exception as e:
+              result['status']='error'; result['error']=repr(e); result['traceback']=traceback.format_exc()
+          Path('image-upload-staging/b006-diagnostic-result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+          PY
+
+      - name: Commit diagnostic result
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'photo-ebook-image-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add image-upload-staging/b006-diagnostic-result.json
+          git commit -m 'Record b006 recovery diagnostic'
+          git pull --rebase origin main
+          git push origin HEAD:main
