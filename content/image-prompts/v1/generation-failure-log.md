@@ -41,3 +41,17 @@ Use one of:
 2. a completely new conversation outside the contaminated Project.
 
 The rejected items must be regenerated from the existing prompt library. Users must not be asked to restate the slot descriptions.
+
+## 2026-08-18 — `skill-space-correction` generation-context failure
+
+A queued isolated generation attempt for `skill-space-correction` failed the production gate in the current image-generation conversation.
+
+- Text-only standalone-photo attempt 1 -> Photo-eBook workflow dashboard/progress-report image.
+- Text-only standalone-photo attempt 2 -> Photo-eBook workflow dashboard/progress-report image.
+- Recovery used the verified good `portfolio-studio-process.webp` production asset as a visual anchor.
+- Visual-anchor edit attempt -> Photo-eBook workflow dashboard/progress-report image again.
+- The outputs were discarded; no failed PNG or WebP was mirrored to Drive and no production binary was written to Git.
+- `public/assets/image-slots-v1.js` and manifest remain `ready:false` for this slot.
+- Queue state for this slot is `qa_failed`; the remaining queued slots stay `prompt_ready`.
+
+This conversation is therefore treated as `generator_context_poisoned` for further Photo-eBook production generation. Resume the slot from the existing prompt library only in a genuinely fresh Image Factory context, without asking the user to restate the scene.

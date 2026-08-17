@@ -1,11 +1,20 @@
 {
   "version": "v1",
   "slot_id": "skill-space-correction",
-  "status": "prompt_ready",
+  "status": "qa_failed",
   "source": "slot-prompt-library",
   "prompt_file": "content/image-prompts/v1/slots/skill-space-correction.md",
-  "png": {"status": "pending_generation", "drive_file_id": null},
-  "webp": {"status": "pending", "drive_file_id": null, "repo_path": "public/assets/images/generated/v1/skills/space-correction.webp"},
+  "png": {"status": "discarded_qa_failed", "drive_file_id": null},
+  "webp": {"status": "not_created", "drive_file_id": null, "repo_path": "public/assets/images/generated/v1/skills/space-correction.webp"},
   "ready": false,
-  "updated_at": "2026-08-18T06:21:00+09:00"
+  "failure": {
+    "type": "generator_context_poisoned",
+    "text_only_attempts": 2,
+    "visual_anchor_attempts": 1,
+    "reason": "dashboard/progress-report output instead of the required standalone interior-photo correction workstation scene",
+    "drive_png_written": false,
+    "drive_webp_written": false,
+    "git_binary_written": false
+  },
+  "updated_at": "2026-08-18T06:36:42+09:00"
 }
