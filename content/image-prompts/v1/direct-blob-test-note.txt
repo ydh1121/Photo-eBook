@@ -1,0 +1,1 @@
+Direct WebP blob transfer test is being verified against local Git blob SHA. Remove after successful migration.
