@@ -1,0 +1,82 @@
+name: Import generated WebP blobs v3
+on:
+  push:
+    paths: ['image-upload-staging/blob-ready-v3.json']
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Recover exact archive and verify images
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import base64,hashlib,json,os,tarfile,urllib.request
+          cfg=json.load(open('image-upload-staging/blob-ready-v3.json')); cache={}
+          def blob(sha):
+              if sha not in cache:
+                  req=urllib.request.Request(f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/git/blobs/{sha}",headers={'Authorization':f"Bearer {os.environ['GH_TOKEN']}",'Accept':'application/vnd.github+json'})
+                  with urllib.request.urlopen(req) as r: d=json.load(r)
+                  cache[sha]=base64.b64decode(d['content'])
+              return cache[sha]
+          prefix=b''.join(blob(x) for x in cfg['prefix']); suffix=b''.join(blob(x) for x in cfg['suffix']); expected=cfg['archive_sha256']; archive=None
+          direct=cfg.get('direct_candidate')
+          candidates=[]
+          if direct: candidates.append(blob(direct))
+          for sha in cfg['scan_blob_shas']:
+              b=blob(sha)
+              if len(b)>=cfg['window_size']:
+                  for start in range(0,len(b)-cfg['window_size']+1): candidates.append(b[start:start+cfg['window_size']])
+          for mid in candidates:
+              encoded=prefix+mid+suffix
+              try: a=base64.b64decode(encoded,validate=True)
+              except Exception: continue
+              if hashlib.sha256(a).hexdigest()==expected: archive=a; break
+          if archive is None: raise SystemExit('unable to recover exact archive payload')
+          ap=Path('/tmp/batch.tar.gz'); ap.write_bytes(archive)
+          with tarfile.open(ap,'r:gz') as tf: tf.extractall('.')
+          for s in cfg['slots']:
+              p=Path(s['repo_path']); b=p.read_bytes()
+              assert len(b)==s['size'],f'size mismatch {p}'
+              assert b[:4]==b'RIFF' and b[8:12]==b'WEBP',f'not webp {p}'
+              assert hashlib.sha256(b).hexdigest()==s['sha256'],f'sha mismatch {p}'
+          PY
+      - name: Activate image slots
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json,re
+          cfg=json.load(open('image-upload-staging/blob-ready-v3.json')); ids={s['slot_id'] for s in cfg['slots']}; rev=cfg['runtime_revision']
+          p=Path('public/assets/image-slots-v1.js'); out=[]; seen=set()
+          for line in p.read_text().splitlines():
+              hit=next((x for x in ids if f"'{x}':{{" in line),None)
+              if hit:
+                  seen.add(hit); line=line.replace('ready:false','ready:true')
+                  line=re.sub(r"rev:'[^']+'",f"rev:'{rev}'",line) if "rev:'" in line else line[:line.rfind('}')]+f",rev:'{rev}'"+line[line.rfind('}'):]
+              out.append(line)
+          if seen!=ids: raise SystemExit(f'runtime slots missing {ids-seen}')
+          p.write_text('\n'.join(out)+'\n')
+          mp=Path('content/image-prompts/v1/manifest.json'); m=json.loads(mp.read_text()); ms=set()
+          for x in m['slots']:
+              if x['slot_id'] in ids: x['ready']=True; ms.add(x['slot_id'])
+          if ms!=ids: raise SystemExit(f'manifest slots missing {ids-ms}')
+          mp.write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n')
+          ip=Path('public/index.html'); t=ip.read_text(); t,n=re.subn(r'/assets/image-slots-v1\.js\?v=\d+',f"/assets/image-slots-v1.js?v={cfg['runtime_script_version']}",t,count=1)
+          if n!=1: raise SystemExit('runtime script tag missing')
+          ip.write_text(t)
+          PY
+      - name: Commit verified assets
+        run: |
+          msg=$(python -c "import json;print(json.load(open('image-upload-staging/blob-ready-v3.json'))['commit_message'])")
+          rm -rf image-upload-staging
+          git config user.name photo-ebook-image-bot
+          git config user.email actions@users.noreply.github.com
+          git add public/assets/images/generated/v1 public/assets/image-slots-v1.js public/index.html content/image-prompts/v1/manifest.json image-upload-staging
+          git commit -m "$msg"
+          git push origin HEAD:main
