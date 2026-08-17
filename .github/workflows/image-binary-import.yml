@@ -3,7 +3,7 @@ name: Import staged WebP batch
 on:
   push:
     paths:
-      - 'image-upload-staging/*/ready.json'
+      - 'image-upload-staging/ready.json'
 
 permissions:
   contents: write
@@ -18,21 +18,39 @@ jobs:
 
       - name: Rebuild and verify archive
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          import base64, hashlib, json, tarfile
+          import base64, hashlib, json, os, tarfile, urllib.request
 
-          ready_files = sorted(Path('image-upload-staging').glob('*/ready.json'))
-          if len(ready_files) != 1:
-              raise SystemExit(f'expected exactly one ready.json, found {ready_files}')
-          ready = ready_files[0]
-          stage = ready.parent
-          cfg = json.loads(ready.read_text())
+          stage = Path('image-upload-staging')
+          cfg = json.loads((stage / 'ready.json').read_text())
 
           if cfg.get('archive_base64'):
               encoded = cfg['archive_base64']
+          elif cfg.get('blob_shas'):
+              repo = os.environ['GITHUB_REPOSITORY']
+              token = os.environ['GITHUB_TOKEN']
+              chunks = []
+              for sha in cfg['blob_shas']:
+                  req = urllib.request.Request(
+                      f'https://api.github.com/repos/{repo}/git/blobs/{sha}',
+                      headers={
+                          'Authorization': f'Bearer {token}',
+                          'Accept': 'application/vnd.github+json',
+                          'X-GitHub-Api-Version': '2022-11-28',
+                      },
+                  )
+                  with urllib.request.urlopen(req) as resp:
+                      data = json.load(resp)
+                  if data.get('encoding') != 'base64':
+                      raise SystemExit(f'unexpected blob encoding for {sha}: {data.get("encoding")}')
+                  raw = base64.b64decode(data['content'])
+                  chunks.append(raw.decode('utf-8'))
+              encoded = ''.join(chunks)
           else:
               part_glob = cfg.get('part_glob', 'part-*.txt')
               parts = sorted(stage.glob(part_glob))
@@ -73,10 +91,7 @@ jobs:
           from pathlib import Path
           import json, re
 
-          ready_files = sorted(Path('image-upload-staging').glob('*/ready.json'))
-          if len(ready_files) != 1:
-              raise SystemExit(f'expected exactly one ready.json, found {ready_files}')
-          cfg = json.loads(ready_files[0].read_text())
+          cfg = json.loads(Path('image-upload-staging/ready.json').read_text())
           slot_ids = {x['slot_id'] for x in cfg['slots']}
           rev = cfg['runtime_revision']
           script_version = str(cfg['runtime_script_version'])
@@ -133,11 +148,8 @@ jobs:
         run: |
           set -euo pipefail
           message=$(python - <<'PY'
-          from pathlib import Path
           import json
-          ready_files = sorted(Path('image-upload-staging').glob('*/ready.json'))
-          cfg = json.loads(ready_files[0].read_text())
-          print(cfg.get('commit_message', 'Apply verified generated image batch'))
+          print(json.load(open('image-upload-staging/ready.json')).get('commit_message', 'Apply verified generated image batch'))
           PY
           )
           rm -rf image-upload-staging
