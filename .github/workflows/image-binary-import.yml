@@ -15,44 +15,74 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Rebuild archive
+
+      - name: Rebuild and verify archive
         shell: bash
         run: |
           set -euo pipefail
+          test -f image-upload-staging/manifest.json
+          test -n "$(find image-upload-staging -maxdepth 1 -name 'part-*.txt' -print -quit)"
           cat image-upload-staging/part-*.txt | base64 -d > /tmp/image-batch.tar.gz
-          echo '0592570e2029555ae0adfe8c1ab6a442413c306a9d97e4a3005f219971aaa52f  /tmp/image-batch.tar.gz' | sha256sum -c -
-          tar -xzf /tmp/image-batch.tar.gz
-          for f in \
-            public/assets/images/generated/v1/hero/hero-main.webp \
-            public/assets/images/generated/v1/chapter/education.webp \
-            public/assets/images/generated/v1/chapter/portfolio.webp \
-            public/assets/images/generated/v1/market/product-commerce.webp \
-            public/assets/images/generated/v1/market/corporate-profile.webp \
-            public/assets/images/generated/v1/market/food-space.webp; do
-            test -s "$f"
-            file "$f" | grep -qi 'Web/P image'
-          done
-      - name: Refresh runtime cache revision
-        shell: bash
-        run: |
           python - <<'PY'
-          from pathlib import Path
-          p=Path('public/assets/image-slots-v1.js')
-          s=p.read_text()
-          s=s.replace("rev:'b001'", "rev:'b003'")
-          p.write_text(s)
-          p=Path('public/index.html')
-          s=p.read_text()
-          s=s.replace('/assets/image-slots-v1.js?v=2','/assets/image-slots-v1.js?v=3')
-          p.write_text(s)
+          import hashlib, json, pathlib, sys
+          meta=json.loads(pathlib.Path('image-upload-staging/manifest.json').read_text())
+          archive=pathlib.Path('/tmp/image-batch.tar.gz').read_bytes()
+          actual=hashlib.sha256(archive).hexdigest()
+          expected=meta['archive_sha256']
+          print('archive sha256', actual)
+          if actual != expected:
+              raise SystemExit(f'archive sha mismatch: {actual} != {expected}')
+          if not meta.get('files'):
+              raise SystemExit('manifest files is empty')
+          for item in meta['files']:
+              path=item['path']
+              if not path.startswith('public/assets/images/generated/v1/') or not path.endswith('.webp'):
+                  raise SystemExit(f'unsafe image path: {path}')
           PY
-      - name: Commit repaired binary assets
+          tar -xzf /tmp/image-batch.tar.gz
+
+      - name: Verify extracted WebP assets
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf image-upload-staging
+          python - <<'PY' > /tmp/image-files.txt
+          import hashlib, json, pathlib
+          meta=json.loads(pathlib.Path('image-upload-staging/manifest.json').read_text())
+          for item in meta['files']:
+              p=pathlib.Path(item['path'])
+              if not p.is_file() or p.stat().st_size <= 0:
+                  raise SystemExit(f'missing/empty asset: {p}')
+              actual=hashlib.sha256(p.read_bytes()).hexdigest()
+              expected=item['sha256']
+              if actual != expected:
+                  raise SystemExit(f'asset sha mismatch: {p}: {actual} != {expected}')
+              print(str(p))
+          PY
+          while IFS= read -r f; do
+            file "$f" | grep -qi 'Web/P image'
+          done < /tmp/image-files.txt
+
+      - name: Commit verified binary assets
+        shell: bash
+        run: |
+          set -euo pipefail
           git config user.name 'photo-ebook-image-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add public/assets/images/generated/v1 public/assets/image-slots-v1.js public/index.html image-upload-staging
-          git commit -m 'Repair V1 image batch 001 binaries'
+          while IFS= read -r f; do
+            git add -- "$f"
+          done < /tmp/image-files.txt
+          rm -rf image-upload-staging
+          git add -A image-upload-staging
+          message=$(python - <<'PY'
+          import json, pathlib
+          meta=json.loads(pathlib.Path('/tmp/image-import-manifest.json').read_text()) if pathlib.Path('/tmp/image-import-manifest.json').exists() else None
+          print((meta or {}).get('commit_message','Import verified generated WebP assets'))
+          PY
+          )
+          # staging manifest is removed before commit; preserve it temporarily for message metadata
+          if git diff --cached --quiet; then
+            echo 'No binary changes to commit.'
+            exit 0
+          fi
+          git commit -m "$message"
           git push origin HEAD:main
