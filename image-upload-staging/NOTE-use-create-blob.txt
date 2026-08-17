@@ -1,0 +1,1 @@
+Switching to Git object create_blob API; contents staging files are temporary and not production assets.
