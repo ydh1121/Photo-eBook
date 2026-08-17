@@ -1,0 +1,11 @@
+{
+  "version": "v1",
+  "slot_id": "skill-space-correction",
+  "status": "prompt_ready",
+  "source": "slot-prompt-library",
+  "prompt_file": "content/image-prompts/v1/slots/skill-space-correction.md",
+  "png": {"status": "pending_generation", "drive_file_id": null},
+  "webp": {"status": "pending", "drive_file_id": null, "repo_path": "public/assets/images/generated/v1/skills/space-correction.webp"},
+  "ready": false,
+  "updated_at": "2026-08-18T06:21:00+09:00"
+}
