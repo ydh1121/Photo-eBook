@@ -3,7 +3,7 @@ name: Import staged WebP batch
 on:
   push:
     paths:
-      - 'image-upload-staging/ready.json'
+      - 'image-upload-staging/*/ready.json'
 
 permissions:
   contents: write
@@ -24,8 +24,12 @@ jobs:
           from pathlib import Path
           import base64, hashlib, json, tarfile
 
-          stage = Path('image-upload-staging')
-          cfg = json.loads((stage / 'ready.json').read_text())
+          ready_files = sorted(Path('image-upload-staging').glob('*/ready.json'))
+          if len(ready_files) != 1:
+              raise SystemExit(f'expected exactly one ready.json, found {ready_files}')
+          ready = ready_files[0]
+          stage = ready.parent
+          cfg = json.loads(ready.read_text())
 
           if cfg.get('archive_base64'):
               encoded = cfg['archive_base64']
@@ -69,7 +73,10 @@ jobs:
           from pathlib import Path
           import json, re
 
-          cfg = json.loads(Path('image-upload-staging/ready.json').read_text())
+          ready_files = sorted(Path('image-upload-staging').glob('*/ready.json'))
+          if len(ready_files) != 1:
+              raise SystemExit(f'expected exactly one ready.json, found {ready_files}')
+          cfg = json.loads(ready_files[0].read_text())
           slot_ids = {x['slot_id'] for x in cfg['slots']}
           rev = cfg['runtime_revision']
           script_version = str(cfg['runtime_script_version'])
@@ -126,8 +133,11 @@ jobs:
         run: |
           set -euo pipefail
           message=$(python - <<'PY'
+          from pathlib import Path
           import json
-          print(json.load(open('image-upload-staging/ready.json')).get('commit_message', 'Apply verified generated image batch'))
+          ready_files = sorted(Path('image-upload-staging').glob('*/ready.json'))
+          cfg = json.loads(ready_files[0].read_text())
+          print(cfg.get('commit_message', 'Apply verified generated image batch'))
           PY
           )
           rm -rf image-upload-staging
