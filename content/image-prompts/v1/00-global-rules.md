@@ -117,6 +117,55 @@
 
 상위 규칙은 유지한다. 새 산업은 `industry-<name>-rules.md`를 추가한다. 특정 산업 때문에 상위 규칙을 느슨하게 바꾸지 않는다.
 
+## GLOBAL-IMG-016 — 배치의 의미
+
+배치 생성은 여러 슬롯을 한 개의 합성 이미지로 만드는 것이 아니다.
+
+- 한 번의 사용자 지시에서 여러 슬롯을 처리할 수 있다.
+- 실제 생성은 **슬롯별 독립 generation call**을 여러 번 연속 수행한다.
+- 각 슬롯은 별도 최종 파일을 가진다.
+- `n>1` 또는 다중 장면을 한 호출에 넣었을 때 dashboard, collage, contact sheet, infographic으로 합쳐질 가능성이 있으면 사용하지 않는다.
+- 사용자는 슬롯마다 다시 지시할 필요가 없다. 작업자는 같은 턴/작업 흐름에서 다음 슬롯으로 자동 진행한다.
+
+## GLOBAL-IMG-017 — 즉시 실패 판정
+
+다음 중 하나라도 나타나면 해당 산출물은 **자동 QA 실패**다.
+
+- dashboard, admin screen, progress report, infographic, presentation slide
+- contact sheet, mood board, comparison grid, collage
+- 한 캔버스에 여러 슬롯/여러 완성 이미지를 배치
+- slot id, 파일명, 적용 상태, 진행률, Git/Drive/Cloudflare 정보가 이미지 안에 표현됨
+- 생성 작업 자체를 설명하는 메타 이미지
+- 프롬프트와 무관한 웹사이트/앱 UI
+- 읽을 수 있는 가짜 문구가 시각적 핵심을 차지함
+- 요구한 단일 실사 장면 대신 여러 장면이 카드 형태로 분할됨
+
+이 실패 결과는 production asset으로 절대 사용하지 않는다.
+
+## GLOBAL-IMG-018 — 실패 시 자동 재시도
+
+실패한 슬롯은 사용자에게 다시 지시를 요구하지 않고 다음 순서로 자동 재시도한다.
+
+1. 실패 이미지를 폐기한다.
+2. 슬롯의 원래 prompt/body context는 유지한다.
+3. 생성 입력을 해당 슬롯 하나의 장면만 남기도록 축약한다.
+4. `single standalone photograph`, `one scene only`, `no text`, `no UI`, `no collage`, `no dashboard` 제약을 명시한다.
+5. 독립 generation call로 다시 생성한다.
+6. 같은 유형의 context-bleed 실패가 연속 2회 발생하면 해당 슬롯을 `qa_failed`로 기록하고 나머지 배치를 계속 진행한다.
+7. 실패 슬롯 때문에 성공한 다른 슬롯의 WebP/Git/Drive 적용을 막지 않는다.
+
+## GLOBAL-IMG-019 — 실패 결과의 상태 오염 금지
+
+QA 실패 산출물은 다음 어디에도 반영하지 않는다.
+
+- `public/assets/images/generated/...`
+- Google Drive `Generated WebP`
+- manifest/runtime `ready:true`
+- Prompt Queue `applied`
+- applied-status의 성공 슬롯 목록
+
+필요하면 Prompt Queue 상태만 `qa_failed`로 남기고 실패 사유를 기록한다.
+
 ## 프롬프트 조립 순서
 
 실제 생성 입력은 다음 순서로 해석한다.
