@@ -26,11 +26,15 @@ jobs:
 
           stage = Path('image-upload-staging')
           cfg = json.loads((stage / 'ready.json').read_text())
-          parts = sorted(stage.glob('part-*.txt'))
-          if not parts:
-              raise SystemExit('no staged parts')
 
-          encoded = ''.join(p.read_text() for p in parts)
+          if cfg.get('archive_base64'):
+              encoded = cfg['archive_base64']
+          else:
+              parts = sorted(stage.glob('part-*.txt'))
+              if not parts:
+                  raise SystemExit('no staged archive payload')
+              encoded = ''.join(p.read_text() for p in parts)
+
           archive = base64.b64decode(encoded, validate=True)
           actual = hashlib.sha256(archive).hexdigest()
           expected = cfg['archive_sha256']
