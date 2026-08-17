@@ -1,0 +1,32 @@
+name: Import verified b007 assets
+on:
+  push:
+    paths: [image-upload-staging/b007-import-trigger.txt]
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - shell: bash
+        run: |
+          set -euo pipefail
+          S=image-upload-staging
+          for i in 000 001 002 003 004 005 006 008 012 013 014 016; do cp "$S/b007s-part-$i.txt" "/tmp/p$i"; done
+          cat "$S/b007s-fix-007-00.txt" "$S/b007s-fix-007-01.txt" >/tmp/p007
+          cat "$S"/b007s-fix-009-0?w.txt | tr -d '[:space:]' >/tmp/p009
+          { cat "$S"/b007s-fix-010-0[01]w.txt | tr -d '[:space:]'; cat "$S"/b007s-clean-010-0{4..7}.txt; } >/tmp/p010
+          cat "$S"/b007s-clean-011-0{0..7}.txt >/tmp/p011
+          cat "$S"/b007s-clean-015-0{0..7}.txt >/tmp/p015
+          cat /tmp/p{000..016} >/tmp/b007.b64
+          test "$(wc -c </tmp/b007.b64)" -eq 256996
+          base64 -d /tmp/b007.b64 >/tmp/b007.tar.gz
+          echo '45a92284edab39a60b6d072c5b8823bd7cd2cc65fcdbc131111ecdc3c37a2fc9  /tmp/b007.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/b007.tar.gz
+          git add public/assets/images/generated/v1/portfolio/{product-brand,professional-profile,studio-process,food-store}.webp public/assets/images/generated/v1/skills/{portrait-retouch,product-retouch}.webp
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -m 'Apply verified b007 image assets'
+          git push
