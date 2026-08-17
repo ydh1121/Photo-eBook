@@ -1,0 +1,1 @@
+diagnose b006 recovery
