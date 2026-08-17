@@ -1,0 +1,45 @@
+name: Verify b007 live deployment
+on:
+  push:
+    paths: [image-upload-staging/b007-live-verify-trigger.txt]
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: bash
+        run: |
+          set -euo pipefail
+          base=https://photo-ebook.pages.dev
+          paths=(
+            assets/images/generated/v1/portfolio/product-brand.webp
+            assets/images/generated/v1/portfolio/professional-profile.webp
+            assets/images/generated/v1/portfolio/food-store.webp
+            assets/images/generated/v1/portfolio/studio-process.webp
+            assets/images/generated/v1/skills/portrait-retouch.webp
+            assets/images/generated/v1/skills/product-retouch.webp
+          )
+          ok=0
+          for attempt in {1..12}; do
+            ok=1
+            for p in "${paths[@]}"; do
+              if ! curl -fsSL --max-time 20 "$base/$p?v=b007" -o /tmp/live.webp || ! cmp -s "/tmp/live.webp" "public/$p"; then ok=0; break; fi
+            done
+            [ "$ok" = 1 ] && break
+            sleep 5
+          done
+          [ "$ok" = 1 ]
+          curl -fsSL --max-time 20 "$base/assets/image-slots-v1.js?v=7" -o /tmp/slots.js
+          for id in portfolio-product-brand portfolio-professional-profile portfolio-food-store portfolio-studio-process skill-portrait-retouch skill-product-retouch; do grep -F "'$id':" /tmp/slots.js | grep -F "ready:true" | grep -F "rev:'b007'" >/dev/null; done
+          python - <<'PY'
+          from pathlib import Path
+          import json,datetime
+          p=Path('content/image-prompts/v1/applied/b007.json'); o=json.loads(p.read_text()); o['deployment_verified']=True; o['deployment_verified_at']=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=9))).isoformat(timespec='seconds'); p.write_text(json.dumps(o,ensure_ascii=False,indent=2)+'\n')
+          PY
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add content/image-prompts/v1/applied/b007.json
+          git commit -m 'Verify b007 live deployment'
+          git push
