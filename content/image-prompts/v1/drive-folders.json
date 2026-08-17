@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "root": {
+    "name": "Photo-eBook Image Pipeline V1",
+    "folder_id": "1OnMOEJPyIG6KOFGAc0f6_di7l-dtuczR"
+  },
+  "png": {
+    "name": "Generated PNG",
+    "folder_id": "14w5IoZIq8-dfSL7qHBrriu_hGuv9NRip"
+  },
+  "webp": {
+    "name": "Generated WebP",
+    "folder_id": "1d6cd98YVh-HW6EarUEqlbCBXhFNd5279"
+  }
+}
