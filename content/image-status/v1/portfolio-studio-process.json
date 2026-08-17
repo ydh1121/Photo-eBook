@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "slot_id": "portfolio-studio-process",
+  "status": "applied",
+  "source": "legacy-completed",
+  "png": {
+    "status": "legacy_not_available",
+    "drive_file_id": null
+  },
+  "webp": {
+    "drive_file_id": "1SvCvQkyg13v88XIIjfpTcDdT4bRcGzzH",
+    "sha256": "100f4960d67be683416264f3afb5b3a478bad8b58bbaf11ce4d7b248d9c98483",
+    "bytes": 39118,
+    "repo_path": "public/assets/images/generated/v1/portfolio/studio-process.webp"
+  },
+  "ready": true,
+  "runtime_revision": "b007",
+  "updated_at": "2026-08-18T03:29:51+09:00"
+}

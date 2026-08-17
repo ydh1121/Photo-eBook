@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "slot_id": "portfolio-professional-profile",
+  "status": "applied",
+  "source": "legacy-completed",
+  "png": {
+    "status": "legacy_not_available",
+    "drive_file_id": null
+  },
+  "webp": {
+    "drive_file_id": "1tmnNyw3y_AtZy76CH_1tQsLXj8b7K2VH",
+    "sha256": "440b35c7e95d5aaa59d31c96b61eced2dae31b5998410185d5467e7ce9b6d533",
+    "bytes": 21472,
+    "repo_path": "public/assets/images/generated/v1/portfolio/professional-profile.webp"
+  },
+  "ready": true,
+  "runtime_revision": "b007",
+  "updated_at": "2026-08-18T03:29:51+09:00"
+}

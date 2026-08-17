@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "slot_id": "skill-product-retouch",
+  "status": "applied",
+  "source": "legacy-completed",
+  "png": {
+    "status": "legacy_not_available",
+    "drive_file_id": null
+  },
+  "webp": {
+    "drive_file_id": "1XgqTD1hxLuk11jixXjiRlLApKZ0Dp7Nt",
+    "sha256": "2c7726ccdafdbf3d512acb831231a2801f815451ad8f970f1881b93c8abcd25e",
+    "bytes": 29938,
+    "repo_path": "public/assets/images/generated/v1/skills/product-retouch.webp"
+  },
+  "ready": true,
+  "runtime_revision": "b007",
+  "updated_at": "2026-08-18T03:29:51+09:00"
+}

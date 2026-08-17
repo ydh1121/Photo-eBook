@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "slot_id": "portfolio-food-store",
+  "status": "applied",
+  "source": "legacy-completed",
+  "png": {
+    "status": "legacy_not_available",
+    "drive_file_id": null
+  },
+  "webp": {
+    "drive_file_id": "1wjoajbBJQmcwo9CAsVJgAJheHMvkSuVQ",
+    "sha256": "8b29bd931cec10119bc4d4b4897b632b73f0668fb4ea7cc0d3b02be85763478a",
+    "bytes": 46088,
+    "repo_path": "public/assets/images/generated/v1/portfolio/food-store.webp"
+  },
+  "ready": true,
+  "runtime_revision": "b007",
+  "updated_at": "2026-08-18T03:29:51+09:00"
+}

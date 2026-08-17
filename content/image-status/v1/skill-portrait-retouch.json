@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "slot_id": "skill-portrait-retouch",
+  "status": "applied",
+  "source": "legacy-completed",
+  "png": {
+    "status": "legacy_not_available",
+    "drive_file_id": null
+  },
+  "webp": {
+    "drive_file_id": "1sYtpjjD0MyeR9yL96X0YIyk-fqTzmqDp",
+    "sha256": "e7c9907689474f210548885890060e87114c73e178d60df86c38334018caab1e",
+    "bytes": 33022,
+    "repo_path": "public/assets/images/generated/v1/skills/portrait-retouch.webp"
+  },
+  "ready": true,
+  "runtime_revision": "b007",
+  "updated_at": "2026-08-18T03:29:51+09:00"
+}

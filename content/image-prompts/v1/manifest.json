@@ -1,65 +1,391 @@
 {
   "version": "1.0",
-  "rules": ["00-global-rules.md", "01-photo-industry-rules.md"],
+  "rules": [
+    "00-global-rules.md",
+    "01-photo-industry-rules.md"
+  ],
   "drive_folder_id": "1OnMOEJPyIG6KOFGAc0f6_di7l-dtuczR",
   "drive_generated_folder_id": "1d6cd98YVh-HW6EarUEqlbCBXhFNd5279",
   "default_format": "webp",
   "slots": [
-    {"slot_id":"hero-main","group":"hero","source_class":"generate","path":"/assets/images/generated/v1/hero/hero-main.webp","fallback_key":"hero","ready":true},
-    {"slot_id":"chapter-intro","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/intro.webp","fallback_key":"intro","ready":false},
-    {"slot_id":"chapter-market","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/market.webp","fallback_key":"product","ready":false},
-    {"slot_id":"chapter-education","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/education.webp","fallback_key":"education","ready":true},
-    {"slot_id":"chapter-skills","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/skills.webp","fallback_key":"skills","ready":false},
-    {"slot_id":"chapter-portfolio","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/portfolio.webp","fallback_key":"portfolio","ready":true},
-    {"slot_id":"chapter-gear","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/gear.webp","fallback_key":"gear","ready":false},
-    {"slot_id":"chapter-plan","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/plan.webp","fallback_key":"plan","ready":false},
-    {"slot_id":"chapter-scripts","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/scripts.webp","fallback_key":"scripts","ready":false},
-    {"slot_id":"chapter-iphone","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/iphone.webp","fallback_key":"iphone","ready":false},
-    {"slot_id":"chapter-sources","group":"chapter","source_class":"generate","path":"/assets/images/generated/v1/chapter/sources.webp","fallback_key":"gear","ready":false},
-
-    {"slot_id":"market-product-commerce","group":"market","source_class":"generate","path":"/assets/images/generated/v1/market/product-commerce.webp","fallback_key":"product","ready":true},
-    {"slot_id":"market-corporate-profile","group":"market","source_class":"generate","path":"/assets/images/generated/v1/market/corporate-profile.webp","fallback_key":"profile","ready":true},
-    {"slot_id":"market-food-space","group":"market","source_class":"generate","path":"/assets/images/generated/v1/market/food-space.webp","fallback_key":"food","ready":true},
-
-    {"slot_id":"skill-portrait-retouch","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/portrait-retouch.webp","fallback_key":"edit","ready":false},
-    {"slot_id":"skill-product-retouch","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/product-retouch.webp","fallback_key":"product","ready":false},
-    {"slot_id":"skill-space-correction","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/space-correction.webp","fallback_key":"skills","ready":false},
-    {"slot_id":"skill-raw-culling","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/raw-culling.webp","fallback_key":"portfolio","ready":false},
-    {"slot_id":"skill-batch-basic-edit","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/batch-basic-edit.webp","fallback_key":"edit","ready":false},
-    {"slot_id":"skill-tether-shooting","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/tether-shooting.webp","fallback_key":"skills","ready":false},
-    {"slot_id":"skill-portfolio-building","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/portfolio-building.webp","fallback_key":"portfolio","ready":false},
-    {"slot_id":"skill-delivery-process","group":"skills","source_class":"generate","path":"/assets/images/generated/v1/skills/delivery-process.webp","fallback_key":"portfolio","ready":false},
-
-    {"slot_id":"portfolio-product-brand","group":"portfolio","source_class":"generate","path":"/assets/images/generated/v1/portfolio/product-brand.webp","fallback_key":"product","ready":false},
-    {"slot_id":"portfolio-professional-profile","group":"portfolio","source_class":"generate","path":"/assets/images/generated/v1/portfolio/professional-profile.webp","fallback_key":"profile","ready":false},
-    {"slot_id":"portfolio-food-store","group":"portfolio","source_class":"generate","path":"/assets/images/generated/v1/portfolio/food-store.webp","fallback_key":"food","ready":false},
-    {"slot_id":"portfolio-studio-process","group":"portfolio","source_class":"generate","path":"/assets/images/generated/v1/portfolio/studio-process.webp","fallback_key":"portfolio","ready":false},
-
-    {"slot_id":"gear-product-sony-a7-iii","group":"gear","source_class":"reference_required","path":"/assets/images/generated/v1/gear/sony-a7-iii.webp","ready":false},
-    {"slot_id":"gear-product-tamron-28-75-g2","group":"gear","source_class":"reference_required","path":"/assets/images/generated/v1/gear/tamron-28-75-g2.webp","ready":false},
-    {"slot_id":"gear-product-sony-fe-85-f18","group":"gear","source_class":"reference_required","path":"/assets/images/generated/v1/gear/sony-fe-85-f18.webp","ready":false},
-
-    {"slot_id":"iphone-lesson-setup","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/setup.webp","fallback_key":"studio","ready":false},
-    {"slot_id":"iphone-lesson-focus","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/focus.webp","fallback_key":"iphone","ready":false},
-    {"slot_id":"iphone-lesson-lens","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/lens.webp","fallback_key":"profile","ready":false},
-    {"slot_id":"iphone-lesson-portrait","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/portrait.webp","fallback_key":"profile","ready":false},
-    {"slot_id":"iphone-lesson-product","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/product.webp","fallback_key":"product","ready":false},
-    {"slot_id":"iphone-lesson-night","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/night.webp","fallback_key":"night","ready":false},
-    {"slot_id":"iphone-lesson-macro","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/macro.webp","fallback_key":"macro","ready":false},
-    {"slot_id":"iphone-lesson-edit","group":"iphone-lessons","source_class":"generate","path":"/assets/images/generated/v1/iphone/lessons/edit.webp","fallback_key":"edit","ready":false},
-
-    {"slot_id":"iphone-preset-day-outdoor","group":"iphone-presets","source_class":"generate","path":"/assets/images/generated/v1/iphone/presets/day-outdoor.webp","fallback_key":"iphone","ready":false},
-    {"slot_id":"iphone-preset-window-portrait","group":"iphone-presets","source_class":"generate","path":"/assets/images/generated/v1/iphone/presets/window-portrait.webp","fallback_key":"profile","ready":false},
-    {"slot_id":"iphone-preset-cafe-food","group":"iphone-presets","source_class":"generate","path":"/assets/images/generated/v1/iphone/presets/cafe-food.webp","fallback_key":"food","ready":false},
-    {"slot_id":"iphone-preset-small-product","group":"iphone-presets","source_class":"generate","path":"/assets/images/generated/v1/iphone/presets/small-product.webp","fallback_key":"product","ready":false},
-    {"slot_id":"iphone-preset-night-street","group":"iphone-presets","source_class":"generate","path":"/assets/images/generated/v1/iphone/presets/night-street.webp","fallback_key":"night","ready":false},
-    {"slot_id":"iphone-preset-macro","group":"iphone-presets","source_class":"generate","path":"/assets/images/generated/v1/iphone/presets/macro.webp","fallback_key":"product","ready":false},
-    {"slot_id":"iphone-preset-golden-hour","group":"iphone-presets","source_class":"generate","path":"/assets/images/generated/v1/iphone/presets/golden-hour.webp","fallback_key":"profile","ready":false},
-
-    {"slot_id":"fallback-curated-article","group":"fallback","source_class":"fallback_generate","path":"/assets/images/generated/v1/fallback/curated-article.webp","fallback_key":"portfolio","ready":false},
-    {"slot_id":"fallback-video-general","group":"fallback","source_class":"fallback_generate","path":"/assets/images/generated/v1/fallback/video-general.webp","fallback_key":"skills","ready":false},
-
-    {"slot_id":"dynamic-curated-og","group":"dynamic","source_class":"preserve_external","path":null,"ready":true},
-    {"slot_id":"dynamic-youtube-thumbnail","group":"dynamic","source_class":"preserve_external","path":null,"ready":true}
+    {
+      "slot_id": "hero-main",
+      "group": "hero",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/hero/hero-main.webp",
+      "fallback_key": "hero",
+      "ready": true
+    },
+    {
+      "slot_id": "chapter-intro",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/intro.webp",
+      "fallback_key": "intro",
+      "ready": false
+    },
+    {
+      "slot_id": "chapter-market",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/market.webp",
+      "fallback_key": "product",
+      "ready": false
+    },
+    {
+      "slot_id": "chapter-education",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/education.webp",
+      "fallback_key": "education",
+      "ready": true
+    },
+    {
+      "slot_id": "chapter-skills",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/skills.webp",
+      "fallback_key": "skills",
+      "ready": false
+    },
+    {
+      "slot_id": "chapter-portfolio",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/portfolio.webp",
+      "fallback_key": "portfolio",
+      "ready": true
+    },
+    {
+      "slot_id": "chapter-gear",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/gear.webp",
+      "fallback_key": "gear",
+      "ready": false
+    },
+    {
+      "slot_id": "chapter-plan",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/plan.webp",
+      "fallback_key": "plan",
+      "ready": false
+    },
+    {
+      "slot_id": "chapter-scripts",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/scripts.webp",
+      "fallback_key": "scripts",
+      "ready": false
+    },
+    {
+      "slot_id": "chapter-iphone",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/iphone.webp",
+      "fallback_key": "iphone",
+      "ready": false
+    },
+    {
+      "slot_id": "chapter-sources",
+      "group": "chapter",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/chapter/sources.webp",
+      "fallback_key": "gear",
+      "ready": false
+    },
+    {
+      "slot_id": "market-product-commerce",
+      "group": "market",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/market/product-commerce.webp",
+      "fallback_key": "product",
+      "ready": true
+    },
+    {
+      "slot_id": "market-corporate-profile",
+      "group": "market",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/market/corporate-profile.webp",
+      "fallback_key": "profile",
+      "ready": true
+    },
+    {
+      "slot_id": "market-food-space",
+      "group": "market",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/market/food-space.webp",
+      "fallback_key": "food",
+      "ready": true
+    },
+    {
+      "slot_id": "skill-portrait-retouch",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/portrait-retouch.webp",
+      "fallback_key": "edit",
+      "ready": true
+    },
+    {
+      "slot_id": "skill-product-retouch",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/product-retouch.webp",
+      "fallback_key": "product",
+      "ready": true
+    },
+    {
+      "slot_id": "skill-space-correction",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/space-correction.webp",
+      "fallback_key": "skills",
+      "ready": false
+    },
+    {
+      "slot_id": "skill-raw-culling",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/raw-culling.webp",
+      "fallback_key": "portfolio",
+      "ready": false
+    },
+    {
+      "slot_id": "skill-batch-basic-edit",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/batch-basic-edit.webp",
+      "fallback_key": "edit",
+      "ready": false
+    },
+    {
+      "slot_id": "skill-tether-shooting",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/tether-shooting.webp",
+      "fallback_key": "skills",
+      "ready": false
+    },
+    {
+      "slot_id": "skill-portfolio-building",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/portfolio-building.webp",
+      "fallback_key": "portfolio",
+      "ready": false
+    },
+    {
+      "slot_id": "skill-delivery-process",
+      "group": "skills",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/skills/delivery-process.webp",
+      "fallback_key": "portfolio",
+      "ready": false
+    },
+    {
+      "slot_id": "portfolio-product-brand",
+      "group": "portfolio",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/portfolio/product-brand.webp",
+      "fallback_key": "product",
+      "ready": true
+    },
+    {
+      "slot_id": "portfolio-professional-profile",
+      "group": "portfolio",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/portfolio/professional-profile.webp",
+      "fallback_key": "profile",
+      "ready": true
+    },
+    {
+      "slot_id": "portfolio-food-store",
+      "group": "portfolio",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/portfolio/food-store.webp",
+      "fallback_key": "food",
+      "ready": true
+    },
+    {
+      "slot_id": "portfolio-studio-process",
+      "group": "portfolio",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/portfolio/studio-process.webp",
+      "fallback_key": "portfolio",
+      "ready": true
+    },
+    {
+      "slot_id": "gear-product-sony-a7-iii",
+      "group": "gear",
+      "source_class": "reference_required",
+      "path": "/assets/images/generated/v1/gear/sony-a7-iii.webp",
+      "ready": false
+    },
+    {
+      "slot_id": "gear-product-tamron-28-75-g2",
+      "group": "gear",
+      "source_class": "reference_required",
+      "path": "/assets/images/generated/v1/gear/tamron-28-75-g2.webp",
+      "ready": false
+    },
+    {
+      "slot_id": "gear-product-sony-fe-85-f18",
+      "group": "gear",
+      "source_class": "reference_required",
+      "path": "/assets/images/generated/v1/gear/sony-fe-85-f18.webp",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-setup",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/setup.webp",
+      "fallback_key": "studio",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-focus",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/focus.webp",
+      "fallback_key": "iphone",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-lens",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/lens.webp",
+      "fallback_key": "profile",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-portrait",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/portrait.webp",
+      "fallback_key": "profile",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-product",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/product.webp",
+      "fallback_key": "product",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-night",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/night.webp",
+      "fallback_key": "night",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-macro",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/macro.webp",
+      "fallback_key": "macro",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-lesson-edit",
+      "group": "iphone-lessons",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/lessons/edit.webp",
+      "fallback_key": "edit",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-preset-day-outdoor",
+      "group": "iphone-presets",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/presets/day-outdoor.webp",
+      "fallback_key": "iphone",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-preset-window-portrait",
+      "group": "iphone-presets",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/presets/window-portrait.webp",
+      "fallback_key": "profile",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-preset-cafe-food",
+      "group": "iphone-presets",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/presets/cafe-food.webp",
+      "fallback_key": "food",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-preset-small-product",
+      "group": "iphone-presets",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/presets/small-product.webp",
+      "fallback_key": "product",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-preset-night-street",
+      "group": "iphone-presets",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/presets/night-street.webp",
+      "fallback_key": "night",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-preset-macro",
+      "group": "iphone-presets",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/presets/macro.webp",
+      "fallback_key": "product",
+      "ready": false
+    },
+    {
+      "slot_id": "iphone-preset-golden-hour",
+      "group": "iphone-presets",
+      "source_class": "generate",
+      "path": "/assets/images/generated/v1/iphone/presets/golden-hour.webp",
+      "fallback_key": "profile",
+      "ready": false
+    },
+    {
+      "slot_id": "fallback-curated-article",
+      "group": "fallback",
+      "source_class": "fallback_generate",
+      "path": "/assets/images/generated/v1/fallback/curated-article.webp",
+      "fallback_key": "portfolio",
+      "ready": false
+    },
+    {
+      "slot_id": "fallback-video-general",
+      "group": "fallback",
+      "source_class": "fallback_generate",
+      "path": "/assets/images/generated/v1/fallback/video-general.webp",
+      "fallback_key": "skills",
+      "ready": false
+    },
+    {
+      "slot_id": "dynamic-curated-og",
+      "group": "dynamic",
+      "source_class": "preserve_external",
+      "path": null,
+      "ready": true
+    },
+    {
+      "slot_id": "dynamic-youtube-thumbnail",
+      "group": "dynamic",
+      "source_class": "preserve_external",
+      "path": null,
+      "ready": true
+    }
   ]
 }

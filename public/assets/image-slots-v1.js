@@ -19,8 +19,8 @@
     'market-corporate-profile':{path:'/assets/images/generated/v1/market/corporate-profile.webp',fallbackKey:'profile',ready:true,rev:'b003'},
     'market-food-space':{path:'/assets/images/generated/v1/market/food-space.webp',fallbackKey:'food',ready:true,rev:'b003'},
 
-    'skill-portrait-retouch':{path:'/assets/images/generated/v1/skills/portrait-retouch.webp',fallbackKey:'edit',ready:false},
-    'skill-product-retouch':{path:'/assets/images/generated/v1/skills/product-retouch.webp',fallbackKey:'product',ready:false},
+    'skill-portrait-retouch':{path:'/assets/images/generated/v1/skills/portrait-retouch.webp',fallbackKey:'edit',ready:true,rev:'b007'},
+    'skill-product-retouch':{path:'/assets/images/generated/v1/skills/product-retouch.webp',fallbackKey:'product',ready:true,rev:'b007'},
     'skill-space-correction':{path:'/assets/images/generated/v1/skills/space-correction.webp',fallbackKey:'skills',ready:false},
     'skill-raw-culling':{path:'/assets/images/generated/v1/skills/raw-culling.webp',fallbackKey:'portfolio',ready:false},
     'skill-batch-basic-edit':{path:'/assets/images/generated/v1/skills/batch-basic-edit.webp',fallbackKey:'edit',ready:false},
@@ -28,10 +28,10 @@
     'skill-portfolio-building':{path:'/assets/images/generated/v1/skills/portfolio-building.webp',fallbackKey:'portfolio',ready:false},
     'skill-delivery-process':{path:'/assets/images/generated/v1/skills/delivery-process.webp',fallbackKey:'portfolio',ready:false},
 
-    'portfolio-product-brand':{path:'/assets/images/generated/v1/portfolio/product-brand.webp',fallbackKey:'product',ready:false},
-    'portfolio-professional-profile':{path:'/assets/images/generated/v1/portfolio/professional-profile.webp',fallbackKey:'profile',ready:false},
-    'portfolio-food-store':{path:'/assets/images/generated/v1/portfolio/food-store.webp',fallbackKey:'food',ready:false},
-    'portfolio-studio-process':{path:'/assets/images/generated/v1/portfolio/studio-process.webp',fallbackKey:'portfolio',ready:false},
+    'portfolio-product-brand':{path:'/assets/images/generated/v1/portfolio/product-brand.webp',fallbackKey:'product',ready:true,rev:'b007'},
+    'portfolio-professional-profile':{path:'/assets/images/generated/v1/portfolio/professional-profile.webp',fallbackKey:'profile',ready:true,rev:'b007'},
+    'portfolio-food-store':{path:'/assets/images/generated/v1/portfolio/food-store.webp',fallbackKey:'food',ready:true,rev:'b007'},
+    'portfolio-studio-process':{path:'/assets/images/generated/v1/portfolio/studio-process.webp',fallbackKey:'portfolio',ready:true,rev:'b007'},
 
     'gear-product-sony-a7-iii':{path:'/assets/images/generated/v1/gear/sony-a7-iii.webp',ready:false},
     'gear-product-tamron-28-75-g2':{path:'/assets/images/generated/v1/gear/tamron-28-75-g2.webp',ready:false},

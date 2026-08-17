@@ -1,16 +1,35 @@
 {
   "version": "v1",
   "batch_id": "image-batch-002",
-  "status": "in_progress",
-  "updated_at": "2026-08-17T10:02:00+09:00",
+  "status": "applied",
+  "updated_at": "2026-08-18T03:29:51+09:00",
   "rules_commit_sha": "ab1076fcfc66fb8d2578b26b9d9341844080a497",
   "slots": [
     {
       "slot_id": "portfolio-studio-process",
       "prompt_id": "IMG-026",
-      "status": "generated_pending_apply",
-      "drive_file_id": "1LOEaZyA2CBm2iUQf424DGpXZ8zJS-OXd",
+      "status": "applied",
+      "drive_file_id": "1SvCvQkyg13v88XIIjfpTcDdT4bRcGzzH",
       "target_path": "/assets/images/generated/v1/portfolio/studio-process.webp",
+      "qa": {
+        "context_match": true,
+        "single_scene": true,
+        "no_meta_ui": true,
+        "crop_ready": true
+      },
+      "sha256": "100f4960d67be683416264f3afb5b3a478bad8b58bbaf11ce4d7b248d9c98483",
+      "bytes": 39118,
+      "ready": true
+    },
+    {
+      "slot_id": "portfolio-product-brand",
+      "prompt_id": "IMG-023",
+      "status": "applied",
+      "target_path": "/assets/images/generated/v1/portfolio/product-brand.webp",
+      "drive_file_id": "1GygnwNtz6MMbcjtoErkncx5693V2oBCb",
+      "sha256": "12ed25275657bb9c05d2222eeb2e211d699a02c77ebcc591eb1858a79fc5391c",
+      "bytes": 22172,
+      "ready": true,
       "qa": {
         "context_match": true,
         "single_scene": true,
@@ -19,40 +38,68 @@
       }
     },
     {
-      "slot_id": "portfolio-product-brand",
-      "prompt_id": "IMG-023",
-      "status": "qa_failed",
-      "failure_code": "context_bleed_meta_dashboard",
-      "retry_count": 3,
-      "target_path": "/assets/images/generated/v1/portfolio/product-brand.webp"
-    },
-    {
       "slot_id": "portfolio-professional-profile",
       "prompt_id": "IMG-024",
-      "status": "qa_failed",
-      "failure_code": "context_bleed_meta_dashboard",
-      "retry_count": 2,
-      "target_path": "/assets/images/generated/v1/portfolio/professional-profile.webp"
+      "status": "applied",
+      "target_path": "/assets/images/generated/v1/portfolio/professional-profile.webp",
+      "drive_file_id": "1tmnNyw3y_AtZy76CH_1tQsLXj8b7K2VH",
+      "sha256": "440b35c7e95d5aaa59d31c96b61eced2dae31b5998410185d5467e7ce9b6d533",
+      "bytes": 21472,
+      "ready": true,
+      "qa": {
+        "context_match": true,
+        "single_scene": true,
+        "no_meta_ui": true,
+        "crop_ready": true
+      }
     },
     {
       "slot_id": "portfolio-food-store",
       "prompt_id": "IMG-025",
-      "status": "qa_failed",
-      "failure_code": "context_bleed_meta_dashboard",
-      "retry_count": 3,
-      "target_path": "/assets/images/generated/v1/portfolio/food-store.webp"
+      "status": "applied",
+      "target_path": "/assets/images/generated/v1/portfolio/food-store.webp",
+      "drive_file_id": "1wjoajbBJQmcwo9CAsVJgAJheHMvkSuVQ",
+      "sha256": "8b29bd931cec10119bc4d4b4897b632b73f0668fb4ea7cc0d3b02be85763478a",
+      "bytes": 46088,
+      "ready": true,
+      "qa": {
+        "context_match": true,
+        "single_scene": true,
+        "no_meta_ui": true,
+        "crop_ready": true
+      }
     },
     {
       "slot_id": "skill-portrait-retouch",
       "prompt_id": "IMG-015",
-      "status": "prompt_ready",
-      "target_path": "/assets/images/generated/v1/skills/portrait-retouch.webp"
+      "status": "applied",
+      "target_path": "/assets/images/generated/v1/skills/portrait-retouch.webp",
+      "drive_file_id": "1sYtpjjD0MyeR9yL96X0YIyk-fqTzmqDp",
+      "sha256": "e7c9907689474f210548885890060e87114c73e178d60df86c38334018caab1e",
+      "bytes": 33022,
+      "ready": true,
+      "qa": {
+        "context_match": true,
+        "single_scene": true,
+        "no_meta_ui": true,
+        "crop_ready": true
+      }
     },
     {
       "slot_id": "skill-product-retouch",
       "prompt_id": "IMG-016",
-      "status": "prompt_ready",
-      "target_path": "/assets/images/generated/v1/skills/product-retouch.webp"
+      "status": "applied",
+      "target_path": "/assets/images/generated/v1/skills/product-retouch.webp",
+      "drive_file_id": "1XgqTD1hxLuk11jixXjiRlLApKZ0Dp7Nt",
+      "sha256": "2c7726ccdafdbf3d512acb831231a2801f815451ad8f970f1881b93c8abcd25e",
+      "bytes": 29938,
+      "ready": true,
+      "qa": {
+        "context_match": true,
+        "single_scene": true,
+        "no_meta_ui": true,
+        "crop_ready": true
+      }
     }
   ],
   "resume_order": [

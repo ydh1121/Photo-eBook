@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "slot_id": "portfolio-product-brand",
+  "status": "applied",
+  "source": "legacy-completed",
+  "png": {
+    "status": "legacy_not_available",
+    "drive_file_id": null
+  },
+  "webp": {
+    "drive_file_id": "1GygnwNtz6MMbcjtoErkncx5693V2oBCb",
+    "sha256": "12ed25275657bb9c05d2222eeb2e211d699a02c77ebcc591eb1858a79fc5391c",
+    "bytes": 22172,
+    "repo_path": "public/assets/images/generated/v1/portfolio/product-brand.webp"
+  },
+  "ready": true,
+  "runtime_revision": "b007",
+  "updated_at": "2026-08-18T03:29:51+09:00"
+}
