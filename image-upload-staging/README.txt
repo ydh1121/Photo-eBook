@@ -1,1 +1,0 @@
-Temporary verified image batch staging. Production activation is handled only after binary SHA verification.
