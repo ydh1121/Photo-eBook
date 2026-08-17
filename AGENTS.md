@@ -7,6 +7,8 @@
 3. `content/image-prompts/v1/01-photo-industry-rules.md`
 4. `content/image-prompts/v1/02-generation-operation-rules.md`
 5. `docs/spec-v1/18-image-generation-commit-automation.md`
+6. `docs/spec-v1/19-image-generator-context-isolation.md`
+7. `content/image-prompts/v1/generation-failure-log.md`
 
 ## 이미지 작업 기본 트랜잭션
 
@@ -20,9 +22,28 @@
 
 이미지 generation 직전 입력에는 Git, Drive, Cloudflare, commit, deploy, ready/applied, 진행상태, 대시보드 같은 운영 문맥을 넣지 않는다. 해당 slot의 시각 장면만 전달한다.
 
+## Project context 오염 규칙
+
+`generator_context_poisoned`가 확인된 ChatGPT Project에서는 **같은 Project 안의 새 Chat도 fresh context로 간주하지 않는다.**
+
+현재 `사진가 창업` Project는 다음 회귀가 확인됐으므로 generation context로 재사용하지 않는다.
+
+- 단일 실사 요청이 Photo-eBook 전체 웹 UI로 생성됨
+- 다중 독립 이미지 요청이 dashboard/contact sheet로 생성됨
+- 새 Chat을 만들어도 동일 dashboard 회귀가 반복됨
+
+이 경우 실제 이미지 generation은 다음 중 하나에서만 재개한다.
+
+1. 별도 신규 Project `Photo-eBook Image Factory` — 가능하면 project-only memory, 이전 Project 채팅/이미지 미이동
+2. 기존 `사진가 창업` Project 밖의 완전히 새 대화
+
+Image Factory는 Git의 prompt library와 최소 이미지 규칙만 읽고, 기존 dashboard/website mockup 이미지나 운영 대화를 generation context로 가져오지 않는다.
+
 ## 배치
 
 한 번의 사용자 지시로 4~8개 slot을 처리할 수 있다. 결과는 반드시 slot별 독립 이미지 파일이어야 한다. collage/dashboard/contact sheet/web mockup은 production 실패다.
+
+실제 generation은 slot별 독립 call을 연속 수행한다. 여러 slot을 한 canvas에 합치는 multi-image 요청은 금지한다.
 
 ## Photo-eBook 인물 기본값
 
@@ -40,3 +61,14 @@
 - foreign-person output where Korean-person rule applies
 
 실패 slot만 재생성하고 정상 slot은 보존한다.
+
+## 실패 복구
+
+동일 generation context에서 dashboard/context-bleed가 2회 이상 연속 발생하면 같은 방식으로 prompt를 반복 수정하지 않는다.
+
+- 해당 context를 `generator_context_poisoned`로 판정
+- 정상 생성 asset 보존
+- 실패 asset만 `qa_failed`
+- generation을 별도 Image Factory/fresh outside-project context로 이동
+- Git prompt library에서 자동 재개
+- 사용자가 slot 설명을 다시 입력하게 하지 않음
