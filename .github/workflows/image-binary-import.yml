@@ -30,9 +30,10 @@ jobs:
           if cfg.get('archive_base64'):
               encoded = cfg['archive_base64']
           else:
-              parts = sorted(stage.glob('part-*.txt'))
+              part_glob = cfg.get('part_glob', 'part-*.txt')
+              parts = sorted(stage.glob(part_glob))
               if not parts:
-                  raise SystemExit('no staged archive payload')
+                  raise SystemExit(f'no staged archive payload matching {part_glob}')
               encoded = ''.join(p.read_text() for p in parts)
 
           archive = base64.b64decode(encoded, validate=True)
