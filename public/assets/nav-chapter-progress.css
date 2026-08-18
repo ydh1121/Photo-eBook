@@ -4,15 +4,12 @@
 
 .nav-scroll{
   --v32-progress:0%!important;
-  /* Mobile's established vertical rail padding is .06rem / .16rem. Their
-     average is the visual breathing gap used by the progress cap. */
-  --chapter-progress-cap-inset:.11rem;
+  --chapter-progress-cap-inset:.34rem;
 }
 
 .nav-scroll > .nav-chapter-progress{
   position:absolute!important;
-  /* script-9 owns the measured left coordinate. Do not mark left !important:
-     doing so would override the inline measurement and pin the wash to 0px. */
+  /* script-9 owns the measured left coordinate. */
   left:0;
   top:0!important;
   bottom:0!important;
@@ -39,25 +36,27 @@
   will-change:left,width;
 }
 
-/* The measured progress begins at the first chip. The negative margin plus
-   equal left padding extends only the visible left cap by the same amount as
-   the rail's vertical breathing room, while preserving the JS-calculated
-   completion point on the right. */
-
 html[data-theme="dark"] .nav-scroll > .nav-chapter-progress{
   background:linear-gradient(90deg,rgba(73,145,255,.38),rgba(73,145,255,.24))!important;
 }
 
 /* The progress wash must stay below the moving liquid chip and labels. */
-.nav-scroll > .nav-v33-indicator{
-  z-index:6!important;
-}
-.nav-scroll > .nav-chip{
-  z-index:8!important;
+.nav-scroll > .nav-v33-indicator{z-index:6!important}
+.nav-scroll > .nav-chip{z-index:8!important}
+
+/* The old mobile rail kept 26–28px of overshoot runway at the left edge. That
+   runway is no longer needed by the current controller and made the completed
+   Start state look under-filled. Use the same inset on all four sides: the
+   first chip begins one vertical breathing gap from the rail edge and the
+   progress cap extends exactly through that gap. */
+@media (max-width:1023px){
+  .nav-scroll{
+    padding-left:.34rem!important;
+    padding-right:.34rem!important;
+  }
 }
 
 @media (min-width:1024px){
-  .nav-scroll{--chapter-progress-cap-inset:.34rem}
   .nav-shell .nav-scroll > .nav-v33-indicator{z-index:30!important}
   .nav-shell .nav-scroll > .nav-chip{z-index:40!important}
 }
