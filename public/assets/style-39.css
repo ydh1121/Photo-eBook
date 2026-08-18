@@ -1,8 +1,8 @@
-/* v3: desktop-only surgical corrections.
+/* v4: desktop-only surgical corrections.
    Keep the approved liquid navigation geometry/paint intact; only fit its width
-   to the menu on desktop. Remove the accidental left masking strip from content rails. */
+   to the menu on desktop. Match end gaps to the vertical rail inset and improve
+   reading-progress contrast in both themes. */
 @media (min-width:1024px){
-  /* Shell remains the sticky positioning owner. */
   .nav-shell,
   html[data-theme="light"] .nav-shell,
   html[data-theme="dark"] .nav-shell{
@@ -19,7 +19,6 @@
     backdrop-filter:none!important;
   }
 
-  /* Any runtime wrapper is layout-only. */
   .nav-shell .nav-glass,
   html[data-theme="light"] .nav-shell .nav-glass,
   html[data-theme="dark"] .nav-shell .nav-glass{
@@ -43,9 +42,9 @@
     display:none!important;
   }
 
-  /* Original approved rail geometry from the pre-PC stack:
-     .34rem vertical breathing room, 28px/54px spring runway, original chip size.
-     Only width/max-width/margins are changed for desktop menu-fit centering. */
+  /* Keep the original .34rem vertical breathing room. On desktop the same
+     physical inset is now used at both ends, so the first/last active chip has
+     the same rail clearance on all four sides. */
   .nav-shell .nav-scroll,
   html[data-theme="light"] .nav-shell .nav-scroll,
   html[data-theme="dark"] .nav-shell .nav-scroll{
@@ -64,7 +63,7 @@
     min-height:0!important;
     margin-left:auto!important;
     margin-right:auto!important;
-    padding:.34rem 54px .34rem 28px!important;
+    padding:.34rem!important;
     overflow-x:auto!important;
     overflow-y:hidden!important;
     -webkit-overflow-scrolling:touch!important;
@@ -79,8 +78,8 @@
     border-radius:999px!important;
     background:
       linear-gradient(90deg,
-        rgba(70,132,236,.105) 0%,
-        rgba(70,132,236,.075) var(--v32-progress,0%),
+        rgba(64,129,239,.24) 0%,
+        rgba(64,129,239,.16) var(--v32-progress,0%),
         rgba(255,255,255,0) var(--v32-progress,0%),
         rgba(255,255,255,0) 100%) padding-box,
       linear-gradient(180deg,rgba(255,255,255,.43),rgba(236,241,248,.24)) padding-box,
@@ -100,8 +99,8 @@
   html[data-theme="dark"] .nav-shell .nav-scroll{
     background:
       linear-gradient(90deg,
-        rgba(74,134,236,.15) 0%,
-        rgba(74,134,236,.085) var(--v32-progress,0%),
+        rgba(73,145,255,.38) 0%,
+        rgba(73,145,255,.24) var(--v32-progress,0%),
         transparent var(--v32-progress,0%),
         transparent 100%) padding-box,
       linear-gradient(180deg,rgba(59,71,91,.54),rgba(22,27,35,.56)) padding-box,
@@ -152,8 +151,6 @@
     overflow:visible!important;
   }
 
-  /* Original navigation progress is integrated into the glass rail. Do not
-     resurrect the retired separate 3px progress strip. */
   .nav-shell .read-progress{
     display:block!important;
     height:0!important;
@@ -168,9 +165,6 @@
     display:none!important;
   }
 
-  /* The dark vertical rectangles in front of the first card were the temporary
-     hard-left mask from style-38. The real 16px shadow runway already gives the
-     first card enough paint room, so this mask is not needed. */
   .desktop-rail-window::before,
   .desktop-rail-window.is-scrolled-x::before{
     content:none!important;
