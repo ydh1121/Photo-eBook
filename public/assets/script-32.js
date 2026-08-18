@@ -1,4 +1,4 @@
-/* v3: desktop-only mouse-drag hardening, saved-sheet outside close, and nav liquid self-heal. */
+/* v4: desktop rail polish + safe cross-device handoff inside the collection sheet. */
 (function(){
   if(window.__photoDesktopRailPolishV1Installed)return;
   window.__photoDesktopRailPolishV1Installed=true;
@@ -34,7 +34,7 @@
     if(!desktop.matches)return;
     const nav=document.querySelector('.nav-scroll');
     const active=nav?.querySelector('.nav-chip.is-active');
-    let indicator=nav?.querySelector('.nav-v33-indicator');
+    const indicator=nav?.querySelector('.nav-v33-indicator');
     if(!nav||!active||!indicator)return;
 
     let skin=indicator.querySelector(':scope > .v37-liquid-skin');
@@ -60,9 +60,10 @@
   }
 
   function refresh(){
-    if(!desktop.matches)return;
-    document.querySelectorAll(RAIL_SELECTOR).forEach(bindRail);
-    repairNavIndicator();
+    if(desktop.matches){
+      document.querySelectorAll(RAIL_SELECTOR).forEach(bindRail);
+      repairNavIndicator();
+    }
   }
 
   function collectionSheetIsOpen(sheet){
@@ -71,12 +72,93 @@
     return style.display!=='none'&&style.visibility!=='hidden';
   }
 
+  function deviceParking(){
+    let parking=document.getElementById('deviceSyncParking');
+    if(!parking){
+      parking=document.createElement('div');
+      parking.id='deviceSyncParking';
+      parking.hidden=true;
+      document.body.appendChild(parking);
+    }
+    return parking;
+  }
+
+  function parkDeviceCard(){
+    const card=document.querySelector('.collection-settings .login-card.v32-inline-sync');
+    if(card)deviceParking().appendChild(card);
+  }
+
+  function releaseLegacyAskLock(){
+    const askSheet=document.getElementById('askSheet');
+    const askBackdrop=document.getElementById('askBackdrop');
+    if(askSheet)askSheet.hidden=true;
+    if(askBackdrop){
+      askBackdrop.hidden=true;
+      askBackdrop.style.pointerEvents='none';
+    }
+    document.documentElement.classList.remove('ask-modal-locked');
+    document.body.classList.remove('ask-modal-locked','is-modal-open');
+  }
+
+  function mountDeviceSettingsInline(){
+    const settings=document.querySelector('#collectionBody .collection-settings');
+    if(!settings)return false;
+
+    releaseLegacyAskLock();
+
+    const trigger=settings.querySelector('#collectionDeviceLink');
+    if(trigger)trigger.hidden=true;
+
+    const card=document.querySelector('#deviceSyncParking .login-card') ||
+      document.querySelector('#askHistoryPanel .login-card') ||
+      document.querySelector('.login-card');
+    if(!card)return false;
+
+    card.classList.add('v32-inline-sync');
+    const title=card.querySelector('h4');
+    const copy=card.querySelector('#copySyncKey');
+    const change=card.querySelector('#changeSyncKey');
+    const text=card.querySelector('p');
+    if(title)title.textContent='기기 간 질문 이어보기';
+    if(copy)copy.textContent='연결 코드 복사';
+    if(change)change.textContent='연결 코드 입력';
+    if(text)text.textContent='다른 기기에서도 저장한 질문을 이어서 보려면 연결 코드를 사용하세요.';
+
+    settings.appendChild(card);
+    const state=card.querySelector('#syncState');
+    if(state&&/Google Sheet와 동기화 중|동기화 중/.test(state.textContent||'')){
+      state.textContent='질문 기록을 확인하고 있습니다.';
+    }
+    return true;
+  }
+
+  /* The legacy settings row used to close the collection sheet, open the old
+     question modal and then open its settings panel. Two modal locks could be
+     left active, making the page inert on both desktop and mobile. Keep the
+     handoff UI inside the already-open collection sheet instead. */
+  document.addEventListener('click',event=>{
+    const target=event.target instanceof Element?event.target:null;
+    if(!target)return;
+
+    const deviceLink=target.closest('#collectionDeviceLink');
+    if(deviceLink){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      mountDeviceSettingsInline();
+      return;
+    }
+
+    /* Before collection rerenders destroy the inline card, park the original
+       node so its existing sync event handlers/state stay alive. */
+    if(target.closest('.collection-tab,#collectionClose,#collectionBackdrop')){
+      parkDeviceCard();
+    }
+  },true);
+
   document.addEventListener('click',event=>{
     if(!desktop.matches)return;
 
     if(event.target.closest?.('.nav-chip')){
-      /* Let the existing Breeze controller own the motion, then only heal the
-         final geometry in case an earlier stylesheet left the indicator hidden. */
       setTimeout(repairNavIndicator,430);
     }
 
@@ -95,11 +177,19 @@
     close?.click();
   },true);
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
-  else refresh();
+  function init(){
+    refresh();
+    /* Recover sessions left in the broken dual-modal state after reload. */
+    const collection=document.getElementById('collectionSheet');
+    const ask=document.getElementById('askSheet');
+    if(collectionSheetIsOpen(collection)&&ask&&!ask.hidden)releaseLegacyAskLock();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
 
   [80,220,520,1200,2200].forEach(delay=>setTimeout(refresh,delay));
-  window.addEventListener('pageshow',()=>setTimeout(refresh,120),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(init,120),{passive:true});
   window.addEventListener('resize',()=>setTimeout(repairNavIndicator,80),{passive:true});
   desktop.addEventListener?.('change',()=>setTimeout(refresh,0));
 })();
