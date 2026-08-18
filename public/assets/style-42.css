@@ -1,8 +1,9 @@
-/* v2: restore the original collection header geometry; only center the X mark.
-   Device-sync UI is an inline settings card, not a second modal. */
+/* v3: restore the original collection header geometry; only center the X mark.
+   Cross-device continuation now behaves and looks like a native settings accordion. */
 
-/* Restore the established header control positions from the pre-fix UI. */
+/* Header: preserve the established layout. Only the X glyph itself is redrawn. */
 .collection-head{
+  display:block!important;
   position:relative!important;
   padding-right:118px!important;
 }
@@ -27,14 +28,12 @@
   margin:0!important;
   order:initial!important;
   grid-column:auto!important;
+  padding:0!important;
   display:grid!important;
   place-items:center!important;
-  padding:0!important;
   font-size:0!important;
   line-height:1!important;
 }
-/* Keep the button exactly where it originally lived; only draw the X around
-   the geometric center of the circle. */
 #collectionClose.collection-close::before,
 #collectionClose.collection-close::after{
   content:""!important;
@@ -53,70 +52,56 @@
 #collectionClose.collection-close::before{transform:translate(-50%,-50%) rotate(45deg)!important}
 #collectionClose.collection-close::after{transform:translate(-50%,-50%) rotate(-45deg)!important}
 
-/* Cross-device continuation: compact native-looking settings card. */
+/* The existing settings row is the accordion header. Keep its original visual
+   language and only add the open-state geometry/chevron motion. */
+#collectionDeviceLink[data-device-safe-v2="true"]{
+  position:relative!important;
+  cursor:pointer!important;
+  transition:border-radius .16s ease,background-color .16s ease!important;
+}
+#collectionDeviceLink[data-device-safe-v2="true"]>b{
+  display:inline-block!important;
+  transform-origin:center!important;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1)!important;
+}
+#collectionDeviceLink[data-device-safe-v2="true"].is-device-expanded{
+  border-bottom-left-radius:0!important;
+  border-bottom-right-radius:0!important;
+}
+#collectionDeviceLink[data-device-safe-v2="true"].is-device-expanded> b{
+  transform:rotate(90deg)!important;
+}
+
+/* Accordion body: visually continues the same settings card instead of
+   introducing a foreign standalone panel. */
 .collection-device-panel-v2{
   display:grid!important;
-  gap:14px!important;
-  margin-top:12px!important;
-  padding:16px!important;
+  gap:13px!important;
+  margin:-1px 0 0!important;
+  padding:14px!important;
   border:1px solid rgba(92,105,128,.14)!important;
-  border-radius:18px!important;
-  background:rgba(247,249,252,.76)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.72)!important;
+  border-top-color:rgba(92,105,128,.08)!important;
+  border-radius:0 0 16px 16px!important;
+  background:rgba(250,251,253,.72)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.62)!important;
 }
+.collection-device-panel-v2[hidden]{display:none!important}
 html[data-theme="dark"] .collection-device-panel-v2{
-  background:#171c23!important;
+  background:var(--v36-dark-surface,#171b21)!important;
   border-color:rgba(255,255,255,.085)!important;
+  border-top-color:rgba(255,255,255,.045)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
 }
-.collection-device-panel-v2 .collection-device-panel__head{
-  display:flex!important;
-  align-items:flex-start!important;
-  justify-content:space-between!important;
-  gap:16px!important;
-}
-.collection-device-panel-v2 .collection-device-panel__head strong{
-  display:block!important;
-  font-size:14px!important;
-  line-height:1.35!important;
-  letter-spacing:-.01em!important;
-}
-.collection-device-panel-v2 .collection-device-panel__head p{
-  margin:5px 0 0!important;
-  color:var(--muted,#747d89)!important;
-  font-size:12px!important;
-  line-height:1.5!important;
-}
-.collection-device-panel-v2 .collection-device-panel__back{
-  flex:0 0 auto!important;
-  min-height:30px!important;
-  padding:0 10px!important;
-  border:1px solid rgba(89,102,124,.12)!important;
-  border-radius:999px!important;
-  background:rgba(127,139,158,.08)!important;
-  color:inherit!important;
-  font:700 11px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
-  cursor:pointer!important;
-}
-html[data-theme="dark"] .collection-device-panel-v2 .collection-device-panel__back{
-  border-color:rgba(255,255,255,.075)!important;
-  background:#222832!important;
-  color:#c8d0db!important;
-}
+
 .collection-device-panel__current{
   display:flex!important;
   align-items:center!important;
   justify-content:space-between!important;
   gap:12px!important;
   min-width:0!important;
-  padding:13px 14px!important;
-  border:1px solid rgba(92,105,128,.12)!important;
-  border-radius:14px!important;
-  background:rgba(255,255,255,.72)!important;
-}
-html[data-theme="dark"] .collection-device-panel__current{
-  background:#12171e!important;
-  border-color:rgba(255,255,255,.07)!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
 }
 .collection-device-panel__current-copy{
   min-width:0!important;
@@ -125,51 +110,55 @@ html[data-theme="dark"] .collection-device-panel__current{
 }
 .collection-device-panel__current-copy small,
 .collection-device-panel__group>label{
-  color:var(--muted,#7b8490)!important;
-  font-size:10.5px!important;
+  color:var(--muted,#737c88)!important;
+  font-size:11px!important;
   font-weight:760!important;
   line-height:1.3!important;
 }
 .collection-device-panel__current-copy code{
+  display:block!important;
   min-width:0!important;
   overflow:hidden!important;
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
   color:inherit!important;
-  font:650 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
-  letter-spacing:.01em!important;
+  font:650 12px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
+  letter-spacing:.015em!important;
 }
-.collection-device-panel-v2 button[data-device-panel-copy],
-.collection-device-panel-v2 button[data-device-panel-connect]{
+
+/* Secondary action follows the site's restrained neutral control language. */
+.collection-device-panel-v2 .collection-device-copy{
   flex:0 0 auto!important;
-  min-height:38px!important;
-  border-radius:11px!important;
-  padding:0 13px!important;
-  font:760 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  min-height:34px!important;
+  padding:0 11px!important;
+  border:1px solid rgba(74,88,112,.12)!important;
+  border-radius:10px!important;
+  background:rgba(69,83,108,.055)!important;
+  color:inherit!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.58)!important;
+  font:760 11px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
   cursor:pointer!important;
 }
-.collection-device-panel-v2 button[data-device-panel-copy]{
-  border:1px solid rgba(79,110,170,.14)!important;
-  background:rgba(65,112,205,.08)!important;
-  color:#386fd8!important;
+html[data-theme="dark"] .collection-device-panel-v2 .collection-device-copy{
+  background:var(--v36-dark-surface-3,#20252d)!important;
+  border-color:rgba(255,255,255,.075)!important;
+  color:#c6cdd7!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03)!important;
 }
-html[data-theme="dark"] .collection-device-panel-v2 button[data-device-panel-copy]{
-  border-color:rgba(92,145,255,.16)!important;
-  background:rgba(73,125,229,.12)!important;
-  color:#82aaff!important;
-}
+
 .collection-device-panel__divider{
   height:1px!important;
-  background:rgba(105,116,134,.11)!important;
+  background:rgba(100,111,128,.10)!important;
 }
-html[data-theme="dark"] .collection-device-panel__divider{background:rgba(255,255,255,.065)!important}
+html[data-theme="dark"] .collection-device-panel__divider{background:rgba(255,255,255,.06)!important}
+
 .collection-device-panel__group{
   display:grid!important;
   gap:7px!important;
 }
 .collection-device-panel__hint{
-  margin:-1px 0 2px!important;
-  color:var(--muted,#7b8490)!important;
+  margin:0 0 2px!important;
+  color:var(--muted,#737c88)!important;
   font-size:11px!important;
   line-height:1.45!important;
 }
@@ -183,38 +172,47 @@ html[data-theme="dark"] .collection-device-panel__divider{background:rgba(255,25
   min-width:0!important;
   height:40px!important;
   box-sizing:border-box!important;
-  border:1px solid rgba(92,105,128,.15)!important;
+  border:1px solid rgba(92,105,128,.14)!important;
   border-radius:11px!important;
-  background:rgba(255,255,255,.78)!important;
+  background:rgba(255,255,255,.76)!important;
   color:inherit!important;
   padding:0 12px!important;
   font:500 12px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
   outline:none!important;
 }
 html[data-theme="dark"] .collection-device-panel-v2 input{
-  background:#10151b!important;
+  background:#12171e!important;
   border-color:rgba(255,255,255,.085)!important;
 }
 .collection-device-panel-v2 input:focus{
-  border-color:rgba(67,119,224,.58)!important;
-  box-shadow:0 0 0 3px rgba(67,119,224,.10)!important;
+  border-color:rgba(66,112,205,.46)!important;
+  box-shadow:0 0 0 3px rgba(66,112,205,.09)!important;
 }
-.collection-device-panel-v2 button[data-device-panel-connect]{
-  border:1px solid rgba(83,139,245,.74)!important;
-  background:linear-gradient(180deg,#6096ef,#3a70d4)!important;
+
+/* Primary action uses the same low-profile blue family already used by the
+   site's liquid selected state; no new accent color is introduced. */
+.collection-device-panel-v2 .collection-device-connect{
+  min-height:40px!important;
+  padding:0 14px!important;
+  border:1px solid rgba(255,255,255,.30)!important;
+  border-radius:11px!important;
+  background:linear-gradient(180deg,var(--v36-blue-top,#6598ef),var(--v36-blue-bottom,#3568d4))!important;
   color:#fff!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;
+  box-shadow:0 4px 10px rgba(42,91,185,.12),inset 0 1px 0 rgba(255,255,255,.24)!important;
+  font:760 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  cursor:pointer!important;
 }
 .collection-device-panel__status{
-  min-height:16px!important;
-  color:var(--muted,#7b8490)!important;
+  min-height:0!important;
+  color:var(--muted,#737c88)!important;
   font-size:11px!important;
   line-height:1.45!important;
 }
-.collection-device-panel__status.is-error{color:#df5e62!important}
+.collection-device-panel__status:empty{display:none!important}
+.collection-device-panel__status.is-error{display:block!important;color:#df5e62!important}
 
 @media(max-width:560px){
-  .collection-device-panel-v2{padding:14px!important}
+  .collection-device-panel-v2{padding:13px!important}
   .collection-device-panel__connect-row{grid-template-columns:1fr!important}
-  .collection-device-panel-v2 button[data-device-panel-connect]{width:100%!important}
+  .collection-device-panel-v2 .collection-device-connect{width:100%!important}
 }
