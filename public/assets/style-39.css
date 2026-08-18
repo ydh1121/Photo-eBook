@@ -1,16 +1,14 @@
-/* v1: desktop top navigation hotfix.
-   One compact physical rail only: menu-fit width, integrated reading progress,
-   and the existing liquid chip free to overshoot above the rail. */
+/* v2: desktop top-nav surgical repair.
+   Restore the approved pre-PC rail geometry/surfaces and change only the
+   horizontal sizing/centering. Do not redesign progress, liquid, height or chip geometry. */
 @media (min-width:1024px){
+  /* Restore the original shell. The shell is only the sticky positioning owner. */
   .nav-shell,
   html[data-theme="light"] .nav-shell,
   html[data-theme="dark"] .nav-shell{
-    display:flex!important;
-    justify-content:center!important;
-    align-items:center!important;
+    display:block!important;
     width:100%!important;
-    padding-left:0!important;
-    padding-right:0!important;
+    padding:calc(.56rem + var(--safe-top)) .82rem .6rem!important;
     overflow:visible!important;
     background:transparent!important;
     background-color:transparent!important;
@@ -21,118 +19,156 @@
     backdrop-filter:none!important;
   }
 
-  /* Override older theme-specific nav rules with higher specificity. The rail
-     itself is the only glass track; no nested pseudo-track is allowed. */
-  html[data-theme="light"] .nav-shell>.nav-scroll,
-  html[data-theme="dark"] .nav-shell>.nav-scroll{
-    position:relative!important;
-    isolation:isolate!important;
-    box-sizing:border-box!important;
-    display:inline-flex!important;
-    flex:0 0 auto!important;
-    flex-wrap:nowrap!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    gap:5px!important;
+  /* Runtime wrappers stay paint-neutral. They must never become a second rail. */
+  .nav-shell .nav-glass,
+  html[data-theme="light"] .nav-shell .nav-glass,
+  html[data-theme="dark"] .nav-shell .nav-glass{
     width:max-content!important;
-    max-width:calc(100vw - 64px)!important;
-    min-width:0!important;
-    height:52px!important;
-    min-height:52px!important;
-    margin:0 auto!important;
-    padding:5px 12px!important;
+    max-width:calc(100vw - 1.64rem)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding:0!important;
     overflow:visible!important;
-    border:1px solid rgba(255,255,255,.34)!important;
-    border-radius:999px!important;
-    background:
-      linear-gradient(90deg,
-        rgba(72,132,235,.20) 0%,
-        rgba(72,132,235,.11) var(--v32-progress,0%),
-        transparent var(--v32-progress,0%),
-        transparent 100%),
-      linear-gradient(180deg,rgba(255,255,255,.45),rgba(231,237,246,.29))!important;
+    background:transparent!important;
     background-color:transparent!important;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.48),
-      inset 0 -1px 0 rgba(58,79,112,.055),
-      0 6px 16px rgba(34,50,80,.06)!important;
-    -webkit-backdrop-filter:blur(22px) saturate(138%)!important;
-    backdrop-filter:blur(22px) saturate(138%)!important;
-    scrollbar-width:none!important;
-    -ms-overflow-style:none!important;
+    background-image:none!important;
+    border:0!important;
+    box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
   }
-
-  html[data-theme="dark"] .nav-shell>.nav-scroll{
-    border-color:rgba(255,255,255,.14)!important;
-    background:
-      linear-gradient(90deg,
-        rgba(73,134,238,.20) 0%,
-        rgba(73,134,238,.10) var(--v32-progress,0%),
-        transparent var(--v32-progress,0%),
-        transparent 100%),
-      linear-gradient(180deg,rgba(61,73,94,.53),rgba(22,27,35,.59))!important;
-    background-color:transparent!important;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.075),
-      inset 0 -1px 0 rgba(0,0,0,.17),
-      0 7px 18px rgba(0,0,0,.16)!important;
-    -webkit-backdrop-filter:blur(24px) saturate(126%)!important;
-    backdrop-filter:blur(24px) saturate(126%)!important;
-  }
-
-  html[data-theme="light"] .nav-shell>.nav-scroll::before,
-  html[data-theme="dark"] .nav-shell>.nav-scroll::before,
-  html[data-theme="light"] .nav-shell>.nav-scroll::after,
-  html[data-theme="dark"] .nav-shell>.nav-scroll::after{
+  .nav-shell .nav-glass::before,
+  .nav-shell .nav-glass::after{
     content:none!important;
     display:none!important;
   }
 
-  html[data-theme="light"] .nav-shell>.nav-scroll::-webkit-scrollbar,
-  html[data-theme="dark"] .nav-shell>.nav-scroll::-webkit-scrollbar{
+  /* This is the original glass rail. Only width + auto-centering differ from
+     the approved baseline: it now hugs its menu content instead of width:100%. */
+  .nav-shell .nav-scroll,
+  html[data-theme="light"] .nav-shell .nav-scroll,
+  html[data-theme="dark"] .nav-shell .nav-scroll{
+    position:relative!important;
+    isolation:isolate!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:.54rem!important;
+    width:max-content!important;
+    max-width:calc(100vw - 1.64rem)!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:0!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding:.06rem 54px .16rem 28px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-x:auto!important;
+    scroll-behavior:auto!important;
+    scroll-snap-type:none!important;
+    touch-action:pan-x pan-y!important;
+    pointer-events:auto!important;
+    scrollbar-width:none!important;
+    -ms-overflow-style:none!important;
+    border:1px solid transparent!important;
+    border-radius:999px!important;
+    background:
+      linear-gradient(90deg,
+        rgba(70,132,236,.105) 0%,
+        rgba(70,132,236,.075) var(--v32-progress,0%),
+        rgba(255,255,255,0) var(--v32-progress,0%),
+        rgba(255,255,255,0) 100%) padding-box,
+      linear-gradient(180deg,rgba(255,255,255,.43),rgba(236,241,248,.24)) padding-box,
+      linear-gradient(125deg,
+        rgba(255,255,255,.88) 0%,
+        rgba(255,255,255,.27) 25%,
+        rgba(165,190,225,.14) 49%,
+        rgba(255,255,255,.62) 76%,
+        rgba(255,255,255,.20) 100%) border-box!important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.46),
+      inset 0 -1px 0 rgba(82,104,137,.045),
+      0 7px 22px rgba(35,52,82,.075)!important;
+    -webkit-backdrop-filter:blur(22px) saturate(138%)!important;
+    backdrop-filter:blur(22px) saturate(138%)!important;
+  }
+  html[data-theme="dark"] .nav-shell .nav-scroll{
+    background:
+      linear-gradient(90deg,
+        rgba(74,134,236,.15) 0%,
+        rgba(74,134,236,.085) var(--v32-progress,0%),
+        transparent var(--v32-progress,0%),
+        transparent 100%) padding-box,
+      linear-gradient(180deg,rgba(59,71,91,.54),rgba(22,27,35,.56)) padding-box,
+      linear-gradient(125deg,
+        rgba(255,255,255,.20),
+        rgba(255,255,255,.055) 30%,
+        rgba(92,135,196,.065) 56%,
+        rgba(255,255,255,.13) 78%,
+        rgba(255,255,255,.035)) border-box!important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.075),
+      inset 0 -1px 0 rgba(0,0,0,.17),
+      0 7px 20px rgba(0,0,0,.14)!important;
+    -webkit-backdrop-filter:blur(24px) saturate(132%)!important;
+    backdrop-filter:blur(24px) saturate(132%)!important;
+  }
+  .nav-shell .nav-scroll::before,
+  .nav-shell .nav-scroll::after{
+    content:none!important;
     display:none!important;
   }
+  .nav-shell .nav-scroll::-webkit-scrollbar{display:none!important}
 
-  .nav-shell>.nav-scroll>.nav-chip{
+  /* Restore the pre-PC chip geometry. No forced 42px height or reduced padding. */
+  .nav-shell .nav-scroll .nav-chip{
     position:relative!important;
     z-index:8!important;
     flex:0 0 auto!important;
     min-width:max-content!important;
     width:auto!important;
-    height:42px!important;
-    min-height:42px!important;
+    height:auto!important;
+    min-height:2.72rem!important;
     margin:0!important;
-    padding:0 11px!important;
-    border:0!important;
-    border-radius:999px!important;
-    background:transparent!important;
-    background-color:transparent!important;
-    background-image:none!important;
-    box-shadow:none!important;
+    padding:0 1rem!important;
+    border-radius:var(--pill)!important;
+    font-size:15px!important;
+    font-weight:650!important;
+    white-space:nowrap!important;
+    touch-action:pan-x pan-y!important;
+    pointer-events:auto!important;
   }
 
-  .nav-shell>.nav-scroll.v41-skin-ready>.nav-chip.is-active,
-  .nav-shell>.nav-scroll.v39-liquid-ready>.nav-chip.is-active{
-    background:transparent!important;
-    background-color:transparent!important;
-    background-image:none!important;
-    box-shadow:none!important;
-  }
-
-  .nav-shell>.nav-scroll>.nav-v33-indicator{
-    position:absolute!important;
+  /* Keep the original moving liquid indicator controller/skin untouched. */
+  .nav-shell .nav-scroll .nav-v33-indicator{
     z-index:6!important;
-    left:0!important;
-    top:0!important;
     overflow:visible!important;
     pointer-events:none!important;
   }
-  .nav-shell>.nav-scroll>.nav-v33-indicator>.v37-liquid-skin{
+  .nav-shell .nav-scroll .nav-v33-indicator>.v37-liquid-skin{
     overflow:visible!important;
   }
 
-  .nav-shell>.read-progress,
-  .nav-shell>.nav-scroll>.nav-progress-liquid{
+  /* Restore the original 3px read-progress layer. The integrated tint on
+     .nav-scroll remains the existing --v32-progress behavior. */
+  .nav-shell .read-progress{
+    display:block!important;
+    height:3px!important;
+    margin:.42rem -.82rem -.6rem!important;
+    background:transparent!important;
+    pointer-events:none!important;
+  }
+  .nav-shell .read-progress__bar{
+    display:block!important;
+    height:100%!important;
+    background:var(--accent)!important;
+    transform-origin:left!important;
+  }
+  .nav-shell .nav-progress-liquid{
     display:none!important;
   }
 }
