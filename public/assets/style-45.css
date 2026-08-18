@@ -1,6 +1,6 @@
-/* v3: one persistent shell + reliable mounted-panel accordion.
-   The outer card owns the only visible border. The panel stays mounted and
-   reveals with max-height; no hidden/display handoff, no detached rectangle. */
+/* v4: deterministic cross-device accordion.
+   One shell, one state source: #collectionDeviceLink[aria-expanded].
+   The panel opens from the same aria state that rotates the chevron. */
 
 .collection-settings > .collection-device-accordion{
   display:block!important;
@@ -12,7 +12,6 @@
   background:#fff!important;
   color:#292b30!important;
   box-shadow:none!important;
-  contain:paint!important;
 }
 html[data-theme="dark"] .collection-settings > .collection-device-accordion{
   border-color:var(--v36-dark-line,rgba(255,255,255,.085))!important;
@@ -20,7 +19,6 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion{
   color:var(--v36-dark-text,#f2f4f8)!important;
 }
 
-/* Header is content only; it never paints a second rounded card. */
 .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row{
   -webkit-appearance:none!important;
   appearance:none!important;
@@ -46,7 +44,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion{
   display:none!important;
 }
 
-/* Persistent non-text chevron. */
+/* Persistent SVG-mask chevron. */
 .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row::after{
   content:""!important;
   display:block!important;
@@ -72,14 +70,12 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion{
 html[data-theme="dark"] .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row::after{
   background-color:#aeb6c2!important;
 }
-.collection-settings > .collection-device-accordion.is-device-expanded > #collectionDeviceLink.collection-setting-row::after,
 .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row[aria-expanded="true"]::after{
   transform:translateY(-50%) rotate(90deg)!important;
 }
 
-/* The panel is always in the DOM. Closed = max-height 0. Open = enough room
-   for its natural contents. Because the outer shell clips it, no borderless
-   rectangle can escape below the card during the transition. */
+/* Reset every older panel animation. Closed/open state is controlled only by
+   the aria-expanded value on the immediately preceding trigger. */
 .collection-settings > .collection-device-accordion > .collection-device-panel-v2,
 html[data-theme="dark"] .collection-settings > .collection-device-accordion > .collection-device-panel-v2{
   display:block!important;
@@ -103,15 +99,11 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
   transition:max-height .36s cubic-bezier(.22,.74,.24,1)!important;
   will-change:max-height!important;
 }
-.collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2{
-  height:auto!important;
-  max-height:320px!important;
-  min-height:0!important;
-  padding:0!important;
-  border:0!important;
+.collection-settings > .collection-device-accordion > #collectionDeviceLink[aria-expanded="true"] + .collection-device-panel-v2{
+  max-height:340px!important;
+  visibility:visible!important;
   opacity:1!important;
   transform:none!important;
-  visibility:visible!important;
   pointer-events:auto!important;
 }
 
@@ -130,13 +122,12 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
   transform:translateY(-6px)!important;
   transition:opacity .20s ease,transform .32s cubic-bezier(.22,.74,.24,1)!important;
 }
-.collection-device-accordion.is-device-expanded .collection-device-panel-inner{
+#collectionDeviceLink[aria-expanded="true"] + .collection-device-panel-v2 .collection-device-panel-inner{
   opacity:1!important;
   transform:translateY(0)!important;
   transition:opacity .22s ease .035s,transform .34s cubic-bezier(.22,.74,.24,1)!important;
 }
 
-/* Old layers may still define pseudo decorations; kill them here. */
 .collection-device-panel-v2,
 .collection-device-panel-v2::before,
 .collection-device-panel-v2::after,
@@ -171,7 +162,9 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
 }
 
 @media(max-width:560px){
-  .collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2{max-height:420px!important}
+  .collection-settings > .collection-device-accordion > #collectionDeviceLink[aria-expanded="true"] + .collection-device-panel-v2{
+    max-height:430px!important;
+  }
   .collection-device-panel-inner{padding:0 13px 13px!important}
 }
 
