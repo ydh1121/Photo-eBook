@@ -1,10 +1,18 @@
-/* v66: canonical question cleanup, label normalization, and deterministic contextual-selection handoff. */
+/* v67: canonical question cleanup, fresh contextual drafts, and deterministic collection handoff. */
 (function(){
   if(window.__photoV66QuestionCanonicalInstalled)return;
   window.__photoV66QuestionCanonicalInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  const QUESTION_KEY='photoRoadmapQuestionsV2';
+
+  function readQuestions(){
+    try{
+      const value=JSON.parse(localStorage.getItem(QUESTION_KEY)||'[]');
+      return Array.isArray(value)?value:[];
+    }catch{return [];}
+  }
 
   function ensureQuestionStructure(){
     const controls=$('#v40QuestionControls');
@@ -56,12 +64,62 @@
     write?.click();
   }
 
+  function dispatchValueChange(input){
+    if(!input)return;
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+
+  function resetContextualQuestionDraft(){
+    /* A contextual GPT bubble always starts a new draft. A previously opened
+       saved question must never leak into the next text-selection handoff. */
+    const input=$('#askInput');
+    if(input){
+      input.value='이 부분을 쉽게 설명해줘.';
+      dispatchValueChange(input);
+    }
+  }
+
+  function fillSavedQuestion(item){
+    if(!item)return;
+    const quote=$('#askQuote');
+    const input=$('#askInput');
+    if(quote){
+      quote.textContent=String(item.selected_text||item.selection||item.quote||'문장을 선택하면 여기에 표시됩니다.');
+    }
+    if(input){
+      input.value=String(item.question||item.prompt||'');
+      dispatchValueChange(input);
+    }
+    const body=$('#collectionBody');
+    if(body)body.scrollTop=0;
+  }
+
+  function openSavedQuestionFromCollection(id){
+    const item=readQuestions().find(row=>String(row?.id||'')===String(id||''));
+    if(!item)return;
+
+    const questionTab=$('.collection-tab[data-library-tab="question"]');
+    window.__photoPendingQuestionWrite=true;
+    if(questionTab&&!questionTab.classList.contains('is-active'))questionTab.click();
+
+    const apply=()=>{
+      forceWrite();
+      requestAnimationFrame(()=>fillSavedQuestion(item));
+    };
+    setTimeout(apply,questionTab?.classList.contains('is-active')?20:90);
+    setTimeout(apply,190);
+  }
+
   function openCurrentQuestionUi(){
     const bubble=$('#askBubble');
     if(bubble)bubble.hidden=true;
 
-    /* showBubble() already copied the selected text into #askQuote/state before
-       this click. Keep that data, then release the browser selection highlight. */
+    /* showBubble() already copied the newly selected text into #askQuote/state.
+       Reset only the question draft so a saved question cannot survive into a
+       fresh contextual handoff. */
+    resetContextualQuestionDraft();
+
     try{window.getSelection?.().removeAllRanges();}catch{}
 
     window.__photoPendingQuestionWrite=true;
@@ -88,10 +146,31 @@
   }
 
   window.addEventListener('click',event=>{
-    if(!event.target?.closest?.('#askBubble'))return;
+    const target=event.target instanceof Element?event.target:null;
+    if(!target)return;
+
+    if(target.closest('#askBubble')){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      openCurrentQuestionUi();
+      return;
+    }
+
+    /* In the All tab, a saved-question card must first enter the Question tab
+       and then open that exact item in write mode. The old handler only worked
+       when the Question tab was already active. */
+    const questionCard=target.closest('.collection-item[data-library-type="question"]');
+    if(!questionCard)return;
+    const body=questionCard.closest('#collectionBody');
+    const bulk=body?.classList.contains('is-bulk-selecting')||$('.collection-select-toggle')?.classList.contains('is-active');
+    if(bulk)return;
+    if(target.closest('.collection-item__remove,.collection-selectbox,.collection-bulkbar'))return;
+
+    const id=questionCard.dataset.libraryId||'';
+    if(!id)return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    openCurrentQuestionUi();
+    openSavedQuestionFromCollection(id);
   },true);
 
   document.addEventListener('click',event=>{
