@@ -1,5 +1,4 @@
-/* v3: restore the original collection header geometry; only center the X mark.
-   Cross-device continuation now behaves and looks like a native settings accordion. */
+/* v4: original header geometry + continuous device accordion + invisible collection scrollbar. */
 
 /* Header: preserve the established layout. Only the X glyph itself is redrawn. */
 .collection-head{
@@ -9,7 +8,7 @@
 }
 .collection-head .collection-select-toggle{
   position:absolute!important;
-  top:-8px!important;
+  top:-12px!important;
   right:68px!important;
   bottom:auto!important;
   left:auto!important;
@@ -52,45 +51,82 @@
 #collectionClose.collection-close::before{transform:translate(-50%,-50%) rotate(45deg)!important}
 #collectionClose.collection-close::after{transform:translate(-50%,-50%) rotate(-45deg)!important}
 
-/* The existing settings row is the accordion header. Keep its original visual
-   language and only add the open-state geometry/chevron motion. */
+/* The bottom sheet keeps scrolling, but never reserves visible scrollbar width. */
+.collection-body{
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+  scrollbar-gutter:auto!important;
+}
+.collection-body::-webkit-scrollbar{
+  width:0!important;
+  height:0!important;
+  display:none!important;
+}
+
+/* One visual owner for the accordion. This removes the seam between the row
+   and its expanded content while retaining the existing settings-card language. */
+.collection-device-accordion{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  width:100%!important;
+  overflow:hidden!important;
+  border:1px solid rgba(28,40,65,.055)!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  color:#292b30!important;
+}
+html[data-theme="dark"] .collection-device-accordion{
+  background:var(--v36-dark-surface,#171b21)!important;
+  color:var(--v36-dark-text,#f2f4f8)!important;
+  border-color:var(--v36-dark-line,rgba(255,255,255,.085))!important;
+}
+
 #collectionDeviceLink[data-device-safe-v2="true"]{
   position:relative!important;
+  width:100%!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:18px!important;
+  background:transparent!important;
+  box-shadow:none!important;
   cursor:pointer!important;
-  transition:border-radius .16s ease,background-color .16s ease!important;
-}
-#collectionDeviceLink[data-device-safe-v2="true"]>b{
-  display:inline-block!important;
-  transform-origin:center!important;
-  transition:transform .18s cubic-bezier(.2,.7,.2,1)!important;
+  transition:background-color .16s ease!important;
 }
 #collectionDeviceLink[data-device-safe-v2="true"].is-device-expanded{
   border-bottom-left-radius:0!important;
   border-bottom-right-radius:0!important;
 }
-#collectionDeviceLink[data-device-safe-v2="true"].is-device-expanded> b{
+#collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{
+  display:inline-block!important;
+  flex:0 0 auto!important;
+  transform:rotate(0deg);
+  transform-origin:50% 50%!important;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1)!important;
+}
+#collectionDeviceLink[data-device-safe-v2="true"].is-device-expanded>.collection-device-chevron{
   transform:rotate(90deg)!important;
 }
 
-/* Accordion body: visually continues the same settings card instead of
-   introducing a foreign standalone panel. */
+/* Accordion body is a continuation of the same card, not a second card. */
 .collection-device-panel-v2{
   display:grid!important;
   gap:13px!important;
-  margin:-1px 0 0!important;
+  width:100%!important;
+  margin:0!important;
   padding:14px!important;
-  border:1px solid rgba(92,105,128,.14)!important;
-  border-top-color:rgba(92,105,128,.08)!important;
-  border-radius:0 0 16px 16px!important;
-  background:rgba(250,251,253,.72)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.62)!important;
+  box-sizing:border-box!important;
+  border:0!important;
+  border-top:1px solid rgba(92,105,128,.10)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
 }
 .collection-device-panel-v2[hidden]{display:none!important}
 html[data-theme="dark"] .collection-device-panel-v2{
-  background:var(--v36-dark-surface,#171b21)!important;
-  border-color:rgba(255,255,255,.085)!important;
-  border-top-color:rgba(255,255,255,.045)!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+  background:transparent!important;
+  border-top-color:rgba(255,255,255,.065)!important;
+  box-shadow:none!important;
 }
 
 .collection-device-panel__current{
@@ -126,7 +162,6 @@ html[data-theme="dark"] .collection-device-panel-v2{
   letter-spacing:.015em!important;
 }
 
-/* Secondary action follows the site's restrained neutral control language. */
 .collection-device-panel-v2 .collection-device-copy{
   flex:0 0 auto!important;
   min-height:34px!important;
@@ -189,8 +224,6 @@ html[data-theme="dark"] .collection-device-panel-v2 input{
   box-shadow:0 0 0 3px rgba(66,112,205,.09)!important;
 }
 
-/* Primary action uses the same low-profile blue family already used by the
-   site's liquid selected state; no new accent color is introduced. */
 .collection-device-panel-v2 .collection-device-connect{
   min-height:40px!important;
   padding:0 14px!important;
