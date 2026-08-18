@@ -1,0 +1,70 @@
+/* v1: desktop-only rail centering and horizontal-card breathing room.
+   Mobile is an approved baseline; do not move these rules below 1024px. */
+@media (min-width:1024px){
+  /* Keep the liquid chapter rail native, but center the whole glass bar on PC.
+     Symmetric runway preserves the indicator's left/right spring overshoot. */
+  .nav-scroll{
+    width:min(calc(100% - (var(--gutter) * 2)), var(--content))!important;
+    max-width:var(--content)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding-left:3.05rem!important;
+    padding-right:3.05rem!important;
+    justify-content:safe center!important;
+    scrollbar-width:none!important;
+  }
+  .nav-scroll::-webkit-scrollbar{display:none!important}
+
+  /* Every desktop content rail opens on the same content line. The rail itself
+     stays wide, while equal transparent runway on both ends makes the beginning
+     and end obvious and gives card shadows room to paint. */
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow){
+    --desktop-rail-inset:max(24px,calc((100% - var(--content)) / 2));
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding-top:24px!important;
+    padding-right:var(--desktop-rail-inset)!important;
+    padding-bottom:30px!important;
+    padding-left:var(--desktop-rail-inset)!important;
+    scroll-padding-left:var(--desktop-rail-inset)!important;
+    scroll-padding-right:var(--desktop-rail-inset)!important;
+    background:transparent!important;
+    background-image:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+    -ms-overflow-style:none!important;
+    cursor:grab!important;
+  }
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow)::-webkit-scrollbar{
+    display:none!important;
+    width:0!important;
+    height:0!important;
+  }
+  .scroll-row::after{
+    flex-basis:0!important;
+    width:0!important;
+  }
+
+  /* Cards are drag surfaces on desktop. Prevent native link/image dragging and
+     text selection from stealing the gesture, without disabling normal clicks. */
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow) :is(a,img){
+    -webkit-user-drag:none!important;
+  }
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-pointerdown,
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging{
+    user-select:none!important;
+    -webkit-user-select:none!important;
+  }
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging{
+    cursor:grabbing!important;
+    scroll-snap-type:none!important;
+  }
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging *{
+    user-select:none!important;
+    -webkit-user-select:none!important;
+  }
+}
