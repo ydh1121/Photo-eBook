@@ -1,4 +1,4 @@
-/* v3: canonical question intent + final write-panel reconciler.
+/* v4: canonical question intent + final write-panel reconciler.
    GPT bubble, saved-question reopen, and manual question writing all converge on
    one durable "write" intent. While that intent is active, the collection body
    is reconciled to the actual #askWritePanel node instead of merely painting the
@@ -8,7 +8,6 @@
   window.__photoQuestionIntentBridgeInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
-  const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   let intent='saved';
   let pendingBacking=Boolean(window.__photoPendingQuestionWrite);
   let guardObserver=null;
@@ -38,34 +37,50 @@
       requestAnimationFrame(()=>{if(isWrite())startGuard();});
       return;
     }
-    if(guardObserver)return;
-    guardObserver=new MutationObserver(scheduleReconcile);
-    guardObserver.observe(sheet,{
-      subtree:true,
-      childList:true,
-      attributes:true,
-      attributeFilter:['class','hidden']
-    });
+    if(!guardObserver){
+      guardObserver=new MutationObserver(scheduleReconcile);
+      guardObserver.observe(sheet,{
+        subtree:true,
+        childList:true,
+        attributes:true,
+        attributeFilter:['class','hidden']
+      });
+    }
     scheduleReconcile();
   }
 
   function setIntent(next){
     intent=next==='write'?'write':'saved';
-    window.__photoQuestionIntent=intent;
     pendingBacking=isWrite();
+    window.__photoQuestionIntent=intent;
     if(isWrite())startGuard();
     else stopGuard();
   }
+  window.__photoSetQuestionIntent=setIntent;
 
-  /* script-24 and script-29 still read/write this historical flag. Expose it as
-     a compatibility view of the canonical intent: delayed legacy `false`
-     assignments cannot collapse an active GPT/write handoff back to saved mode. */
+  /* script-24 and script-29 still read/write this historical flag. The critical
+     rule is that ANY legacy `true` assignment is itself a write request. Earlier
+     versions only changed pendingBacking, so a handoff that arrived without a
+     pointerdown could have pending=true while canonical intent stayed `saved`;
+     a later legacy false then won and the saved list reappeared. Promote every
+     true assignment into canonical write intent, while delayed false assignments
+     cannot clear an already-live write intent. */
   try{
     Object.defineProperty(window,'__photoPendingQuestionWrite',{
       configurable:true,
       enumerable:true,
       get(){return isWrite()?true:pendingBacking;},
-      set(value){pendingBacking=Boolean(value);}
+      set(value){
+        const next=Boolean(value);
+        pendingBacking=next;
+        if(next&&!isWrite()){
+          intent='write';
+          window.__photoQuestionIntent='write';
+          startGuard();
+        }
+        /* false is only a compatibility acknowledgement. Deliberate UI actions
+           call setIntent('saved'); legacy timers are not allowed to end write. */
+      }
     });
   }catch{
     window.__photoPendingQuestionWrite=pendingBacking;
@@ -114,11 +129,9 @@
     const panel=$('#askWritePanel');
     if(!body||!panel)return;
 
-    /* Critical fix: the legacy drawer may have left #askWritePanel hidden after
-       viewing history. Moving a hidden node into the collection body makes the
-       segmented control say "질문 작성하기" while the saved list remains the
-       only visible content. Always unhide the real panel before mounting it. */
-    if(panel.hidden)panel.hidden=false;
+    /* The legacy drawer can leave the write panel hidden after history. Always
+       unhide the real node before it becomes collectionBody's sole child. */
+    panel.hidden=false;
 
     if(panel.parentNode!==body||body.childElementCount!==1||body.firstElementChild!==panel){
       body.replaceChildren(panel);
@@ -142,6 +155,7 @@
     if(legacy)legacy.hidden=true;
     if(legacyBackdrop){legacyBackdrop.hidden=true;legacyBackdrop.style.pointerEvents='none';}
   }
+  window.__photoReconcileQuestionWrite=reconcileWritePanel;
 
   previousForce=window.__photoForceQuestionWrite;
   window.__photoForceQuestionWrite=function(){
@@ -164,9 +178,9 @@
     if(!bulk)setIntent('write');
   }
 
-  /* The GPT click itself is consumed by an older window-capture handler. Arm
-     canonical intent one input phase earlier so every downstream controller
-     sees write=true before it renders the question tab. */
+  /* Pointer/touch/mouse pre-arm keeps the normal physical click fast. The
+     compatibility setter above is the fallback for synthetic/keyboard/programmatic
+     entry paths where these pointer phases do not happen. */
   window.addEventListener('pointerdown',event=>armWriteFromTarget(event.target),true);
   window.addEventListener('touchstart',event=>armWriteFromTarget(event.target),{capture:true,passive:true});
   window.addEventListener('mousedown',event=>armWriteFromTarget(event.target),true);
@@ -177,7 +191,6 @@
 
     if(target.closest('#collectionClose,#collectionBackdrop')){
       setIntent('saved');
-      pendingBacking=false;
       return;
     }
 
@@ -191,7 +204,6 @@
     const tab=target.closest('.collection-tab');
     if(tab&&tab.dataset.libraryTab!=='question'){
       setIntent('saved');
-      pendingBacking=false;
     }else if(tab?.dataset.libraryTab==='question'&&isWrite()){
       scheduleReconcile();
     }
@@ -201,5 +213,5 @@
     if(isWrite())startGuard();
   },{passive:true});
 
-  window.__photoQuestionIntent='saved';
+  window.__photoQuestionIntent=intent;
 })();
