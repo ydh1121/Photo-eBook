@@ -206,18 +206,49 @@ question:
 - video count
 - article count
 - question count
+- 화면 모드 light/dark/system
 - `다른 기기에서 이어보기`
 - local-only video/article 관련 note
 
 settings에서 장황한 계정 시스템으로 확장하지 않는다. 현재 device link 수준이 V1.
 
-## COLL-019 — Device link
+`다른 기기에서 이어보기`의 시각/상호작용 패턴은 재사용 모듈 `modules/MOD-ACC-001-inline-disclosure-accordion.md`를 따른다.
 
-`openQuestionSettings()`는 기존 question settings UI를 재사용한다.
+## COLL-019 — Device handoff accordion
 
-현재 흐름은 collection close → legacy/current question UI open → history/settings 진입 형태의 compatibility bridge다.
+기존의 `collection close → 질문 modal open → settings 진입` compatibility bridge는 **현재 canonical UX가 아니다**.
 
-재구축 시 같은 사용자 기능은 유지하되 이 click choreography 자체는 필수 아키텍처가 아니다.
+현재 확정 흐름:
+
+1. `내 모음 > 설정` 화면을 유지한다.
+2. `다른 기기에서 이어보기` 행을 누른다.
+3. 같은 설정 card가 아래로 inline 확장된다.
+4. 현재 기기의 연결 코드를 확인/복사한다.
+5. 다른 기기의 48자리 연결 코드를 붙여넣어 연결한다.
+6. 닫을 때 같은 card가 원래 높이로 접힌다.
+
+MUST:
+- 별도 modal/backdrop을 새로 열지 않는다.
+- 현재 collection sheet의 interaction/scroll lock을 그대로 유지한다.
+- trigger의 `aria-expanded`와 panel visibility를 동기화한다.
+- chevron은 문자 `>`가 아니라 SVG/SVG-mask 계열 아이콘을 사용한다.
+- chevron은 같은 아이콘이 실시간 회전하는 motion을 사용한다.
+- outer shell은 닫힘/열림 모두 하나만 존재한다.
+- header와 panel 사이 이중선, 별도 rectangle, flash, 잔상이 없어야 한다.
+- header 설명과 첫 panel row 사이 상단 여백을 유지한다. 현재 기준: desktop 12px / mobile 11px.
+- bottom sheet의 visible scrollbar track은 표시하지 않아 폭이 열고 닫을 때 변하지 않게 한다.
+
+사용자-facing 연결 코드:
+- 화면 표시/복사/입력은 48자리 코드만 사용한다.
+- `dev_` prefix는 사용자에게 노출하지 않는다.
+- 내부 API/storage compatibility가 필요하면 구현 내부에서만 prefix를 normalize할 수 있다.
+
+현재 implementation owner:
+- `public/assets/script-33.js` — device handoff state/behavior.
+- `public/assets/style-45.css` — canonical shell/chevron/panel visual.
+- `public/assets/style-46.css` — robust open-state/spacing reinforcement.
+
+재사용 구조의 상세 계약은 `modules/MOD-ACC-001-inline-disclosure-accordion.md`가 우선한다.
 
 ## COLL-020 — Scroll lock
 
@@ -335,3 +366,6 @@ collection은 자체 backend database를 별도로 갖지 않는다.
 - bulk select 시 Q/thumb/text가 겹침.
 - 삭제 후 FAB count가 갱신되지 않음.
 - popup close 후 원래 scroll position이 크게 달라짐.
+- `다른 기기에서 이어보기`가 별도 modal을 열어 화면 interaction을 잠금.
+- device handoff accordion에 이중선/아이콘 소실/flash/잔상이 발생.
+- 연결 코드 앞에 `dev_`가 사용자에게 표시됨.
