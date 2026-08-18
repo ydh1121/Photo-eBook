@@ -1,0 +1,134 @@
+/* v2: desktop-only layout and hit-target pass. Mobile geometry is intentionally untouched. */
+@media (min-width:1024px){
+  :root{
+    --content:62rem;
+    --wide:86rem;
+    --gutter:2rem;
+  }
+
+  p{max-width:48rem}
+  .content{width:min(100%,var(--content))}
+  .wide{width:min(100%,var(--wide))}
+  .wide>.content,
+  .wide>.subhead.content{width:min(100%,var(--content))}
+
+  .hero__body{
+    width:min(100%,var(--wide));
+    padding-left:var(--gutter);
+    padding-right:var(--gutter);
+  }
+  .hero__body h1{max-width:54rem}
+  .hero__body p{max-width:48rem}
+  .hero__facts{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    max-width:70rem;
+  }
+
+  .chapter-hero{padding:3.5rem 0 3.6rem}
+  .chapter-hero__card{min-height:29rem}
+  .chapter-hero__copy{
+    padding:2.5rem 2.25rem;
+    max-width:64rem;
+  }
+
+  .section{padding-top:5rem;padding-bottom:6.25rem}
+  .section-heading{max-width:56rem;margin-bottom:2.45rem}
+  .section-heading p{max-width:49rem}
+  .guide-stack{gap:3.2rem}
+  .guide-block__body p{max-width:52rem}
+  .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+  /* Desktop content rails use the full wide container. The negative mobile
+     shadow gutter is unnecessary on a mouse/trackpad viewport and can clip the
+     effective hit/scroll area at the page edge. */
+  .scroll-row{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding:24px 8px 42px!important;
+    scroll-padding-left:8px!important;
+    scroll-snap-type:x proximity!important;
+    overscroll-behavior-x:auto!important;
+    touch-action:pan-x pan-y!important;
+    pointer-events:auto!important;
+    scrollbar-width:thin!important;
+    scrollbar-color:rgba(86,101,126,.28) transparent!important;
+  }
+  .scroll-row::after{flex-basis:8px!important}
+  .scroll-row::-webkit-scrollbar,
+  #curatedLinksRow::-webkit-scrollbar,
+  #skillsInfiniteRow::-webkit-scrollbar{
+    display:block!important;
+    height:7px!important;
+  }
+  .scroll-row::-webkit-scrollbar-track,
+  #curatedLinksRow::-webkit-scrollbar-track,
+  #skillsInfiniteRow::-webkit-scrollbar-track{background:transparent!important}
+  .scroll-row::-webkit-scrollbar-thumb,
+  #curatedLinksRow::-webkit-scrollbar-thumb,
+  #skillsInfiniteRow::-webkit-scrollbar-thumb{
+    background:rgba(86,101,126,.22)!important;
+    border-radius:999px!important;
+  }
+
+  #curatedLinksRow,
+  #skillsInfiniteRow{
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    overscroll-behavior-x:auto!important;
+    touch-action:pan-x pan-y!important;
+    pointer-events:auto!important;
+  }
+
+  .scroll-row,
+  #curatedLinksRow,
+  #skillsInfiniteRow{cursor:grab}
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging{
+    cursor:grabbing!important;
+    scroll-snap-type:none!important;
+    user-select:none!important;
+    -webkit-user-select:none!important;
+  }
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging *{
+    user-select:none!important;
+    -webkit-user-select:none!important;
+  }
+  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow) :is(a,button){cursor:pointer}
+
+  /* The top chapter rail stays browser-native as required by the accepted
+     regression spec. Only reinforce its hit/overflow ownership on desktop. */
+  .nav-scroll{
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    pointer-events:auto!important;
+    touch-action:pan-x pan-y!important;
+  }
+
+  /* The current ChatGPT handler is synchronous and valid. Make sure desktop
+     overlay/paint layers can never become the hit target above its CTA. */
+  #askWritePanel{
+    position:relative!important;
+    z-index:4!important;
+    pointer-events:auto!important;
+    isolation:isolate!important;
+  }
+  #askWritePanel .ask-actions,
+  #askWritePanel .v34-question-actions,
+  #askOpenChatGPT,
+  .v34-chatgpt-open{
+    position:relative!important;
+    z-index:20!important;
+    pointer-events:auto!important;
+  }
+  #askWritePanel::before,
+  #askWritePanel::after,
+  .v34-question-actions::before,
+  .v34-question-actions::after{
+    pointer-events:none!important;
+  }
+
+  #collectionTools,
+  #collectionBody,
+  .collection-body{position:relative}
+}
