@@ -44,3 +44,22 @@ html[data-theme="light"] #collectionSheet .collection-selectbox:not([aria-presse
 html[data-theme="dark"] #collectionSheet .collection-selectbox:not([aria-pressed="true"]){
   background-image:none!important;
 }
+
+/* Light mode only: once multi-select is active, the header control is a real
+   completion action. Give it the same blue action hierarchy used elsewhere
+   instead of leaving it as a low-contrast neutral circle. Geometry is kept. */
+html[data-theme="light"] #collectionSheet .collection-head .collection-select-toggle.is-active{
+  background:linear-gradient(180deg,#6799ef,#3568d4)!important;
+  border:1px solid rgba(85,137,230,.72)!important;
+  color:#fff!important;
+  box-shadow:
+    0 4px 12px rgba(43,92,190,.18),
+    inset 0 1px 0 rgba(255,255,255,.34)!important;
+}
+
+@media(hover:hover) and (pointer:fine){
+  html[data-theme="light"] #collectionSheet .collection-head .collection-select-toggle.is-active:hover{
+    background:linear-gradient(180deg,#72a2f1,#3b70da)!important;
+    border-color:rgba(77,128,220,.82)!important;
+  }
+}
