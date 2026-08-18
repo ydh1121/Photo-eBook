@@ -1,0 +1,110 @@
+/* v1: device continuation accordion uses exactly one visual shell.
+   The wrapper owns the only outline. Header/body never paint competing edges. */
+
+/* One owner for border, radius and surface in both collapsed and expanded states. */
+.collection-settings > .collection-device-accordion{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  width:100%!important;
+  overflow:hidden!important;
+  border:1px solid rgba(28,40,65,.055)!important;
+  border-radius:18px!important;
+  outline:0!important;
+  background:#fff!important;
+  color:#292b30!important;
+  box-shadow:none!important;
+}
+html[data-theme="dark"] .collection-settings > .collection-device-accordion{
+  border-color:var(--v36-dark-line,rgba(255,255,255,.085))!important;
+  background:var(--v36-dark-surface,#171b21)!important;
+  color:var(--v36-dark-text,#f2f4f8)!important;
+}
+
+/* Header is only content inside the shell. It has no independent rectangle,
+   so opening cannot leave a second rounded card or a doubled stroke behind. */
+.collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row[data-device-safe-v2="true"],
+.collection-settings > .collection-device-accordion.is-device-expanded > #collectionDeviceLink.collection-setting-row[data-device-safe-v2="true"]{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  position:relative!important;
+  width:100%!important;
+  margin:0!important;
+  padding-right:16px!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  color:inherit!important;
+  cursor:pointer!important;
+}
+.collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row[data-device-safe-v2="true"]::before,
+.collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row[data-device-safe-v2="true"]::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* Use the real SVG element created by script-33. No text glyph and no masked
+   pseudo-element. The same DOM node rotates through the whole open/close cycle. */
+.collection-settings > .collection-device-accordion > #collectionDeviceLink[data-device-safe-v2="true"] > b{
+  display:none!important;
+}
+.collection-settings > .collection-device-accordion > #collectionDeviceLink[data-device-safe-v2="true"] > .collection-device-chevron{
+  display:grid!important;
+  place-items:center!important;
+  width:20px!important;
+  height:20px!important;
+  flex:0 0 20px!important;
+  margin:0!important;
+  color:#8f98a6!important;
+  transform:rotate(0deg)!important;
+  transform-origin:50% 50%!important;
+  transition:transform .30s cubic-bezier(.22,.72,.18,1),color .18s ease!important;
+  will-change:transform!important;
+  pointer-events:none!important;
+}
+html[data-theme="dark"] .collection-settings > .collection-device-accordion > #collectionDeviceLink[data-device-safe-v2="true"] > .collection-device-chevron{
+  color:#aeb6c2!important;
+}
+.collection-settings > .collection-device-accordion > #collectionDeviceLink[data-device-safe-v2="true"] > .collection-device-chevron svg{
+  display:block!important;
+  width:16px!important;
+  height:16px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  overflow:visible!important;
+}
+.collection-settings > .collection-device-accordion.is-device-expanded > #collectionDeviceLink[data-device-safe-v2="true"] > .collection-device-chevron{
+  transform:rotate(90deg)!important;
+}
+
+/* Expanded body is simply more content inside the same shell. Remove every
+   continuation edge from older patches; the outer wrapper already supplies it. */
+.collection-settings > .collection-device-accordion > .collection-device-panel-v2,
+.collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2,
+html[data-theme="dark"] .collection-settings > .collection-device-accordion > .collection-device-panel-v2,
+html[data-theme="dark"] .collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2{
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+/* Keep the existing roll-down motion from style-42/43. The wrapper clips the
+   animated content to its single rounded outline, which makes the header's
+   lower corners visually disappear as soon as the body starts opening. */
+.collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2{
+  border:0!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .collection-settings > .collection-device-accordion > #collectionDeviceLink[data-device-safe-v2="true"] > .collection-device-chevron{
+    transition:none!important;
+  }
+}
