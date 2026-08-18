@@ -1,6 +1,69 @@
-/* v1: PC-only collection popup affordances. Mobile untouched. */
+/* v2: PC-only interaction and layout corrections. Mobile untouched. */
 @media (min-width:1024px){
-  #collectionFab{
+  /* Every control that opens the saved-items sheet should advertise clickability. */
+  #collectionFab,
+  #savedVideoShortcut,
+  #savedArticleShortcut,
+  .collection-section-link{
     cursor:pointer!important;
+  }
+
+  /* The liquid active chip must be allowed to overshoot the glass rail during
+     the existing spring animation. z-index alone cannot escape an overflow clip. */
+  .nav-shell .nav-scroll,
+  html[data-theme="light"] .nav-shell .nav-scroll,
+  html[data-theme="dark"] .nav-shell .nav-scroll{
+    overflow:visible!important;
+  }
+  .nav-shell .nav-scroll .nav-v33-indicator{
+    z-index:40!important;
+    overflow:visible!important;
+  }
+  .nav-shell .nav-scroll .nav-v33-indicator>.v37-liquid-skin{
+    position:relative!important;
+    z-index:40!important;
+    overflow:visible!important;
+  }
+  .nav-shell .nav-scroll .nav-chip{
+    position:relative!important;
+    z-index:50!important;
+  }
+
+  /* Market cards reserve the same two-line title zone on desktop. A single
+     long title can therefore wrap without pushing the price/customer rows out
+     of alignment with neighboring cards. */
+  #market .market-card{
+    height:100%!important;
+  }
+  #market .market-card__body{
+    display:flex!important;
+    flex-direction:column!important;
+    min-width:0!important;
+    min-height:0!important;
+  }
+  #market .market-card__body>h3{
+    box-sizing:border-box!important;
+    min-height:2.56em!important;
+    line-height:1.28!important;
+    word-break:keep-all!important;
+    overflow-wrap:break-word!important;
+  }
+  #market .market-card__prices{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    min-width:0!important;
+  }
+  #market .market-card__price{
+    min-width:0!important;
+  }
+  #market .market-card__price b{
+    white-space:nowrap!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+  }
+  #market .market-card__customer{
+    margin-top:auto!important;
+    padding-top:12px!important;
+    min-height:2.6em!important;
+    word-break:keep-all!important;
   }
 }
