@@ -1,13 +1,11 @@
-/* v1: one persistent shell + grid-row accordion animation.
-   This replaces the previous max-height/hidden/border handoff stack that could
-   expose a detached rectangle or flash during open/close transitions. */
+/* v2: one persistent shell + measured-height accordion animation.
+   The outer card owns the only visible border. The panel itself never paints a
+   rectangle; JS supplies its exact content height so open/close cannot flash,
+   detach, or remain collapsed because of 0fr/1fr intrinsic sizing. */
 
-/* One and only visual shell. Its border never changes owners. */
+/* One and only visual shell. */
 .collection-settings > .collection-device-accordion{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr)!important;
-  grid-template-rows:auto auto!important;
-  gap:0!important;
+  display:block!important;
   width:100%!important;
   overflow:hidden!important;
   border:1px solid rgba(28,40,65,.055)!important;
@@ -24,7 +22,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion{
   color:var(--v36-dark-text,#f2f4f8)!important;
 }
 
-/* Header never paints a second card. */
+/* Header is only content inside the shell; it never owns another rectangle. */
 .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row{
   -webkit-appearance:none!important;
   appearance:none!important;
@@ -50,8 +48,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion{
   display:none!important;
 }
 
-/* Persistent SVG-mask chevron. It exists before the first click, so the first
-   opening has a real 0deg starting frame instead of snapping to 90deg. */
+/* Persistent non-text chevron. aria-expanded is the only state source. */
 .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row::after{
   content:""!important;
   display:block!important;
@@ -82,17 +79,18 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > #c
   transform:translateY(-50%) rotate(90deg)!important;
 }
 
-/* Panel is always mounted. No hidden/display toggle, max-height animation,
-   visibility delay, border handoff or translated outer rectangle. */
+/* Panel is permanently mounted but has zero height while closed. This fully
+   overrides the old max-height/visibility/translate rules from style-42. */
 .collection-settings > .collection-device-accordion > .collection-device-panel-v2,
 html[data-theme="dark"] .collection-settings > .collection-device-accordion > .collection-device-panel-v2{
-  display:grid!important;
-  grid-template-rows:0fr!important;
+  display:block!important;
   width:100%!important;
+  height:0!important;
   max-height:none!important;
   min-height:0!important;
   margin:0!important;
   padding:0!important;
+  box-sizing:border-box!important;
   overflow:hidden!important;
   border:0!important;
   border-radius:0!important;
@@ -103,14 +101,14 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
   transform:none!important;
   visibility:visible!important;
   pointer-events:none!important;
-  transition:grid-template-rows .36s cubic-bezier(.22,.74,.24,1)!important;
+  transition:height .36s cubic-bezier(.22,.74,.24,1)!important;
+  will-change:height!important;
 }
 .collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2{
-  grid-template-rows:1fr!important;
+  height:var(--device-panel-height,0px)!important;
   max-height:none!important;
   padding:0!important;
   border:0!important;
-  border-radius:0!important;
   opacity:1!important;
   transform:none!important;
   visibility:visible!important;
@@ -118,6 +116,8 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
 }
 
 .collection-device-panel-clip{
+  display:block!important;
+  width:100%!important;
   min-height:0!important;
   overflow:hidden!important;
 }
@@ -125,36 +125,32 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
   display:grid!important;
   gap:13px!important;
   min-width:0!important;
-  padding:0 14px!important;
+  padding:0 14px 14px!important;
   opacity:0!important;
   transform:translateY(-6px)!important;
-  transition:
-    padding .32s cubic-bezier(.22,.74,.24,1),
-    opacity .20s ease,
-    transform .32s cubic-bezier(.22,.74,.24,1)!important;
+  transition:opacity .20s ease,transform .32s cubic-bezier(.22,.74,.24,1)!important;
 }
 .collection-device-accordion.is-device-expanded .collection-device-panel-inner{
-  padding:0 14px 14px!important;
   opacity:1!important;
   transform:translateY(0)!important;
-  transition:
-    padding .34s cubic-bezier(.22,.74,.24,1),
-    opacity .22s ease .035s,
-    transform .34s cubic-bezier(.22,.74,.24,1)!important;
+  transition:opacity .22s ease .035s,transform .34s cubic-bezier(.22,.74,.24,1)!important;
 }
 
-/* Keep the established inner controls from style-42, but make sure none of
-   them can paint an outer accordion edge. */
+/* Never allow the panel wrappers to create another outline or flash surface. */
 .collection-device-panel-v2,
 .collection-device-panel-v2::before,
 .collection-device-panel-v2::after,
 .collection-device-panel-clip,
-.collection-device-panel-inner{
+.collection-device-panel-clip::before,
+.collection-device-panel-clip::after,
+.collection-device-panel-inner,
+.collection-device-panel-inner::before,
+.collection-device-panel-inner::after{
   outline:0!important;
   box-shadow:none!important;
 }
 
-/* Bottom sheet scrolls without reserving a visible scrollbar track. */
+/* Bottom sheet remains scrollable without a visible scrollbar or width jump. */
 .collection-body{
   scrollbar-width:none!important;
   -ms-overflow-style:none!important;
@@ -167,8 +163,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
 }
 
 @media(max-width:560px){
-  .collection-device-panel-inner{padding-inline:13px!important}
-  .collection-device-accordion.is-device-expanded .collection-device-panel-inner{padding:0 13px 13px!important}
+  .collection-device-panel-inner{padding:0 13px 13px!important}
 }
 
 @media(prefers-reduced-motion:reduce){
