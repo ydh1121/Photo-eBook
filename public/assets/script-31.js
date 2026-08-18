@@ -1,113 +1,76 @@
-/* v3: desktop mouse-only content rails + current cross-device sync routing.
-   Vertical wheel input always stays vertical; mobile visual/input behavior is untouched. */
+/* v4: desktop-only measured nav + delegated mouse-grab rails.
+   No wheel translation, no mobile visual/input mutations. */
 (function(){
-  if(window.__photoDesktopPassV3Installed)return;
-  window.__photoDesktopPassV3Installed=true;
+  if(window.__photoDesktopPassV4Installed)return;
+  window.__photoDesktopPassV4Installed=true;
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
   const desktop=window.matchMedia('(min-width:1024px)');
   const RAIL_SELECTOR='.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow';
 
-  function wheelPixels(event){
-    if(event.deltaMode===1)return event.deltaY*20;
-    if(event.deltaMode===2)return event.deltaY*window.innerHeight;
-    return event.deltaY;
+  let activeRail=null;
+  let pointerId=null;
+  let startX=0;
+  let startScroll=0;
+  let dragging=false;
+  let suppressRail=null;
+  let suppressUntil=0;
+  let prepareRaf=0;
+
+  function railFrom(target){
+    return target?.closest?.(RAIL_SELECTOR)||null;
   }
 
-  function bindDesktopRail(rail){
-    if(!rail||rail.dataset.desktopRailV3==='true')return;
-    rail.dataset.desktopRailV3='true';
-
-    let pointerId=null;
-    let startX=0;
-    let startScroll=0;
-    let dragging=false;
-    let suppressClick=false;
-
-    /* A wheel/trackpad gesture over a horizontal rail must never consume the
-       page's vertical scrolling or move the rail sideways. Horizontal movement
-       is owned only by the mouse grab gesture below. */
-    rail.addEventListener('wheel',event=>{
-      if(!desktop.matches)return;
-      const y=wheelPixels(event);
-      if(event.cancelable)event.preventDefault();
-      event.stopImmediatePropagation();
-      if(y){
-        const root=document.scrollingElement||document.documentElement;
-        root.scrollTop+=y;
-      }
-    },{capture:true,passive:false});
-
-    rail.addEventListener('dragstart',event=>{
-      if(!desktop.matches)return;
-      event.preventDefault();
-    },true);
-
-    rail.addEventListener('selectstart',event=>{
-      if(!desktop.matches)return;
-      event.preventDefault();
-    },true);
-
-    rail.addEventListener('pointerdown',event=>{
-      if(!desktop.matches||event.pointerType!=='mouse'||event.button!==0)return;
-      if(event.target.closest?.('input,textarea,select,option,[contenteditable="true"]'))return;
-      pointerId=event.pointerId;
-      startX=event.clientX;
-      startScroll=rail.scrollLeft;
-      dragging=false;
-      suppressClick=false;
-      rail.classList.add('is-desktop-pointerdown');
-    },true);
-
-    rail.addEventListener('pointermove',event=>{
-      if(!desktop.matches||pointerId===null||event.pointerId!==pointerId)return;
-      const dx=event.clientX-startX;
-      if(!dragging&&Math.abs(dx)<5)return;
-      if(!dragging){
-        dragging=true;
-        rail.classList.add('is-desktop-dragging');
-        try{rail.setPointerCapture(pointerId);}catch{}
-      }
-      rail.scrollLeft=startScroll-dx;
-      if(event.cancelable)event.preventDefault();
-    },{passive:false});
-
-    const finishPointer=event=>{
-      if(pointerId===null||event.pointerId!==pointerId)return;
-      suppressClick=dragging;
-      dragging=false;
-      rail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
-      try{rail.releasePointerCapture(pointerId);}catch{}
-      pointerId=null;
-      if(suppressClick)setTimeout(()=>{suppressClick=false;},180);
-    };
-    rail.addEventListener('pointerup',finishPointer,true);
-    rail.addEventListener('pointercancel',finishPointer,true);
-    rail.addEventListener('lostpointercapture',event=>{
-      if(pointerId!==null&&event.pointerId===pointerId){
-        rail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
-        pointerId=null;
-        dragging=false;
-      }
-    },true);
-    rail.addEventListener('pointerleave',()=>{
-      if(pointerId!==null&&!dragging){
-        rail.classList.remove('is-desktop-pointerdown');
-        pointerId=null;
-      }
-    },true);
-
-    rail.addEventListener('click',event=>{
-      if(!suppressClick)return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    },true);
+  function syncDesktopNavWidth(){
+    const nav=$('.nav-scroll');
+    if(!nav)return;
+    if(!desktop.matches){
+      nav.style.removeProperty('--desktop-nav-width');
+      return;
+    }
+    const chips=$$('.nav-chip',nav);
+    if(!chips.length)return;
+    const css=getComputedStyle(nav);
+    const gap=parseFloat(css.columnGap||css.gap)||0;
+    const padLeft=parseFloat(css.paddingLeft)||0;
+    const padRight=parseFloat(css.paddingRight)||0;
+    const chipWidth=chips.reduce((sum,chip)=>sum+chip.getBoundingClientRect().width,0);
+    const width=Math.ceil(chipWidth+gap*Math.max(0,chips.length-1)+padLeft+padRight+2);
+    nav.style.setProperty('--desktop-nav-width',`${width}px`);
+    if(nav.scrollWidth<=nav.clientWidth+2)nav.scrollLeft=0;
+    requestAnimationFrame(()=>{
+      try{nav.__photoLiquidController?.update?.({instant:true});}catch{}
+    });
   }
 
-  function bindDesktopRails(){
-    if(!desktop.matches)return;
-    $$(RAIL_SELECTOR).forEach(bindDesktopRail);
+  function ensureRailWindow(rail){
+    if(!rail||!rail.isConnected||!desktop.matches)return;
+    if(rail.parentElement?.classList.contains('desktop-rail-window'))return;
+    const parent=rail.parentNode;
+    if(!parent)return;
+    const wrapper=document.createElement('div');
+    wrapper.className='desktop-rail-window';
+    parent.insertBefore(wrapper,rail);
+    wrapper.appendChild(rail);
+  }
+
+  function prepareRailContent(root=document){
+    $$(RAIL_SELECTOR,root).forEach(rail=>{
+      ensureRailWindow(rail);
+      $$('img,a',rail).forEach(node=>{
+        try{node.draggable=false;}catch{}
+      });
+    });
+  }
+
+  function unwrapRailWindows(){
+    $$('.desktop-rail-window').forEach(wrapper=>{
+      const parent=wrapper.parentNode;
+      if(!parent)return;
+      while(wrapper.firstChild)parent.insertBefore(wrapper.firstChild,wrapper);
+      wrapper.remove();
+    });
   }
 
   function repairDesktopActions(){
@@ -118,6 +81,105 @@
       button.removeAttribute('aria-disabled');
     });
   }
+
+  function prepareDesktop(){
+    if(!desktop.matches){
+      unwrapRailWindows();
+      syncDesktopNavWidth();
+      return;
+    }
+    syncDesktopNavWidth();
+    prepareRailContent();
+    repairDesktopActions();
+  }
+
+  function schedulePrepare(){
+    if(prepareRaf)return;
+    prepareRaf=requestAnimationFrame(()=>{
+      prepareRaf=0;
+      prepareDesktop();
+    });
+  }
+
+  /* Delegated input means dynamically rendered practical/video/article rails do
+     not need a second binding pass. overflow-x:hidden on desktop prevents wheel
+     and trackpad from owning horizontal movement; only this mouse gesture writes
+     scrollLeft. */
+  document.addEventListener('dragstart',event=>{
+    if(!desktop.matches||!railFrom(event.target))return;
+    event.preventDefault();
+  },true);
+
+  document.addEventListener('selectstart',event=>{
+    if(!desktop.matches||!railFrom(event.target))return;
+    event.preventDefault();
+  },true);
+
+  document.addEventListener('pointerdown',event=>{
+    if(!desktop.matches||event.pointerType!=='mouse'||event.button!==0)return;
+    const rail=railFrom(event.target);
+    if(!rail)return;
+    if(event.target.closest?.('input,textarea,select,option,[contenteditable="true"]'))return;
+
+    activeRail=rail;
+    pointerId=event.pointerId;
+    startX=event.clientX;
+    startScroll=rail.scrollLeft;
+    dragging=false;
+    suppressRail=null;
+    suppressUntil=0;
+    rail.classList.add('is-desktop-pointerdown');
+  },true);
+
+  document.addEventListener('pointermove',event=>{
+    if(!desktop.matches||!activeRail||pointerId===null||event.pointerId!==pointerId)return;
+    const dx=event.clientX-startX;
+    if(!dragging&&Math.abs(dx)<5)return;
+    if(!dragging){
+      dragging=true;
+      activeRail.classList.add('is-desktop-dragging');
+      try{activeRail.setPointerCapture(pointerId);}catch{}
+    }
+    activeRail.scrollLeft=startScroll-dx;
+    if(event.cancelable)event.preventDefault();
+  },{capture:true,passive:false});
+
+  function finishPointer(event){
+    if(!activeRail||pointerId===null||event.pointerId!==pointerId)return;
+    const rail=activeRail;
+    const didDrag=dragging;
+    rail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
+    try{rail.releasePointerCapture(pointerId);}catch{}
+    activeRail=null;
+    pointerId=null;
+    dragging=false;
+    if(didDrag){
+      suppressRail=rail;
+      suppressUntil=performance.now()+220;
+    }
+  }
+
+  document.addEventListener('pointerup',finishPointer,true);
+  document.addEventListener('pointercancel',finishPointer,true);
+  document.addEventListener('lostpointercapture',event=>{
+    if(!activeRail||pointerId===null||event.pointerId!==pointerId)return;
+    activeRail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
+    activeRail=null;
+    pointerId=null;
+    dragging=false;
+  },true);
+
+  document.addEventListener('click',event=>{
+    if(!suppressRail||performance.now()>suppressUntil){
+      suppressRail=null;
+      return;
+    }
+    const rail=railFrom(event.target);
+    if(rail!==suppressRail)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    suppressRail=null;
+  },true);
 
   function openDeviceSync(){
     const close=$('#collectionClose');
@@ -159,23 +221,31 @@
     }
 
     if(event.target.closest?.('#collectionFab,.collection-tab,[data-v40-qmode]')){
-      [0,80,220].forEach(delay=>setTimeout(()=>{
-        bindDesktopRails();
-        repairDesktopActions();
-      },delay));
+      [0,100,260].forEach(delay=>setTimeout(schedulePrepare,delay));
     }
   },true);
 
-  function refresh(){
-    bindDesktopRails();
-    repairDesktopActions();
+  function watchDynamicRails(){
+    const app=$('#app');
+    if(!app||app.dataset.desktopRailWatchV4==='true')return;
+    app.dataset.desktopRailWatchV4='true';
+    const observer=new MutationObserver(()=>schedulePrepare());
+    observer.observe(app,{childList:true,subtree:true});
   }
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
-  else refresh();
+  function init(){
+    watchDynamicRails();
+    prepareDesktop();
+    [120,420,1200].forEach(delay=>setTimeout(schedulePrepare,delay));
+  }
 
-  [120,420,1000,2200].forEach(delay=>setTimeout(refresh,delay));
-  window.addEventListener('pageshow',()=>setTimeout(refresh,120),{passive:true});
-  window.addEventListener('resize',()=>setTimeout(refresh,80),{passive:true});
-  desktop.addEventListener?.('change',()=>setTimeout(refresh,0));
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+
+  window.addEventListener('pageshow',()=>setTimeout(init,100),{passive:true});
+  window.addEventListener('resize',schedulePrepare,{passive:true});
+  desktop.addEventListener?.('change',()=>{
+    if(!desktop.matches)unwrapRailWindows();
+    schedulePrepare();
+  });
 })();
