@@ -1,20 +1,68 @@
-/* v4: canonical question intent + final write-panel reconciler.
-   GPT bubble, saved-question reopen, and manual question writing all converge on
-   one durable "write" intent. While that intent is active, the collection body
-   is reconciled to the actual #askWritePanel node instead of merely painting the
-   write tab active and hoping legacy rerenders agree. */
+/* v5: single owner for GPT/contextual question handoff.
+   script-24 remains the visual question-tab controller. This file alone owns
+   external entry into write mode (GPT bubble + saved question cards), canonical
+   write intent, and final #askWritePanel reconciliation. */
 (function(){
   if(window.__photoQuestionIntentBridgeInstalled)return;
   window.__photoQuestionIntentBridgeInstalled=true;
 
   const $=(s,r=document)=>r.querySelector(s);
+  const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  const QUESTION_KEY='photoRoadmapQuestionsV2';
+
   let intent='saved';
   let pendingBacking=Boolean(window.__photoPendingQuestionWrite);
   let guardObserver=null;
   let reconcileRaf=0;
-  let previousForce=window.__photoForceQuestionWrite;
+  let handoffToken=0;
+  const previousForce=window.__photoForceQuestionWrite;
+
+  function readQuestions(){
+    try{
+      const value=JSON.parse(localStorage.getItem(QUESTION_KEY)||'[]');
+      return Array.isArray(value)?value:[];
+    }catch{return [];}
+  }
 
   function isWrite(){return intent==='write';}
+
+  function dispatchValueChange(input){
+    if(!input)return;
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+
+  function ensureQuestionStructure(){
+    const controls=$('#v40QuestionControls');
+    const root=$('.v40-question-segment',controls||document);
+    if(!controls||!root)return;
+
+    $$('[id="v40QuestionControls"]').filter(node=>node!==controls).forEach(node=>node.remove());
+    $$('.v32-question-hub>.v32-question-segment').forEach(node=>{
+      node.hidden=true;
+      node.setAttribute('aria-hidden','true');
+    });
+
+    const write=$('button[data-v40-qmode="write"]',root);
+    if(write&&write.textContent.trim()!=='질문 작성하기')write.textContent='질문 작성하기';
+
+    const indicators=$$('.v36-question-indicator',root);
+    indicators.slice(1).forEach(node=>node.remove());
+    let indicator=indicators[0];
+    if(!indicator){
+      indicator=document.createElement('span');
+      indicator.className='v36-question-indicator';
+      indicator.setAttribute('aria-hidden','true');
+      root.prepend(indicator);
+    }
+    if(!$(':scope>.v37-liquid-skin',indicator)){
+      const skin=document.createElement('span');
+      skin.className='v37-liquid-skin';
+      skin.setAttribute('aria-hidden','true');
+      indicator.appendChild(skin);
+    }
+    root.classList.add('v41-skin-ready','v39-liquid-ready','v36-liquid-ready');
+  }
 
   function stopGuard(){
     guardObserver?.disconnect();
@@ -34,7 +82,7 @@
     if(!isWrite())return;
     const sheet=$('#collectionSheet');
     if(!sheet){
-      requestAnimationFrame(()=>{if(isWrite())startGuard();});
+      setTimeout(()=>{if(isWrite())startGuard();},40);
       return;
     }
     if(!guardObserver){
@@ -58,13 +106,9 @@
   }
   window.__photoSetQuestionIntent=setIntent;
 
-  /* script-24 and script-29 still read/write this historical flag. The critical
-     rule is that ANY legacy `true` assignment is itself a write request. Earlier
-     versions only changed pendingBacking, so a handoff that arrived without a
-     pointerdown could have pending=true while canonical intent stayed `saved`;
-     a later legacy false then won and the saved list reappeared. Promote every
-     true assignment into canonical write intent, while delayed false assignments
-     cannot clear an already-live write intent. */
+  /* Compatibility with script-24 and older question code. Any true assignment
+     is a real write request. Delayed legacy false assignments cannot terminate
+     write mode; only explicit navigation below calls setIntent('saved'). */
   try{
     Object.defineProperty(window,'__photoPendingQuestionWrite',{
       configurable:true,
@@ -78,37 +122,43 @@
           window.__photoQuestionIntent='write';
           startGuard();
         }
-        /* false is only a compatibility acknowledgement. Deliberate UI actions
-           call setIntent('saved'); legacy timers are not allowed to end write. */
       }
     });
   }catch{
     window.__photoPendingQuestionWrite=pendingBacking;
   }
 
+  function releaseLegacyQuestionModal(){
+    const legacy=$('#askSheet');
+    const backdrop=$('#askBackdrop');
+    if(legacy)legacy.hidden=true;
+    if(backdrop){backdrop.hidden=true;backdrop.style.pointerEvents='none';}
+    document.documentElement.classList.remove('ask-modal-locked');
+    document.body.classList.remove('ask-modal-locked','is-modal-open');
+    document.body.style.top='';
+  }
+
   function reconcileWritePanel(){
-    if(!isWrite())return;
+    if(!isWrite())return false;
 
     const sheet=$('#collectionSheet');
-    if(!sheet||sheet.hidden)return;
+    if(!sheet||sheet.hidden||!sheet.classList.contains('is-open'))return false;
 
     const questionTab=$('.collection-tab[data-library-tab="question"]');
-    if(questionTab&&!questionTab.classList.contains('is-active')){
+    if(!questionTab)return false;
+    if(!questionTab.classList.contains('is-active')){
       questionTab.click();
-      return;
+      return false;
     }
-    if(!questionTab)return;
 
+    ensureQuestionStructure();
     const controls=$('#v40QuestionControls');
     const write=$('[data-v40-qmode="write"]',controls||document);
     const saved=$('[data-v40-qmode="saved"]',controls||document);
 
-    /* Keep script-24's private questionMode in sync once, but do not rely on
-       the click alone for rendering. The DOM mount below is the final source of
-       truth and the observer repairs any later saved-list repaint. */
     if(write&&!write.classList.contains('is-active')){
       write.click();
-      return;
+      return false;
     }
 
     if(controls)controls.hidden=false;
@@ -127,12 +177,9 @@
 
     const body=$('#collectionBody');
     const panel=$('#askWritePanel');
-    if(!body||!panel)return;
+    if(!body||!panel)return false;
 
-    /* The legacy drawer can leave the write panel hidden after history. Always
-       unhide the real node before it becomes collectionBody's sole child. */
     panel.hidden=false;
-
     if(panel.parentNode!==body||body.childElementCount!==1||body.firstElementChild!==panel){
       body.replaceChildren(panel);
     }
@@ -148,16 +195,11 @@
     const bar=$('.collection-bulkbar');
     if(bar)bar.hidden=true;
 
-    /* The old question drawer is only a state/data owner now. It must not become
-       a second visible modal during the handoff. */
-    const legacy=$('#askSheet');
-    const legacyBackdrop=$('#askBackdrop');
-    if(legacy)legacy.hidden=true;
-    if(legacyBackdrop){legacyBackdrop.hidden=true;legacyBackdrop.style.pointerEvents='none';}
+    releaseLegacyQuestionModal();
+    return write?.classList.contains('is-active')&&panel.parentNode===body&&!panel.hidden;
   }
   window.__photoReconcileQuestionWrite=reconcileWritePanel;
 
-  previousForce=window.__photoForceQuestionWrite;
   window.__photoForceQuestionWrite=function(){
     setIntent('write');
     if(typeof previousForce==='function')previousForce();
@@ -165,49 +207,159 @@
     scheduleReconcile();
   };
 
-  function armWriteFromTarget(target){
-    if(!(target instanceof Element))return;
-    if(target.closest('#askBubble')){
-      setIntent('write');
-      return;
+  function resetFreshDraft(){
+    const input=$('#askInput');
+    if(input){
+      input.value='이 부분을 쉽게 설명해줘.';
+      dispatchValueChange(input);
     }
-    const card=target.closest('.collection-item[data-library-type="question"]');
-    if(!card)return;
-    const body=card.closest('#collectionBody');
-    const bulk=body?.classList.contains('is-bulk-selecting')||$('.collection-select-toggle')?.classList.contains('is-active');
-    if(!bulk)setIntent('write');
   }
 
-  /* Pointer/touch/mouse pre-arm keeps the normal physical click fast. The
-     compatibility setter above is the fallback for synthetic/keyboard/programmatic
-     entry paths where these pointer phases do not happen. */
-  window.addEventListener('pointerdown',event=>armWriteFromTarget(event.target),true);
-  window.addEventListener('touchstart',event=>armWriteFromTarget(event.target),{capture:true,passive:true});
-  window.addEventListener('mousedown',event=>armWriteFromTarget(event.target),true);
+  function fillSavedQuestion(item){
+    if(!item)return;
+    const quote=$('#askQuote');
+    const input=$('#askInput');
+    if(quote)quote.textContent=String(item.selected_text||item.selection||item.quote||'문장을 선택하면 여기에 표시됩니다.');
+    if(input){
+      input.value=String(item.question||item.prompt||'');
+      dispatchValueChange(input);
+    }
+  }
+
+  function collectionIsOpen(){
+    const sheet=$('#collectionSheet');
+    return Boolean(sheet&&!sheet.hidden&&sheet.classList.contains('is-open'));
+  }
+
+  function ensureCollectionOpen(done){
+    const started=performance.now();
+    const poll=()=>{
+      const sheet=$('#collectionSheet');
+      const fab=$('#collectionFab');
+
+      if(collectionIsOpen()){
+        done();
+        return;
+      }
+
+      /* During close animation the sheet is visible but is-open has already
+         been removed. Do not click the FAB until that 190ms close finishes or
+         the stale close timeout can hide the newly opened sheet again. */
+      if(sheet&&!sheet.hidden&&!sheet.classList.contains('is-open')){
+        if(performance.now()-started<2200)setTimeout(poll,35);
+        return;
+      }
+
+      if(fab&&(!sheet||sheet.hidden)){
+        fab.click();
+        setTimeout(poll,35);
+        return;
+      }
+
+      if(performance.now()-started<2200)setTimeout(poll,40);
+    };
+    poll();
+  }
+
+  function openWriteHandoff({item=null,fresh=false,focus=false}={}){
+    const token=++handoffToken;
+    setIntent('write');
+    releaseLegacyQuestionModal();
+    if(fresh)resetFreshDraft();
+
+    const bubble=$('#askBubble');
+    if(bubble)bubble.hidden=true;
+    try{window.getSelection?.().removeAllRanges();}catch{}
+
+    ensureCollectionOpen(()=>{
+      if(token!==handoffToken||!isWrite())return;
+      const started=performance.now();
+      let stable=0;
+      let hydrated=false;
+
+      const drive=()=>{
+        if(token!==handoffToken||!isWrite())return;
+        window.__photoPendingQuestionWrite=true;
+        const mounted=reconcileWritePanel();
+        if(mounted){
+          stable++;
+          if(!hydrated){
+            hydrated=true;
+            if(item)fillSavedQuestion(item);
+            else if(fresh)resetFreshDraft();
+            const body=$('#collectionBody');
+            if(body)body.scrollTop=0;
+          }
+        }else stable=0;
+
+        if(stable>=4){
+          if(focus)setTimeout(()=>$('#askInput')?.focus(),70);
+          return;
+        }
+        if(performance.now()-started<1800)setTimeout(drive,55);
+      };
+      drive();
+    });
+  }
+
+  function openSavedQuestion(id){
+    const item=readQuestions().find(row=>String(row?.id||'')===String(id||''));
+    if(item)openWriteHandoff({item});
+  }
+
+  function handleBubbleActivation(event){
+    const target=event.target instanceof Element?event.target:null;
+    if(!target?.closest('#askBubble'))return false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openWriteHandoff({fresh:true,focus:true});
+    return true;
+  }
+
+  /* This is intentionally the sole click owner for #askBubble. script-29's
+     older competing window-capture handler is no longer loaded. */
+  window.addEventListener('click',event=>{handleBubbleActivation(event);},true);
 
   document.addEventListener('click',event=>{
     const target=event.target instanceof Element?event.target:null;
     if(!target)return;
 
     if(target.closest('#collectionClose,#collectionBackdrop')){
+      handoffToken++;
       setIntent('saved');
       return;
     }
 
     const modeButton=target.closest('[data-v40-qmode]');
     if(modeButton){
-      setIntent(modeButton.dataset.v40Qmode==='write'?'write':'saved');
-      if(isWrite())scheduleReconcile();
+      handoffToken++;
+      const next=modeButton.dataset.v40Qmode==='write'?'write':'saved';
+      setIntent(next);
+      if(next==='write')scheduleReconcile();
       return;
     }
 
     const tab=target.closest('.collection-tab');
-    if(tab&&tab.dataset.libraryTab!=='question'){
-      setIntent('saved');
-    }else if(tab?.dataset.libraryTab==='question'&&isWrite()){
-      scheduleReconcile();
+    if(tab){
+      if(tab.dataset.libraryTab!=='question'){
+        handoffToken++;
+        setIntent('saved');
+      }else if(isWrite())scheduleReconcile();
+      return;
     }
-  },false);
+
+    const questionCard=target.closest('.collection-item[data-library-type="question"]');
+    if(!questionCard)return;
+    const body=questionCard.closest('#collectionBody');
+    const bulk=body?.classList.contains('is-bulk-selecting')||$('.collection-select-toggle')?.classList.contains('is-active');
+    if(bulk||target.closest('.collection-item__remove,.collection-selectbox,.collection-bulkbar'))return;
+
+    const id=questionCard.dataset.libraryId||'';
+    if(!id)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openSavedQuestion(id);
+  },true);
 
   window.addEventListener('pageshow',()=>{
     if(isWrite())startGuard();
