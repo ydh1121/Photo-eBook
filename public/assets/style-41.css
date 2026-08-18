@@ -1,11 +1,30 @@
-/* v4: cross-device collection close alignment + PC-only interaction/layout corrections. */
+/* v5: cross-device collection controls + PC-only interaction/layout corrections. */
 
-/* Collection close: draw the X geometrically so the mark is centered in the
-   circular button on every browser/font. This applies to both mobile and PC. */
+/* Keep the close control at the actual far-right edge of the sheet header.
+   The bulk-select toggle is injected later, so explicit ordering prevents it
+   from pushing the close button inward. */
+.collection-head{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:8px!important;
+}
+.collection-head>div:first-child{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  margin-right:auto!important;
+}
+.collection-head .collection-select-toggle{
+  order:2!important;
+  flex:0 0 auto!important;
+  margin-left:0!important;
+}
 #collectionClose.collection-close{
+  order:3!important;
   position:relative!important;
   display:grid!important;
   place-items:center!important;
+  flex:0 0 auto!important;
+  margin-left:0!important;
   padding:0!important;
   text-indent:0!important;
   line-height:1!important;
@@ -32,6 +51,110 @@
 }
 #collectionClose.collection-close::after{
   transform:translate(-50%,-50%) rotate(-45deg)!important;
+}
+
+/* Device handoff now stays inside the already-open collection sheet instead
+   of launching the retired question modal. */
+.collection-device-panel{
+  display:grid;
+  gap:12px;
+  margin-top:12px;
+  padding:14px;
+  border:1px solid rgba(127,127,127,.22);
+  border-radius:16px;
+  background:rgba(127,127,127,.06);
+}
+.collection-device-panel__head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.collection-device-panel__head strong{
+  display:block;
+  font-size:14px;
+  line-height:1.35;
+}
+.collection-device-panel__head p{
+  margin:4px 0 0;
+  font-size:12px;
+  line-height:1.5;
+  opacity:.72;
+}
+.collection-device-panel__back{
+  flex:0 0 auto;
+  border:0;
+  background:transparent;
+  color:inherit;
+  padding:4px 2px;
+  font:inherit;
+  font-size:12px;
+  cursor:pointer;
+  opacity:.74;
+}
+.collection-device-panel__group{
+  display:grid;
+  gap:7px;
+}
+.collection-device-panel__group>label{
+  font-size:11px;
+  font-weight:700;
+  opacity:.7;
+}
+.collection-device-panel__code-row,
+.collection-device-panel__connect-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+}
+.collection-device-panel input{
+  min-width:0;
+  height:40px;
+  box-sizing:border-box;
+  border:1px solid rgba(127,127,127,.24);
+  border-radius:11px;
+  background:rgba(127,127,127,.08);
+  color:inherit;
+  padding:0 11px;
+  font:500 12px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  outline:none;
+}
+.collection-device-panel input:focus{
+  border-color:rgba(83,139,255,.68);
+  box-shadow:0 0 0 3px rgba(70,125,255,.12);
+}
+.collection-device-panel button[data-device-sync-copy],
+.collection-device-panel button[data-device-sync-connect]{
+  min-height:40px;
+  border:1px solid rgba(127,127,127,.22);
+  border-radius:11px;
+  padding:0 13px;
+  background:rgba(127,127,127,.10);
+  color:inherit;
+  font:700 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  cursor:pointer;
+}
+.collection-device-panel button[data-device-sync-connect]{
+  background:linear-gradient(180deg,rgba(75,137,255,.96),rgba(44,101,211,.96));
+  border-color:rgba(90,148,255,.78);
+  color:#fff;
+}
+.collection-device-panel__status{
+  min-height:18px;
+  font-size:11px;
+  line-height:1.55;
+  opacity:.76;
+}
+.collection-device-panel__status.is-error{
+  color:#e76565;
+  opacity:1;
+}
+
+@media (max-width:640px){
+  .collection-device-panel__code-row,
+  .collection-device-panel__connect-row{
+    grid-template-columns:1fr;
+  }
 }
 
 @media (min-width:1024px){
