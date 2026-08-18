@@ -1,9 +1,7 @@
-/* v2: one persistent shell + measured-height accordion animation.
-   The outer card owns the only visible border. The panel itself never paints a
-   rectangle; JS supplies its exact content height so open/close cannot flash,
-   detach, or remain collapsed because of 0fr/1fr intrinsic sizing. */
+/* v3: one persistent shell + reliable mounted-panel accordion.
+   The outer card owns the only visible border. The panel stays mounted and
+   reveals with max-height; no hidden/display handoff, no detached rectangle. */
 
-/* One and only visual shell. */
 .collection-settings > .collection-device-accordion{
   display:block!important;
   width:100%!important;
@@ -22,7 +20,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion{
   color:var(--v36-dark-text,#f2f4f8)!important;
 }
 
-/* Header is only content inside the shell; it never owns another rectangle. */
+/* Header is content only; it never paints a second rounded card. */
 .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row{
   -webkit-appearance:none!important;
   appearance:none!important;
@@ -48,7 +46,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion{
   display:none!important;
 }
 
-/* Persistent non-text chevron. aria-expanded is the only state source. */
+/* Persistent non-text chevron. */
 .collection-settings > .collection-device-accordion > #collectionDeviceLink.collection-setting-row::after{
   content:""!important;
   display:block!important;
@@ -79,14 +77,15 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > #c
   transform:translateY(-50%) rotate(90deg)!important;
 }
 
-/* Panel is permanently mounted but has zero height while closed. This fully
-   overrides the old max-height/visibility/translate rules from style-42. */
+/* The panel is always in the DOM. Closed = max-height 0. Open = enough room
+   for its natural contents. Because the outer shell clips it, no borderless
+   rectangle can escape below the card during the transition. */
 .collection-settings > .collection-device-accordion > .collection-device-panel-v2,
 html[data-theme="dark"] .collection-settings > .collection-device-accordion > .collection-device-panel-v2{
   display:block!important;
   width:100%!important;
-  height:0!important;
-  max-height:none!important;
+  height:auto!important;
+  max-height:0!important;
   min-height:0!important;
   margin:0!important;
   padding:0!important;
@@ -101,12 +100,13 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
   transform:none!important;
   visibility:visible!important;
   pointer-events:none!important;
-  transition:height .36s cubic-bezier(.22,.74,.24,1)!important;
-  will-change:height!important;
+  transition:max-height .36s cubic-bezier(.22,.74,.24,1)!important;
+  will-change:max-height!important;
 }
 .collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2{
-  height:var(--device-panel-height,0px)!important;
-  max-height:none!important;
+  height:auto!important;
+  max-height:320px!important;
+  min-height:0!important;
   padding:0!important;
   border:0!important;
   opacity:1!important;
@@ -136,7 +136,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
   transition:opacity .22s ease .035s,transform .34s cubic-bezier(.22,.74,.24,1)!important;
 }
 
-/* Never allow the panel wrappers to create another outline or flash surface. */
+/* Old layers may still define pseudo decorations; kill them here. */
 .collection-device-panel-v2,
 .collection-device-panel-v2::before,
 .collection-device-panel-v2::after,
@@ -149,8 +149,16 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
   outline:0!important;
   box-shadow:none!important;
 }
+.collection-device-panel-v2::before,
+.collection-device-panel-v2::after,
+.collection-device-panel-clip::before,
+.collection-device-panel-clip::after,
+.collection-device-panel-inner::before,
+.collection-device-panel-inner::after{
+  content:none!important;
+  display:none!important;
+}
 
-/* Bottom sheet remains scrollable without a visible scrollbar or width jump. */
 .collection-body{
   scrollbar-width:none!important;
   -ms-overflow-style:none!important;
@@ -163,6 +171,7 @@ html[data-theme="dark"] .collection-settings > .collection-device-accordion > .c
 }
 
 @media(max-width:560px){
+  .collection-settings > .collection-device-accordion.is-device-expanded > .collection-device-panel-v2{max-height:420px!important}
   .collection-device-panel-inner{padding:0 13px 13px!important}
 }
 
