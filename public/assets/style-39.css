@@ -1,8 +1,8 @@
-/* v2: desktop top-nav surgical repair.
-   Restore the approved pre-PC rail geometry/surfaces and change only the
-   horizontal sizing/centering. Do not redesign progress, liquid, height or chip geometry. */
+/* v3: desktop-only surgical corrections.
+   Keep the approved liquid navigation geometry/paint intact; only fit its width
+   to the menu on desktop. Remove the accidental left masking strip from content rails. */
 @media (min-width:1024px){
-  /* Restore the original shell. The shell is only the sticky positioning owner. */
+  /* Shell remains the sticky positioning owner. */
   .nav-shell,
   html[data-theme="light"] .nav-shell,
   html[data-theme="dark"] .nav-shell{
@@ -19,7 +19,7 @@
     backdrop-filter:none!important;
   }
 
-  /* Runtime wrappers stay paint-neutral. They must never become a second rail. */
+  /* Any runtime wrapper is layout-only. */
   .nav-shell .nav-glass,
   html[data-theme="light"] .nav-shell .nav-glass,
   html[data-theme="dark"] .nav-shell .nav-glass{
@@ -43,8 +43,9 @@
     display:none!important;
   }
 
-  /* This is the original glass rail. Only width + auto-centering differ from
-     the approved baseline: it now hugs its menu content instead of width:100%. */
+  /* Original approved rail geometry from the pre-PC stack:
+     .34rem vertical breathing room, 28px/54px spring runway, original chip size.
+     Only width/max-width/margins are changed for desktop menu-fit centering. */
   .nav-shell .nav-scroll,
   html[data-theme="light"] .nav-shell .nav-scroll,
   html[data-theme="dark"] .nav-shell .nav-scroll{
@@ -63,7 +64,7 @@
     min-height:0!important;
     margin-left:auto!important;
     margin-right:auto!important;
-    padding:.06rem 54px .16rem 28px!important;
+    padding:.34rem 54px .34rem 28px!important;
     overflow-x:auto!important;
     overflow-y:hidden!important;
     -webkit-overflow-scrolling:touch!important;
@@ -124,7 +125,6 @@
   }
   .nav-shell .nav-scroll::-webkit-scrollbar{display:none!important}
 
-  /* Restore the pre-PC chip geometry. No forced 42px height or reduced padding. */
   .nav-shell .nav-scroll .nav-chip{
     position:relative!important;
     z-index:8!important;
@@ -143,7 +143,6 @@
     pointer-events:auto!important;
   }
 
-  /* Keep the original moving liquid indicator controller/skin untouched. */
   .nav-shell .nav-scroll .nav-v33-indicator{
     z-index:6!important;
     overflow:visible!important;
@@ -153,22 +152,31 @@
     overflow:visible!important;
   }
 
-  /* Restore the original 3px read-progress layer. The integrated tint on
-     .nav-scroll remains the existing --v32-progress behavior. */
+  /* Original navigation progress is integrated into the glass rail. Do not
+     resurrect the retired separate 3px progress strip. */
   .nav-shell .read-progress{
     display:block!important;
-    height:3px!important;
-    margin:.42rem -.82rem -.6rem!important;
-    background:transparent!important;
+    height:0!important;
+    margin:0!important;
+    overflow:hidden!important;
     pointer-events:none!important;
   }
   .nav-shell .read-progress__bar{
-    display:block!important;
-    height:100%!important;
-    background:var(--accent)!important;
-    transform-origin:left!important;
+    opacity:0!important;
   }
   .nav-shell .nav-progress-liquid{
     display:none!important;
+  }
+
+  /* The dark vertical rectangles in front of the first card were the temporary
+     hard-left mask from style-38. The real 16px shadow runway already gives the
+     first card enough paint room, so this mask is not needed. */
+  .desktop-rail-window::before,
+  .desktop-rail-window.is-scrolled-x::before{
+    content:none!important;
+    display:none!important;
+    opacity:0!important;
+    width:0!important;
+    background:transparent!important;
   }
 }
