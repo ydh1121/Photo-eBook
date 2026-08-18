@@ -1,9 +1,9 @@
-/* v21: chapter-aware nav state + chip-mapped reading progress.
+/* v22: chapter-aware nav state + chip-mapped reading progress.
    Active chip and progress are two outputs of the same measured page state.
-   Progress advances inside the current chip according to the rendered chapter
-   height, so different device/layout heights remain correct. */
+   Each chapter completes just past its chip by the rail's vertical breathing
+   room, while the final chapter still completes the full rail. */
 (function(){
-  function setupNavigationV20(){
+  function setupNavigationV22(){
     const shell=$('.nav-shell');
     const placeholder=$('.nav-placeholder');
     const navScroll=$('.nav-scroll');
@@ -156,34 +156,47 @@
       return Number.isFinite(value)?Math.max(0,value):0;
     }
 
+    function chipBreathingInset(chip){
+      if(!chip)return 0;
+      const railHeight=Math.max(0,Number(navScroll.clientHeight)||0);
+      const topGap=Math.max(0,Number(chip.offsetTop)||0);
+      const bottomGap=Math.max(0,railHeight-topGap-(Number(chip.offsetHeight)||0));
+      const gap=(topGap+bottomGap)/2;
+      return Number.isFinite(gap)?Math.max(0,gap):0;
+    }
+
     function firstProgressLeft(){
       const firstItem=metrics[0];
       const firstChip=firstItem?chipMap.get(firstItem.id):chips[0];
       return Math.max(0,Number(firstChip?.offsetLeft)||0);
     }
 
+    function completedEndAt(index){
+      const idx=Math.max(0,Math.min(index,metrics.length-1));
+      const item=metrics[idx];
+      const chip=item?chipMap.get(item.id):chips[idx];
+      if(!chip)return firstProgressLeft();
+      const chipRight=chip.offsetLeft+chip.offsetWidth;
+      if(idx===metrics.length-1)return chipRight+rightRailInset();
+      return chipRight+chipBreathingInset(chip);
+    }
+
     function firstProgressEnd(){
-      const firstItem=metrics[0];
-      const firstChip=firstItem?chipMap.get(firstItem.id):chips[0];
-      if(!firstChip)return firstProgressLeft();
-      return Math.max(firstProgressLeft(),firstChip.offsetLeft+firstChip.offsetWidth);
+      return Math.max(firstProgressLeft(),completedEndAt(0));
     }
 
     function progressPixelsAt(y,index){
       const idx=Math.max(0,Math.min(index,metrics.length-1));
-      const item=metrics[idx];
-      const chip=item?chipMap.get(item.id):null;
-      if(!chip)return firstProgressLeft();
+      if(!metrics[idx])return firstProgressEnd();
 
-      /* The first chip is treated as the completed starting state. This keeps
-         the visible wash wrapped around the first pill from the initial screen,
-         instead of exposing the rail's outer gutter as a detached blue strip. */
+      /* Start is a completed checkpoint. Every later chapter interpolates from
+         the previous checkpoint to the current chip's completed checkpoint.
+         This keeps progress continuous across chip gaps with no visual jump. */
       if(idx===0)return firstProgressEnd();
 
       const local=chapterProgressAt(y,idx);
-      const last=idx===metrics.length-1;
-      const startPx=chip.offsetLeft;
-      const endPx=chip.offsetLeft+chip.offsetWidth+(last?rightRailInset():0);
+      const startPx=completedEndAt(idx-1);
+      const endPx=completedEndAt(idx);
       return Math.max(firstProgressEnd(),startPx+((endPx-startPx)*local));
     }
 
@@ -313,7 +326,7 @@
     addEventListener('touchcancel',()=>{isTouching=false;if(!supportsScrollEnd)scheduleFallbackScrollEnd();},{passive:true});
     if(supportsScrollEnd)addEventListener('scrollend',finishVerticalScroll,{passive:true});
 
-    navScroll.dataset.chapterProgressOwner='script-9-v21';
+    navScroll.dataset.chapterProgressOwner='script-9-v22';
     measure();
     lastY=scrollY();
     activeIndex=rawIndexAt(lastY);
@@ -337,7 +350,7 @@
     }
   }
 
-  window.setupNavigation=setupNavigationV20;
+  window.setupNavigation=setupNavigationV22;
 
   if(typeof window.__photoUiReadyResolve==='function'){
     window.__photoUiReadyResolve();
