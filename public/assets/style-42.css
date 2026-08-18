@@ -1,46 +1,40 @@
-/* v1: collection header control order and centered close geometry. */
+/* v2: restore the original collection header geometry; only center the X mark.
+   Device-sync UI is an inline settings card, not a second modal. */
+
+/* Restore the established header control positions from the pre-fix UI. */
 .collection-head{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto auto!important;
-  align-items:center!important;
-  column-gap:10px!important;
-}
-.collection-head>div:first-child{
-  grid-column:1!important;
-  min-width:0!important;
-  margin:0!important;
+  position:relative!important;
+  padding-right:118px!important;
 }
 .collection-head .collection-select-toggle{
-  grid-column:2!important;
-  position:static!important;
-  inset:auto!important;
-  top:auto!important;
-  right:auto!important;
+  position:absolute!important;
+  top:-8px!important;
+  right:68px!important;
   bottom:auto!important;
   left:auto!important;
   transform:none!important;
-  justify-self:end!important;
-  align-self:center!important;
   margin:0!important;
+  order:initial!important;
+  grid-column:auto!important;
 }
 #collectionClose.collection-close{
-  grid-column:3!important;
-  position:relative!important;
-  inset:auto!important;
-  top:auto!important;
-  right:auto!important;
+  position:absolute!important;
+  top:-12px!important;
+  right:15px!important;
   bottom:auto!important;
   left:auto!important;
   transform:none!important;
-  justify-self:end!important;
-  align-self:center!important;
   margin:0!important;
-  padding:0!important;
+  order:initial!important;
+  grid-column:auto!important;
   display:grid!important;
   place-items:center!important;
+  padding:0!important;
   font-size:0!important;
   line-height:1!important;
 }
+/* Keep the button exactly where it originally lived; only draw the X around
+   the geometric center of the circle. */
 #collectionClose.collection-close::before,
 #collectionClose.collection-close::after{
   content:""!important;
@@ -58,3 +52,169 @@
 }
 #collectionClose.collection-close::before{transform:translate(-50%,-50%) rotate(45deg)!important}
 #collectionClose.collection-close::after{transform:translate(-50%,-50%) rotate(-45deg)!important}
+
+/* Cross-device continuation: compact native-looking settings card. */
+.collection-device-panel-v2{
+  display:grid!important;
+  gap:14px!important;
+  margin-top:12px!important;
+  padding:16px!important;
+  border:1px solid rgba(92,105,128,.14)!important;
+  border-radius:18px!important;
+  background:rgba(247,249,252,.76)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72)!important;
+}
+html[data-theme="dark"] .collection-device-panel-v2{
+  background:#171c23!important;
+  border-color:rgba(255,255,255,.085)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+.collection-device-panel-v2 .collection-device-panel__head{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:16px!important;
+}
+.collection-device-panel-v2 .collection-device-panel__head strong{
+  display:block!important;
+  font-size:14px!important;
+  line-height:1.35!important;
+  letter-spacing:-.01em!important;
+}
+.collection-device-panel-v2 .collection-device-panel__head p{
+  margin:5px 0 0!important;
+  color:var(--muted,#747d89)!important;
+  font-size:12px!important;
+  line-height:1.5!important;
+}
+.collection-device-panel-v2 .collection-device-panel__back{
+  flex:0 0 auto!important;
+  min-height:30px!important;
+  padding:0 10px!important;
+  border:1px solid rgba(89,102,124,.12)!important;
+  border-radius:999px!important;
+  background:rgba(127,139,158,.08)!important;
+  color:inherit!important;
+  font:700 11px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  cursor:pointer!important;
+}
+html[data-theme="dark"] .collection-device-panel-v2 .collection-device-panel__back{
+  border-color:rgba(255,255,255,.075)!important;
+  background:#222832!important;
+  color:#c8d0db!important;
+}
+.collection-device-panel__current{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  min-width:0!important;
+  padding:13px 14px!important;
+  border:1px solid rgba(92,105,128,.12)!important;
+  border-radius:14px!important;
+  background:rgba(255,255,255,.72)!important;
+}
+html[data-theme="dark"] .collection-device-panel__current{
+  background:#12171e!important;
+  border-color:rgba(255,255,255,.07)!important;
+}
+.collection-device-panel__current-copy{
+  min-width:0!important;
+  display:grid!important;
+  gap:4px!important;
+}
+.collection-device-panel__current-copy small,
+.collection-device-panel__group>label{
+  color:var(--muted,#7b8490)!important;
+  font-size:10.5px!important;
+  font-weight:760!important;
+  line-height:1.3!important;
+}
+.collection-device-panel__current-copy code{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:inherit!important;
+  font:650 12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
+  letter-spacing:.01em!important;
+}
+.collection-device-panel-v2 button[data-device-panel-copy],
+.collection-device-panel-v2 button[data-device-panel-connect]{
+  flex:0 0 auto!important;
+  min-height:38px!important;
+  border-radius:11px!important;
+  padding:0 13px!important;
+  font:760 12px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  cursor:pointer!important;
+}
+.collection-device-panel-v2 button[data-device-panel-copy]{
+  border:1px solid rgba(79,110,170,.14)!important;
+  background:rgba(65,112,205,.08)!important;
+  color:#386fd8!important;
+}
+html[data-theme="dark"] .collection-device-panel-v2 button[data-device-panel-copy]{
+  border-color:rgba(92,145,255,.16)!important;
+  background:rgba(73,125,229,.12)!important;
+  color:#82aaff!important;
+}
+.collection-device-panel__divider{
+  height:1px!important;
+  background:rgba(105,116,134,.11)!important;
+}
+html[data-theme="dark"] .collection-device-panel__divider{background:rgba(255,255,255,.065)!important}
+.collection-device-panel__group{
+  display:grid!important;
+  gap:7px!important;
+}
+.collection-device-panel__hint{
+  margin:-1px 0 2px!important;
+  color:var(--muted,#7b8490)!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+.collection-device-panel__connect-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px!important;
+}
+.collection-device-panel-v2 input{
+  width:100%!important;
+  min-width:0!important;
+  height:40px!important;
+  box-sizing:border-box!important;
+  border:1px solid rgba(92,105,128,.15)!important;
+  border-radius:11px!important;
+  background:rgba(255,255,255,.78)!important;
+  color:inherit!important;
+  padding:0 12px!important;
+  font:500 12px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace!important;
+  outline:none!important;
+}
+html[data-theme="dark"] .collection-device-panel-v2 input{
+  background:#10151b!important;
+  border-color:rgba(255,255,255,.085)!important;
+}
+.collection-device-panel-v2 input:focus{
+  border-color:rgba(67,119,224,.58)!important;
+  box-shadow:0 0 0 3px rgba(67,119,224,.10)!important;
+}
+.collection-device-panel-v2 button[data-device-panel-connect]{
+  border:1px solid rgba(83,139,245,.74)!important;
+  background:linear-gradient(180deg,#6096ef,#3a70d4)!important;
+  color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;
+}
+.collection-device-panel__status{
+  min-height:16px!important;
+  color:var(--muted,#7b8490)!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+.collection-device-panel__status.is-error{color:#df5e62!important}
+
+@media(max-width:560px){
+  .collection-device-panel-v2{padding:14px!important}
+  .collection-device-panel__connect-row{grid-template-columns:1fr!important}
+  .collection-device-panel-v2 button[data-device-panel-connect]{width:100%!important}
+}
