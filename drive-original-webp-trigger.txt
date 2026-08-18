@@ -1,2 +1,2 @@
-b009 original Drive WebP import after Drive API enable
-2026-08-18T15:57:00+09:00
+b009 production verification and cleanup
+2026-08-18T15:59:00+09:00
