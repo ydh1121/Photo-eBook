@@ -1,18 +1,28 @@
-/* v2: desktop-only alignment, full-viewport rail runway, and mouse-drag surfaces.
-   Mobile is an approved baseline; all visual changes stay at 1024px and above. */
+/* v3: desktop-only compact nav, clipped rail viewport, right-edge blur and card stability.
+   Mobile is the approved baseline: every visual rule in this file starts at 1024px. */
 @media (min-width:1024px){
-  /* Center the actual chapter bar itself instead of stretching a wide scrollport.
-     The progress layer and liquid indicator then stay inside the visible pill. */
+  /* ----------------------------------------------------------------------
+     Top chapter navigation
+     The previous max-content override could inherit a much larger intrinsic
+     width than the chips themselves. JS supplies the measured chip width; CSS
+     keeps the resulting glass capsule centered and preserves spring runway.
+     ---------------------------------------------------------------------- */
   .nav-shell{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    justify-items:center!important;
+    width:100%!important;
     padding-left:0!important;
     padding-right:0!important;
   }
   .nav-scroll{
     box-sizing:border-box!important;
-    width:max-content!important;
+    justify-self:center!important;
+    width:min(var(--desktop-nav-width,740px),calc(100vw - 64px))!important;
     max-width:calc(100vw - 64px)!important;
-    margin-left:auto!important;
-    margin-right:auto!important;
+    min-width:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
     padding:.34rem 28px!important;
     justify-content:flex-start!important;
     overflow-x:auto!important;
@@ -21,9 +31,13 @@
     -ms-overflow-style:none!important;
   }
   .nav-scroll::-webkit-scrollbar{display:none!important}
+  .nav-shell>.read-progress{display:none!important}
 
-  /* One desktop text line: standalone .content and .wide > .content previously
-     differed by one extra gutter, which made headings/body copy jump left/right. */
+  /* ----------------------------------------------------------------------
+     Desktop text alignment
+     Standalone .content and nested .wide > .content must resolve to the same
+     visual line. The mobile gutter remains untouched below this breakpoint.
+     ---------------------------------------------------------------------- */
   .section .content{
     width:min(calc(100vw - 64px),var(--content))!important;
     max-width:var(--content)!important;
@@ -33,63 +47,138 @@
     padding-right:0!important;
   }
 
-  /* Horizontal card/image rails use the viewport as the clipping boundary, not
-     the narrower .wide container. Their first item still starts on the same line
-     as normal body copy, while the right edge remains visually open. */
-  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow){
-    --desktop-rail-inset:max(32px,calc((100vw - var(--content)) / 2));
-    box-sizing:border-box!important;
+  /* ----------------------------------------------------------------------
+     Horizontal rail viewport
+     JS wraps each desktop content rail in .desktop-rail-window. The wrapper is
+     the hard clip boundary on the left. A real backdrop-filter overlay lives on
+     the right, so the next card is suggested without a solid wall of section
+     background. The first card starts on the body-copy line with ample shadow
+     runway before the viewport edge.
+     ---------------------------------------------------------------------- */
+  .desktop-rail-window{
+    --desktop-content-start:max(32px,calc((100vw - var(--content)) / 2));
+    --desktop-rail-edge:var(--canvas);
     position:relative!important;
-    left:auto!important;
-    right:auto!important;
+    box-sizing:border-box!important;
     width:100vw!important;
     max-width:none!important;
     margin-left:calc(50% - 50vw)!important;
     margin-right:calc(50% - 50vw)!important;
-    padding:24px var(--desktop-rail-inset) 34px!important;
-    scroll-padding-left:var(--desktop-rail-inset)!important;
-    scroll-padding-right:var(--desktop-rail-inset)!important;
+    overflow:hidden!important;
+    isolation:isolate!important;
+  }
+  .section.grouped .desktop-rail-window{
+    --desktop-rail-edge:var(--grouped);
+  }
+  .desktop-rail-window::after{
+    content:"";
+    position:absolute;
+    z-index:20;
+    top:0;
+    right:0;
+    bottom:0;
+    width:96px;
+    pointer-events:none;
+    background:linear-gradient(90deg,
+      transparent 0%,
+      color-mix(in srgb,var(--desktop-rail-edge) 18%,transparent) 24%,
+      color-mix(in srgb,var(--desktop-rail-edge) 52%,transparent) 62%,
+      color-mix(in srgb,var(--desktop-rail-edge) 82%,transparent) 100%);
+    -webkit-backdrop-filter:blur(10px) saturate(108%);
+    backdrop-filter:blur(10px) saturate(108%);
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.45) 28%,#000 66%);
+    mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.45) 28%,#000 66%);
+  }
+
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow){
+    box-sizing:border-box!important;
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding-top:24px!important;
+    padding-right:max(112px,var(--desktop-content-start))!important;
+    padding-bottom:34px!important;
+    padding-left:var(--desktop-content-start)!important;
+    scroll-padding-left:var(--desktop-content-start)!important;
+    scroll-padding-right:max(112px,var(--desktop-content-start))!important;
     background:transparent!important;
     background-color:transparent!important;
     background-image:none!important;
     box-shadow:none!important;
-    overflow-x:auto!important;
+    /* Programmatic scrollLeft still works with overflow:hidden. This removes
+       wheel/trackpad horizontal ownership, leaving mouse-grab as the only PC
+       horizontal input path. */
+    overflow-x:hidden!important;
     overflow-y:hidden!important;
     scrollbar-width:none!important;
     -ms-overflow-style:none!important;
-    overscroll-behavior-x:none!important;
+    overscroll-behavior:none!important;
     scroll-snap-type:none!important;
     touch-action:pan-y!important;
     cursor:grab!important;
     user-select:none!important;
     -webkit-user-select:none!important;
   }
-  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow)::-webkit-scrollbar{
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow)::-webkit-scrollbar{
     display:none!important;
     width:0!important;
     height:0!important;
   }
-  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow)>*{
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow)>*{
     scroll-snap-align:none!important;
     scroll-snap-stop:normal!important;
   }
-  .scroll-row::after{
+  .desktop-rail-window>.scroll-row::after{
     flex-basis:0!important;
     width:0!important;
   }
-
-  /* The entire rail is a drag surface on PC. Native text/image/link dragging is
-     disabled so a horizontal grab never turns into blue text selection. */
-  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow),
-  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow) *{
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow),
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow) *{
     user-select:none!important;
     -webkit-user-select:none!important;
   }
-  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow) :is(a,img){
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow) :is(a,img){
     -webkit-user-drag:none!important;
   }
-  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow).is-desktop-dragging{
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow).is-desktop-dragging{
     cursor:grabbing!important;
-    scroll-snap-type:none!important;
+  }
+
+  /* Practical-work cards had several older min-height/grid overrides stacked on
+     top of one another. Pin their desktop proportions and keep the embedded
+     recommendation row inside the card instead of letting it push/clip copy. */
+  .desktop-rail-window .skill-card--media{
+    flex:0 0 320px!important;
+    width:320px!important;
+    min-width:320px!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  .desktop-rail-window .skill-card--media .skill-card__body{
+    min-width:0!important;
+    min-height:0!important;
+  }
+  .desktop-rail-window .skill-card--media .skill-card__video-slot{
+    min-width:0!important;
+    min-height:104px!important;
+  }
+  .desktop-rail-window .skill-video-card--mini,
+  .desktop-rail-window .skill-video-card--matched{
+    width:100%!important;
+    min-width:0!important;
+    grid-template-columns:88px minmax(0,1fr) 40px!important;
+  }
+  .desktop-rail-window .skill-video-card--mini .skill-video-card__copy,
+  .desktop-rail-window .skill-video-card--matched .skill-video-card__copy{
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+  .desktop-rail-window .skill-video-card--discover{
+    flex:0 0 304px!important;
+    width:304px!important;
+    min-width:304px!important;
   }
 }
