@@ -1,9 +1,9 @@
-/* v19: chapter-aware nav state + chip-mapped reading progress.
+/* v20: chapter-aware nav state + chip-mapped reading progress.
    Active chip and progress are two outputs of the same measured page state.
    Progress advances inside the current chip according to the rendered chapter
    height, so different device/layout heights remain correct. */
 (function(){
-  function setupNavigationV19(){
+  function setupNavigationV20(){
     const shell=$('.nav-shell');
     const placeholder=$('.nav-placeholder');
     const navScroll=$('.nav-scroll');
@@ -127,7 +127,7 @@
       const nextChip=chipMap.get(id);
       if(!nextChip)return false;
 
-      const hasWrongActive=chips.some(chip=>chip.classList.contains('is-active')!== (chip===nextChip));
+      const hasWrongActive=chips.some(chip=>chip.classList.contains('is-active')!==(chip===nextChip));
       const changed=id!==activeId||activeChip!==nextChip||hasWrongActive;
       if(changed)normalizeActiveChip(nextChip,id);
 
@@ -150,22 +150,34 @@
       return Math.max(0,Math.min(1,(anchorAt(y)-start)/Math.max(1,end-start)));
     }
 
+    function rightRailInset(){
+      const value=parseFloat(getComputedStyle(navScroll).paddingRight||'0');
+      return Number.isFinite(value)?Math.max(0,value):0;
+    }
+
     function progressPixelsAt(y,index){
-      const item=metrics[Math.max(0,Math.min(index,metrics.length-1))];
+      const idx=Math.max(0,Math.min(index,metrics.length-1));
+      const item=metrics[idx];
       const chip=item?chipMap.get(item.id):null;
       if(!chip)return 0;
-      const local=chapterProgressAt(y,index);
-      return Math.max(0,chip.offsetLeft+(chip.offsetWidth*local));
+
+      const local=chapterProgressAt(y,idx);
+      const first=idx===0;
+      const last=idx===metrics.length-1;
+      const startPx=first?0:chip.offsetLeft;
+      const endPx=chip.offsetLeft+chip.offsetWidth+(last?rightRailInset():0);
+      return Math.max(0,startPx+((endPx-startPx)*local));
     }
 
     function paintProgress(y,index){
       if(!progressTrack?.isConnected)return;
-      const px=progressPixelsAt(y,index);
+      const idx=Math.max(0,Math.min(index,metrics.length-1));
+      const px=progressPixelsAt(y,idx);
       if(Math.abs(px-lastProgressPx)<.25)return;
       lastProgressPx=px;
       progressTrack.style.width=`${px.toFixed(2)}px`;
-      progressTrack.dataset.chapter=metrics[index]?.id||'';
-      progressTrack.style.setProperty('--chapter-local-progress',chapterProgressAt(y,index).toFixed(5));
+      progressTrack.dataset.chapter=metrics[idx]?.id||'';
+      progressTrack.style.setProperty('--chapter-local-progress',chapterProgressAt(y,idx).toFixed(5));
       /* Retire the older absolute-page wash. The semantic progress layer above
          now owns the visible fill. */
       navScroll.style.setProperty('--v32-progress','0%');
@@ -278,7 +290,7 @@
     addEventListener('touchcancel',()=>{isTouching=false;if(!supportsScrollEnd)scheduleFallbackScrollEnd();},{passive:true});
     if(supportsScrollEnd)addEventListener('scrollend',finishVerticalScroll,{passive:true});
 
-    navScroll.dataset.chapterProgressOwner='script-9-v19';
+    navScroll.dataset.chapterProgressOwner='script-9-v20';
     measure();
     lastY=scrollY();
     activeIndex=rawIndexAt(lastY);
@@ -302,7 +314,7 @@
     }
   }
 
-  window.setupNavigation=setupNavigationV19;
+  window.setupNavigation=setupNavigationV20;
 
   if(typeof window.__photoUiReadyResolve==='function'){
     window.__photoUiReadyResolve();
