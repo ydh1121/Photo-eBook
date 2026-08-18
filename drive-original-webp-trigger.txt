@@ -1,2 +1,2 @@
-b009 original Drive WebP import retry
-2026-08-18T14:50:00+09:00
+b009 original Drive WebP import after Drive API enable
+2026-08-18T15:57:00+09:00
