@@ -1,16 +1,23 @@
-/* v2: desktop content-rail input + current cross-device sync routing. No mobile visual mutations. */
+/* v3: desktop mouse-only content rails + current cross-device sync routing.
+   Vertical wheel input always stays vertical; mobile visual/input behavior is untouched. */
 (function(){
-  if(window.__photoDesktopPassV2Installed)return;
-  window.__photoDesktopPassV2Installed=true;
+  if(window.__photoDesktopPassV3Installed)return;
+  window.__photoDesktopPassV3Installed=true;
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
   const desktop=window.matchMedia('(min-width:1024px)');
-  const RAIL_SELECTOR='.scroll-row,#curatedLinksRow,#skillsInfiniteRow';
+  const RAIL_SELECTOR='.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow';
+
+  function wheelPixels(event){
+    if(event.deltaMode===1)return event.deltaY*20;
+    if(event.deltaMode===2)return event.deltaY*window.innerHeight;
+    return event.deltaY;
+  }
 
   function bindDesktopRail(rail){
-    if(!rail||rail.dataset.desktopRailV2==='true')return;
-    rail.dataset.desktopRailV2='true';
+    if(!rail||rail.dataset.desktopRailV3==='true')return;
+    rail.dataset.desktopRailV3='true';
 
     let pointerId=null;
     let startX=0;
@@ -18,17 +25,29 @@
     let dragging=false;
     let suppressClick=false;
 
+    /* A wheel/trackpad gesture over a horizontal rail must never consume the
+       page's vertical scrolling or move the rail sideways. Horizontal movement
+       is owned only by the mouse grab gesture below. */
     rail.addEventListener('wheel',event=>{
       if(!desktop.matches)return;
-      const max=Math.max(0,rail.scrollWidth-rail.clientWidth);
-      if(max<2)return;
-      const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
-      if(!delta)return;
-      const canMove=delta>0?rail.scrollLeft<max-1:rail.scrollLeft>1;
-      if(!canMove)return;
+      const y=wheelPixels(event);
+      if(event.cancelable)event.preventDefault();
+      event.stopImmediatePropagation();
+      if(y){
+        const root=document.scrollingElement||document.documentElement;
+        root.scrollTop+=y;
+      }
+    },{capture:true,passive:false});
+
+    rail.addEventListener('dragstart',event=>{
+      if(!desktop.matches)return;
       event.preventDefault();
-      rail.scrollLeft+=delta;
-    },{passive:false});
+    },true);
+
+    rail.addEventListener('selectstart',event=>{
+      if(!desktop.matches)return;
+      event.preventDefault();
+    },true);
 
     rail.addEventListener('pointerdown',event=>{
       if(!desktop.matches||event.pointerType!=='mouse'||event.button!==0)return;
@@ -38,30 +57,46 @@
       startScroll=rail.scrollLeft;
       dragging=false;
       suppressClick=false;
-      try{rail.setPointerCapture(pointerId);}catch{}
-    });
+      rail.classList.add('is-desktop-pointerdown');
+    },true);
 
     rail.addEventListener('pointermove',event=>{
       if(!desktop.matches||pointerId===null||event.pointerId!==pointerId)return;
       const dx=event.clientX-startX;
-      if(!dragging&&Math.abs(dx)<4)return;
-      dragging=true;
-      rail.classList.add('is-desktop-dragging');
+      if(!dragging&&Math.abs(dx)<5)return;
+      if(!dragging){
+        dragging=true;
+        rail.classList.add('is-desktop-dragging');
+        try{rail.setPointerCapture(pointerId);}catch{}
+      }
       rail.scrollLeft=startScroll-dx;
-      event.preventDefault();
+      if(event.cancelable)event.preventDefault();
     },{passive:false});
 
     const finishPointer=event=>{
       if(pointerId===null||event.pointerId!==pointerId)return;
       suppressClick=dragging;
       dragging=false;
-      rail.classList.remove('is-desktop-dragging');
+      rail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
       try{rail.releasePointerCapture(pointerId);}catch{}
       pointerId=null;
-      if(suppressClick)setTimeout(()=>{suppressClick=false;},140);
+      if(suppressClick)setTimeout(()=>{suppressClick=false;},180);
     };
-    rail.addEventListener('pointerup',finishPointer);
-    rail.addEventListener('pointercancel',finishPointer);
+    rail.addEventListener('pointerup',finishPointer,true);
+    rail.addEventListener('pointercancel',finishPointer,true);
+    rail.addEventListener('lostpointercapture',event=>{
+      if(pointerId!==null&&event.pointerId===pointerId){
+        rail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
+        pointerId=null;
+        dragging=false;
+      }
+    },true);
+    rail.addEventListener('pointerleave',()=>{
+      if(pointerId!==null&&!dragging){
+        rail.classList.remove('is-desktop-pointerdown');
+        pointerId=null;
+      }
+    },true);
 
     rail.addEventListener('click',event=>{
       if(!suppressClick)return;
@@ -94,13 +129,9 @@
       const backdrop=$('#askBackdrop');
       const historyTab=$('#askHistoryTab');
 
-      /* Use the current drawer owner first. HTMLElement.click() also works
-         while the launcher is visually hidden. */
       fab?.click();
 
       setTimeout(()=>{
-        /* Defensive fallback for a stale launcher state. This changes only the
-           opened sync workflow, never the normal mobile/desktop layout. */
         if(sheet?.hidden){
           sheet.hidden=false;
           if(backdrop)backdrop.hidden=false;
@@ -118,9 +149,6 @@
     setTimeout(open,close?260:0);
   }
 
-  /* script-14 still points this setting at a retired .ask-settings-btn.
-     Capture the dynamic settings row before that stale element listener and
-     route it to the live sync-key controls in script-5. */
   document.addEventListener('click',event=>{
     const deviceLink=event.target.closest?.('#collectionDeviceLink');
     if(deviceLink){
