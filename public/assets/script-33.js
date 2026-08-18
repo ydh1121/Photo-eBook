@@ -1,4 +1,6 @@
-/* v5: keep cross-device continuation inside the existing settings row as one continuous accordion. */
+/* v6: stable in-place cross-device continuation accordion.
+   Build the accordion before interaction, keep its panel mounted at all times,
+   and let CSS animate one persistent shell instead of creating/removing cards. */
 (function(){
   if(window.__photoCollectionHandoffV2Installed)return;
   window.__photoCollectionHandoffV2Installed=true;
@@ -52,21 +54,28 @@
     node.classList.toggle('is-error',Boolean(error));
   }
 
-  function ensureChevron(link){
-    if(!link)return null;
-    let chevron=link.querySelector(':scope > .collection-device-chevron');
-    if(!chevron){
-      const old=link.querySelector(':scope > b:last-child');
-      chevron=document.createElement('span');
-      chevron.className='collection-device-chevron';
-      chevron.setAttribute('aria-hidden','true');
-      chevron.innerHTML='<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
-      if(old)old.replaceWith(chevron);else link.appendChild(chevron);
-    }else if(!chevron.querySelector('svg')){
-      chevron.innerHTML='<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
-    }
-    chevron.setAttribute('aria-hidden','true');
-    return chevron;
+  function panelMarkup(){
+    return `<div class="collection-device-panel-clip">
+      <div class="collection-device-panel-inner">
+        <div class="collection-device-panel__current">
+          <div class="collection-device-panel__current-copy">
+            <small>이 기기의 연결 코드</small>
+            <code data-device-current-code></code>
+          </div>
+          <button type="button" class="collection-device-copy" data-device-panel-copy>복사</button>
+        </div>
+        <div class="collection-device-panel__divider" aria-hidden="true"></div>
+        <div class="collection-device-panel__group">
+          <label for="deviceCodeIncomingV2">다른 기기의 코드로 연결</label>
+          <p class="collection-device-panel__hint">다른 기기에서 복사한 연결 코드를 붙여넣으면 저장한 질문을 이어서 볼 수 있습니다.</p>
+          <div class="collection-device-panel__connect-row">
+            <input id="deviceCodeIncomingV2" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="48자리 연결 코드">
+            <button type="button" class="collection-device-connect" data-device-panel-connect>연결하기</button>
+          </div>
+        </div>
+        <div class="collection-device-panel__status" data-device-panel-status aria-live="polite"></div>
+      </div>
+    </div>`;
   }
 
   function ensureAccordion(link){
@@ -79,7 +88,6 @@
       settings.insertBefore(accordion,link);
       accordion.appendChild(link);
     }
-    ensureChevron(link);
     return accordion;
   }
 
@@ -87,50 +95,49 @@
     const accordion=ensureAccordion(link);
     if(!accordion)return null;
     let panel=accordion.querySelector(':scope > .collection-device-panel-v2');
-    if(panel)return panel;
-
-    const settings=accordion.closest('.collection-settings');
-    const oldPanel=settings?.querySelector(':scope > .collection-device-panel-v2');
-    if(oldPanel){
-      accordion.appendChild(oldPanel);
-      return oldPanel;
+    if(!panel){
+      panel=document.createElement('div');
+      panel.className='collection-device-panel-v2';
+      panel.innerHTML=panelMarkup();
+      accordion.appendChild(panel);
+    }else if(!panel.querySelector(':scope > .collection-device-panel-clip')){
+      panel.innerHTML=panelMarkup();
     }
-
-    panel=document.createElement('div');
-    panel.className='collection-device-panel-v2';
-    panel.hidden=true;
-    panel.innerHTML=`
-      <div class="collection-device-panel__current">
-        <div class="collection-device-panel__current-copy">
-          <small>이 기기의 연결 코드</small>
-          <code data-device-current-code></code>
-        </div>
-        <button type="button" class="collection-device-copy" data-device-panel-copy>복사</button>
-      </div>
-      <div class="collection-device-panel__divider" aria-hidden="true"></div>
-      <div class="collection-device-panel__group">
-        <label for="deviceCodeIncomingV2">다른 기기의 코드로 연결</label>
-        <p class="collection-device-panel__hint">다른 기기에서 복사한 연결 코드를 붙여넣으면 저장한 질문을 이어서 볼 수 있습니다.</p>
-        <div class="collection-device-panel__connect-row">
-          <input id="deviceCodeIncomingV2" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="48자리 연결 코드">
-          <button type="button" class="collection-device-connect" data-device-panel-connect>연결하기</button>
-        </div>
-      </div>
-      <div class="collection-device-panel__status" data-device-panel-status aria-live="polite"></div>`;
-    accordion.appendChild(panel);
+    panel.hidden=false;
+    panel.removeAttribute('hidden');
+    if(!panel.hasAttribute('aria-hidden'))panel.setAttribute('aria-hidden','true');
     return panel;
   }
 
+  function prepareLink(link){
+    if(!link)return null;
+    let safe=link;
+    if(link.dataset.deviceSafeV2!=='true'){
+      safe=link.cloneNode(true);
+      safe.dataset.deviceSafeV2='true';
+      safe.setAttribute('aria-expanded','false');
+      safe.querySelectorAll(':scope > b, :scope > .collection-device-chevron').forEach(node=>node.remove());
+      link.replaceWith(safe);
+    }
+    ensureAccordion(safe);
+    const panel=ensurePanel(safe);
+    const expanded=safe.getAttribute('aria-expanded')==='true';
+    safe.closest('.collection-device-accordion')?.classList.toggle('is-device-expanded',expanded);
+    panel?.setAttribute('aria-hidden',expanded?'false':'true');
+    return safe;
+  }
+
   function setExpanded(link,next){
-    const panel=ensurePanel(link);
-    const accordion=link.closest('.collection-device-accordion');
-    ensureChevron(link);
+    const safe=prepareLink(link);
+    if(!safe)return;
+    const panel=ensurePanel(safe);
+    const accordion=safe.closest('.collection-device-accordion');
     if(!panel||!accordion)return;
     const expanded=Boolean(next);
-    link.classList.toggle('is-device-expanded',expanded);
+    safe.classList.toggle('is-device-expanded',expanded);
     accordion.classList.toggle('is-device-expanded',expanded);
-    link.setAttribute('aria-expanded',expanded?'true':'false');
-    panel.hidden=!expanded;
+    safe.setAttribute('aria-expanded',expanded?'true':'false');
+    panel.setAttribute('aria-hidden',expanded?'false':'true');
     if(expanded){
       const code=panel.querySelector('[data-device-current-code]');
       if(code)code.textContent=publicCode();
@@ -138,7 +145,7 @@
     }
   }
 
-  function togglePanel(link){
+  function togglePrepared(link){
     setExpanded(link,link.getAttribute('aria-expanded')!=='true');
   }
 
@@ -191,29 +198,33 @@
     }
   }
 
-  function stripLegacyDeviceListener(){
-    const link=document.getElementById('collectionDeviceLink');
-    if(!link)return;
-    if(link.dataset.deviceSafeV2==='true'){
-      ensureAccordion(link);
-      return;
-    }
-    const clone=link.cloneNode(true);
-    clone.dataset.deviceSafeV2='true';
-    clone.setAttribute('aria-expanded','false');
-    link.replaceWith(clone);
-    ensureAccordion(clone);
+  function refresh(){
+    installRpcOverride();
+    prepareLink(document.getElementById('collectionDeviceLink'));
   }
-
-  function refresh(){installRpcOverride();stripLegacyDeviceListener();}
 
   window.addEventListener('click',event=>{
     const target=event.target instanceof Element?event.target:null;
     if(!target)return;
 
-    const link=target.closest('#collectionDeviceLink');
-    if(link){
-      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();togglePanel(link);return;
+    const rawLink=target.closest('#collectionDeviceLink');
+    if(rawLink){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      const wasPrepared=rawLink.dataset.deviceSafeV2==='true';
+      const safe=prepareLink(rawLink);
+      if(!safe)return;
+      if(wasPrepared){
+        togglePrepared(safe);
+      }else{
+        /* If the old script's button survived until the first click, establish
+           the collapsed frame first so the very first chevron/open transition
+           has a real starting style instead of snapping to the end state. */
+        safe.getBoundingClientRect();
+        requestAnimationFrame(()=>togglePrepared(safe));
+      }
+      return;
     }
 
     const panel=target.closest('.collection-device-panel-v2');
@@ -245,6 +256,6 @@
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
-  [120,400,1000,2200].forEach(ms=>setTimeout(refresh,ms));
-  window.addEventListener('pageshow',()=>setTimeout(refresh,120),{passive:true});
+  [80,180,360,700,1200,2200].forEach(ms=>setTimeout(refresh,ms));
+  window.addEventListener('pageshow',()=>setTimeout(refresh,80),{passive:true});
 })();
