@@ -1,6 +1,7 @@
 /* V1 semantic image-slot binder.
-   v3 keeps binding through async/re-rendered content and always uses the
-   slot runtime URL (including the slot cache revision) for ready assets. */
+   v4 keeps generated contextual slots for editorial imagery, but the gear
+   comparison deliberately uses verified real product photographs instead of
+   AI-generated product lookalikes. */
 (function(){
   if(window.__photoImageSlotBinderV1Installed)return;
   window.__photoImageSlotBinderV1Installed=true;
@@ -33,6 +34,18 @@
     }catch{return false;}
   }
 
+  function bindErrorFallback(img){
+    if(!img||img.dataset.photoImageErrorBound)return;
+    img.dataset.photoImageErrorBound='1';
+    img.addEventListener('error',()=>{
+      const target=img.dataset.photoImageTarget||'';
+      const fallback=img.dataset.photoImageFallback||'';
+      if(target&&img.getAttribute('src')===target&&fallback&&!sameAsset(img,fallback)){
+        img.setAttribute('src',fallback);
+      }
+    });
+  }
+
   function apply(img,slotId){
     if(!img||!slotReady(slotId))return false;
     const next=slotUrl(slotId);
@@ -42,19 +55,21 @@
     img.dataset.photoImageSlot=slotId;
     if(previous)img.dataset.photoImageFallback=previous;
     img.dataset.photoImageTarget=next;
-
-    if(!img.dataset.photoImageErrorBound){
-      img.dataset.photoImageErrorBound='1';
-      img.addEventListener('error',()=>{
-        const target=img.dataset.photoImageTarget||'';
-        const fallback=img.dataset.photoImageFallback||'';
-        if(target&&img.getAttribute('src')===target&&fallback&&!sameAsset(img,fallback)){
-          img.setAttribute('src',fallback);
-        }
-      });
-    }
-
+    bindErrorFallback(img);
     img.setAttribute('src',next);
+    return true;
+  }
+
+  function applyRealProduct(img,sourceId,url){
+    if(!img||!url)return false;
+    if(sameAsset(img,url))return false;
+    const previous=(img.dataset.photoImageFallback||img.getAttribute('src')||'').trim();
+    img.dataset.photoImageSlot=sourceId;
+    img.dataset.photoImageSource='wikimedia-commons';
+    if(previous)img.dataset.photoImageFallback=previous;
+    img.dataset.photoImageTarget=url;
+    bindErrorFallback(img);
+    img.setAttribute('src',url);
     return true;
   }
 
@@ -103,17 +118,28 @@
     });
   }
 
-  const GEAR_SLOTS={
-    'Sony A7 III':'gear-product-sony-a7-iii',
-    'Tamron 28-75mm F2.8 G2':'gear-product-tamron-28-75-g2',
-    'Sony FE 85mm F1.8':'gear-product-sony-fe-85-f18'
+  /* Product-comparison cards intentionally use real, licensed photographs.
+     Do not route these three cards through generated image slots. */
+  const GEAR_SOURCES={
+    'Sony A7 III':{
+      id:'gear-real-sony-a7-iii',
+      url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Sony_A_7_iii_full_frame_mirrorless_camera.jpg?width=1200'
+    },
+    'Tamron 28-75mm F2.8 G2':{
+      id:'gear-real-tamron-28-75-g2',
+      url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Tamron_28-75mm_F_2.8_Di_III_VXD_G2_(Model_A063)_(51622511368).jpg?width=1200'
+    },
+    'Sony FE 85mm F1.8':{
+      id:'gear-real-sony-fe-85-f18',
+      url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Sony_SEL85F18_1.jpg?width=1200'
+    }
   };
 
   function gear(root=document){
     $$('#gear .product-card',root).forEach(card=>{
       const title=$('h3',card)?.textContent?.trim()||'';
-      const slot=GEAR_SLOTS[title];
-      if(slot)apply($('.product-card__image img',card),slot);
+      const source=GEAR_SOURCES[title];
+      if(source)applyRealProduct($('.product-card__image img',card),source.id,source.url);
     });
   }
 
