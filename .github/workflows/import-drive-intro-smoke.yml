@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download exact Drive WebP
+      - name: Download exact Drive WebP through authenticated production proxy
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           import hashlib, urllib.request
           from pathlib import Path
-          file_id='1cqELYtiDdXDiNNcPD081_oT_l-4hrTt9'
-          url=f'https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t'
+          url='https://photo-ebook.pages.dev/drive-transfer-auth/1cqELYtiDdXDiNNcPD081_oT_l-4hrTt9'
           req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
           data=urllib.request.urlopen(req,timeout=45).read()
-          assert len(data)==117242, len(data)
+          assert len(data)==117242, (len(data), data[:100])
           assert hashlib.sha256(data).hexdigest()=='a8f71a5d0992c106aac7d1a3b1f2c61faf71fd2b86415283cc81a5f042d62c4b'
           assert data[:4]==b'RIFF' and data[8:12]==b'WEBP'
           p=Path('public/assets/images/generated/v1/chapter/intro.webp')
           p.write_bytes(data)
+          print('verified authenticated original', len(data))
           PY
       - name: Commit result
         shell: bash
