@@ -57,6 +57,15 @@
     }
   };
 
+  function setText(node,value){
+    const next=String(value??'');
+    if(node&&node.textContent!==next)node.textContent=next;
+  }
+  function setHtml(node,value){
+    const next=String(value??'');
+    if(node&&node.innerHTML!==next)node.innerHTML=next;
+  }
+
   function readQuestions(){
     try{
       const value=JSON.parse(localStorage.getItem(QUESTION_KEY)||'[]');
@@ -65,18 +74,13 @@
   }
 
   function patchStaticCopy(){
-    const heroTitle=$('.hero__body h1');
-    if(heroTitle)heroTitle.innerHTML='사진으로 먹고살기,<br>첫 12개월';
-    const heroSub=$('.hero__body>p');
-    if(heroSub)heroSub.innerHTML='국비로 배우고, 필요한 최소 장비를 구매하고, 재구매 고객을 만들어보세요.<br>월 순수익 300만 원까지 도전해보는 왕초보를 위한 기초 전략.';
+    setHtml($('.hero__body h1'),'사진으로 먹고살기,<br>첫 12개월');
+    setHtml($('.hero__body>p'),'국비로 배우고, 필요한 최소 장비를 구매하고, 재구매 고객을 만들어보세요.<br>월 순수익 300만 원까지 도전해보는 왕초보를 위한 기초 전략.');
 
     Object.entries(chapterCopy).forEach(([id,[title,desc]])=>{
-      const chapter=$(`.chapter[data-chapter="${id}"]`);
-      const hero=chapter?.querySelector('.chapter-hero__copy');
-      const h=hero?.querySelector('h2');
-      const p=hero?.querySelector('p');
-      if(h)h.textContent=title;
-      if(p)p.textContent=desc;
+      const hero=$(`.chapter[data-chapter="${id}"] .chapter-hero__copy`);
+      setText(hero?.querySelector('h2'),title);
+      setText(hero?.querySelector('p'),desc);
     });
 
     Object.entries(sectionCopy).forEach(([id,copy])=>{
@@ -84,20 +88,18 @@
       if(!heading)return;
       const h=heading.querySelector('h2');
       const p=heading.querySelector('p');
-      if(h){
-        if(copy.html)h.innerHTML=copy.html;
-        else if(copy.h)h.textContent=copy.h;
-      }
-      if(p&&copy.p)p.textContent=copy.p;
+      if(copy.html)setHtml(h,copy.html);
+      else if(copy.h)setText(h,copy.h);
+      if(copy.p)setText(p,copy.p);
     });
   }
 
   function patchEditLabel(){
     const toggle=$('.collection-select-toggle');
     if(!toggle)return;
-    if(toggle.textContent.trim()==='선택')toggle.textContent='편집';
-    if(!toggle.classList.contains('is-active')&&toggle.textContent.trim()!=='완료')toggle.textContent='편집';
-    toggle.setAttribute('aria-label',toggle.classList.contains('is-active')?'편집 완료':'저장 항목 편집');
+    if(!toggle.classList.contains('is-active'))setText(toggle,'편집');
+    const aria=toggle.classList.contains('is-active')?'편집 완료':'저장 항목 편집';
+    if(toggle.getAttribute('aria-label')!==aria)toggle.setAttribute('aria-label',aria);
   }
 
   function patchQuestionCards(){
@@ -111,9 +113,9 @@
       const detail=$('p',main||card);
       const selected=String(item.selected_text||'').trim();
       const question=String(item.question||'').trim();
-      if(type)type.textContent=selected?'선택한 내용':'질문';
-      if(strong)strong.textContent=selected||question||'저장한 질문';
-      if(detail)detail.textContent=selected&&question?`질문 · ${question}`:'';
+      setText(type,selected?'선택한 내용':'질문');
+      setText(strong,selected||question||'저장한 질문');
+      setText(detail,selected&&question?`질문 · ${question}`:'');
     });
   }
 
@@ -134,7 +136,7 @@
     patchCollection();
     if(collectionObserver)return;
     collectionObserver=new MutationObserver(patchCollection);
-    collectionObserver.observe(sheet,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class','hidden','aria-pressed']});
+    collectionObserver.observe(sheet,{subtree:true,childList:true,attributes:true,attributeFilter:['class','hidden','aria-pressed']});
     document.addEventListener('click',event=>{
       if(event.target.closest?.('#collectionFab,.collection-tab,.collection-select-toggle,[data-v40-qmode],#askSave'))setTimeout(patchCollection,0);
     },true);
