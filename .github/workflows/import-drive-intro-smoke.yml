@@ -10,29 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download exact Drive WebP through authenticated production proxy
+      - name: Read Cloudflare Drive service account identity
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import hashlib, urllib.request
-          from pathlib import Path
-          url='https://photo-ebook.pages.dev/drive-transfer-auth/1cqELYtiDdXDiNNcPD081_oT_l-4hrTt9'
-          req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
-          data=urllib.request.urlopen(req,timeout=45).read()
-          assert len(data)==117242, (len(data), data[:100])
-          assert hashlib.sha256(data).hexdigest()=='a8f71a5d0992c106aac7d1a3b1f2c61faf71fd2b86415283cc81a5f042d62c4b'
-          assert data[:4]==b'RIFF' and data[8:12]==b'WEBP'
-          p=Path('public/assets/images/generated/v1/chapter/intro.webp')
-          p.write_bytes(data)
-          print('verified authenticated original', len(data))
-          PY
-      - name: Commit result
+          for i in $(seq 1 18); do
+            email="$(curl -fsS --max-time 20 'https://photo-ebook.pages.dev/drive-transfer-auth/_identity' || true)"
+            if printf '%s' "$email" | grep -Eq '^[^[:space:]@]+@[^[:space:]@]+$'; then
+              printf '%s\n' "$email" > tmp-drive-service-account.txt
+              exit 0
+            fi
+            sleep 10
+          done
+          echo 'service account identity endpoint not ready' >&2
+          exit 1
+      - name: Commit temporary identity record
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'photo-ebook-image-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add public/assets/images/generated/v1/chapter/intro.webp
-          git commit -m 'Replace chapter intro with original Drive WebP'
+          git add tmp-drive-service-account.txt
+          git commit -m 'Record temporary Drive service account identity'
           git push
