@@ -1,0 +1,69 @@
+/* v1: device accordion final visual cleanup.
+   One outer border only; SVG chevron rotates continuously with the accordion. */
+
+.collection-device-accordion{
+  outline:0!important;
+  box-shadow:none!important;
+  background-clip:padding-box!important;
+}
+
+/* The trigger must never render its own card edge inside the accordion shell. */
+#collectionDeviceLink.collection-setting-row[data-device-safe-v2="true"]{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  border-radius:0!important;
+}
+#collectionDeviceLink.collection-setting-row[data-device-safe-v2="true"]::before,
+#collectionDeviceLink.collection-setting-row[data-device-safe-v2="true"]::after{
+  content:none!important;
+  display:none!important;
+}
+
+/* No second seam when expanded: the parent shell is the single border owner. */
+.collection-device-panel-v2,
+.collection-device-accordion.is-device-expanded .collection-device-panel-v2,
+html[data-theme="dark"] .collection-device-accordion.is-device-expanded .collection-device-panel-v2{
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}
+
+/* Real icon, not a text glyph. Rotate the icon itself through the transition. */
+#collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{
+  display:grid!important;
+  place-items:center!important;
+  width:20px!important;
+  height:20px!important;
+  flex:0 0 20px!important;
+  color:#8f98a6!important;
+  transform:rotate(0deg)!important;
+  transform-origin:50% 50%!important;
+  transition:transform .30s cubic-bezier(.22,.72,.18,1)!important;
+  will-change:transform!important;
+}
+html[data-theme="dark"] #collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{
+  color:#aeb6c2!important;
+}
+#collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron svg{
+  display:block!important;
+  width:16px!important;
+  height:16px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+.collection-device-accordion.is-device-expanded #collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{
+  transform:rotate(90deg)!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  #collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{transition-duration:.01ms!important}
+}
