@@ -1,17 +1,20 @@
-/* v5: desktop-only content-width rails, compact nav and tiered vertical rhythm.
-   Mobile is the approved baseline: every visual rule in this file starts at 1024px. */
+/* v6: desktop-only unified nav rail, shadow-safe horizontal cards, soft right continuation,
+   and semantic vertical rhythm. Mobile remains the approved baseline. */
 @media (min-width:1024px){
   :root{
+    --pc-space-xs:8px;
     --pc-space-tight:12px;
-    --pc-space-normal:24px;
-    --pc-space-loose:44px;
+    --pc-space-normal:28px;
+    --pc-space-loose:48px;
     --pc-space-major:72px;
   }
 
   /* ----------------------------------------------------------------------
      Top chapter navigation
-     One physical glass surface sized by the chips themselves. max-content keeps
-     the rail compact instead of stretching to the desktop content width. */
+     Progress and chapter chips belong to one physical rail. The reading
+     progress is painted into the same recessed glass track through
+     --v32-progress; the moving liquid chip remains above that track and may
+     visibly overshoot it during the existing Breeze spring motion. */
   .nav-shell{
     display:flex!important;
     justify-content:center!important;
@@ -19,31 +22,129 @@
     width:100%!important;
     padding-left:0!important;
     padding-right:0!important;
+    overflow:visible!important;
   }
   .nav-scroll{
+    position:relative!important;
+    isolation:isolate!important;
     box-sizing:border-box!important;
+    display:flex!important;
     flex:none!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:5px!important;
     width:max-content!important;
     max-width:calc(100vw - 64px)!important;
     min-width:0!important;
     margin:0 auto!important;
-    padding:.34rem 24px!important;
-    justify-content:flex-start!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
+    padding:4px 14px!important;
+    overflow:visible!important;
+    background:transparent!important;
+    background-color:transparent!important;
+    background-image:none!important;
+    border:0!important;
+    box-shadow:none!important;
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
     scrollbar-width:none!important;
     -ms-overflow-style:none!important;
   }
   .nav-scroll::-webkit-scrollbar{display:none!important}
+  .nav-scroll::before{
+    content:"";
+    position:absolute;
+    z-index:0;
+    left:0;
+    right:0;
+    top:10px;
+    bottom:10px;
+    border:1px solid rgba(255,255,255,.34);
+    border-radius:999px;
+    pointer-events:none;
+    background:
+      linear-gradient(90deg,
+        rgba(72,132,235,.22) 0%,
+        rgba(72,132,235,.13) var(--v32-progress,0%),
+        transparent var(--v32-progress,0%),
+        transparent 100%) padding-box,
+      linear-gradient(180deg,rgba(255,255,255,.46),rgba(230,236,245,.30)) padding-box,
+      linear-gradient(125deg,
+        rgba(255,255,255,.86),
+        rgba(255,255,255,.26) 32%,
+        rgba(153,183,225,.14) 58%,
+        rgba(255,255,255,.56) 82%,
+        rgba(255,255,255,.18)) border-box;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.48),
+      inset 0 -1px 0 rgba(58,79,112,.06),
+      0 5px 14px rgba(34,50,80,.055);
+    -webkit-backdrop-filter:blur(22px) saturate(138%);
+    backdrop-filter:blur(22px) saturate(138%);
+  }
+  html[data-theme="dark"] .nav-scroll::before{
+    border-color:rgba(255,255,255,.14);
+    background:
+      linear-gradient(90deg,
+        rgba(73,134,238,.20) 0%,
+        rgba(73,134,238,.11) var(--v32-progress,0%),
+        transparent var(--v32-progress,0%),
+        transparent 100%) padding-box,
+      linear-gradient(180deg,rgba(61,73,94,.52),rgba(22,27,35,.58)) padding-box,
+      linear-gradient(125deg,
+        rgba(255,255,255,.21),
+        rgba(255,255,255,.055) 30%,
+        rgba(91,134,195,.06) 56%,
+        rgba(255,255,255,.13) 79%,
+        rgba(255,255,255,.035)) border-box;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.075),
+      inset 0 -1px 0 rgba(0,0,0,.17),
+      0 7px 18px rgba(0,0,0,.16);
+    -webkit-backdrop-filter:blur(24px) saturate(126%);
+    backdrop-filter:blur(24px) saturate(126%);
+  }
+  .nav-scroll::after{content:none!important}
+  .nav-chip{
+    position:relative!important;
+    z-index:8!important;
+    flex:0 0 auto!important;
+    min-width:max-content!important;
+    min-height:42px!important;
+    height:42px!important;
+    padding:0 11px!important;
+    border:0!important;
+    background:transparent!important;
+    background-image:none!important;
+    box-shadow:none!important;
+  }
+  .nav-scroll.v41-skin-ready .nav-chip.is-active,
+  .nav-scroll.v39-liquid-ready .nav-chip.is-active{
+    background:transparent!important;
+    background-image:none!important;
+    box-shadow:none!important;
+  }
+  .nav-v33-indicator{
+    position:absolute!important;
+    z-index:6!important;
+    left:0!important;
+    top:0!important;
+    overflow:visible!important;
+    pointer-events:none!important;
+  }
+  .nav-v33-indicator>.v37-liquid-skin{
+    overflow:visible!important;
+  }
   .nav-shell>.read-progress,
   .nav-scroll>.nav-progress-liquid{
     display:none!important;
   }
 
   /* ----------------------------------------------------------------------
-     Desktop content line + rhythm
-     Four spacing levels: tight for related text, normal for local groups,
-     loose for distinct blocks, major for section boundaries. */
+     Desktop text line and vertical rhythm
+     Related sentences stay tight, headings and their bodies form one unit,
+     distinct guide blocks get a larger break, and full sections retain the
+     largest separation. */
   .section .content{
     width:min(calc(100vw - 64px),var(--content))!important;
     max-width:var(--content)!important;
@@ -54,57 +155,104 @@
   }
   .section{
     padding-top:var(--pc-space-major)!important;
-    padding-bottom:calc(var(--pc-space-major) + 12px)!important;
+    padding-bottom:calc(var(--pc-space-major) + 10px)!important;
   }
   .section-heading{
     margin-bottom:var(--pc-space-normal)!important;
+  }
+  .section-heading .eyebrow{
+    margin-bottom:var(--pc-space-xs)!important;
   }
   .section-heading h2 + p{
     margin-top:var(--pc-space-tight)!important;
   }
   .guide-stack{
-    gap:0!important;
+    display:grid!important;
+    gap:var(--pc-space-loose)!important;
+  }
+  .guide-block{
+    margin:0!important;
   }
   .guide-block + .guide-block{
-    margin-top:var(--pc-space-loose)!important;
+    margin-top:0!important;
   }
-  .guide-block>h3,
-  .subhead{
-    margin-bottom:var(--pc-space-tight)!important;
+  .guide-block>h3{
+    margin:0 0 var(--pc-space-tight)!important;
   }
   .guide-block__body p{
-    margin-bottom:10px!important;
+    margin:0!important;
   }
-  .guide-block__body p:last-child{
-    margin-bottom:0!important;
+  .guide-block__body p + p{
+    margin-top:var(--pc-space-xs)!important;
+  }
+  .guide-block :is(.guide-key,.callout-card){
+    margin-top:18px!important;
+  }
+  .guide-block>h3 + :is(.group-card,.scroll-row,.desktop-rail-window){
+    margin-top:0!important;
+  }
+  .subhead{
+    margin-bottom:14px!important;
+  }
+  .content>.subhead:not(:first-child){
+    margin-top:38px!important;
   }
   .desktop-rail-window + .content{
-    margin-top:var(--pc-space-loose)!important;
+    margin-top:var(--pc-space-normal)!important;
   }
-  .content>.guide-stack:first-child,
-  .content>.subhead:first-child{
-    margin-top:0!important;
+  .desktop-rail-window + .micro{
+    margin-top:var(--pc-space-xs)!important;
+  }
+  .desktop-rail-window + .micro + .subhead,
+  .micro + .subhead{
+    margin-top:26px!important;
   }
 
   /* ----------------------------------------------------------------------
      Horizontal content rails
-     The visible viewport is now exactly the same width and left/right alignment
-     as normal body copy. No negative left offset and no full-wide parent rail. */
+     The card face begins exactly on the body-copy line. A 16px paint runway is
+     added outside that line so the first card shadow is not clipped. The right
+     edge ends exactly on the body-copy right line. */
   .desktop-rail-window{
-    --desktop-rail-blur:56px;
+    --desktop-shadow-runway:16px;
+    --desktop-rail-blur:88px;
+    --desktop-section-bg:var(--canvas);
     position:relative!important;
     box-sizing:border-box!important;
-    width:min(100%,var(--content))!important;
-    max-width:var(--content)!important;
-    margin-left:auto!important;
-    margin-right:auto!important;
+    width:calc(min(100%,var(--content)) + var(--desktop-shadow-runway))!important;
+    max-width:none!important;
+    margin-left:calc((100% - min(100%,var(--content))) / 2 - var(--desktop-shadow-runway))!important;
+    margin-right:0!important;
     overflow:hidden!important;
     isolation:isolate!important;
     overscroll-behavior:auto!important;
   }
+  .section.grouped .desktop-rail-window{
+    --desktop-section-bg:var(--grouped);
+  }
 
-  /* Short, conventional continuation cue. It only blurs what is already under
-     the final 56px of the rail and does not paint an opaque edge color. */
+  /* Left runway is transparent only at the resting start so the first shadow
+     can paint. Once the row has moved, it becomes the hard left clipping edge. */
+  .desktop-rail-window::before{
+    content:"";
+    position:absolute;
+    z-index:22;
+    left:0;
+    top:0;
+    bottom:0;
+    width:var(--desktop-shadow-runway);
+    pointer-events:none;
+    opacity:0;
+    background:var(--desktop-section-bg);
+    transition:opacity 100ms linear;
+  }
+  .desktop-rail-window.is-scrolled-x::before{
+    opacity:1;
+  }
+
+  /* The child itself fades to zero alpha at the exact clipping boundary. The
+     matching blur overlay occupies the same zone, so there is no second hard
+     vertical line after the fade. */
   .desktop-rail-window::after{
     content:"";
     position:absolute;
@@ -114,22 +262,22 @@
     bottom:0;
     width:var(--desktop-rail-blur);
     pointer-events:none;
-    background:rgba(255,255,255,.008);
-    -webkit-backdrop-filter:blur(7px) saturate(104%);
-    backdrop-filter:blur(7px) saturate(104%);
+    background:rgba(255,255,255,.006);
+    -webkit-backdrop-filter:blur(8px) saturate(104%);
+    backdrop-filter:blur(8px) saturate(104%);
     -webkit-mask-image:linear-gradient(90deg,
       transparent 0%,
-      rgba(0,0,0,.08) 24%,
-      rgba(0,0,0,.38) 58%,
+      rgba(0,0,0,.12) 28%,
+      rgba(0,0,0,.55) 66%,
       #000 100%);
     mask-image:linear-gradient(90deg,
       transparent 0%,
-      rgba(0,0,0,.08) 24%,
-      rgba(0,0,0,.38) 58%,
+      rgba(0,0,0,.12) 28%,
+      rgba(0,0,0,.55) 66%,
       #000 100%);
   }
   html[data-theme="dark"] .desktop-rail-window::after{
-    background:rgba(13,15,19,.01);
+    background:rgba(13,15,19,.008);
   }
 
   .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow){
@@ -141,11 +289,11 @@
     max-width:none!important;
     margin:0!important;
     padding-top:18px!important;
-    padding-right:calc(var(--desktop-rail-blur) + 30px)!important;
+    padding-right:calc(var(--desktop-rail-blur) + 34px)!important;
     padding-bottom:30px!important;
-    padding-left:0!important;
-    scroll-padding-left:0!important;
-    scroll-padding-right:calc(var(--desktop-rail-blur) + 30px)!important;
+    padding-left:var(--desktop-shadow-runway)!important;
+    scroll-padding-left:var(--desktop-shadow-runway)!important;
+    scroll-padding-right:calc(var(--desktop-rail-blur) + 34px)!important;
     background:transparent!important;
     background-color:transparent!important;
     background-image:none!important;
@@ -160,6 +308,20 @@
     cursor:grab!important;
     user-select:none!important;
     -webkit-user-select:none!important;
+    -webkit-mask-image:linear-gradient(90deg,
+      #000 0%,
+      #000 calc(100% - 108px),
+      rgba(0,0,0,.94) calc(100% - 86px),
+      rgba(0,0,0,.62) calc(100% - 50px),
+      rgba(0,0,0,.22) calc(100% - 18px),
+      transparent 100%);
+    mask-image:linear-gradient(90deg,
+      #000 0%,
+      #000 calc(100% - 108px),
+      rgba(0,0,0,.94) calc(100% - 86px),
+      rgba(0,0,0,.62) calc(100% - 50px),
+      rgba(0,0,0,.22) calc(100% - 18px),
+      transparent 100%);
   }
   .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow)::-webkit-scrollbar{
     display:none!important;
@@ -220,7 +382,7 @@
     min-width:304px!important;
   }
 
-  /* 12-month profit cards: prevent numeric values splitting mid-token. */
+  /* 12-month profit cards: keep values intact and columns stable. */
   .desktop-rail-window .phase-card{
     flex:0 0 270px!important;
     width:270px!important;
