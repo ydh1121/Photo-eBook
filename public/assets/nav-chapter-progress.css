@@ -4,6 +4,7 @@
 
 .nav-scroll{
   --v32-progress:0%!important;
+  --chapter-progress-first-inset:28px;
 }
 
 .nav-scroll > .nav-chapter-progress{
@@ -32,6 +33,12 @@
   will-change:left,width;
 }
 
+/* In the first chapter the active pill already paints the current state. Do not
+   leave a detached blue gutter fragment to its left while that pill is active. */
+.nav-scroll > .nav-chapter-progress[data-chapter="intro"]{
+  clip-path:inset(0 0 0 var(--chapter-progress-first-inset) round 999px)!important;
+}
+
 html[data-theme="dark"] .nav-scroll > .nav-chapter-progress{
   background:linear-gradient(90deg,rgba(73,145,255,.38),rgba(73,145,255,.24))!important;
 }
@@ -45,6 +52,7 @@ html[data-theme="dark"] .nav-scroll > .nav-chapter-progress{
 }
 
 @media (min-width:1024px){
+  .nav-scroll{--chapter-progress-first-inset:.34rem}
   .nav-shell .nav-scroll > .nav-v33-indicator{z-index:30!important}
   .nav-shell .nav-scroll > .nav-chip{z-index:40!important}
 }
