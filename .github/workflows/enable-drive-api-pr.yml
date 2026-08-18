@@ -1,0 +1,15 @@
+name: Enable Drive API PR
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'enable-drive-api-trigger.txt'
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable Drive API once
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS 'https://photo-ebook.pages.dev/enable-drive-api'
