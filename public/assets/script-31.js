@@ -1,8 +1,8 @@
-/* v5: desktop-only delegated mouse-grab rails, measured rail start and lightweight dynamic repair.
+/* v6: desktop-only delegated mouse-grab rails with lightweight edge state.
    No wheel listeners, no nav sizing JS, no mobile visual/input mutations. */
 (function(){
-  if(window.__photoDesktopPassV5Installed)return;
-  window.__photoDesktopPassV5Installed=true;
+  if(window.__photoDesktopPassV6Installed)return;
+  window.__photoDesktopPassV6Installed=true;
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
@@ -20,24 +20,11 @@
 
   function railFrom(target){return target?.closest?.(RAIL_SELECTOR)||null;}
 
-  function referenceContent(rail){
-    const section=rail.closest('.section');
-    if(!section)return null;
-    return section.querySelector('.content.section-heading')||section.querySelector('.content')||null;
-  }
-
-  function alignRailWindow(rail){
-    const wrapper=rail?.parentElement;
+  function syncRailEdgeState(rail){
+    if(!rail)return;
+    const wrapper=rail.parentElement;
     if(!wrapper?.classList.contains('desktop-rail-window'))return;
-    const reference=referenceContent(rail);
-    if(!reference){
-      wrapper.style.setProperty('--desktop-rail-start','32px');
-      return;
-    }
-    const w=wrapper.getBoundingClientRect();
-    const r=reference.getBoundingClientRect();
-    const start=Math.max(20,Math.round(r.left-w.left));
-    wrapper.style.setProperty('--desktop-rail-start',`${start}px`);
+    wrapper.classList.toggle('is-scrolled-x',rail.scrollLeft>1);
   }
 
   function ensureRailWindow(rail){
@@ -51,7 +38,7 @@
       parent.insertBefore(wrapper,rail);
       wrapper.appendChild(rail);
     }
-    alignRailWindow(rail);
+    syncRailEdgeState(rail);
     return wrapper;
   }
 
@@ -84,8 +71,6 @@
   }
 
   function prepareDesktop(){
-    const nav=$('.nav-scroll');
-    nav?.style.removeProperty('--desktop-nav-width');
     if(!desktop.matches){
       unwrapRailWindows();
       return;
@@ -138,6 +123,7 @@
       try{activeRail.setPointerCapture(pointerId);}catch{}
     }
     activeRail.scrollLeft=startScroll-dx;
+    syncRailEdgeState(activeRail);
     if(event.cancelable)event.preventDefault();
   },{capture:true,passive:false});
 
@@ -150,6 +136,7 @@
     activeRail=null;
     pointerId=null;
     dragging=false;
+    syncRailEdgeState(rail);
     if(didDrag){
       suppressRail=rail;
       suppressUntil=performance.now()+220;
@@ -160,10 +147,18 @@
   document.addEventListener('pointercancel',finishPointer,true);
   document.addEventListener('lostpointercapture',event=>{
     if(!activeRail||pointerId===null||event.pointerId!==pointerId)return;
-    activeRail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
+    const rail=activeRail;
+    rail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');
     activeRail=null;
     pointerId=null;
     dragging=false;
+    syncRailEdgeState(rail);
+  },true);
+
+  document.addEventListener('scroll',event=>{
+    if(!desktop.matches)return;
+    const rail=railFrom(event.target);
+    if(rail)syncRailEdgeState(rail);
   },true);
 
   document.addEventListener('click',event=>{
@@ -220,8 +215,8 @@
 
   function watchDynamicRails(){
     const app=$('#app');
-    if(!app||app.dataset.desktopRailWatchV5==='true')return;
-    app.dataset.desktopRailWatchV5='true';
+    if(!app||app.dataset.desktopRailWatchV6==='true')return;
+    app.dataset.desktopRailWatchV6='true';
     const observer=new MutationObserver(records=>{
       if(!desktop.matches)return;
       for(const record of records){
