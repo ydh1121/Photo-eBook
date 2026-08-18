@@ -17,6 +17,7 @@
 4. 새 기능은 기존 selector, controller, storage key, layout owner와 충돌하지 않아야 한다.
 5. 디자인 변경은 요청받은 범위만 바꾼다. 전역 재디자인을 부수효과로 포함하지 않는다.
 6. 캐시 쿼리 버전 변경은 해당 asset이 실제 변경됐을 때만 한다.
+7. 한국어 UI/콘텐츠 문장을 새로 작성하거나 수정할 때는 `20-korean-copywriting-skill.md`와 Google Sheet `COPY_GUIDE`를 먼저 적용한다.
 
 ## 문서 지도
 
@@ -39,6 +40,7 @@
 - `16-ai-workflow-contract.md` — ChatGPT/Codex/향후 Skill이 V1을 적용하는 강제 작업 순서
 - `17-image-generation-system.md` — 본문 맥락 기반 이미지 슬롯, 프롬프트, WebP, Drive/Git 생성 파이프라인
 - `18-image-generation-commit-automation.md` — 이미지 생성 → QA → WebP → Git binary commit → Drive mirror → ready → queue → 배포검증 자동 수행 계약
+- `20-korean-copywriting-skill.md` — 한국어 문장 리듬, 금지 패턴, 모바일 줄바꿈, 자체 기획 촬영 표기, 사용자 확정 전후 예시
 - `modules/README.md` — 여러 화면에서 재사용하는 확정 UI/UX 모듈 라이브러리와 등록 규칙
 
 ## 규칙 ID
@@ -64,6 +66,7 @@
 - `REG-*` 회귀 방지
 - `MOD-*` 여러 컴포넌트를 결합한 재사용 UI/UX 모듈
 - `WORK-*` AI/Codex/Skill 작업 수행 규약
+- `WORK-COPY-*` 한국어 신규 작성/윤문/검수 규약
 - `WORK-IMG-*` 이미지 생성/커밋 자동 수행 규약
 - `IMG-SYS-*` 이미지 생성/배포 시스템
 
