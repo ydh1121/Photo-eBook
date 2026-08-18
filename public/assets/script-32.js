@@ -1,4 +1,4 @@
-/* v2: desktop-only mouse-drag hardening for horizontal content rails + collection popup outside-click close. */
+/* v3: desktop-only mouse-drag hardening, saved-sheet outside close, and nav liquid self-heal. */
 (function(){
   if(window.__photoDesktopRailPolishV1Installed)return;
   window.__photoDesktopRailPolishV1Installed=true;
@@ -10,7 +10,6 @@
     if(!rail||rail.dataset.desktopRailPolishV1==='true')return;
     rail.dataset.desktopRailPolishV1='true';
 
-    /* Browser-native drag ghosts from anchors/images can cancel pointer panning. */
     rail.addEventListener('dragstart',event=>{
       if(!desktop.matches)return;
       event.preventDefault();
@@ -22,9 +21,7 @@
       rail.classList.add('is-desktop-pointerdown');
     },true);
 
-    const clearPointerState=()=>{
-      rail.classList.remove('is-desktop-pointerdown');
-    };
+    const clearPointerState=()=>rail.classList.remove('is-desktop-pointerdown');
     rail.addEventListener('pointerup',clearPointerState,true);
     rail.addEventListener('pointercancel',clearPointerState,true);
     rail.addEventListener('lostpointercapture',clearPointerState,true);
@@ -33,9 +30,39 @@
     },true);
   }
 
+  function repairNavIndicator(){
+    if(!desktop.matches)return;
+    const nav=document.querySelector('.nav-scroll');
+    const active=nav?.querySelector('.nav-chip.is-active');
+    let indicator=nav?.querySelector('.nav-v33-indicator');
+    if(!nav||!active||!indicator)return;
+
+    let skin=indicator.querySelector(':scope > .v37-liquid-skin');
+    if(!skin){
+      skin=document.createElement('span');
+      skin.className='v37-liquid-skin';
+      skin.setAttribute('aria-hidden','true');
+      indicator.appendChild(skin);
+    }
+
+    const w=active.offsetWidth;
+    const h=active.offsetHeight;
+    if(!w||!h)return;
+    indicator.style.width=w+'px';
+    indicator.style.height=h+'px';
+    indicator.style.transform=`translate3d(${active.offsetLeft}px,${active.offsetTop}px,0)`;
+    indicator.dataset.x=String(active.offsetLeft);
+    indicator.dataset.y=String(active.offsetTop);
+    indicator.dataset.w=String(w);
+    indicator.dataset.h=String(h);
+    indicator.dataset.ready='true';
+    nav.classList.add('v41-skin-ready','v33-liquid-ready');
+  }
+
   function refresh(){
     if(!desktop.matches)return;
     document.querySelectorAll(RAIL_SELECTOR).forEach(bindRail);
+    repairNavIndicator();
   }
 
   function collectionSheetIsOpen(sheet){
@@ -46,14 +73,19 @@
 
   document.addEventListener('click',event=>{
     if(!desktop.matches)return;
+
+    if(event.target.closest?.('.nav-chip')){
+      /* Let the existing Breeze controller own the motion, then only heal the
+         final geometry in case an earlier stylesheet left the indicator hidden. */
+      setTimeout(repairNavIndicator,430);
+    }
+
     const sheet=document.getElementById('collectionSheet');
     if(!collectionSheetIsOpen(sheet))return;
     const target=event.target;
     if(!(target instanceof Element))return;
     if(target.closest('#collectionSheet,#collectionFab'))return;
 
-    /* Reuse the popup's own close path so body-lock, focus restoration and
-       animation state stay exactly the same as the existing close behavior. */
     const backdrop=document.getElementById('collectionBackdrop');
     if(backdrop){
       backdrop.click();
@@ -66,7 +98,8 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
   else refresh();
 
-  [120,420,1000,2200].forEach(delay=>setTimeout(refresh,delay));
+  [80,220,520,1200,2200].forEach(delay=>setTimeout(refresh,delay));
   window.addEventListener('pageshow',()=>setTimeout(refresh,120),{passive:true});
+  window.addEventListener('resize',()=>setTimeout(repairNavIndicator,80),{passive:true});
   desktop.addEventListener?.('change',()=>setTimeout(refresh,0));
 })();
