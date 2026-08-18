@@ -1,4 +1,4 @@
-/* v3: keep cross-device continuation inside the existing settings row as a real accordion. */
+/* v4: keep cross-device continuation inside the existing settings row as one continuous accordion. */
 (function(){
   if(window.__photoCollectionHandoffV2Installed)return;
   window.__photoCollectionHandoffV2Installed=true;
@@ -11,7 +11,6 @@
   }
   function writeQuestions(items){try{localStorage.setItem(QUESTION_KEY,JSON.stringify(items.slice(0,100)));}catch{}}
 
-  /* Existing storage/API rows use this internal prefix. It is never shown to users. */
   function makeInternalDeviceKey(){
     const bytes=new Uint8Array(24);
     try{crypto.getRandomValues(bytes);}catch{for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);}
@@ -53,11 +52,52 @@
     node.classList.toggle('is-error',Boolean(error));
   }
 
-  function ensurePanel(link){
+  function ensureChevron(link){
+    if(!link)return null;
+    let chevron=link.querySelector(':scope > .collection-device-chevron');
+    if(!chevron){
+      const existing=link.querySelector(':scope > b:last-child');
+      if(existing){
+        chevron=existing;
+        chevron.classList.add('collection-device-chevron');
+      }else{
+        chevron=document.createElement('b');
+        chevron.className='collection-device-chevron';
+        chevron.textContent='›';
+        link.appendChild(chevron);
+      }
+    }
+    chevron.setAttribute('aria-hidden','true');
+    return chevron;
+  }
+
+  function ensureAccordion(link){
     const settings=link?.closest('.collection-settings');
     if(!settings)return null;
-    let panel=settings.querySelector('.collection-device-panel-v2');
+    let accordion=link.closest('.collection-device-accordion');
+    if(!accordion){
+      accordion=document.createElement('div');
+      accordion.className='collection-device-accordion';
+      settings.insertBefore(accordion,link);
+      accordion.appendChild(link);
+    }
+    ensureChevron(link);
+    return accordion;
+  }
+
+  function ensurePanel(link){
+    const accordion=ensureAccordion(link);
+    if(!accordion)return null;
+    let panel=accordion.querySelector(':scope > .collection-device-panel-v2');
     if(panel)return panel;
+
+    /* Move a panel left behind by an older cached build into the same visual owner. */
+    const settings=accordion.closest('.collection-settings');
+    const oldPanel=settings?.querySelector(':scope > .collection-device-panel-v2');
+    if(oldPanel){
+      accordion.appendChild(oldPanel);
+      return oldPanel;
+    }
 
     panel=document.createElement('div');
     panel.className='collection-device-panel-v2';
@@ -80,17 +120,22 @@
         </div>
       </div>
       <div class="collection-device-panel__status" data-device-panel-status aria-live="polite"></div>`;
-    link.insertAdjacentElement('afterend',panel);
+    accordion.appendChild(panel);
     return panel;
   }
 
   function setExpanded(link,next){
     const panel=ensurePanel(link);
-    if(!panel)return;
+    const accordion=link.closest('.collection-device-accordion');
+    const chevron=ensureChevron(link);
+    if(!panel||!accordion)return;
     const expanded=Boolean(next);
     link.classList.toggle('is-device-expanded',expanded);
+    accordion.classList.toggle('is-device-expanded',expanded);
     link.setAttribute('aria-expanded',expanded?'true':'false');
     panel.hidden=!expanded;
+    /* Inline endpoint makes the arrow deterministic even if older CSS is cached. */
+    if(chevron)chevron.style.transform=expanded?'rotate(90deg)':'rotate(0deg)';
     if(expanded){
       const code=panel.querySelector('[data-device-current-code]');
       if(code)code.textContent=publicCode();
@@ -155,16 +200,20 @@
      launches a second modal. Clone just this row to remove that listener. */
   function stripLegacyDeviceListener(){
     const link=document.getElementById('collectionDeviceLink');
-    if(!link||link.dataset.deviceSafeV2==='true')return;
+    if(!link)return;
+    if(link.dataset.deviceSafeV2==='true'){
+      ensureAccordion(link);
+      return;
+    }
     const clone=link.cloneNode(true);
     clone.dataset.deviceSafeV2='true';
     clone.setAttribute('aria-expanded','false');
     link.replaceWith(clone);
+    ensureAccordion(clone);
   }
 
   function refresh(){installRpcOverride();stripLegacyDeviceListener();}
 
-  /* Window capture precedes the retired document/target path. */
   window.addEventListener('click',event=>{
     const target=event.target instanceof Element?event.target:null;
     if(!target)return;
