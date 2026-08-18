@@ -1,0 +1,6 @@
+/* v1: PC-only collection popup affordances. Mobile untouched. */
+@media (min-width:1024px){
+  #collectionFab{
+    cursor:pointer!important;
+  }
+}
