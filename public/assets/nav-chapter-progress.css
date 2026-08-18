@@ -4,19 +4,25 @@
 
 .nav-scroll{
   --v32-progress:0%!important;
+  /* Mobile's established vertical rail padding is .06rem / .16rem. Their
+     average is the visual breathing gap used by the progress cap. */
+  --chapter-progress-cap-inset:.11rem;
 }
 
 .nav-scroll > .nav-chapter-progress{
   position:absolute!important;
-  left:var(--chapter-progress-left,0px)!important;
+  /* script-9 owns the measured left coordinate. Do not mark left !important:
+     doing so would override the inline measurement and pin the wash to 0px. */
+  left:0;
   top:0!important;
   bottom:0!important;
   display:block!important;
   width:0;
   min-width:0!important;
   height:auto!important;
-  margin:0!important;
-  padding:0!important;
+  margin:0 0 0 calc(var(--chapter-progress-cap-inset) * -1)!important;
+  padding:0 0 0 var(--chapter-progress-cap-inset)!important;
+  box-sizing:content-box!important;
   border:0!important;
   border-radius:999px!important;
   outline:0!important;
@@ -33,9 +39,10 @@
   will-change:left,width;
 }
 
-/* The progress layer starts at the first chip's measured left edge in script-9.
-   Therefore the first visible state is a completed rounded wash directly behind
-   the Start pill, without painting the rail's outer left gutter. */
+/* The measured progress begins at the first chip. The negative margin plus
+   equal left padding extends only the visible left cap by the same amount as
+   the rail's vertical breathing room, while preserving the JS-calculated
+   completion point on the right. */
 
 html[data-theme="dark"] .nav-scroll > .nav-chapter-progress{
   background:linear-gradient(90deg,rgba(73,145,255,.38),rgba(73,145,255,.24))!important;
@@ -50,6 +57,7 @@ html[data-theme="dark"] .nav-scroll > .nav-chapter-progress{
 }
 
 @media (min-width:1024px){
+  .nav-scroll{--chapter-progress-cap-inset:.34rem}
   .nav-shell .nav-scroll > .nav-v33-indicator{z-index:30!important}
   .nav-shell .nav-scroll > .nav-chip{z-index:40!important}
 }
