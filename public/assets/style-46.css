@@ -1,4 +1,4 @@
-/* v1: robust open-state fallback for the cross-device accordion.
+/* v2: robust open-state fallback for the cross-device accordion.
    Runtime can insert helper nodes between the trigger and panel, so do not
    depend on the panel being the immediate (+) sibling of the trigger. */
 
@@ -26,6 +26,7 @@
 }
 
 .collection-settings .collection-device-accordion .collection-device-panel-inner{
+  padding:12px 14px 14px!important;
   opacity:0!important;
   transform:translateY(-6px)!important;
   transition:opacity .20s ease,transform .32s cubic-bezier(.22,.74,.24,1)!important;
@@ -42,5 +43,8 @@
   .collection-settings .collection-device-accordion:has(#collectionDeviceLink[aria-expanded="true"]) .collection-device-panel-v2,
   .collection-settings .collection-device-accordion > #collectionDeviceLink[aria-expanded="true"] ~ .collection-device-panel-v2{
     max-height:460px!important;
+  }
+  .collection-settings .collection-device-accordion .collection-device-panel-inner{
+    padding:11px 13px 13px!important;
   }
 }
