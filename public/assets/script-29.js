@@ -1,4 +1,4 @@
-/* v67: canonical question cleanup, fresh contextual drafts, and deterministic collection handoff. */
+/* v68: canonical question cleanup, fresh contextual drafts, and deterministic collection handoff. */
 (function(){
   if(window.__photoV66QuestionCanonicalInstalled)return;
   window.__photoV66QuestionCanonicalInstalled=true;
@@ -6,6 +6,7 @@
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const QUESTION_KEY='photoRoadmapQuestionsV2';
+  let writeDriveToken=0;
 
   function readQuestions(){
     try{
@@ -95,54 +96,131 @@
     if(body)body.scrollTop=0;
   }
 
+  function releaseLegacyQuestionModal(){
+    /* The original ask sheet still exists as a data/state owner. It must never
+       become the visible modal once the collection sheet owns question UI. */
+    const legacy=$('#askSheet');
+    const backdrop=$('#askBackdrop');
+    if(legacy)legacy.hidden=true;
+    if(backdrop){
+      backdrop.hidden=true;
+      backdrop.style.pointerEvents='none';
+    }
+    document.documentElement.classList.remove('ask-modal-locked');
+    document.body.classList.remove('ask-modal-locked','is-modal-open');
+    document.body.style.top='';
+  }
+
+  function writeModeMounted(){
+    const questionTab=$('.collection-tab[data-library-tab="question"]');
+    const write=$('#v40QuestionControls [data-v40-qmode="write"]');
+    const panel=$('#askWritePanel');
+    const body=$('#collectionBody');
+    return Boolean(
+      questionTab?.classList.contains('is-active')&&
+      write?.classList.contains('is-active')&&
+      panel&&body&&panel.parentNode===body
+    );
+  }
+
+  function driveWriteMode(afterMount){
+    const token=++writeDriveToken;
+    const started=performance.now();
+    let mountedPasses=0;
+    let filled=false;
+
+    const step=()=>{
+      if(token!==writeDriveToken)return;
+      releaseLegacyQuestionModal();
+      window.__photoPendingQuestionWrite=true;
+
+      const questionTab=$('.collection-tab[data-library-tab="question"]');
+      if(questionTab&&!questionTab.classList.contains('is-active'))questionTab.click();
+
+      ensureQuestionStructure();
+      forceWrite();
+
+      requestAnimationFrame(()=>{
+        if(token!==writeDriveToken)return;
+        ensureQuestionStructure();
+        if(writeModeMounted()){
+          mountedPasses++;
+          if(!filled&&typeof afterMount==='function'){
+            filled=true;
+            afterMount();
+          }
+        }else mountedPasses=0;
+
+        /* Require more than one stable frame because collection-tab rendering
+           is asynchronous and older handlers can repaint the saved list once. */
+        if(mountedPasses>=3){
+          setTimeout(()=>{
+            if(token===writeDriveToken&&writeModeMounted()){
+              window.__photoPendingQuestionWrite=false;
+            }
+          },180);
+          return;
+        }
+
+        if(performance.now()-started<1500)setTimeout(step,65);
+        else{
+          /* Last deterministic attempt. Leave the pending flag on briefly so a
+             late renderer still resolves to write mode instead of saved mode. */
+          window.__photoPendingQuestionWrite=true;
+          forceWrite();
+          setTimeout(()=>{if(token===writeDriveToken)window.__photoPendingQuestionWrite=false;},420);
+        }
+      });
+    };
+
+    step();
+  }
+
+  function openCollectionForQuestionWrite(afterMount){
+    window.__photoPendingQuestionWrite=true;
+    releaseLegacyQuestionModal();
+
+    const sheet=$('#collectionSheet');
+    const fab=$('#collectionFab');
+    if(!fab)return;
+    if(!sheet||sheet.hidden)fab.click();
+
+    /* Wait only for the collection shell itself; driveWriteMode then owns the
+       entire question-tab/write-mode transition until it is visibly mounted. */
+    const start=performance.now();
+    const wait=()=>{
+      const currentSheet=$('#collectionSheet');
+      const questionTab=$('.collection-tab[data-library-tab="question"]');
+      if(currentSheet&&!currentSheet.hidden&&questionTab){
+        driveWriteMode(afterMount);
+        return;
+      }
+      if(performance.now()-start<1200)setTimeout(wait,40);
+      else driveWriteMode(afterMount);
+    };
+    wait();
+  }
+
   function openSavedQuestionFromCollection(id){
     const item=readQuestions().find(row=>String(row?.id||'')===String(id||''));
     if(!item)return;
-
-    const questionTab=$('.collection-tab[data-library-tab="question"]');
-    window.__photoPendingQuestionWrite=true;
-    if(questionTab&&!questionTab.classList.contains('is-active'))questionTab.click();
-
-    const apply=()=>{
-      forceWrite();
-      requestAnimationFrame(()=>fillSavedQuestion(item));
-    };
-    setTimeout(apply,questionTab?.classList.contains('is-active')?20:90);
-    setTimeout(apply,190);
+    openCollectionForQuestionWrite(()=>fillSavedQuestion(item));
   }
 
   function openCurrentQuestionUi(){
     const bubble=$('#askBubble');
     if(bubble)bubble.hidden=true;
 
-    /* showBubble() already copied the newly selected text into #askQuote/state.
-       Reset only the question draft so a saved question cannot survive into a
-       fresh contextual handoff. */
+    /* showBubble() has already copied the newly selected text into #askQuote
+       and the legacy state object. Only clear the old question draft. */
     resetContextualQuestionDraft();
-
     try{window.getSelection?.().removeAllRanges();}catch{}
-
-    window.__photoPendingQuestionWrite=true;
-    const fab=$('#collectionFab');
-    const sheet=$('#collectionSheet');
-    const questionTab=$('.collection-tab[data-library-tab="question"]');
-    if(!fab||!questionTab){
-      window.__photoPendingQuestionWrite=false;
-      return;
-    }
-
-    if(sheet?.hidden)fab.click();
-
-    setTimeout(()=>{
-      questionTab.click();
-      /* The collection renderer and cleanup layers can finish on later frames.
-         The v40 owner keeps write mode authoritative through that short render
-         window, then clears the pending flag itself. */
-      [30,120,300].forEach(delay=>setTimeout(()=>{
-        ensureQuestionStructure();
-        forceWrite();
-      },delay));
-    },70);
+    openCollectionForQuestionWrite(()=>{
+      resetContextualQuestionDraft();
+      const body=$('#collectionBody');
+      if(body)body.scrollTop=0;
+      setTimeout(()=>$('#askInput')?.focus(),80);
+    });
   }
 
   window.addEventListener('click',event=>{
@@ -157,8 +235,7 @@
     }
 
     /* In the All tab, a saved-question card must first enter the Question tab
-       and then open that exact item in write mode. The old handler only worked
-       when the Question tab was already active. */
+       and then open that exact item in write mode. */
     const questionCard=target.closest('.collection-item[data-library-type="question"]');
     if(!questionCard)return;
     const body=questionCard.closest('#collectionBody');
@@ -175,6 +252,13 @@
 
   document.addEventListener('click',event=>{
     if(event.target.closest?.('.collection-tab[data-library-tab="question"],#collectionFab,[data-v40-qmode]'))schedule();
+
+    /* A deliberate close ends any forced contextual handoff. The next normal
+       collection opening can therefore default to the saved list again. */
+    if(event.target.closest?.('#collectionClose,#collectionBackdrop')){
+      writeDriveToken++;
+      window.__photoPendingQuestionWrite=false;
+    }
   },true);
 
   function init(){schedule();}
