@@ -1,4 +1,4 @@
-/* v37: event-driven liquid polish and bulk collection actions. Current v40 question motion is excluded here and owned by script-25. */
+/* v38: event-driven liquid polish and bulk collection actions. Current v40 question motion is excluded here and owned by script-25. */
 (function(){
   if(window.__photoV36Installed)return;
   window.__photoV36Installed=true;
@@ -14,6 +14,7 @@
   const ARTICLE_ITEMS_KEY='photoRoadmapCuratedFavoriteItemsV2';
   const QUESTION_KEY='photoRoadmapQuestionsV2';
   const DEVICE_KEY='photoRoadmapDeviceKeyV1';
+  const BULK_CACHE_KEY='photoRoadmapCollectionBulkCacheV1';
 
   function readArray(key){
     try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value:[];}catch{return [];}
@@ -108,8 +109,10 @@
   }
 
   /* ------------------------------------------------------------------------
-     Multi-select deletion. All work is triggered by opening/tab actions;
-     there is deliberately no document-wide MutationObserver.
+     Multi-select deletion. The active state and selected item keys are cached
+     in sessionStorage so a collection rerender, close/reopen, or hard refresh
+     does not silently drop an in-progress selection. Switching tabs or pressing
+     Done still ends the selection intentionally.
      ------------------------------------------------------------------------ */
   let bulkMode=false;
   const selected=new Set();
@@ -117,6 +120,33 @@
   function keyFor(card){return `${card?.dataset.libraryType||''}:${card?.dataset.libraryId||''}`;}
   function currentCards(){return $$('#collectionBody .collection-item');}
   function currentTab(){return $('.collection-tab.is-active')?.dataset.libraryTab||'all';}
+
+  function readBulkCache(){
+    try{
+      const value=JSON.parse(sessionStorage.getItem(BULK_CACHE_KEY)||'null');
+      return value&&typeof value==='object'?value:null;
+    }catch{return null;}
+  }
+
+  function persistBulkState(){
+    try{
+      sessionStorage.setItem(BULK_CACHE_KEY,JSON.stringify({
+        tab:currentTab(),
+        active:Boolean(bulkMode),
+        selected:[...selected]
+      }));
+    }catch{}
+  }
+
+  function restoreBulkState(){
+    const cache=readBulkCache();
+    if(!cache||cache.tab!==currentTab())return;
+    bulkMode=Boolean(cache.active)&&currentTab()!=='settings';
+    selected.clear();
+    if(bulkMode&&Array.isArray(cache.selected)){
+      cache.selected.forEach(key=>{if(typeof key==='string'&&key.includes(':'))selected.add(key);});
+    }
+  }
 
   function updateVisibleFavoriteButton(type,id){
     const safe=window.CSS?.escape?CSS.escape(String(id)):String(id).replace(/["\\]/g,'\\$&');
@@ -188,6 +218,7 @@
     if(toggle){
       toggle.textContent=bulkMode?'완료':'선택';
       toggle.classList.toggle('is-active',bulkMode);
+      toggle.setAttribute('aria-pressed',bulkMode?'true':'false');
       toggle.hidden=currentTab()==='settings'||!currentCards().length;
     }
     if(bar){
@@ -213,6 +244,7 @@
       toggle.className='collection-select-toggle';
       toggle.textContent='선택';
       toggle.setAttribute('aria-label','여러 항목 선택');
+      toggle.setAttribute('aria-pressed','false');
       head.appendChild(toggle);
     }
 
@@ -225,6 +257,7 @@
       sheet.appendChild(bar);
     }
 
+    restoreBulkState();
     enhanceCollectionCards();
     syncBulkUi();
   }
@@ -234,6 +267,7 @@
     if(!bulkMode)selected.clear();
     enhanceCollectionCards();
     syncBulkUi();
+    persistBulkState();
   }
 
   function toggleCard(card){
@@ -244,6 +278,7 @@
     card.classList.toggle('is-selected',selected.has(key));
     $('.collection-selectbox',card)?.setAttribute('aria-pressed',selected.has(key)?'true':'false');
     syncBulkUi();
+    persistBulkState();
   }
 
   function toggleAllVisible(){
@@ -255,6 +290,7 @@
     });
     enhanceCollectionCards();
     syncBulkUi();
+    persistBulkState();
   }
 
   function deleteSelected(){
@@ -266,6 +302,7 @@
     });
     selected.clear();
     bulkMode=false;
+    persistBulkState();
     refreshCounts();
     const active=$('.collection-tab.is-active');
     if(active)active.click();
@@ -294,7 +331,9 @@
       }
 
       if(event.target.closest?.('#collectionFab'))scheduleCollectionRefresh(120);
-      if(event.target.closest?.('#collectionClose,#collectionBackdrop'))setBulkMode(false);
+      /* Closing the sheet no longer destroys an active selection. The cached
+         state is restored when the same tab is opened again. */
+      if(event.target.closest?.('#collectionClose,#collectionBackdrop'))persistBulkState();
       if(event.target.closest?.('#askSave'))scheduleCollectionRefresh(100);
 
       const toggle=event.target.closest?.('.collection-select-toggle');
