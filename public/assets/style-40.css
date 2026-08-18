@@ -1,0 +1,36 @@
+/* v1: desktop right-edge rail fade stabilization.
+   Chromium can show vertical compositor seams when backdrop-filter and multiple
+   alpha masks overlap on a horizontally scrolling layer. Use one continuous
+   alpha mask on the rail itself and no backdrop-filter overlay. Mobile untouched. */
+@media (min-width:1024px){
+  .desktop-rail-window{
+    --desktop-rail-fade:112px;
+  }
+
+  /* Remove the composited blur veil that produced visible vertical bands. */
+  .desktop-rail-window::after{
+    content:none!important;
+    display:none!important;
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    -webkit-mask-image:none!important;
+    mask-image:none!important;
+  }
+
+  /* One fixed, continuous fade. It stays attached to the viewport edge of the
+     rail while cards move underneath, so there is no second clipping boundary. */
+  .desktop-rail-window>:is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow){
+    -webkit-mask-image:linear-gradient(90deg,
+      #000 0%,
+      #000 calc(100% - var(--desktop-rail-fade)),
+      transparent 100%)!important;
+    mask-image:linear-gradient(90deg,
+      #000 0%,
+      #000 calc(100% - var(--desktop-rail-fade)),
+      transparent 100%)!important;
+    -webkit-mask-repeat:no-repeat!important;
+    mask-repeat:no-repeat!important;
+    -webkit-mask-size:100% 100%!important;
+    mask-size:100% 100%!important;
+  }
+}
