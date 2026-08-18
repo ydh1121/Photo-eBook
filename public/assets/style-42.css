@@ -1,4 +1,4 @@
-/* v4: original header geometry + continuous device accordion + invisible collection scrollbar. */
+/* v5: original header geometry + one-piece animated device accordion + invisible collection scrollbar. */
 
 /* Header: preserve the established layout. Only the X glyph itself is redrawn. */
 .collection-head{
@@ -63,8 +63,9 @@
   display:none!important;
 }
 
-/* One visual owner for the accordion. This removes the seam between the row
-   and its expanded content while retaining the existing settings-card language. */
+/* One visual owner for the accordion. The parent owns every outer edge.
+   The trigger row never paints its own rounded rectangle, so opening cannot
+   leave the old closed-state card visible inside a second shell. */
 .collection-device-accordion{
   display:grid!important;
   grid-template-columns:minmax(0,1fr)!important;
@@ -75,6 +76,7 @@
   border-radius:18px!important;
   background:#fff!important;
   color:#292b30!important;
+  transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease!important;
 }
 html[data-theme="dark"] .collection-device-accordion{
   background:var(--v36-dark-surface,#171b21)!important;
@@ -87,46 +89,75 @@ html[data-theme="dark"] .collection-device-accordion{
   width:100%!important;
   margin:0!important;
   border:0!important;
-  border-radius:18px!important;
+  border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
   cursor:pointer!important;
   transition:background-color .16s ease!important;
 }
-#collectionDeviceLink[data-device-safe-v2="true"].is-device-expanded{
-  border-bottom-left-radius:0!important;
-  border-bottom-right-radius:0!important;
+#collectionDeviceLink[data-device-safe-v2="true"]:hover{
+  background:rgba(77,91,116,.035)!important;
+}
+html[data-theme="dark"] #collectionDeviceLink[data-device-safe-v2="true"]:hover{
+  background:rgba(255,255,255,.025)!important;
 }
 #collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{
   display:inline-block!important;
   flex:0 0 auto!important;
-  transform:rotate(0deg);
+  transform:rotate(0deg)!important;
   transform-origin:50% 50%!important;
-  transition:transform .18s cubic-bezier(.2,.7,.2,1)!important;
+  transition:transform .24s cubic-bezier(.22,.74,.24,1)!important;
 }
-#collectionDeviceLink[data-device-safe-v2="true"].is-device-expanded>.collection-device-chevron{
+.collection-device-accordion.is-device-expanded #collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{
   transform:rotate(90deg)!important;
 }
 
-/* Accordion body is a continuation of the same card, not a second card. */
+/* Accordion body rolls down from the trigger instead of popping in. */
 .collection-device-panel-v2{
   display:grid!important;
   gap:13px!important;
   width:100%!important;
+  max-height:0!important;
   margin:0!important;
-  padding:14px!important;
+  padding:0 14px!important;
   box-sizing:border-box!important;
+  overflow:hidden!important;
   border:0!important;
-  border-top:1px solid rgba(92,105,128,.10)!important;
+  border-top:1px solid transparent!important;
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
+  opacity:0!important;
+  transform:translateY(-8px)!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:
+    max-height .34s cubic-bezier(.22,.74,.24,1),
+    padding .28s cubic-bezier(.22,.74,.24,1),
+    opacity .20s ease,
+    transform .30s cubic-bezier(.22,.74,.24,1),
+    border-color .22s ease,
+    visibility 0s linear .34s!important;
 }
-.collection-device-panel-v2[hidden]{display:none!important}
-html[data-theme="dark"] .collection-device-panel-v2{
-  background:transparent!important;
+.collection-device-panel-v2[hidden]{display:grid!important}
+.collection-device-accordion.is-device-expanded .collection-device-panel-v2{
+  max-height:330px!important;
+  padding:14px!important;
+  border-top-color:rgba(92,105,128,.10)!important;
+  opacity:1!important;
+  transform:translateY(0)!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:
+    max-height .36s cubic-bezier(.22,.74,.24,1),
+    padding .30s cubic-bezier(.22,.74,.24,1),
+    opacity .22s ease .04s,
+    transform .32s cubic-bezier(.22,.74,.24,1),
+    border-color .22s ease,
+    visibility 0s!important;
+}
+html[data-theme="dark"] .collection-device-accordion.is-device-expanded .collection-device-panel-v2{
   border-top-color:rgba(255,255,255,.065)!important;
-  box-shadow:none!important;
 }
 
 .collection-device-panel__current{
@@ -245,7 +276,14 @@ html[data-theme="dark"] .collection-device-panel-v2 input{
 .collection-device-panel__status.is-error{display:block!important;color:#df5e62!important}
 
 @media(max-width:560px){
-  .collection-device-panel-v2{padding:13px!important}
+  .collection-device-accordion.is-device-expanded .collection-device-panel-v2{max-height:430px!important;padding:13px!important}
   .collection-device-panel__connect-row{grid-template-columns:1fr!important}
   .collection-device-panel-v2 .collection-device-connect{width:100%!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .collection-device-panel-v2,
+  #collectionDeviceLink[data-device-safe-v2="true"]>.collection-device-chevron{
+    transition:none!important;
+  }
 }
