@@ -1,4 +1,4 @@
-/* v38: event-driven liquid polish and bulk collection actions. Current v40 question motion is excluded here and owned by script-25. */
+/* v39: event-driven liquid polish and collection-wide bulk selection state. Current v40 question motion is excluded here and owned by script-25. */
 (function(){
   if(window.__photoV36Installed)return;
   window.__photoV36Installed=true;
@@ -109,10 +109,11 @@
   }
 
   /* ------------------------------------------------------------------------
-     Multi-select deletion. The active state and selected item keys are cached
-     in sessionStorage so a collection rerender, close/reopen, or hard refresh
-     does not silently drop an in-progress selection. Switching tabs or pressing
-     Done still ends the selection intentionally.
+     Multi-select deletion. Selection mode is collection-wide, not tab-local.
+     The active state and selected item keys are cached in sessionStorage so
+     switching between All / Video / Reading / Question, closing/reopening, or
+     reloading the page does not silently disable selection. Only pressing Done
+     or completing deletion intentionally clears the cached selection.
      ------------------------------------------------------------------------ */
   let bulkMode=false;
   const selected=new Set();
@@ -131,7 +132,6 @@
   function persistBulkState(){
     try{
       sessionStorage.setItem(BULK_CACHE_KEY,JSON.stringify({
-        tab:currentTab(),
         active:Boolean(bulkMode),
         selected:[...selected]
       }));
@@ -140,10 +140,10 @@
 
   function restoreBulkState(){
     const cache=readBulkCache();
-    if(!cache||cache.tab!==currentTab())return;
-    bulkMode=Boolean(cache.active)&&currentTab()!=='settings';
+    if(!cache)return;
+    bulkMode=Boolean(cache.active);
     selected.clear();
-    if(bulkMode&&Array.isArray(cache.selected)){
+    if(Array.isArray(cache.selected)){
       cache.selected.forEach(key=>{if(typeof key==='string'&&key.includes(':'))selected.add(key);});
     }
   }
@@ -222,7 +222,7 @@
       toggle.hidden=currentTab()==='settings'||!currentCards().length;
     }
     if(bar){
-      bar.hidden=!bulkMode;
+      bar.hidden=!bulkMode||currentTab()==='settings';
       const count=$('.collection-bulkbar__count',bar);if(count)count.textContent=`${selected.size}개 선택`;
       const del=$('.collection-bulkbar__delete',bar);if(del)del.disabled=selected.size===0;
       const cards=currentCards().filter(card=>keyFor(card)!==':');
@@ -326,13 +326,13 @@
 
       const collectionTab=event.target.closest?.('.collection-tab');
       if(collectionTab){
-        if(bulkMode)setBulkMode(false);
+        /* Selection mode is deliberately NOT cleared on tab changes. */
+        persistBulkState();
         scheduleCollectionRefresh(90);
+        scheduleCollectionRefresh(220);
       }
 
       if(event.target.closest?.('#collectionFab'))scheduleCollectionRefresh(120);
-      /* Closing the sheet no longer destroys an active selection. The cached
-         state is restored when the same tab is opened again. */
       if(event.target.closest?.('#collectionClose,#collectionBackdrop'))persistBulkState();
       if(event.target.closest?.('#askSave'))scheduleCollectionRefresh(100);
 
