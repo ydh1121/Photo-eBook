@@ -1,0 +1,46 @@
+/* v1: robust open-state fallback for the cross-device accordion.
+   Runtime can insert helper nodes between the trigger and panel, so do not
+   depend on the panel being the immediate (+) sibling of the trigger. */
+
+.collection-settings .collection-device-accordion .collection-device-panel-v2{
+  display:block!important;
+  height:auto!important;
+  max-height:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  visibility:visible!important;
+  opacity:1!important;
+  transform:none!important;
+  pointer-events:none!important;
+  transition:max-height .36s cubic-bezier(.22,.74,.24,1)!important;
+}
+
+/* Use all three state paths so one DOM wrapper/re-render cannot break opening. */
+.collection-settings .collection-device-accordion.is-device-expanded .collection-device-panel-v2,
+.collection-settings .collection-device-accordion:has(#collectionDeviceLink[aria-expanded="true"]) .collection-device-panel-v2,
+.collection-settings .collection-device-accordion > #collectionDeviceLink[aria-expanded="true"] ~ .collection-device-panel-v2{
+  max-height:360px!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+.collection-settings .collection-device-accordion .collection-device-panel-inner{
+  opacity:0!important;
+  transform:translateY(-6px)!important;
+  transition:opacity .20s ease,transform .32s cubic-bezier(.22,.74,.24,1)!important;
+}
+.collection-settings .collection-device-accordion.is-device-expanded .collection-device-panel-inner,
+.collection-settings .collection-device-accordion:has(#collectionDeviceLink[aria-expanded="true"]) .collection-device-panel-inner,
+.collection-settings .collection-device-accordion > #collectionDeviceLink[aria-expanded="true"] ~ .collection-device-panel-v2 .collection-device-panel-inner{
+  opacity:1!important;
+  transform:translateY(0)!important;
+}
+
+@media(max-width:560px){
+  .collection-settings .collection-device-accordion.is-device-expanded .collection-device-panel-v2,
+  .collection-settings .collection-device-accordion:has(#collectionDeviceLink[aria-expanded="true"]) .collection-device-panel-v2,
+  .collection-settings .collection-device-accordion > #collectionDeviceLink[aria-expanded="true"] ~ .collection-device-panel-v2{
+    max-height:460px!important;
+  }
+}
