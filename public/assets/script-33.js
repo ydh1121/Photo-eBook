@@ -1,6 +1,6 @@
-/* v6: stable in-place cross-device continuation accordion.
-   Build the accordion before interaction, keep its panel mounted at all times,
-   and let CSS animate one persistent shell instead of creating/removing cards. */
+/* v7: stable in-place cross-device continuation accordion.
+   Build before interaction, keep the panel mounted, and animate its exact
+   measured height inside one persistent outer shell. */
 (function(){
   if(window.__photoCollectionHandoffV2Installed)return;
   window.__photoCollectionHandoffV2Installed=true;
@@ -47,11 +47,24 @@
     window.apiRpc=wrapped;
   }
 
+  function syncPanelHeight(subject){
+    const accordion=subject?.classList?.contains('collection-device-accordion')
+      ? subject
+      : subject?.closest?.('.collection-device-accordion');
+    if(!accordion)return;
+    const panel=accordion.querySelector(':scope > .collection-device-panel-v2');
+    const clip=panel?.querySelector(':scope > .collection-device-panel-clip');
+    if(!panel||!clip)return;
+    const height=Math.max(0,Math.ceil(clip.scrollHeight));
+    accordion.style.setProperty('--device-panel-height',`${height}px`);
+  }
+
   function status(panel,text,error=false){
     const node=panel?.querySelector('[data-device-panel-status]');
     if(!node)return;
     node.textContent=text||'';
     node.classList.toggle('is-error',Boolean(error));
+    requestAnimationFrame(()=>syncPanelHeight(panel));
   }
 
   function panelMarkup(){
@@ -106,6 +119,7 @@
     panel.hidden=false;
     panel.removeAttribute('hidden');
     if(!panel.hasAttribute('aria-hidden'))panel.setAttribute('aria-hidden','true');
+    syncPanelHeight(accordion);
     return panel;
   }
 
@@ -119,11 +133,12 @@
       safe.querySelectorAll(':scope > b, :scope > .collection-device-chevron').forEach(node=>node.remove());
       link.replaceWith(safe);
     }
-    ensureAccordion(safe);
+    const accordion=ensureAccordion(safe);
     const panel=ensurePanel(safe);
     const expanded=safe.getAttribute('aria-expanded')==='true';
-    safe.closest('.collection-device-accordion')?.classList.toggle('is-device-expanded',expanded);
+    accordion?.classList.toggle('is-device-expanded',expanded);
     panel?.setAttribute('aria-hidden',expanded?'false':'true');
+    syncPanelHeight(accordion);
     return safe;
   }
 
@@ -134,15 +149,29 @@
     const accordion=safe.closest('.collection-device-accordion');
     if(!panel||!accordion)return;
     const expanded=Boolean(next);
-    safe.classList.toggle('is-device-expanded',expanded);
-    accordion.classList.toggle('is-device-expanded',expanded);
-    safe.setAttribute('aria-expanded',expanded?'true':'false');
-    panel.setAttribute('aria-hidden',expanded?'false':'true');
+
     if(expanded){
       const code=panel.querySelector('[data-device-current-code]');
       if(code)code.textContent=publicCode();
       status(panel,'');
+      syncPanelHeight(accordion);
+      /* Measure while still collapsed, then flip state on the next frame so the
+         browser has a real 0px -> measured-height transition. */
+      accordion.getBoundingClientRect();
+      requestAnimationFrame(()=>{
+        safe.classList.add('is-device-expanded');
+        accordion.classList.add('is-device-expanded');
+        safe.setAttribute('aria-expanded','true');
+        panel.setAttribute('aria-hidden','false');
+        syncPanelHeight(accordion);
+      });
+      return;
     }
+
+    safe.classList.remove('is-device-expanded');
+    accordion.classList.remove('is-device-expanded');
+    safe.setAttribute('aria-expanded','false');
+    panel.setAttribute('aria-hidden','true');
   }
 
   function togglePrepared(link){
@@ -218,9 +247,6 @@
       if(wasPrepared){
         togglePrepared(safe);
       }else{
-        /* If the old script's button survived until the first click, establish
-           the collapsed frame first so the very first chevron/open transition
-           has a real starting style instead of snapping to the end state. */
         safe.getBoundingClientRect();
         requestAnimationFrame(()=>togglePrepared(safe));
       }
@@ -258,4 +284,7 @@
   else init();
   [80,180,360,700,1200,2200].forEach(ms=>setTimeout(refresh,ms));
   window.addEventListener('pageshow',()=>setTimeout(refresh,80),{passive:true});
+  window.addEventListener('resize',()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.collection-device-accordion').forEach(syncPanelHeight);
+  }),{passive:true});
 })();
