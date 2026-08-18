@@ -1,4 +1,4 @@
-/* v4: keep cross-device continuation inside the existing settings row as one continuous accordion. */
+/* v5: keep cross-device continuation inside the existing settings row as one continuous accordion. */
 (function(){
   if(window.__photoCollectionHandoffV2Installed)return;
   window.__photoCollectionHandoffV2Installed=true;
@@ -56,16 +56,14 @@
     if(!link)return null;
     let chevron=link.querySelector(':scope > .collection-device-chevron');
     if(!chevron){
-      const existing=link.querySelector(':scope > b:last-child');
-      if(existing){
-        chevron=existing;
-        chevron.classList.add('collection-device-chevron');
-      }else{
-        chevron=document.createElement('b');
-        chevron.className='collection-device-chevron';
-        chevron.textContent='›';
-        link.appendChild(chevron);
-      }
+      const old=link.querySelector(':scope > b:last-child');
+      chevron=document.createElement('span');
+      chevron.className='collection-device-chevron';
+      chevron.setAttribute('aria-hidden','true');
+      chevron.innerHTML='<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+      if(old)old.replaceWith(chevron);else link.appendChild(chevron);
+    }else if(!chevron.querySelector('svg')){
+      chevron.innerHTML='<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
     }
     chevron.setAttribute('aria-hidden','true');
     return chevron;
@@ -91,7 +89,6 @@
     let panel=accordion.querySelector(':scope > .collection-device-panel-v2');
     if(panel)return panel;
 
-    /* Move a panel left behind by an older cached build into the same visual owner. */
     const settings=accordion.closest('.collection-settings');
     const oldPanel=settings?.querySelector(':scope > .collection-device-panel-v2');
     if(oldPanel){
@@ -127,15 +124,13 @@
   function setExpanded(link,next){
     const panel=ensurePanel(link);
     const accordion=link.closest('.collection-device-accordion');
-    const chevron=ensureChevron(link);
+    ensureChevron(link);
     if(!panel||!accordion)return;
     const expanded=Boolean(next);
     link.classList.toggle('is-device-expanded',expanded);
     accordion.classList.toggle('is-device-expanded',expanded);
     link.setAttribute('aria-expanded',expanded?'true':'false');
     panel.hidden=!expanded;
-    /* Inline endpoint makes the arrow deterministic even if older CSS is cached. */
-    if(chevron)chevron.style.transform=expanded?'rotate(90deg)':'rotate(0deg)';
     if(expanded){
       const code=panel.querySelector('[data-device-current-code]');
       if(code)code.textContent=publicCode();
@@ -196,8 +191,6 @@
     }
   }
 
-  /* script-14 attaches an obsolete direct listener that closes My Collection and
-     launches a second modal. Clone just this row to remove that listener. */
   function stripLegacyDeviceListener(){
     const link=document.getElementById('collectionDeviceLink');
     if(!link)return;
