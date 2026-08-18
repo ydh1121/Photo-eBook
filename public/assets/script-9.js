@@ -1,6 +1,9 @@
-/* v18: no competing work while vertical scrolling */
+/* v19: chapter-aware nav state + chip-mapped reading progress.
+   Active chip and progress are two outputs of the same measured page state.
+   Progress advances inside the current chip according to the rendered chapter
+   height, so different device/layout heights remain correct. */
 (function(){
-  function setupNavigationV18(){
+  function setupNavigationV19(){
     const shell=$('.nav-shell');
     const placeholder=$('.nav-placeholder');
     const navScroll=$('.nav-scroll');
@@ -25,10 +28,18 @@
     const root=document.scrollingElement||document.documentElement;
     const chipMap=new Map(chips.map(chip=>[chip.dataset.target,chip]));
 
+    let progressTrack=navScroll.querySelector(':scope > .nav-chapter-progress');
+    if(!progressTrack){
+      progressTrack=document.createElement('span');
+      progressTrack.className='nav-chapter-progress';
+      progressTrack.setAttribute('aria-hidden','true');
+      navScroll.prepend(progressTrack);
+    }
+
     let metrics=[];
     let activeId='';
     let activeIndex=0;
-    let activeChip=null;
+    let activeChip=navScroll.querySelector('.nav-chip.is-active');
     let pendingAlignChip=null;
     let progressMax=1;
     let navHeight=76;
@@ -37,7 +48,7 @@
     let fallbackScrollEndTimer=0;
     let layoutTimer=0;
     let clickLockId='';
-    let lastProgress=-1;
+    let lastProgressPx=-1;
     let lastY=0;
     let direction=1;
     let isTouching=false;
@@ -65,9 +76,13 @@
       }
     }
 
+    function anchorAt(y){
+      return y+navHeight+20;
+    }
+
     function rawIndexAt(y){
       if(!metrics.length)return 0;
-      const line=y+navHeight+20;
+      const line=anchorAt(y);
       let lo=0,hi=metrics.length-1,answer=0;
       while(lo<=hi){
         const mid=(lo+hi)>>1;
@@ -82,7 +97,7 @@
       if(!activeId)return rawIndexAt(y);
 
       let idx=Math.max(0,Math.min(activeIndex,metrics.length-1));
-      const line=y+navHeight+20;
+      const line=anchorAt(y);
       if(direction>=0){
         while(idx<metrics.length-1&&line>=metrics[idx+1].top+ENTER_DOWN)idx++;
       }else{
@@ -99,20 +114,22 @@
       if(Math.abs(next-navScroll.scrollLeft)>1)navScroll.scrollLeft=next;
     }
 
+    function normalizeActiveChip(nextChip,id){
+      chips.forEach(chip=>chip.classList.toggle('is-active',chip===nextChip));
+      activeChip=nextChip;
+      activeId=id;
+      const idx=metrics.findIndex(item=>item.id===id);
+      if(idx>=0)activeIndex=idx;
+    }
+
     function setActiveChip(id,{queueAlign=true,alignNow=false}={}){
       if(!id)return false;
       const nextChip=chipMap.get(id);
       if(!nextChip)return false;
 
-      const changed=id!==activeId;
-      if(changed){
-        if(activeChip)activeChip.classList.remove('is-active');
-        nextChip.classList.add('is-active');
-        activeChip=nextChip;
-        activeId=id;
-        const idx=metrics.findIndex(item=>item.id===id);
-        if(idx>=0)activeIndex=idx;
-      }
+      const hasWrongActive=chips.some(chip=>chip.classList.contains('is-active')!== (chip===nextChip));
+      const changed=id!==activeId||activeChip!==nextChip||hasWrongActive;
+      if(changed)normalizeActiveChip(nextChip,id);
 
       if(alignNow){
         pendingAlignChip=null;
@@ -123,7 +140,39 @@
       return changed;
     }
 
-    /* Only cached numbers are read while the finger / momentum scroll is moving. */
+    function chapterProgressAt(y,index){
+      if(!metrics.length)return 0;
+      const idx=Math.max(0,Math.min(index,metrics.length-1));
+      const start=metrics[idx]?.top||0;
+      const end=idx<metrics.length-1
+        ? metrics[idx+1].top
+        : Math.max(start+1,progressMax+navHeight+20);
+      return Math.max(0,Math.min(1,(anchorAt(y)-start)/Math.max(1,end-start)));
+    }
+
+    function progressPixelsAt(y,index){
+      const item=metrics[Math.max(0,Math.min(index,metrics.length-1))];
+      const chip=item?chipMap.get(item.id):null;
+      if(!chip)return 0;
+      const local=chapterProgressAt(y,index);
+      return Math.max(0,chip.offsetLeft+(chip.offsetWidth*local));
+    }
+
+    function paintProgress(y,index){
+      if(!progressTrack?.isConnected)return;
+      const px=progressPixelsAt(y,index);
+      if(Math.abs(px-lastProgressPx)<.25)return;
+      lastProgressPx=px;
+      progressTrack.style.width=`${px.toFixed(2)}px`;
+      progressTrack.dataset.chapter=metrics[index]?.id||'';
+      progressTrack.style.setProperty('--chapter-local-progress',chapterProgressAt(y,index).toFixed(5));
+      /* Retire the older absolute-page wash. The semantic progress layer above
+         now owns the visible fill. */
+      navScroll.style.setProperty('--v32-progress','0%');
+      glass.style.setProperty('--progress-scale','0');
+    }
+
+    /* Only cached numbers are read while finger / momentum scroll is moving. */
     function updateActiveChip(){
       activeRaf=0;
       if(clickLockId){
@@ -139,13 +188,13 @@
       activeRaf=requestAnimationFrame(updateActiveChip);
     }
 
-    /* Progress is independent from chapter state and never reads section geometry. */
     function updateProgress(){
       progressRaf=0;
-      const ratio=Math.max(0,Math.min(1,scrollY()/Math.max(1,progressMax)));
-      if(Math.abs(ratio-lastProgress)<0.0005)return;
-      lastProgress=ratio;
-      glass.style.setProperty('--progress-scale',ratio.toFixed(5));
+      const y=scrollY();
+      const idx=clickLockId
+        ? Math.max(0,metrics.findIndex(item=>item.id===clickLockId))
+        : stableIndexAt(y);
+      paintProgress(y,idx<0?0:idx);
     }
 
     function scheduleProgress(){
@@ -157,12 +206,13 @@
       clearTimeout(fallbackScrollEndTimer);
       if(isTouching)return;
 
-      /* Horizontal nav movement is allowed only after the browser reports the
-         vertical scroll has actually ended. No layout measurement happens here. */
       if(pendingAlignChip){
         const chip=pendingAlignChip;
         pendingAlignChip=null;
-        requestAnimationFrame(()=>alignChipToFront(chip));
+        requestAnimationFrame(()=>{
+          alignChipToFront(chip);
+          requestAnimationFrame(updateProgress);
+        });
       }
 
       if(clickLockId){
@@ -170,6 +220,7 @@
         const idx=rawIndexAt(scrollY());
         activeIndex=idx;
         setActiveChip(metrics[idx]?.id||'',{queueAlign:false});
+        requestAnimationFrame(updateProgress);
       }
     }
 
@@ -189,17 +240,19 @@
       scheduleFallbackScrollEnd();
     }
 
+    navScroll.addEventListener('scroll',scheduleProgress,{passive:true});
+
     chips.forEach(chip=>chip.addEventListener('click',()=>{
       const id=chip.dataset.target;
       const target=document.getElementById(id);
       if(!id||!target)return;
 
-      /* Re-measure before an explicit jump, never during an ordinary gesture. */
       measure();
       clickLockId=id;
       const idx=metrics.findIndex(item=>item.id===id);
       if(idx>=0)activeIndex=idx;
       setActiveChip(id,{queueAlign:false,alignNow:true});
+      updateProgress();
 
       const absoluteTop=target.getBoundingClientRect().top+scrollY();
       const destination=Math.max(0,absoluteTop-navHeight+4);
@@ -207,14 +260,15 @@
       if(!supportsScrollEnd)scheduleFallbackScrollEnd();
     }));
 
-    function remeasureWhenIdle(delay=180){
+    function remeasureWhenIdle(delay=180,{align=false}={}){
       clearTimeout(layoutTimer);
       layoutTimer=setTimeout(()=>{
-        if(isTouching){remeasureWhenIdle(220);return;}
+        if(isTouching){remeasureWhenIdle(220,{align});return;}
         measure();
         const idx=rawIndexAt(scrollY());
         activeIndex=idx;
-        setActiveChip(metrics[idx]?.id||'',{queueAlign:false});
+        setActiveChip(metrics[idx]?.id||'',{queueAlign:false,alignNow:align});
+        lastProgressPx=-1;
         updateProgress();
       },delay);
     }
@@ -224,6 +278,7 @@
     addEventListener('touchcancel',()=>{isTouching=false;if(!supportsScrollEnd)scheduleFallbackScrollEnd();},{passive:true});
     if(supportsScrollEnd)addEventListener('scrollend',finishVerticalScroll,{passive:true});
 
+    navScroll.dataset.chapterProgressOwner='script-9-v19';
     measure();
     lastY=scrollY();
     activeIndex=rawIndexAt(lastY);
@@ -231,15 +286,23 @@
     updateProgress();
     addEventListener('scroll',onScroll,{passive:true});
 
-    if(document.fonts?.ready)document.fonts.ready.then(()=>remeasureWhenIdle(40)).catch(()=>{});
-    addEventListener('load',()=>remeasureWhenIdle(70),{once:true});
-    addEventListener('pageshow',()=>remeasureWhenIdle(90),{passive:true});
-    addEventListener('orientationchange',()=>remeasureWhenIdle(340),{passive:true});
-    setTimeout(()=>remeasureWhenIdle(20),1000);
-    setTimeout(()=>remeasureWhenIdle(20),2800);
+    if(document.fonts?.ready)document.fonts.ready.then(()=>remeasureWhenIdle(40,{align:true})).catch(()=>{});
+    addEventListener('load',()=>remeasureWhenIdle(70,{align:true}),{once:true});
+    addEventListener('pageshow',()=>remeasureWhenIdle(90,{align:true}),{passive:true});
+    addEventListener('orientationchange',()=>remeasureWhenIdle(340,{align:true}),{passive:true});
+    setTimeout(()=>remeasureWhenIdle(20,{align:true}),1000);
+    setTimeout(()=>remeasureWhenIdle(20,{align:true}),2800);
+
+    if('ResizeObserver' in window){
+      const app=$('#app');
+      if(app){
+        const resizeObserver=new ResizeObserver(()=>remeasureWhenIdle(130));
+        resizeObserver.observe(app);
+      }
+    }
   }
 
-  window.setupNavigation=setupNavigationV18;
+  window.setupNavigation=setupNavigationV19;
 
   if(typeof window.__photoUiReadyResolve==='function'){
     window.__photoUiReadyResolve();
