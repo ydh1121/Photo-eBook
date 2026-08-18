@@ -1,0 +1,292 @@
+{
+  "batch_id": "b009",
+  "status": "applied",
+  "runtime_revision": "b009",
+  "runtime_script_version": 9,
+  "deployment": "https://photo-ebook.pages.dev",
+  "deployment_verified": true,
+  "asset_commit_sha": "82e5140363f40aecb449fc0a44005b18f08baaed",
+  "slots": [
+    {
+      "slot_id": "chapter-intro",
+      "path": "/assets/images/generated/v1/chapter/intro.webp",
+      "drive_file_id": "1cqELYtiDdXDiNNcPD081_oT_l-4hrTt9",
+      "sha256": "a8f71a5d0992c106aac7d1a3b1f2c61faf71fd2b86415283cc81a5f042d62c4b",
+      "bytes": 117242
+    },
+    {
+      "slot_id": "chapter-market",
+      "path": "/assets/images/generated/v1/chapter/market.webp",
+      "drive_file_id": "1hDdJ65a9SBUXRB8cyFMmJdRhFHxoN8At",
+      "sha256": "7a36d38859642a91b7a6670f84b3f8baabdf62fbba367a221a3f796dca4b88d7",
+      "bytes": 128084
+    },
+    {
+      "slot_id": "chapter-skills",
+      "path": "/assets/images/generated/v1/chapter/skills.webp",
+      "drive_file_id": "1q-l8sikQGb5V6w1w_90GQ0Nvyfl3Kkij",
+      "sha256": "8869571a294695f208c320d4576764d87d7be6415b9dd36ae5a55e41412ab5d6",
+      "bytes": 87754
+    },
+    {
+      "slot_id": "chapter-gear",
+      "path": "/assets/images/generated/v1/chapter/gear.webp",
+      "drive_file_id": "16RSLgI_NhvbEfzPUfar5FvP1EsC5a98r",
+      "sha256": "a9005ccd40e82d3f37a7d1f7f04b928e6e72ba81897665e1cb30767044faacc6",
+      "bytes": 212106
+    },
+    {
+      "slot_id": "chapter-plan",
+      "path": "/assets/images/generated/v1/chapter/plan.webp",
+      "drive_file_id": "1ptxW53p7YAHqNzAbYFgvCdlD9CpTMSnk",
+      "sha256": "618bdceeff499b9e385997ccb74475135be1b6bc5e96ed6a551abd51d90289c6",
+      "bytes": 120276
+    },
+    {
+      "slot_id": "chapter-scripts",
+      "path": "/assets/images/generated/v1/chapter/scripts.webp",
+      "drive_file_id": "1XsA8mGnwtLrjDxAYPI_2vxVkQqTXF_E0",
+      "sha256": "af908278fa7421c6e397a2b0f9365254ace1d2b1a32bb88c5965fcb94eaf3255",
+      "bytes": 136268
+    },
+    {
+      "slot_id": "chapter-iphone",
+      "path": "/assets/images/generated/v1/chapter/iphone.webp",
+      "drive_file_id": "1_aNkPIMnpzxpnlHvvLgdBasyEWaQ5Bfs",
+      "sha256": "48a7779e8d6ddad49ed37dc67342f8044b114f962a230a6bd937428c1bad7e8c",
+      "bytes": 115686
+    },
+    {
+      "slot_id": "chapter-sources",
+      "path": "/assets/images/generated/v1/chapter/sources.webp",
+      "drive_file_id": "1iqfem6VlvOYhmEesKBXBpz5DWRakpLje",
+      "sha256": "777d3146031aab48840dd3a2dfb8ec0647c5db785ecf23377917765a9b4fd465",
+      "bytes": 118056
+    },
+    {
+      "slot_id": "skill-space-correction",
+      "path": "/assets/images/generated/v1/skills/space-correction.webp",
+      "drive_file_id": "1ThdRrOFQtZZrmou-5kD7qkz6b-3B833k",
+      "sha256": "719c7ce5e721dce5a2019e0af721194b0e061a29015ecdf837b3c73ac6a2272e",
+      "bytes": 154088
+    },
+    {
+      "slot_id": "skill-raw-culling",
+      "path": "/assets/images/generated/v1/skills/raw-culling.webp",
+      "drive_file_id": "1OR3Rhv-H1n3pws-hgnZ7EJ1n02GMp6m3",
+      "sha256": "cf3d0577b013121c9d6989103e6f7f55d55d902764df7ca0cf1f6647298d9034",
+      "bytes": 118286
+    },
+    {
+      "slot_id": "skill-batch-basic-edit",
+      "path": "/assets/images/generated/v1/skills/batch-basic-edit.webp",
+      "drive_file_id": "1_5s6rmCy-M66WItPSuVU_F-3_gfu82rO",
+      "sha256": "c1e67fdd937453fc5b7708e6ac20a37fb9ad8741abe8f3500ca780f05d751a0b",
+      "bytes": 101456
+    },
+    {
+      "slot_id": "skill-tether-shooting",
+      "path": "/assets/images/generated/v1/skills/tether-shooting.webp",
+      "drive_file_id": "1XAKAaW2Cy4ayDv9d440rLoANo1EIJ-90",
+      "sha256": "bb724d17d84755b43323a0282d84389e23b450173e02b2fe25beefcf07bf1fbd",
+      "bytes": 77418
+    },
+    {
+      "slot_id": "skill-portfolio-building",
+      "path": "/assets/images/generated/v1/skills/portfolio-building.webp",
+      "drive_file_id": "17RiuYnrxYr-3yREOer9xaJxbJZ5ckvtP",
+      "sha256": "1ca7d82f6bab8a0edad0a312e8614e334003fc14b37b02aacce573e84fb44f98",
+      "bytes": 105550
+    },
+    {
+      "slot_id": "skill-delivery-process",
+      "path": "/assets/images/generated/v1/skills/delivery-process.webp",
+      "drive_file_id": "10siGPrMdtr3MCjazlyfplbnF0fnQS8tS",
+      "sha256": "75ba10a03c95881da976ceb41b6bfba002ae85d2235584ad7fa05aca8f26ac15",
+      "bytes": 72654
+    },
+    {
+      "slot_id": "gear-product-sony-a7-iii",
+      "path": "/assets/images/generated/v1/gear/sony-a7-iii.webp",
+      "drive_file_id": "1tjciwRi7gmT2qcgGaTgn-tt4JwuecLzn",
+      "sha256": "11138cbd2087546144f19a93f701e08428f294184b501dfa2dbc32d51b18a60f",
+      "bytes": 132734
+    },
+    {
+      "slot_id": "gear-product-tamron-28-75-g2",
+      "path": "/assets/images/generated/v1/gear/tamron-28-75-g2.webp",
+      "drive_file_id": "1-9fM4-TO1SGzS92WXmUsYM3wP96a3UBt",
+      "sha256": "82f62648abf0a69d6fde7bd482afe16f4940f100fa9f024c0e76a19c1c16685b",
+      "bytes": 171296
+    },
+    {
+      "slot_id": "gear-product-sony-fe-85-f18",
+      "path": "/assets/images/generated/v1/gear/sony-fe-85-f18.webp",
+      "drive_file_id": "1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx",
+      "sha256": "214a8bfac8d1aaf67ac548d7ffb83f0cbcc724d53c5aca4b8032a32cf2c37278",
+      "bytes": 74298
+    },
+    {
+      "slot_id": "iphone-lesson-setup",
+      "path": "/assets/images/generated/v1/iphone/lessons/setup.webp",
+      "drive_file_id": "1sh2fnEaVdRTrWGqjfu-OsrR9m9nT2e4V",
+      "sha256": "571bcc1d3351cb42a5fa1df30fb73febf6e6142a15ba76f7b80e1d589bc40eee",
+      "bytes": 69380
+    },
+    {
+      "slot_id": "iphone-lesson-focus",
+      "path": "/assets/images/generated/v1/iphone/lessons/focus.webp",
+      "drive_file_id": "1RgqV3J8nOB3vEDbeam_hTpZ705pTAOys",
+      "sha256": "dcdacf7dfa11c304fc0b3b19eaa604345dd4b10a969baba8870ee974207db853",
+      "bytes": 79938
+    },
+    {
+      "slot_id": "iphone-lesson-lens",
+      "path": "/assets/images/generated/v1/iphone/lessons/lens.webp",
+      "drive_file_id": "1R7IPv0K2hzxZ5RACPKpeRyXvEQvYHjLR",
+      "sha256": "186f123a757f3092ccde97c298f928cd8883733e21802f7b132b99b31fdeed79",
+      "bytes": 64046
+    },
+    {
+      "slot_id": "iphone-lesson-portrait",
+      "path": "/assets/images/generated/v1/iphone/lessons/portrait.webp",
+      "drive_file_id": "10MB-hUaunNOOb4WUNyw3MneZWN5jnlQq",
+      "sha256": "9fb0d08fe9477e0abaf47b37b7c516dcb75a221631ab7bae52588d8e483dc290",
+      "bytes": 70060
+    },
+    {
+      "slot_id": "iphone-lesson-product",
+      "path": "/assets/images/generated/v1/iphone/lessons/product.webp",
+      "drive_file_id": "1_4Vib0vzhdSMDAxGRf80E3NKC_RtFGaf",
+      "sha256": "a916c97f5718f42ccf8407f39f24d284a1ec8ec70428f191b4f1b3f1acac6d64",
+      "bytes": 69144
+    },
+    {
+      "slot_id": "iphone-lesson-night",
+      "path": "/assets/images/generated/v1/iphone/lessons/night.webp",
+      "drive_file_id": "1ul6l8c_QHl9fXyZS1ffMkwWXj2walzQ7",
+      "sha256": "3c52b75dc012bdde2a8405384b432582c94605414b98f5fe78b0a3a842849094",
+      "bytes": 119814
+    },
+    {
+      "slot_id": "iphone-lesson-macro",
+      "path": "/assets/images/generated/v1/iphone/lessons/macro.webp",
+      "drive_file_id": "1KrA3eKsT4Ml52rKF9blRz-DFBqd-ULJp",
+      "sha256": "14c80bb3b8d8a2d21539a9fef4aca86991b8918263276faefae3b318dbbb5fcd",
+      "bytes": 116428
+    },
+    {
+      "slot_id": "iphone-lesson-edit",
+      "path": "/assets/images/generated/v1/iphone/lessons/edit.webp",
+      "drive_file_id": "13ZlFUwm1BFy0zoFJMq2wfvBqZSWSqYIw",
+      "sha256": "76fb8424c209e3622159ab09ca75155990473fb2f9839f841966b943a398be7d",
+      "bytes": 101512
+    },
+    {
+      "slot_id": "iphone-preset-day-outdoor",
+      "path": "/assets/images/generated/v1/iphone/presets/day-outdoor.webp",
+      "drive_file_id": "1jy8Sggh4rBlraUYUqkPLWby-SA5xUG5c",
+      "sha256": "cef0622ad81cba9047184feefa3e65b20d6e2e9286ee1c02ecc3ec8ac812ea80",
+      "bytes": 416820
+    },
+    {
+      "slot_id": "iphone-preset-window-portrait",
+      "path": "/assets/images/generated/v1/iphone/presets/window-portrait.webp",
+      "drive_file_id": "1Eb_DPTQd3cKLKy9XPyOnuEZEvfQBIg8R",
+      "sha256": "254996ca21704894c5f445a472ee7869c6c98d05e2ff89f4d5f742d4d7d57603",
+      "bytes": 126972
+    },
+    {
+      "slot_id": "iphone-preset-cafe-food",
+      "path": "/assets/images/generated/v1/iphone/presets/cafe-food.webp",
+      "drive_file_id": "1_vZeZIOOtzZjPe_8RScmtOMdxjkFP7VW",
+      "sha256": "6617a1dc7ce40e815f7c5e19f7fd071326ccc04ec6a91ce49b7be6897c882698",
+      "bytes": 205738
+    },
+    {
+      "slot_id": "iphone-preset-small-product",
+      "path": "/assets/images/generated/v1/iphone/presets/small-product.webp",
+      "drive_file_id": "1h_g3Mz_-0QG_mi2ANylhgVEUyhmDXsPr",
+      "sha256": "84abf8bccedad61f38089550eaa0c4ac632fa50ed3b52120a436c8caf0a064cb",
+      "bytes": 57416
+    },
+    {
+      "slot_id": "iphone-preset-night-street",
+      "path": "/assets/images/generated/v1/iphone/presets/night-street.webp",
+      "drive_file_id": "1LPx5NA4tRNGI7IXZ5lKdxMgci8OQhGag",
+      "sha256": "184c6e835800c4d7e8afb1c95c35ffcfb9fd1ff4179baffea2a24934a7f3cfb1",
+      "bytes": 253778
+    },
+    {
+      "slot_id": "iphone-preset-macro",
+      "path": "/assets/images/generated/v1/iphone/presets/macro.webp",
+      "drive_file_id": "16zItKYy6if9QvWSS3GGEi9HFrO1NmGZH",
+      "sha256": "c1efdc5a779d2e31cfaa2c1da93c9d3c274c45ff40fabdf27c5276deded0c8c2",
+      "bytes": 173828
+    },
+    {
+      "slot_id": "iphone-preset-golden-hour",
+      "path": "/assets/images/generated/v1/iphone/presets/golden-hour.webp",
+      "drive_file_id": "1ibtkYFRpr4y4lTPtuA48X8umFH8msX-p",
+      "sha256": "5412d7d6712d14be71eb9302d091beb75b5de4fd16708bf8fd34d6219b851ab7",
+      "bytes": 80320
+    },
+    {
+      "slot_id": "fallback-curated-article",
+      "path": "/assets/images/generated/v1/fallback/curated-article.webp",
+      "drive_file_id": "1JOsLk-LsExxBSse9RuANnzF4odKK9iAC",
+      "sha256": "f155f0c537c6df046e7750b9cea5f89393ec80d6078a1f13a8d4dda921512e0f",
+      "bytes": 96868
+    },
+    {
+      "slot_id": "fallback-video-general",
+      "path": "/assets/images/generated/v1/fallback/video-general.webp",
+      "drive_file_id": "1Z-E1QvvHlDk5dkBEMLQHO7SF7HNJnKEP",
+      "sha256": "51e70fcdb395cfad5d342cf5ae792b05fb0941fbd6199d19aba884dedec6f597",
+      "bytes": 80266
+    },
+    {
+      "slot_id": "hero-main",
+      "path": "/assets/images/generated/v1/hero/hero-main.webp",
+      "drive_file_id": "1wZq1S1jxVPOhNgk68VzzZb-LPWUaaohk",
+      "sha256": "0de4925222ee05f76a71ab7910d4b62ead70a1b044f25334e2045df3cc8461ec",
+      "bytes": 48382
+    },
+    {
+      "slot_id": "chapter-education",
+      "path": "/assets/images/generated/v1/chapter/education.webp",
+      "drive_file_id": "14vrntf1cThfcoL_krxeCaciXHCPYG9UJ",
+      "sha256": "f7e5076842d875832f9fd051087067fdced02cffb208f990d0e09e62d2f8de61",
+      "bytes": 41760
+    },
+    {
+      "slot_id": "chapter-portfolio",
+      "path": "/assets/images/generated/v1/chapter/portfolio.webp",
+      "drive_file_id": "1OpfsI4Iskrojob8DgDcYed20mhBoxGqO",
+      "sha256": "0c24b1079dc1ddae260ed7234ef936a61693c161453e1397adf60808c3f05c8e",
+      "bytes": 55644
+    },
+    {
+      "slot_id": "market-product-commerce",
+      "path": "/assets/images/generated/v1/market/product-commerce.webp",
+      "drive_file_id": "15rYsYg_XQ0UQ14hYu1c82l1KdqDiotWS",
+      "sha256": "04ac1b09ba75c577e274b7af75e2933c75f402268bc26f2eff5ebdc13426342d",
+      "bytes": 44756
+    },
+    {
+      "slot_id": "market-corporate-profile",
+      "path": "/assets/images/generated/v1/market/corporate-profile.webp",
+      "drive_file_id": "17ChLOCp8E0ttKY6Abl1edvN0o7A6u-S1",
+      "sha256": "790b81bbf7f80c9bc127f39a527d5e89ecab17f16bd2c8d3acccb908c71ec326",
+      "bytes": 28166
+    },
+    {
+      "slot_id": "market-food-space",
+      "path": "/assets/images/generated/v1/market/food-space.webp",
+      "drive_file_id": "1Lkyr10UytKvm6-ETruBrOvVK6g1BO-xR",
+      "sha256": "a17568204f1bd3854345fabe59905e4aad03d68e02205210e83690d51913c9ff",
+      "bytes": 49676
+    }
+  ],
+  "deployment_verified_at": "2026-08-18T16:06:35+09:00"
+}

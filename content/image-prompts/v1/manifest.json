@@ -22,7 +22,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/intro.webp",
       "fallback_key": "intro",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "chapter-market",
@@ -30,7 +30,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/market.webp",
       "fallback_key": "product",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "chapter-education",
@@ -46,7 +46,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/skills.webp",
       "fallback_key": "skills",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "chapter-portfolio",
@@ -62,7 +62,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/gear.webp",
       "fallback_key": "gear",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "chapter-plan",
@@ -70,7 +70,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/plan.webp",
       "fallback_key": "plan",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "chapter-scripts",
@@ -78,7 +78,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/scripts.webp",
       "fallback_key": "scripts",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "chapter-iphone",
@@ -86,7 +86,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/iphone.webp",
       "fallback_key": "iphone",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "chapter-sources",
@@ -94,7 +94,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/chapter/sources.webp",
       "fallback_key": "gear",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "market-product-commerce",
@@ -142,7 +142,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/skills/space-correction.webp",
       "fallback_key": "skills",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "skill-raw-culling",
@@ -150,7 +150,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/skills/raw-culling.webp",
       "fallback_key": "portfolio",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "skill-batch-basic-edit",
@@ -158,7 +158,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/skills/batch-basic-edit.webp",
       "fallback_key": "edit",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "skill-tether-shooting",
@@ -166,7 +166,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/skills/tether-shooting.webp",
       "fallback_key": "skills",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "skill-portfolio-building",
@@ -174,7 +174,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/skills/portfolio-building.webp",
       "fallback_key": "portfolio",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "skill-delivery-process",
@@ -182,7 +182,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/skills/delivery-process.webp",
       "fallback_key": "portfolio",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "portfolio-product-brand",
@@ -221,21 +221,21 @@
       "group": "gear",
       "source_class": "reference_required",
       "path": "/assets/images/generated/v1/gear/sony-a7-iii.webp",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "gear-product-tamron-28-75-g2",
       "group": "gear",
       "source_class": "reference_required",
       "path": "/assets/images/generated/v1/gear/tamron-28-75-g2.webp",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "gear-product-sony-fe-85-f18",
       "group": "gear",
       "source_class": "reference_required",
       "path": "/assets/images/generated/v1/gear/sony-fe-85-f18.webp",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-setup",
@@ -243,7 +243,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/setup.webp",
       "fallback_key": "studio",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-focus",
@@ -251,7 +251,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/focus.webp",
       "fallback_key": "iphone",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-lens",
@@ -259,7 +259,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/lens.webp",
       "fallback_key": "profile",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-portrait",
@@ -267,7 +267,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/portrait.webp",
       "fallback_key": "profile",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-product",
@@ -275,7 +275,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/product.webp",
       "fallback_key": "product",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-night",
@@ -283,7 +283,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/night.webp",
       "fallback_key": "night",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-macro",
@@ -291,7 +291,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/macro.webp",
       "fallback_key": "macro",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-lesson-edit",
@@ -299,7 +299,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/lessons/edit.webp",
       "fallback_key": "edit",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-preset-day-outdoor",
@@ -307,7 +307,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/presets/day-outdoor.webp",
       "fallback_key": "iphone",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-preset-window-portrait",
@@ -315,7 +315,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/presets/window-portrait.webp",
       "fallback_key": "profile",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-preset-cafe-food",
@@ -323,7 +323,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/presets/cafe-food.webp",
       "fallback_key": "food",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-preset-small-product",
@@ -331,7 +331,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/presets/small-product.webp",
       "fallback_key": "product",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-preset-night-street",
@@ -339,7 +339,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/presets/night-street.webp",
       "fallback_key": "night",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-preset-macro",
@@ -347,7 +347,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/presets/macro.webp",
       "fallback_key": "product",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "iphone-preset-golden-hour",
@@ -355,7 +355,7 @@
       "source_class": "generate",
       "path": "/assets/images/generated/v1/iphone/presets/golden-hour.webp",
       "fallback_key": "profile",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "fallback-curated-article",
@@ -363,7 +363,7 @@
       "source_class": "fallback_generate",
       "path": "/assets/images/generated/v1/fallback/curated-article.webp",
       "fallback_key": "portfolio",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "fallback-video-general",
@@ -371,7 +371,7 @@
       "source_class": "fallback_generate",
       "path": "/assets/images/generated/v1/fallback/video-general.webp",
       "fallback_key": "skills",
-      "ready": false
+      "ready": true
     },
     {
       "slot_id": "dynamic-curated-og",
