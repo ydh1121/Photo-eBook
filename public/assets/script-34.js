@@ -1,4 +1,4 @@
-/* v1: durable single-intent bridge for GPT bubble -> question write mode.
+/* v2: durable single-intent bridge for GPT bubble -> question write mode.
    Existing question renderers remain in place, but they all read the same
    pending flag. While the explicit intent is "write", attempts to clear that
    flag are ignored so saved-question rerenders cannot win the race. */
@@ -35,9 +35,15 @@
   const previousForce=window.__photoForceQuestionWrite;
   window.__photoForceQuestionWrite=function(){
     setIntent('write');
+    /* Reuse script-24's established mount/repair routine. Its delayed attempt
+       may still assign pending=false, but the accessor above keeps the effective
+       value true until the user deliberately leaves write mode. */
+    if(typeof previousForce==='function'){
+      previousForce();
+      return;
+    }
     const write=$('#v40QuestionControls [data-v40-qmode="write"]');
-    if(write&&!write.classList.contains('is-active'))write.click();
-    else if(typeof previousForce==='function'&&!write)previousForce();
+    write?.click();
   };
 
   function armWriteFromTarget(target){
