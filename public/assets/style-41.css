@@ -1,4 +1,39 @@
-/* v3: PC-only interaction and layout corrections. Mobile untouched. */
+/* v4: cross-device collection close alignment + PC-only interaction/layout corrections. */
+
+/* Collection close: draw the X geometrically so the mark is centered in the
+   circular button on every browser/font. This applies to both mobile and PC. */
+#collectionClose.collection-close{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  text-indent:0!important;
+  line-height:1!important;
+  font-size:0!important;
+  overflow:visible!important;
+}
+#collectionClose.collection-close::before,
+#collectionClose.collection-close::after{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:14px!important;
+  height:2px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:currentColor!important;
+  transform-origin:center!important;
+  pointer-events:none!important;
+}
+#collectionClose.collection-close::before{
+  transform:translate(-50%,-50%) rotate(45deg)!important;
+}
+#collectionClose.collection-close::after{
+  transform:translate(-50%,-50%) rotate(-45deg)!important;
+}
+
 @media (min-width:1024px){
   /* Every control that opens the saved-items sheet should advertise clickability. */
   #collectionFab,
@@ -9,8 +44,7 @@
   }
 
   /* Top-nav liquid chip: keep the accepted rail geometry, but let the moving
-     indicator paint above the rail and restore the skin to absolute fill.
-     The previous relative-position override could collapse/hide the blue skin. */
+     indicator paint above the rail and restore the skin to absolute fill. */
   .nav-shell,
   .nav-shell .nav-glass,
   .nav-shell .nav-scroll,
@@ -56,8 +90,7 @@
   /* Market cards use three stable vertical zones on desktop:
      1) rank + title (title reserves exactly two lines),
      2) price block (fixed height),
-     3) customer/use-case copy aligned to the bottom.
-     This keeps all three cards visually level even when a title is one line. */
+     3) customer/use-case copy aligned to the bottom. */
   .market-card{
     display:flex!important;
     flex-direction:column!important;
