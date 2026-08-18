@@ -30,7 +30,7 @@ async function getDriveToken(env) {
   const key = await crypto.subtle.importKey('pkcs8', pemToBuffer(account.private_key), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
   const signature = await crypto.subtle.sign({ name: 'RSASSA-PKCS1-v1_5' }, key, new TextEncoder().encode(signingInput));
   const assertion = `${signingInput}.${b64bytes(new Uint8Array(signature))}`;
-  const response = await fetch(tokenUri, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth2:grant-type:jwt-bearer', assertion }) });
+  const response = await fetch(tokenUri, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion }) });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.access_token) throw new Error(data?.error_description || data?.error || `auth ${response.status}`);
   cached = { token: data.access_token, expiresAt: now + Number(data.expires_in || 3600) };
