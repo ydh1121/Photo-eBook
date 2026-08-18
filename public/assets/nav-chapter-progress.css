@@ -4,7 +4,6 @@
 
 .nav-scroll{
   --v32-progress:0%!important;
-  --chapter-progress-first-inset:28px;
 }
 
 .nav-scroll > .nav-chapter-progress{
@@ -33,10 +32,13 @@
   will-change:left,width;
 }
 
-/* In the first chapter the active pill already paints the current state. Do not
-   leave a detached blue gutter fragment to its left while that pill is active. */
+/* While the first chapter is active, the blue active pill already communicates
+   the current state. Drawing the progress wash underneath it leaks around the
+   pill's rounded left corners and appears as a detached vertical strip. Keep the
+   wash fully hidden for intro; it becomes visible from the next chapter onward. */
 .nav-scroll > .nav-chapter-progress[data-chapter="intro"]{
-  clip-path:inset(0 0 0 var(--chapter-progress-first-inset) round 999px)!important;
+  opacity:0!important;
+  visibility:hidden!important;
 }
 
 html[data-theme="dark"] .nav-scroll > .nav-chapter-progress{
@@ -52,7 +54,6 @@ html[data-theme="dark"] .nav-scroll > .nav-chapter-progress{
 }
 
 @media (min-width:1024px){
-  .nav-scroll{--chapter-progress-first-inset:.34rem}
   .nav-shell .nav-scroll > .nav-v33-indicator{z-index:30!important}
   .nav-shell .nav-scroll > .nav-chip{z-index:40!important}
 }
