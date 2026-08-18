@@ -1,4 +1,4 @@
-/* v20: chapter-aware nav state + chip-mapped reading progress.
+/* v21: chapter-aware nav state + chip-mapped reading progress.
    Active chip and progress are two outputs of the same measured page state.
    Progress advances inside the current chip according to the rendered chapter
    height, so different device/layout heights remain correct. */
@@ -49,6 +49,7 @@
     let layoutTimer=0;
     let clickLockId='';
     let lastProgressPx=-1;
+    let lastProgressLeft=-1;
     let lastY=0;
     let direction=1;
     let isTouching=false;
@@ -155,27 +156,48 @@
       return Number.isFinite(value)?Math.max(0,value):0;
     }
 
+    function firstProgressLeft(){
+      const firstItem=metrics[0];
+      const firstChip=firstItem?chipMap.get(firstItem.id):chips[0];
+      return Math.max(0,Number(firstChip?.offsetLeft)||0);
+    }
+
+    function firstProgressEnd(){
+      const firstItem=metrics[0];
+      const firstChip=firstItem?chipMap.get(firstItem.id):chips[0];
+      if(!firstChip)return firstProgressLeft();
+      return Math.max(firstProgressLeft(),firstChip.offsetLeft+firstChip.offsetWidth);
+    }
+
     function progressPixelsAt(y,index){
       const idx=Math.max(0,Math.min(index,metrics.length-1));
       const item=metrics[idx];
       const chip=item?chipMap.get(item.id):null;
-      if(!chip)return 0;
+      if(!chip)return firstProgressLeft();
+
+      /* The first chip is treated as the completed starting state. This keeps
+         the visible wash wrapped around the first pill from the initial screen,
+         instead of exposing the rail's outer gutter as a detached blue strip. */
+      if(idx===0)return firstProgressEnd();
 
       const local=chapterProgressAt(y,idx);
-      const first=idx===0;
       const last=idx===metrics.length-1;
-      const startPx=first?0:chip.offsetLeft;
+      const startPx=chip.offsetLeft;
       const endPx=chip.offsetLeft+chip.offsetWidth+(last?rightRailInset():0);
-      return Math.max(0,startPx+((endPx-startPx)*local));
+      return Math.max(firstProgressEnd(),startPx+((endPx-startPx)*local));
     }
 
     function paintProgress(y,index){
       if(!progressTrack?.isConnected)return;
       const idx=Math.max(0,Math.min(index,metrics.length-1));
-      const px=progressPixelsAt(y,idx);
-      if(Math.abs(px-lastProgressPx)<.25)return;
-      lastProgressPx=px;
-      progressTrack.style.width=`${px.toFixed(2)}px`;
+      const leftPx=firstProgressLeft();
+      const endPx=progressPixelsAt(y,idx);
+      const widthPx=Math.max(0,endPx-leftPx);
+      if(Math.abs(widthPx-lastProgressPx)<.25&&Math.abs(leftPx-lastProgressLeft)<.25)return;
+      lastProgressPx=widthPx;
+      lastProgressLeft=leftPx;
+      progressTrack.style.left=`${leftPx.toFixed(2)}px`;
+      progressTrack.style.width=`${widthPx.toFixed(2)}px`;
       progressTrack.dataset.chapter=metrics[idx]?.id||'';
       progressTrack.style.setProperty('--chapter-local-progress',chapterProgressAt(y,idx).toFixed(5));
       /* Retire the older absolute-page wash. The semantic progress layer above
@@ -281,6 +303,7 @@
         activeIndex=idx;
         setActiveChip(metrics[idx]?.id||'',{queueAlign:false,alignNow:align});
         lastProgressPx=-1;
+        lastProgressLeft=-1;
         updateProgress();
       },delay);
     }
@@ -290,7 +313,7 @@
     addEventListener('touchcancel',()=>{isTouching=false;if(!supportsScrollEnd)scheduleFallbackScrollEnd();},{passive:true});
     if(supportsScrollEnd)addEventListener('scrollend',finishVerticalScroll,{passive:true});
 
-    navScroll.dataset.chapterProgressOwner='script-9-v20';
+    navScroll.dataset.chapterProgressOwner='script-9-v21';
     measure();
     lastY=scrollY();
     activeIndex=rawIndexAt(lastY);
