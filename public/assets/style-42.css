@@ -1,4 +1,4 @@
-/* v6: original header geometry + device accordion + collection interaction polish. */
+/* v7: original header geometry + device accordion + collection interaction polish. */
 
 /* Header: preserve the established layout. Only the X glyph itself is redrawn. */
 .collection-head{
@@ -61,6 +61,34 @@
   width:0!important;
   height:0!important;
   display:none!important;
+}
+
+/* Bulk selection must read as an actual selected control, not an empty radio.
+   The existing circular geometry is preserved; only selected paint/check is added. */
+.collection-selectbox[aria-pressed="true"]{
+  position:relative!important;
+  background:linear-gradient(180deg,#6799ef,#3568d4)!important;
+  border-color:rgba(111,163,255,.88)!important;
+  color:#fff!important;
+  box-shadow:0 3px 9px rgba(43,92,190,.22),inset 0 1px 0 rgba(255,255,255,.30)!important;
+}
+.collection-selectbox[aria-pressed="true"]::after{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:8px!important;
+  height:4px!important;
+  border:0!important;
+  border-right:2px solid #fff!important;
+  border-bottom:2px solid #fff!important;
+  transform:translate(-54%,-68%) rotate(45deg)!important;
+  transform-origin:50% 50%!important;
+  pointer-events:none!important;
+}
+.collection-item.is-selected{
+  border-color:rgba(72,132,235,.34)!important;
+  box-shadow:inset 0 0 0 1px rgba(72,132,235,.08)!important;
 }
 
 /* One visual owner for the accordion. The parent owns every outer edge.
