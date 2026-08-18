@@ -1,1 +1,1 @@
-run proxy smoke
+run proxy smoke with error detail
