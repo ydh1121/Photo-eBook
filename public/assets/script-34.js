@@ -1,7 +1,7 @@
-/* v5: single owner for GPT/contextual question handoff.
-   script-24 remains the visual question-tab controller. This file alone owns
-   external entry into write mode (GPT bubble + saved question cards), canonical
-   write intent, and final #askWritePanel reconciliation. */
+/* v6: single owner for GPT/contextual question handoff.
+   The real #askWritePanel is retained across collection rerenders so closing the
+   collection and reopening it cannot destroy the write form before the next GPT
+   handoff. script-24 remains the visual question-tab controller. */
 (function(){
   if(window.__photoQuestionIntentBridgeInstalled)return;
   window.__photoQuestionIntentBridgeInstalled=true;
@@ -15,6 +15,7 @@
   let guardObserver=null;
   let reconcileRaf=0;
   let handoffToken=0;
+  let writePanelRef=null;
   const previousForce=window.__photoForceQuestionWrite;
 
   function readQuestions(){
@@ -30,6 +31,31 @@
     if(!input)return;
     input.dispatchEvent(new Event('input',{bubbles:true}));
     input.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+
+  function ensureParking(){
+    let parking=$('#v40QuestionParking');
+    if(!parking){
+      parking=document.createElement('div');
+      parking.id='v40QuestionParking';
+      parking.hidden=true;
+      document.body.appendChild(parking);
+    }
+    return parking;
+  }
+
+  function getWritePanel(){
+    const live=$('#askWritePanel');
+    if(live)writePanelRef=live;
+    return live||writePanelRef;
+  }
+
+  function parkWritePanel(){
+    const panel=getWritePanel();
+    if(!panel)return null;
+    const parking=ensureParking();
+    if(panel.parentNode!==parking)parking.appendChild(panel);
+    return panel;
   }
 
   function ensureQuestionStructure(){
@@ -98,7 +124,9 @@
   }
 
   function setIntent(next){
-    intent=next==='write'?'write':'saved';
+    const normalized=next==='write'?'write':'saved';
+    if(normalized==='saved')parkWritePanel();
+    intent=normalized;
     pendingBacking=isWrite();
     window.__photoQuestionIntent=intent;
     if(isWrite())startGuard();
@@ -176,7 +204,7 @@
     }
 
     const body=$('#collectionBody');
-    const panel=$('#askWritePanel');
+    const panel=getWritePanel();
     if(!body||!panel)return false;
 
     panel.hidden=false;
@@ -208,7 +236,7 @@
   };
 
   function resetFreshDraft(){
-    const input=$('#askInput');
+    const input=$('#askInput')||getWritePanel()?.querySelector('#askInput');
     if(input){
       input.value='이 부분을 쉽게 설명해줘.';
       dispatchValueChange(input);
@@ -217,8 +245,9 @@
 
   function fillSavedQuestion(item){
     if(!item)return;
-    const quote=$('#askQuote');
-    const input=$('#askInput');
+    const panel=getWritePanel();
+    const quote=$('#askQuote')||panel?.querySelector('#askQuote');
+    const input=$('#askInput')||panel?.querySelector('#askInput');
     if(quote)quote.textContent=String(item.selected_text||item.selection||item.quote||'문장을 선택하면 여기에 표시됩니다.');
     if(input){
       input.value=String(item.question||item.prompt||'');
@@ -251,6 +280,9 @@
       }
 
       if(fab&&(!sheet||sheet.hidden)){
+        /* openLibrary('all') immediately rewrites #collectionBody. Keep the
+           question form outside that body before the FAB's legacy handler runs. */
+        parkWritePanel();
         fab.click();
         setTimeout(poll,35);
         return;
@@ -293,7 +325,10 @@
         }else stable=0;
 
         if(stable>=4){
-          if(focus)setTimeout(()=>$('#askInput')?.focus(),70);
+          if(focus)setTimeout(()=>{
+            const input=$('#askInput')||getWritePanel()?.querySelector('#askInput');
+            input?.focus();
+          },70);
           return;
         }
         if(performance.now()-started<1800)setTimeout(drive,55);
@@ -316,8 +351,7 @@
     return true;
   }
 
-  /* This is intentionally the sole click owner for #askBubble. script-29's
-     older competing window-capture handler is no longer loaded. */
+  /* This is intentionally the sole click owner for #askBubble. */
   window.addEventListener('click',event=>{handleBubbleActivation(event);},true);
 
   document.addEventListener('click',event=>{
@@ -362,8 +396,12 @@
   },true);
 
   window.addEventListener('pageshow',()=>{
+    getWritePanel();
     if(isWrite())startGuard();
   },{passive:true});
 
+  /* Capture the original panel node once. Even if an old render path later
+     removes it from the DOM, the retained reference lets us reattach it. */
+  getWritePanel();
   window.__photoQuestionIntent=intent;
 })();
