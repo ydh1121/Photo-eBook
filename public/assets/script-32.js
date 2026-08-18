@@ -1,4 +1,4 @@
-/* v1: desktop-only mouse-drag hardening for horizontal content rails. */
+/* v2: desktop-only mouse-drag hardening for horizontal content rails + collection popup outside-click close. */
 (function(){
   if(window.__photoDesktopRailPolishV1Installed)return;
   window.__photoDesktopRailPolishV1Installed=true;
@@ -37,6 +37,31 @@
     if(!desktop.matches)return;
     document.querySelectorAll(RAIL_SELECTOR).forEach(bindRail);
   }
+
+  function collectionSheetIsOpen(sheet){
+    if(!sheet||sheet.hidden)return false;
+    const style=getComputedStyle(sheet);
+    return style.display!=='none'&&style.visibility!=='hidden';
+  }
+
+  document.addEventListener('click',event=>{
+    if(!desktop.matches)return;
+    const sheet=document.getElementById('collectionSheet');
+    if(!collectionSheetIsOpen(sheet))return;
+    const target=event.target;
+    if(!(target instanceof Element))return;
+    if(target.closest('#collectionSheet,#collectionFab'))return;
+
+    /* Reuse the popup's own close path so body-lock, focus restoration and
+       animation state stay exactly the same as the existing close behavior. */
+    const backdrop=document.getElementById('collectionBackdrop');
+    if(backdrop){
+      backdrop.click();
+      return;
+    }
+    const close=sheet.querySelector('[data-collection-close],.collection-close,[aria-label="닫기"]');
+    close?.click();
+  },true);
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
   else refresh();
