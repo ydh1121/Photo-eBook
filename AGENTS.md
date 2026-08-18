@@ -1,5 +1,19 @@
 # Photo-eBook Repository Agent Rules
 
+## Korean copy contract
+
+Any Korean UI copy, heading, body text, CTA, helper text, new content, or rewrite MUST read and apply `docs/spec-v1/20-korean-copywriting-skill.md` before editing.
+
+- Google Sheet `COPY_GUIDE` is the live project copy rule source.
+- User-provided before/after examples outrank generic style guides.
+- Preserve facts, prices, periods, model names, and functional meaning while rewriting.
+- Avoid recurring AI-like patterns such as defensive `~이 아니다. ~이다.`, mechanical `먼저 ~`, repeated `~을 봅니다/한다`, translationese, and abstract comparisons without a concrete action.
+- Read copy aloud conceptually and design Korean line breaks by semantic breath units, especially for mobile headings.
+- Do not disguise portfolio practice as a real client commission. Use `자체 기획 촬영` and state purpose/use case clearly.
+- Update the Google Sheet source first when the copy is data-backed. Runtime copy code may only bridge legacy hard-coded copy, cache compatibility, or deliberate semantic line breaks.
+
+External baseline reference recorded by the project: `https://github.com/DaleSeo/korean-skills`.
+
 ## Responsibility split
 
 Image production has two separate contexts.
