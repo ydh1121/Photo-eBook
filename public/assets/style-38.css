@@ -1,70 +1,95 @@
-/* v1: desktop-only rail centering and horizontal-card breathing room.
-   Mobile is an approved baseline; do not move these rules below 1024px. */
+/* v2: desktop-only alignment, full-viewport rail runway, and mouse-drag surfaces.
+   Mobile is an approved baseline; all visual changes stay at 1024px and above. */
 @media (min-width:1024px){
-  /* Keep the liquid chapter rail native, but center the whole glass bar on PC.
-     Symmetric runway preserves the indicator's left/right spring overshoot. */
+  /* Center the actual chapter bar itself instead of stretching a wide scrollport.
+     The progress layer and liquid indicator then stay inside the visible pill. */
+  .nav-shell{
+    padding-left:0!important;
+    padding-right:0!important;
+  }
   .nav-scroll{
-    width:min(calc(100% - (var(--gutter) * 2)), var(--content))!important;
-    max-width:var(--content)!important;
+    box-sizing:border-box!important;
+    width:max-content!important;
+    max-width:calc(100vw - 64px)!important;
     margin-left:auto!important;
     margin-right:auto!important;
-    padding-left:3.05rem!important;
-    padding-right:3.05rem!important;
-    justify-content:safe center!important;
-    scrollbar-width:none!important;
-  }
-  .nav-scroll::-webkit-scrollbar{display:none!important}
-
-  /* Every desktop content rail opens on the same content line. The rail itself
-     stays wide, while equal transparent runway on both ends makes the beginning
-     and end obvious and gives card shadows room to paint. */
-  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow){
-    --desktop-rail-inset:max(24px,calc((100% - var(--content)) / 2));
-    box-sizing:border-box!important;
-    width:100%!important;
-    max-width:100%!important;
-    margin-left:0!important;
-    margin-right:0!important;
-    padding-top:24px!important;
-    padding-right:var(--desktop-rail-inset)!important;
-    padding-bottom:30px!important;
-    padding-left:var(--desktop-rail-inset)!important;
-    scroll-padding-left:var(--desktop-rail-inset)!important;
-    scroll-padding-right:var(--desktop-rail-inset)!important;
-    background:transparent!important;
-    background-image:none!important;
+    padding:.34rem 28px!important;
+    justify-content:flex-start!important;
     overflow-x:auto!important;
     overflow-y:hidden!important;
     scrollbar-width:none!important;
     -ms-overflow-style:none!important;
-    cursor:grab!important;
   }
-  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow)::-webkit-scrollbar{
+  .nav-scroll::-webkit-scrollbar{display:none!important}
+
+  /* One desktop text line: standalone .content and .wide > .content previously
+     differed by one extra gutter, which made headings/body copy jump left/right. */
+  .section .content{
+    width:min(calc(100vw - 64px),var(--content))!important;
+    max-width:var(--content)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding-left:0!important;
+    padding-right:0!important;
+  }
+
+  /* Horizontal card/image rails use the viewport as the clipping boundary, not
+     the narrower .wide container. Their first item still starts on the same line
+     as normal body copy, while the right edge remains visually open. */
+  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow){
+    --desktop-rail-inset:max(32px,calc((100vw - var(--content)) / 2));
+    box-sizing:border-box!important;
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    width:100vw!important;
+    max-width:none!important;
+    margin-left:calc(50% - 50vw)!important;
+    margin-right:calc(50% - 50vw)!important;
+    padding:24px var(--desktop-rail-inset) 34px!important;
+    scroll-padding-left:var(--desktop-rail-inset)!important;
+    scroll-padding-right:var(--desktop-rail-inset)!important;
+    background:transparent!important;
+    background-color:transparent!important;
+    background-image:none!important;
+    box-shadow:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+    -ms-overflow-style:none!important;
+    overscroll-behavior-x:none!important;
+    scroll-snap-type:none!important;
+    touch-action:pan-y!important;
+    cursor:grab!important;
+    user-select:none!important;
+    -webkit-user-select:none!important;
+  }
+  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow)::-webkit-scrollbar{
     display:none!important;
     width:0!important;
     height:0!important;
+  }
+  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow)>*{
+    scroll-snap-align:none!important;
+    scroll-snap-stop:normal!important;
   }
   .scroll-row::after{
     flex-basis:0!important;
     width:0!important;
   }
 
-  /* Cards are drag surfaces on desktop. Prevent native link/image dragging and
-     text selection from stealing the gesture, without disabling normal clicks. */
-  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow) :is(a,img){
+  /* The entire rail is a drag surface on PC. Native text/image/link dragging is
+     disabled so a horizontal grab never turns into blue text selection. */
+  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow),
+  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow) *{
+    user-select:none!important;
+    -webkit-user-select:none!important;
+  }
+  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow) :is(a,img){
     -webkit-user-drag:none!important;
   }
-  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-pointerdown,
-  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging{
-    user-select:none!important;
-    -webkit-user-select:none!important;
-  }
-  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging{
+  :is(.scroll-row,.skills-infinite-row,.curated-links-row,#skillsInfiniteRow,#curatedLinksRow).is-desktop-dragging{
     cursor:grabbing!important;
     scroll-snap-type:none!important;
-  }
-  :is(.scroll-row,#curatedLinksRow,#skillsInfiniteRow).is-desktop-dragging *{
-    user-select:none!important;
-    -webkit-user-select:none!important;
   }
 }
