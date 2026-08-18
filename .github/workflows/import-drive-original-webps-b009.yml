@@ -1,0 +1,206 @@
+name: Import original Drive WebPs b009
+
+on:
+  push:
+    paths:
+      - 'drive-original-webp-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download and verify original Drive WebPs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, urllib.request, http.cookiejar, re, json
+
+          assets = [
+            ('chapter-intro.webp','1cqELYtiDdXDiNNcPD081_oT_l-4hrTt9','public/assets/images/generated/v1/chapter/intro.webp',117242,'a8f71a5d0992c106aac7d1a3b1f2c61faf71fd2b86415283cc81a5f042d62c4b'),
+            ('chapter-market.webp','1hDdJ65a9SBUXRB8cyFMmJdRhFHxoN8At','public/assets/images/generated/v1/chapter/market.webp',128084,'7a36d38859642a91b7a6670f84b3f8baabdf62fbba367a221a3f796dca4b88d7'),
+            ('chapter-skills.webp','1q-l8sikQGb5V6w1w_90GQ0Nvyfl3Kkij','public/assets/images/generated/v1/chapter/skills.webp',87754,'8869571a294695f208c320d4576764d87d7be6415b9dd36ae5a55e41412ab5d6'),
+            ('chapter-gear.webp','16RSLgI_NhvbEfzPUfar5FvP1EsC5a98r','public/assets/images/generated/v1/chapter/gear.webp',212106,'a9005ccd40e82d3f37a7d1f7f04b928e6e72ba81897665e1cb30767044faacc6'),
+            ('chapter-plan.webp','1ptxW53p7YAHqNzAbYFgvCdlD9CpTMSnk','public/assets/images/generated/v1/chapter/plan.webp',120276,'618bdceeff499b9e385997ccb74475135be1b6bc5e96ed6a551abd51d90289c6'),
+            ('chapter-scripts.webp','1XsA8mGnwtLrjDxAYPI_2vxVkQqTXF_E0','public/assets/images/generated/v1/chapter/scripts.webp',136268,'af908278fa7421c6e397a2b0f9365254ace1d2b1a32bb88c5965fcb94eaf3255'),
+            ('chapter-iphone.webp','1_aNkPIMnpzxpnlHvvLgdBasyEWaQ5Bfs','public/assets/images/generated/v1/chapter/iphone.webp',115686,'48a7779e8d6ddad49ed37dc67342f8044b114f962a230a6bd937428c1bad7e8c'),
+            ('chapter-sources.webp','1iqfem6VlvOYhmEesKBXBpz5DWRakpLje','public/assets/images/generated/v1/chapter/sources.webp',118056,'777d3146031aab48840dd3a2dfb8ec0647c5db785ecf23377917765a9b4fd465'),
+            ('skill-space-correction.webp','1ThdRrOFQtZZrmou-5kD7qkz6b-3B833k','public/assets/images/generated/v1/skills/space-correction.webp',154088,'719c7ce5e721dce5a2019e0af721194b0e061a29015ecdf837b3c73ac6a2272e'),
+            ('skill-raw-culling.webp','1OR3Rhv-H1n3pws-hgnZ7EJ1n02GMp6m3','public/assets/images/generated/v1/skills/raw-culling.webp',118286,'cf3d0577b013121c9d6989103e6f7f55d55d902764df7ca0cf1f6647298d9034'),
+            ('skill-batch-basic-edit.webp','1_5s6rmCy-M66WItPSuVU_F-3_gfu82rO','public/assets/images/generated/v1/skills/batch-basic-edit.webp',101456,'c1e67fdd937453fc5b7708e6ac20a37fb9ad8741abe8f3500ca780f05d751a0b'),
+            ('skill-tether-shooting.webp','1XAKAaW2Cy4ayDv9d440rLoANo1EIJ-90','public/assets/images/generated/v1/skills/tether-shooting.webp',77418,'bb724d17d84755b43323a0282d84389e23b450173e02b2fe25beefcf07bf1fbd'),
+            ('skill-portfolio-building.webp','17RiuYnrxYr-3yREOer9xaJxbJZ5ckvtP','public/assets/images/generated/v1/skills/portfolio-building.webp',105550,'1ca7d82f6bab8a0edad0a312e8614e334003fc14b37b02aacce573e84fb44f98'),
+            ('skill-delivery-process.webp','10siGPrMdtr3MCjazlyfplbnF0fnQS8tS','public/assets/images/generated/v1/skills/delivery-process.webp',72654,'75ba10a03c95881da976ceb41b6bfba002ae85d2235584ad7fa05aca8f26ac15'),
+            ('gear-product-sony-a7-iii.webp','1tjciwRi7gmT2qcgGaTgn-tt4JwuecLzn','public/assets/images/generated/v1/gear/sony-a7-iii.webp',132734,'11138cbd2087546144f19a93f701e08428f294184b501dfa2dbc32d51b18a60f'),
+            ('gear-product-tamron-28-75-g2.webp','1-9fM4-TO1SGzS92WXmUsYM3wP96a3UBt','public/assets/images/generated/v1/gear/tamron-28-75-g2.webp',171296,'82f62648abf0a69d6fde7bd482afe16f4940f100fa9f024c0e76a19c1c16685b'),
+            ('gear-product-sony-fe-85-f18.webp','1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx','public/assets/images/generated/v1/gear/sony-fe-85-f18.webp',74298,'214a8bfac8d1aaf67ac548d7ffb83f0cbcc724d53c5aca4b8032a32cf2c37278'),
+            ('iphone-lesson-setup.webp','1sh2fnEaVdRTrWGqjfu-OsrR9m9nT2e4V','public/assets/images/generated/v1/iphone/lessons/setup.webp',69380,'571bcc1d3351cb42a5fa1df30fb73febf6e6142a15ba76f7b80e1d589bc40eee'),
+            ('iphone-lesson-focus.webp','1RgqV3J8nOB3vEDbeam_hTpZ705pTAOys','public/assets/images/generated/v1/iphone/lessons/focus.webp',79938,'dcdacf7dfa11c304fc0b3b19eaa604345dd4b10a969baba8870ee974207db853'),
+            ('iphone-lesson-lens.webp','1R7IPv0K2hzxZ5RACPKpeRyXvEQvYHjLR','public/assets/images/generated/v1/iphone/lessons/lens.webp',64046,'186f123a757f3092ccde97c298f928cd8883733e21802f7b132b99b31fdeed79'),
+            ('iphone-lesson-portrait.webp','10MB-hUaunNOOb4WUNyw3MneZWN5jnlQq','public/assets/images/generated/v1/iphone/lessons/portrait.webp',70060,'9fb0d08fe9477e0abaf47b37b7c516dcb75a221631ab7bae52588d8e483dc290'),
+            ('iphone-lesson-product.webp','1_4Vib0vzhdSMDAxGRf80E3NKC_RtFGaf','public/assets/images/generated/v1/iphone/lessons/product.webp',69144,'a916c97f5718f42ccf8407f39f24d284a1ec8ec70428f191b4f1b3f1acac6d64'),
+            ('iphone-lesson-night.webp','1ul6l8c_QHl9fXyZS1ffMkwWXj2walzQ7','public/assets/images/generated/v1/iphone/lessons/night.webp',119814,'3c52b75dc012bdde2a8405384b432582c94605414b98f5fe78b0a3a842849094'),
+            ('iphone-lesson-macro.webp','1KrA3eKsT4Ml52rKF9blRz-DFBqd-ULJp','public/assets/images/generated/v1/iphone/lessons/macro.webp',116428,'14c80bb3b8d8a2d21539a9fef4aca86991b8918263276faefae3b318dbbb5fcd'),
+            ('iphone-lesson-edit.webp','13ZlFUwm1BFy0zoFJMq2wfvBqZSWSqYIw','public/assets/images/generated/v1/iphone/lessons/edit.webp',101512,'76fb8424c209e3622159ab09ca75155990473fb2f9839f841966b943a398be7d'),
+            ('iphone-preset-day-outdoor.webp','1jy8Sggh4rBlraUYUqkPLWby-SA5xUG5c','public/assets/images/generated/v1/iphone/presets/day-outdoor.webp',416820,'cef0622ad81cba9047184feefa3e65b20d6e2e9286ee1c02ecc3ec8ac812ea80'),
+            ('iphone-preset-window-portrait.webp','1Eb_DPTQd3cKLKy9XPyOnuEZEvfQBIg8R','public/assets/images/generated/v1/iphone/presets/window-portrait.webp',126972,'254996ca21704894c5f445a472ee7869c6c98d05e2ff89f4d5f742d4d7d57603'),
+            ('iphone-preset-cafe-food.webp','1_vZeZIOOtzZjPe_8RScmtOMdxjkFP7VW','public/assets/images/generated/v1/iphone/presets/cafe-food.webp',205738,'6617a1dc7ce40e815f7c5e19f7fd071326ccc04ec6a91ce49b7be6897c882698'),
+            ('iphone-preset-small-product.webp','1h_g3Mz_-0QG_mi2ANylhgVEUyhmDXsPr','public/assets/images/generated/v1/iphone/presets/small-product.webp',57416,'84abf8bccedad61f38089550eaa0c4ac632fa50ed3b52120a436c8caf0a064cb'),
+            ('iphone-preset-night-street.webp','1LPx5NA4tRNGI7IXZ5lKdxMgci8OQhGag','public/assets/images/generated/v1/iphone/presets/night-street.webp',253778,'184c6e835800c4d7e8afb1c95c35ffcfb9fd1ff4179baffea2a24934a7f3cfb1'),
+            ('iphone-preset-macro.webp','16zItKYy6if9QvWSS3GGEi9HFrO1NmGZH','public/assets/images/generated/v1/iphone/presets/macro.webp',173828,'c1efdc5a779d2e31cfaa2c1da93c9d3c274c45ff40fabdf27c5276deded0c8c2'),
+            ('iphone-preset-golden-hour.webp','1ibtkYFRpr4y4lTPtuA48X8umFH8msX-p','public/assets/images/generated/v1/iphone/presets/golden-hour.webp',80320,'5412d7d6712d14be71eb9302d091beb75b5de4fd16708bf8fd34d6219b851ab7'),
+            ('fallback-curated-article.webp','1JOsLk-LsExxBSse9RuANnzF4odKK9iAC','public/assets/images/generated/v1/fallback/curated-article.webp',96868,'f155f0c537c6df046e7750b9cea5f89393ec80d6078a1f13a8d4dda921512e0f'),
+            ('fallback-video-general.webp','1Z-E1QvvHlDk5dkBEMLQHO7SF7HNJnKEP','public/assets/images/generated/v1/fallback/video-general.webp',80266,'51e70fcdb395cfad5d342cf5ae792b05fb0941fbd6199d19aba884dedec6f597'),
+            ('hero-main.webp','1wZq1S1jxVPOhNgk68VzzZb-LPWUaaohk','public/assets/images/generated/v1/hero/hero-main.webp',48382,'0de4925222ee05f76a71ab7910d4b62ead70a1b044f25334e2045df3cc8461ec'),
+            ('education.webp','14vrntf1cThfcoL_krxeCaciXHCPYG9UJ','public/assets/images/generated/v1/chapter/education.webp',41760,'f7e5076842d875832f9fd051087067fdced02cffb208f990d0e09e62d2f8de61'),
+            ('portfolio.webp','1OpfsI4Iskrojob8DgDcYed20mhBoxGqO','public/assets/images/generated/v1/chapter/portfolio.webp',55644,'0c24b1079dc1ddae260ed7234ef936a61693c161453e1397adf60808c3f05c8e'),
+            ('product-commerce.webp','15rYsYg_XQ0UQ14hYu1c82l1KdqDiotWS','public/assets/images/generated/v1/market/product-commerce.webp',44756,'04ac1b09ba75c577e274b7af75e2933c75f402268bc26f2eff5ebdc13426342d'),
+            ('corporate-profile.webp','17ChLOCp8E0ttKY6Abl1edvN0o7A6u-S1','public/assets/images/generated/v1/market/corporate-profile.webp',28166,'790b81bbf7f80c9bc127f39a527d5e89ecab17f16bd2c8d3acccb908c71ec326'),
+            ('food-space.webp','1Lkyr10UytKvm6-ETruBrOvVK6g1BO-xR','public/assets/images/generated/v1/market/food-space.webp',49676,'a17568204f1bd3854345fabe59905e4aad03d68e02205210e83690d51913c9ff')
+          ]
+
+          opener = urllib.request.build_opener(
+              urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
+          )
+
+          for name, file_id, repo_path, expected_size, expected_sha in assets:
+              urls = [
+                  f'https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t',
+                  f'https://drive.google.com/uc?export=download&id={file_id}',
+              ]
+              data = None
+              errors = []
+              for url in urls:
+                  try:
+                      req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0'})
+                      with opener.open(req, timeout=45) as r:
+                          candidate = r.read()
+                      if (
+                          len(candidate) == expected_size
+                          and candidate[:4] == b'RIFF'
+                          and candidate[8:12] == b'WEBP'
+                      ):
+                          data = candidate
+                          break
+                      errors.append(f'{url}: size={len(candidate)} head={candidate[:12]!r}')
+                  except Exception as e:
+                      errors.append(f'{url}: {e!r}')
+
+              if data is None:
+                  raise SystemExit(f'Drive download failed for {name}: ' + ' | '.join(errors))
+
+              actual_sha = hashlib.sha256(data).hexdigest()
+              if actual_sha != expected_sha:
+                  raise SystemExit(f'SHA mismatch for {name}: {actual_sha} != {expected_sha}')
+
+              p = Path(repo_path)
+              p.parent.mkdir(parents=True, exist_ok=True)
+              p.write_bytes(data)
+              print(f'verified {name}: {len(data)} bytes {actual_sha} -> {repo_path}')
+
+          runtime = Path('public/assets/image-slots-v1.js')
+          lines = runtime.read_text().splitlines()
+          out = []
+          slot_count = 0
+          for line in lines:
+              if re.match(r"\s*'[^']+':\{path:", line):
+                  slot_count += 1
+                  line = re.sub(r'ready:(?:true|false)', 'ready:true', line)
+                  if re.search(r"rev:'[^']+'", line):
+                      line = re.sub(r"rev:'[^']+'", "rev:'b009'", line)
+                  else:
+                      line = re.sub(r'\}(,?)$', ",rev:'b009'}\\1", line)
+              out.append(line)
+          if slot_count != 46:
+              raise SystemExit(f'expected 46 runtime slots, found {slot_count}')
+          runtime.write_text('\n'.join(out) + '\n')
+
+          mp = Path('content/image-prompts/v1/manifest.json')
+          manifest = json.loads(mp.read_text())
+          if len(manifest.get('slots', [])) != 46:
+              raise SystemExit(f"expected 46 manifest slots, found {len(manifest.get('slots', []))}")
+          for slot in manifest['slots']:
+              slot['ready'] = True
+          mp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
+
+          by_name = {a[0]: a for a in assets}
+          status_map = {
+              'skill-space-correction': 'skill-space-correction.webp',
+              'skill-raw-culling': 'skill-raw-culling.webp',
+              'skill-batch-basic-edit': 'skill-batch-basic-edit.webp',
+              'skill-tether-shooting': 'skill-tether-shooting.webp',
+              'skill-portfolio-building': 'skill-portfolio-building.webp',
+              'skill-delivery-process': 'skill-delivery-process.webp',
+          }
+          for slot_id, file_name in status_map.items():
+              sp = Path(f'content/image-status/v1/{slot_id}.json')
+              if not sp.exists():
+                  continue
+              status = json.loads(sp.read_text())
+              _, drive_id, repo_path, size, sha = by_name[file_name]
+              status['status'] = 'ready'
+              status['ready'] = True
+              status.setdefault('webp', {})
+              status['webp']['status'] = 'ready'
+              status['webp']['drive_file_id'] = drive_id
+              status['webp']['repo_path'] = repo_path
+              status['webp']['bytes'] = size
+              status['webp']['sha256'] = sha
+              status['updated_at'] = '2026-08-18T14:40:00+09:00'
+              sp.write_text(json.dumps(status, ensure_ascii=False, indent=2) + '\n')
+
+          queue = Path('content/image-status/v1/next-generation-queue.json')
+          if queue.exists():
+              q = json.loads(queue.read_text())
+              q['status'] = 'completed'
+              for item in q.get('slots', []):
+                  item['status'] = 'ready'
+              queue.write_text(json.dumps(q, ensure_ascii=False, indent=2) + '\n')
+
+          index = Path('public/index.html')
+          text = index.read_text()
+          text, n = re.subn(
+              r'/assets/image-slots-v1\.js\?v=\d+',
+              '/assets/image-slots-v1.js?v=9',
+              text,
+              count=1,
+          )
+          if n != 1:
+              raise SystemExit('image-slots script tag not found')
+          index.write_text(text)
+
+          slot_paths = re.findall(r"path:'([^']+\.webp)'", runtime.read_text())
+          missing = []
+          for path in slot_paths:
+              p = Path('public') / path.removeprefix('/')
+              if not p.exists():
+                  missing.append(str(p))
+                  continue
+              data = p.read_bytes()
+              if data[:4] != b'RIFF' or data[8:12] != b'WEBP':
+                  raise SystemExit(f'not a WebP: {p}')
+          if missing:
+              raise SystemExit('missing production assets: ' + ', '.join(missing))
+          print(f'production asset check passed: {len(slot_paths)} slots')
+          PY
+
+      - name: Commit original WebPs and remove one-shot importer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'photo-ebook-image-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git rm -f .github/workflows/import-drive-original-webps-b009.yml drive-original-webp-trigger.txt
+          git add -A
+          git commit -m 'Replace production images with original Drive WebPs b009'
+          git pull --rebase origin main
+          git push origin HEAD:main
