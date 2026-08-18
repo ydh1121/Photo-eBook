@@ -128,22 +128,86 @@ active `.nav-chip.is-active`는 현재 chapter와 일치해야 한다.
 
 vertical scroll과 chip click이 둘 다 active state를 변경할 수 있다. click 직후 observer/scroll scan이 즉시 이전 section으로 되돌리는 race를 막는 short lock/hysteresis는 허용한다.
 
+MUST:
+- 최초 HTML에서 첫 chip에 임시 `.is-active`가 있더라도 runtime 측정 후 실제 chapter 하나만 active로 정규화한다.
+- 새로고침 후 브라우저가 이전 scroll 위치를 복원하면 해당 chapter chip도 다시 맞춘다.
+- 동시에 두 개 이상의 `.nav-chip.is-active`가 남지 않는다.
+
 ## NAV-005 — active chip visibility
 
-현재 legacy navigation layer가 active chip을 horizontal viewport 안으로 보정하는 동작을 일부 포함한다. 이는 KNOWN DEBT다.
+active chip은 현재 chapter를 따라가되 native x-scroll ownership을 깨지 않는다.
 
-새 구현은:
-- active chip이 완전히 밖으로 사라지지 않도록 해야 함.
-- vertical scroll 중 지속적으로 `scrollLeft`를 재계산하지 않음.
-- user native horizontal pan을 방해하지 않음.
+- chapter 변경 시 active chip이 horizontal viewport 밖에 있으면 scroll 종료 후 보이도록 보정할 수 있다.
+- 새로고침/pageshow/layout 재측정 시 현재 chapter chip을 즉시 맞춘다.
+- vertical scroll 매 frame마다 `scrollLeft`를 재계산하지 않는다.
+- user native horizontal pan을 방해하지 않는다.
 
-## NAV-006 — reading progress
+## NAV-006 — chapter-coupled reading progress
 
-상단 rail에는 별도 진행 bar/plate가 눈에 띄게 추가되지 않는다.
+상단 rail에는 별도 독립 progress bar/plate를 추가하지 않는다. 진행 상태는 기존 rail surface 안의 blue wash로 표현한다.
 
-progress는 rail surface의 subtle blue wash로 표현하며 `--v32-progress` 또는 동등한 CSS variable을 사용한다.
+V1 확정 방식은 **전체 문서 절대 scroll 비율이 아니라 현재 chapter + 해당 chip 길이를 결합한 진행률**이다.
 
-progress는 active indicator geometry와 별도 owner다.
+### NAV-006-A — 하나의 page state에서 두 출력 생성
+
+active chip과 progress가 서로를 추종하는 구조로 만들지 않는다.
+
+canonical source는 실제 page geometry다.
+
+1. 현재 viewport의 chapter anchor 위치를 계산한다.
+2. anchor가 속한 chapter를 선택한다.
+3. 그 chapter 안에서의 local progress `p`를 구한다.
+4. 같은 chapter id로 active chip을 선택한다.
+5. visible progress endpoint는 해당 chip의 실제 `offsetLeft + offsetWidth * p`로 계산한다.
+
+즉 **active chip과 progress는 같은 측정값의 sibling output**이다. 숨겨진 별도 progress bar를 두고 서로 연쇄 추종시키지 않는다.
+
+### NAV-006-B — chapter local progress 공식
+
+chapter `i`에 대해:
+
+- `start_i` = 현재 렌더된 chapter i의 document Y 시작점
+- `end_i` = 다음 chapter의 시작점
+- 마지막 chapter는 실제 scroll 가능한 문서 끝을 사용
+- `anchorY` = 현재 scrollY + nav height + scan offset
+
+`p = clamp((anchorY - start_i) / (end_i - start_i), 0, 1)`
+
+따라서 chapter가 길면 같은 chip 폭을 천천히 채우고, chapter가 짧으면 빠르게 채운다. 디바이스/모니터/줄바꿈/이미지 높이에 따라 실제 chapter 높이가 달라져도 재측정된 DOM geometry를 사용한다.
+
+### NAV-006-C — chip mapped endpoint
+
+visible progress width는:
+
+`chip.offsetLeft + chip.offsetWidth * p`
+
+를 기준으로 한다.
+
+MUST:
+- chapter 시작 시 progress endpoint가 해당 chip의 시작점에 들어온다.
+- chapter 중간에서는 해당 chip 내부를 가변적으로 통과한다.
+- chapter 끝에서는 해당 chip 끝까지 도달한다.
+- 다음 chapter로 넘어갈 때 active indicator와 progress endpoint가 같은 chapter로 전환된다.
+
+chip label 글자 수가 달라 폭이 서로 달라도 실제 `offsetWidth`를 사용하므로 별도 가중치 표를 만들지 않는다.
+
+### NAV-006-D — native x-scroll 동기화
+
+progress wash는 `.nav-scroll` 내부의 `.nav-chapter-progress` child layer로 존재한다. 이 layer가 chip과 같은 scroll content coordinate를 사용하므로 모바일에서 rail을 가로로 이동해도 progress endpoint와 chip의 상대 위치가 깨지지 않는다.
+
+기존 `--v32-progress` 기반 전체-page absolute wash는 canonical visual owner가 아니며 최종 CSS에서 0으로 neutralize한다.
+
+### NAV-006-E — layout remeasure
+
+다음 시점에는 chapter/chip geometry를 다시 측정한다.
+
+- fonts ready
+- window load
+- pageshow / scroll restoration
+- orientation change
+- 실제 app 높이 변화(ResizeObserver)
+
+scroll gesture 중 매 frame section layout 전체를 다시 측정하지 않는다. 측정값은 cache하고 scroll 중에는 숫자 계산만 수행한다.
 
 ## LIQ-009 — Collection primary tabs
 
@@ -230,7 +294,7 @@ active class가 정상적으로 바뀌는 매번 instant geometry를 다시 써�
 - script15/16/18/20/21/22/23/27 등 retired liquid controllers
 - current `script-liquid-core.js`
 
-현재 direct runtime에서 `script-liquid-core.js`가 top/collection/theme owner다.
+현재 direct runtime에서 `script-liquid-core.js`가 top/collection/theme moving-indicator owner다. top chapter state와 chapter-coupled progress 계산은 `script-9.js`가 소유한다.
 
 ## LIQ-018 — question owner invariant
 
@@ -251,6 +315,8 @@ legacy `.v32-question-segment` class는 visual material inheritance를 위해 cu
 - first/last overshoot가 잘림
 - indicator가 두 개 겹침
 - active button 자체에도 blue fill이 남아 ghost double-pill 발생
+- 현재 chapter와 active chip이 다름
+- progress endpoint가 active chapter가 아닌 다른 chip 구간에 위치함
 
 ## LIQ-020 — design consistency
 
