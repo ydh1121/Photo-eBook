@@ -1,0 +1,60 @@
+/* v1: collection header control order and centered close geometry. */
+.collection-head{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+  align-items:center!important;
+  column-gap:10px!important;
+}
+.collection-head>div:first-child{
+  grid-column:1!important;
+  min-width:0!important;
+  margin:0!important;
+}
+.collection-head .collection-select-toggle{
+  grid-column:2!important;
+  position:static!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:none!important;
+  justify-self:end!important;
+  align-self:center!important;
+  margin:0!important;
+}
+#collectionClose.collection-close{
+  grid-column:3!important;
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:none!important;
+  justify-self:end!important;
+  align-self:center!important;
+  margin:0!important;
+  padding:0!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:0!important;
+  line-height:1!important;
+}
+#collectionClose.collection-close::before,
+#collectionClose.collection-close::after{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:13px!important;
+  height:2px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:currentColor!important;
+  transform-origin:50% 50%!important;
+  pointer-events:none!important;
+}
+#collectionClose.collection-close::before{transform:translate(-50%,-50%) rotate(45deg)!important}
+#collectionClose.collection-close::after{transform:translate(-50%,-50%) rotate(-45deg)!important}
