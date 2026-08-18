@@ -1,4 +1,4 @@
-/* v2: hard-stop legacy modal handoff; present cross-device linking as a simple user-facing code flow. */
+/* v3: keep cross-device continuation inside the existing settings row as a real accordion. */
 (function(){
   if(window.__photoCollectionHandoffV2Installed)return;
   window.__photoCollectionHandoffV2Installed=true;
@@ -11,8 +11,7 @@
   }
   function writeQuestions(items){try{localStorage.setItem(QUESTION_KEY,JSON.stringify(items.slice(0,100)));}catch{}}
 
-  /* Keep the historic internal key shape so existing QUESTION_HISTORY rows remain
-     reachable, but never expose the implementation prefix to the user. */
+  /* Existing storage/API rows use this internal prefix. It is never shown to users. */
   function makeInternalDeviceKey(){
     const bytes=new Uint8Array(24);
     try{crypto.getRandomValues(bytes);}catch{for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);}
@@ -29,8 +28,7 @@
     return String(internal||'').replace(/^dev_/i,'');
   }
   function internalCode(value){
-    const raw=String(value||'').trim().toLowerCase().replace(/[\s-]+/g,'');
-    const plain=raw.replace(/^dev_/,'');
+    const plain=String(value||'').trim().toLowerCase().replace(/^dev_/,'').replace(/[\s-]+/g,'');
     return /^[a-f0-9]{48}$/.test(plain)?'dev_'+plain:'';
   }
 
@@ -55,60 +53,53 @@
     node.classList.toggle('is-error',Boolean(error));
   }
 
-  function buildPanel(link){
+  function ensurePanel(link){
     const settings=link?.closest('.collection-settings');
     if(!settings)return null;
     let panel=settings.querySelector('.collection-device-panel-v2');
     if(panel)return panel;
 
     panel=document.createElement('div');
-    panel.className='collection-device-panel collection-device-panel-v2';
+    panel.className='collection-device-panel-v2';
+    panel.hidden=true;
     panel.innerHTML=`
-      <div class="collection-device-panel__head">
-        <div><strong>다른 기기에서 이어보기</strong><p>두 기기에 같은 연결 코드를 사용하면 저장한 질문을 이어볼 수 있습니다.</p></div>
-        <button class="collection-device-panel__back" type="button" data-device-panel-back>돌아가기</button>
-      </div>
       <div class="collection-device-panel__current">
         <div class="collection-device-panel__current-copy">
           <small>이 기기의 연결 코드</small>
           <code data-device-current-code></code>
         </div>
-        <button type="button" data-device-panel-copy>복사</button>
+        <button type="button" class="collection-device-copy" data-device-panel-copy>복사</button>
       </div>
       <div class="collection-device-panel__divider" aria-hidden="true"></div>
       <div class="collection-device-panel__group">
         <label for="deviceCodeIncomingV2">다른 기기의 코드로 연결</label>
-        <p class="collection-device-panel__hint">다른 기기에서 복사한 연결 코드를 붙여넣으세요.</p>
+        <p class="collection-device-panel__hint">다른 기기에서 복사한 연결 코드를 붙여넣으면 저장한 질문을 이어서 볼 수 있습니다.</p>
         <div class="collection-device-panel__connect-row">
           <input id="deviceCodeIncomingV2" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="48자리 연결 코드">
-          <button type="button" data-device-panel-connect>연결</button>
+          <button type="button" class="collection-device-connect" data-device-panel-connect>연결하기</button>
         </div>
       </div>
       <div class="collection-device-panel__status" data-device-panel-status aria-live="polite"></div>`;
-    settings.appendChild(panel);
+    link.insertAdjacentElement('afterend',panel);
     return panel;
   }
 
-  function openPanel(link){
-    const panel=buildPanel(link);
+  function setExpanded(link,next){
+    const panel=ensurePanel(link);
     if(!panel)return;
-    link.hidden=true;
-    const note=link.closest('.collection-settings')?.querySelector('.collection-setting-note');
-    if(note)note.hidden=true;
-    const code=panel.querySelector('[data-device-current-code]');
-    if(code)code.textContent=publicCode();
-    status(panel,'');
-    const sheet=document.getElementById('collectionSheet');
-    if(sheet)sheet.style.pointerEvents='auto';
+    const expanded=Boolean(next);
+    link.classList.toggle('is-device-expanded',expanded);
+    link.setAttribute('aria-expanded',expanded?'true':'false');
+    panel.hidden=!expanded;
+    if(expanded){
+      const code=panel.querySelector('[data-device-current-code]');
+      if(code)code.textContent=publicCode();
+      status(panel,'');
+    }
   }
 
-  function closePanel(panel){
-    const settings=panel?.closest('.collection-settings');
-    panel?.remove();
-    const link=settings?.querySelector('#collectionDeviceLink');
-    if(link)link.hidden=false;
-    const note=settings?.querySelector('.collection-setting-note');
-    if(note)note.hidden=false;
+  function togglePanel(link){
+    setExpanded(link,link.getAttribute('aria-expanded')!=='true');
   }
 
   async function copyCode(panel){
@@ -117,8 +108,7 @@
     try{await navigator.clipboard.writeText(value);ok=true;}catch{
       try{
         const area=document.createElement('textarea');
-        area.value=value;
-        area.setAttribute('readonly','');
+        area.value=value;area.setAttribute('readonly','');
         area.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
         document.body.appendChild(area);area.select();ok=document.execCommand('copy');area.remove();
       }catch{}
@@ -137,19 +127,18 @@
   async function connect(panel){
     const input=panel?.querySelector('#deviceCodeIncomingV2');
     const key=internalCode(input?.value||'');
-    if(!key){
-      status(panel,'연결 코드를 다시 확인해 주세요.',true);
-      input?.focus();
-      return;
-    }
+    if(!key){status(panel,'연결 코드를 다시 확인해 주세요.',true);input?.focus();return;}
+
     try{localStorage.setItem(DEVICE_KEY,key);}catch{}
     const code=panel?.querySelector('[data-device-current-code]');
     if(code)code.textContent=publicCode(key);
     installRpcOverride();
+
     if(typeof window.apiRpc!=='function'){
       status(panel,'연결 코드를 저장했습니다.');
       return;
     }
+
     status(panel,'저장한 질문을 불러오는 중입니다.');
     try{
       const res=await window.apiRpc('getQuestionHistory',{deviceId:key});
@@ -162,36 +151,31 @@
     }
   }
 
-  /* Remove only the stale listener attached directly by script-14. Do not move
-     any header controls; their original geometry belongs to the existing UI. */
+  /* script-14 attaches an obsolete direct listener that closes My Collection and
+     launches a second modal. Clone just this row to remove that listener. */
   function stripLegacyDeviceListener(){
     const link=document.getElementById('collectionDeviceLink');
     if(!link||link.dataset.deviceSafeV2==='true')return;
     const clone=link.cloneNode(true);
     clone.dataset.deviceSafeV2='true';
+    clone.setAttribute('aria-expanded','false');
     link.replaceWith(clone);
   }
 
-  function refresh(){
-    installRpcOverride();
-    stripLegacyDeviceListener();
-  }
+  function refresh(){installRpcOverride();stripLegacyDeviceListener();}
 
-  /* Run before the old document/target listener. */
+  /* Window capture precedes the retired document/target path. */
   window.addEventListener('click',event=>{
     const target=event.target instanceof Element?event.target:null;
     if(!target)return;
 
     const link=target.closest('#collectionDeviceLink');
     if(link){
-      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();openPanel(link);return;
+      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();togglePanel(link);return;
     }
 
     const panel=target.closest('.collection-device-panel-v2');
     if(!panel)return;
-    if(target.closest('[data-device-panel-back]')){
-      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();closePanel(panel);return;
-    }
     if(target.closest('[data-device-panel-copy]')){
       event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();copyCode(panel);return;
     }
