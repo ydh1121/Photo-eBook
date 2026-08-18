@@ -1,1 +1,1 @@
-run after sharing chapter-intro to service account
+retry authenticated usercontent path
