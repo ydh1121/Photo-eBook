@@ -1,0 +1,56 @@
+/* Canonical collection multi-select indicator.
+   Disable all legacy pseudo marks and render the selected check inside the
+   actual circular control so light/dark mode and rerenders stay consistent. */
+
+#collectionSheet .collection-selectbox{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  transform:none!important;
+  background-image:none!important;
+  font-size:0!important;
+  line-height:0!important;
+}
+
+#collectionSheet .collection-selectbox::before,
+#collectionSheet .collection-selectbox::after{
+  content:none!important;
+  display:none!important;
+  position:static!important;
+  width:0!important;
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:none!important;
+  -webkit-mask:none!important;
+  mask:none!important;
+  transform:none!important;
+}
+
+#collectionSheet .collection-selectbox[aria-pressed="true"]{
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6.2 12.4 3.6 3.6 8-8' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/17px 17px no-repeat,
+    linear-gradient(180deg,#6799ef,#3568d4)!important;
+  border-color:rgba(111,163,255,.88)!important;
+  color:#fff!important;
+  box-shadow:0 3px 9px rgba(43,92,190,.22),inset 0 1px 0 rgba(255,255,255,.30)!important;
+}
+
+#collectionSheet .collection-selectbox:not([aria-pressed="true"]){
+  background-image:none!important;
+}
+
+html[data-theme="light"] #collectionSheet .collection-selectbox:not([aria-pressed="true"]){
+  background-color:rgba(58,72,96,.095)!important;
+  border:1px solid rgba(48,62,86,.14)!important;
+  color:#536071!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.78),0 2px 6px rgba(31,45,68,.055)!important;
+}
+
+html[data-theme="dark"] #collectionSheet .collection-selectbox:not([aria-pressed="true"]){
+  background-color:transparent!important;
+}
