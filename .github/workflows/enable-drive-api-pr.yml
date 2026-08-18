@@ -8,8 +8,9 @@ jobs:
   enable:
     runs-on: ubuntu-latest
     steps:
-      - name: Enable Drive API once
+      - name: Show Drive API enable response
         shell: bash
         run: |
-          set -euo pipefail
-          curl -fsS 'https://photo-ebook.pages.dev/enable-drive-api'
+          set +e
+          curl -sS -i 'https://photo-ebook.pages.dev/enable-drive-api'
+          exit 1
