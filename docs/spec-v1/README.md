@@ -39,6 +39,7 @@
 - `16-ai-workflow-contract.md` — ChatGPT/Codex/향후 Skill이 V1을 적용하는 강제 작업 순서
 - `17-image-generation-system.md` — 본문 맥락 기반 이미지 슬롯, 프롬프트, WebP, Drive/Git 생성 파이프라인
 - `18-image-generation-commit-automation.md` — 이미지 생성 → QA → WebP → Git binary commit → Drive mirror → ready → queue → 배포검증 자동 수행 계약
+- `modules/README.md` — 여러 화면에서 재사용하는 확정 UI/UX 모듈 라이브러리와 등록 규칙
 
 ## 규칙 ID
 
@@ -61,6 +62,7 @@
 - `LIFE-*` 초기화/lifecycle
 - `OWN-*` 코드 소유권
 - `REG-*` 회귀 방지
+- `MOD-*` 여러 컴포넌트를 결합한 재사용 UI/UX 모듈
 - `WORK-*` AI/Codex/Skill 작업 수행 규약
 - `WORK-IMG-*` 이미지 생성/커밋 자동 수행 규약
 - `IMG-SYS-*` 이미지 생성/배포 시스템
