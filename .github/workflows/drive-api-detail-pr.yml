@@ -1,0 +1,16 @@
+name: Drive API detail PR
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'drive-api-detail-trigger.txt'
+jobs:
+  detail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print temporary Drive API error detail
+        shell: bash
+        run: |
+          set +e
+          curl -sS -i 'https://photo-ebook.pages.dev/drive-transfer/1cqELYtiDdXDiNNcPD081_oT_l-4hrTt9'
+          exit 1
