@@ -18,8 +18,10 @@
   margin:0!important;
   padding:0!important;
   border:0!important;
-  border-radius:999px 0 0 999px!important;
+  border-radius:999px!important;
   outline:0!important;
+  overflow:hidden!important;
+  clip-path:inset(0 round 999px)!important;
   background:linear-gradient(90deg,rgba(64,129,239,.24),rgba(64,129,239,.16))!important;
   box-shadow:none!important;
   opacity:1!important;
