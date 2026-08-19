@@ -1,1 +1,22 @@
-{"note":"superseded by direct verified blob upload"}
+{
+  "files": [
+    {
+      "target": "public/assets/images/generated/v1/gear/sony-a7-iii.webp",
+      "size": 149916,
+      "sha256": "2fdc59292ad6a3463374744ebdc457216f9f712d7116471188904dddc1f41530",
+      "parts": ["image-upload-staging/sony-a7-iii.b64"]
+    },
+    {
+      "target": "public/assets/images/generated/v1/gear/tamron-28-75-g2.webp",
+      "size": 89800,
+      "sha256": "4f53344ccf8f625eede1051c0ea0419d0e1c17d4f6ff6e62f846dc180369e192",
+      "parts": ["image-upload-staging/tamron-28-75-g2.b64"]
+    },
+    {
+      "target": "public/assets/images/generated/v1/gear/sony-fe-85-f18.webp",
+      "size": 156346,
+      "sha256": "4785270b1e988ba6804b629af2fe0bbdd0611005f67f4cf54f6348fd7b8f54a1",
+      "parts": ["image-upload-staging/sony-fe-85-f18.b64"]
+    }
+  ]
+}
