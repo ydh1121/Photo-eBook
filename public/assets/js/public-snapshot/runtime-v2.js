@@ -56,6 +56,7 @@
         if(host)styleRuntime.apply(host,{...block,resolvedStyle:block.resolvedStyle||{}});
       });
     }
+    window.PlatformUiCapabilityRuntime?.apply?.(root,uiCapabilities,{snapshot});
     applyMetadata(snapshot,{canonicalBase});
     window.__PUBLIC_SNAPSHOT_UI_CAPABILITIES=uiCapabilities;
     document.documentElement.dataset.publicSnapshotV2='true';
