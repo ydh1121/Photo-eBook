@@ -2,7 +2,7 @@
 
 ## LIFE-001 — 최초 HTML bootstrap
 
-`public/index.html`이 유일한 정적 런타임 진입점이다.
+`public/index.html`이 현재 정적 런타임 진입점이다.
 
 CSS보다 먼저 실행되는 inline bootstrap은 다음만 수행한다.
 
@@ -11,13 +11,13 @@ CSS보다 먼저 실행되는 inline bootstrap은 다음만 수행한다.
 3. `light | dark | system`을 해석하고 기본값은 `light`로 설정.
 4. `data-theme-choice`, `data-theme`, `style.colorScheme` 즉시 설정.
 
-테마 first-paint flash를 막기 위해 이 코드를 deferred module 뒤로 이동하지 않는다.
+테마 first-paint flash를 막기 위해 이 코드를 deferred runtime 뒤로 이동하지 않는다.
 
 ## LIFE-002 — runtime asset layout
 
-번호형 런타임 파일은 제거하고 역할별 디렉터리로 분류한다.
+번호형 런타임 파일은 제거하고 공통 플랫폼과 분야별 content pack을 분리한다.
 
-### CSS
+### 공통 CSS
 
 - `public/assets/styles/core/`
 - `public/assets/styles/components/`
@@ -30,30 +30,34 @@ CSS보다 먼저 실행되는 inline bootstrap은 다음만 수행한다.
 - `public/assets/styles/safari/`
 - `public/assets/styles/compat/`
 
-### JavaScript
+### 공통 JavaScript
 
 - `public/assets/js/core/`
 - `public/assets/js/app/`
-- `public/assets/js/render/`
 - `public/assets/js/navigation/`
-- `public/assets/js/content/`
-- `public/assets/js/media/`
 - `public/assets/js/collection/`
 - `public/assets/js/questions/`
 - `public/assets/js/ui/`
 - `public/assets/js/desktop/`
 - `public/assets/js/safari/`
-- `public/assets/js/compat/`
+
+### photography content pack
+
+- `public/content-packs/photography/pack.js`
+- `public/content-packs/photography/data/`
+- `public/content-packs/photography/runtime/`
+
+사진에만 의미가 있는 renderer, 미디어 discovery, curated content, generated photo registry, image slot/binder, copy compatibility는 photography pack이 소유한다.
 
 ### bundled fallback data
 
-`public/data/site-data/part-01.js` ~ `part-08.js`
+`public/content-packs/photography/data/part-01.js` ~ `part-08.js`
 
 각 파일은 JSON 문자열 조각을 `window.__SITE_DATA_FALLBACK_PARTS`에 순서대로 append한다. 파일 번호는 기능 revision이 아니라 payload shard 순서를 뜻한다.
 
 ## LIFE-003 — CSS 실제 로드 순서
 
-기존 승인 UI의 cascade를 보존하기 위해 semantic rename 뒤에도 CSS 순서는 변경하지 않는다. 아래 순서 자체가 회귀 계약이다.
+기존 승인 UI의 cascade를 보존하기 위해 content pack 분리 뒤에도 CSS 순서는 변경하지 않는다. 아래 순서 자체가 회귀 계약이다.
 
 1. `styles/core/tokens.css`
 2. `styles/core/base-layout.css`
@@ -107,49 +111,53 @@ CSS보다 먼저 실행되는 inline bootstrap은 다음만 수행한다.
 
 ## LIFE-004 — critical JavaScript 순서
 
-### head
+### head — pack/bootstrap/data
 
-bundled data 8개 뒤에:
+1. `assets/js/core/content-pack-runtime.js`
+2. `content-packs/photography/pack.js`
+3. `content-packs/photography/data/part-01.js` ~ `part-08.js`
+4. `assets/js/core/site-data-client.js`
 
-- `assets/js/core/site-data-client.js` — site data cache/fallback/live fetch/RPC
+`site-data-client.js`는 활성 pack의 cache key와 API endpoint를 사용한다.
 
-### body — generated media registry
+### body — photography generated media
 
-1. `assets/js/media/generated/client-review.js`
-2. `assets/js/media/generated/product-studio.js`
-3. `assets/js/media/generated/retouch-workstation.js`
+1. `content-packs/photography/runtime/generated/client-review.js`
+2. `content-packs/photography/runtime/generated/product-studio.js`
+3. `content-packs/photography/runtime/generated/retouch-workstation.js`
 
 ### body — deferred runtime
 
 1. `assets/js/core/render-helpers.js`
-2. `assets/js/render/chapter-renderers.js`
+2. `content-packs/photography/runtime/chapter-renderers.js`
 3. `assets/js/ui/liquid-controller.js`
-4. `assets/js/content/curated-content.js`
+4. `content-packs/photography/runtime/curated-content.js`
 5. `assets/js/core/ui-ready-gate.js`
 6. `assets/js/app/app-shell.js`
 7. `assets/js/questions/drawer-enhancements.js`
-8. `assets/js/media/media-enrichment.js`
+8. `content-packs/photography/runtime/media-enrichment.js`
 9. `assets/js/navigation/chapter-navigation.js`
-10. `assets/js/compat/curated-copy.js`
+10. `content-packs/photography/runtime/curated-copy.js`
 11. `assets/js/app/boot-recovery.js`
-12. `assets/js/content/content-discovery.js`
+12. `content-packs/photography/runtime/content-discovery.js`
 13. `assets/js/app/postload-enhancements.js`
 14. `assets/js/questions/question-actions.js`
 15. `assets/js/collection/bulk-selection.js`
 16. `assets/js/questions/question-workspace.js`
 17. `assets/js/ui/breeze-repair.js`
 18. `assets/js/safari/theme-color-cleanup.js`
-19. `assets/js/media/image-slot-registry.js`
-20. `assets/js/media/image-slot-binder.js`
+19. `content-packs/photography/runtime/image-slot-registry.js`
+20. `content-packs/photography/runtime/image-slot-binder.js`
 21. `assets/js/safari/deferred-sticky-nav.js`
 22. `assets/js/desktop/rail-drag.js`
 23. `assets/js/collection/device-handoff-compat.js`
 24. `assets/js/collection/device-handoff.js`
 25. `assets/js/questions/context-handoff.js`
 26. `assets/js/collection/modal-shield.js`
-27. `assets/js/compat/copy-contract.js`
+27. `content-packs/photography/runtime/copy-contract.js`
+28. `assets/js/app/render-app-from-pack.js`
 
-과거의 중간 `setupNavigation()` 정의 파일처럼 최종 renderer 호출 전에 항상 덮어써져 실제 실행되지 않던 runtime 파일은 제거했다.
+사진 분야 파일은 실행 순서를 유지한 채 경로만 content pack 아래로 이동했다.
 
 ## LIFE-005 — postload boundary
 
@@ -158,12 +166,17 @@ bundled data 8개 뒤에:
 1. `assets/js/media/generated-image-blob-cache.js`
 2. `assets/js/collection/collection-hub.js`
 
-따라서 두 파일은 `index.html`에 직접 없지만 runtime active다.
+`generated-image-blob-cache.js`는 분야와 무관한 data-URL → Blob URL helper이므로 공통 runtime에 유지한다.
 
 ## OWN-001 — 주요 runtime authority
 
+- content pack registry/selection: `js/core/content-pack-runtime.js`
 - site data API/cache: `js/core/site-data-client.js`
-- 전체 app assembly: `js/app/app-shell.js`
+- 전체 app assembly 및 질문 기본 shell: `js/app/app-shell.js`
+- pack activation bridge: `js/app/render-app-from-pack.js`
+- photography renderer: `content-packs/photography/runtime/chapter-renderers.js`
+- photography curated/discovery/media: `content-packs/photography/runtime/curated-content.js`, `content-discovery.js`, `media-enrichment.js`
+- photography image slot registry/binding: `content-packs/photography/runtime/image-slot-registry.js`, `image-slot-binder.js`
 - top nav active chapter/scroll target: `js/navigation/chapter-navigation.js`
 - nav/collection/theme moving liquid: `js/ui/liquid-controller.js`
 - collection DOM/base state: postload `js/collection/collection-hub.js`
@@ -172,7 +185,6 @@ bundled data 8개 뒤에:
 - question contextual/GPT handoff: `js/questions/context-handoff.js`
 - device continuation: `js/collection/device-handoff.js`
 - iOS Safari initial chrome/sticky transition: `js/safari/deferred-sticky-nav.js` + `styles/safari/deferred-sticky-chrome.css`
-- image slot registry/binding: `js/media/image-slot-registry.js`, `js/media/image-slot-binder.js`
 
 ## OWN-002 — 제거된 역사 파일
 
@@ -188,6 +200,7 @@ Git history가 과거 구현의 기록 역할을 하므로 dead source를 produc
 ## REG-001 — runtime 변경 규칙
 
 - active asset을 수정하면 해당 semantic path의 query version을 올린다.
+- photography 전용 변경은 가능하면 `public/content-packs/photography/` 안에서 끝낸다.
 - postload asset version은 `js/app/postload-enhancements.js` 내부 URL에서 관리한다.
 - CSS load order를 바꾸는 작업은 단순 rename이 아니라 architecture 변경으로 취급한다.
 - 동일 상태/indicator/scroll owner를 새 파일로 중복 생성하지 않는다.
