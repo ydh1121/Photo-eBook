@@ -61,7 +61,7 @@
 - [x] block별 variant 비교
 - [x] candidate Block Registry + renderer 분리
 - [x] block status/editorial profile/type 메타 표시
-- [x] 신규 calculator interaction 샘플 동작
+- [x] calculator interaction 샘플 동작
 - [x] block별 사용자 review control 추가
 - [x] review 상태 localStorage 저장
 - [x] review JSON export
@@ -118,20 +118,22 @@
 
 - [x] runtime manifest 생성 — `public/data/block-registry/v1/manifest.js`
 - [x] manifest와 renderer type/variant health validation
-- [x] production 사용 가능 여부 검사 API 추가
+- [x] browser production 사용 가능 여부 검사 API
+- [x] server publish용 Registry status helper — `functions/lib/block-registry-v1.js`
 - [x] approval lifecycle 문서화 — `docs/library/blocks/APPROVAL-WORKFLOW.md`
 - [x] 사용자 Block Lab review 결과를 저장/내보낼 UI 구현
 - [x] Google Sheet `BLOCK_REVIEWS` 저장 구조 준비
 - [x] 보호된 `/api/editor/reviews` write endpoint 코드 준비
 - [-] 사용자 Block Lab 검토 결과 수집
 - [ ] block별 `approved / redesign / merge / deprecated` 최종 판정
-- [ ] approved block lifecycle 반영
-- [ ] 분야 pack publish validation에 Registry 연결
+- [ ] browser manifest와 server Registry에 approved lifecycle 반영
+- [x] publish validation에서 approved block만 허용하도록 연결
 - [ ] 승인 renderer를 production/admin canonical renderer로 승격
 
 중요:
 - 사용자 시각 검토 전 자동 승인하지 않는다.
-- manifest의 27개 type은 현재 모두 `candidate`다.
+- browser manifest와 server Registry의 27개 type은 현재 모두 `candidate`다.
+- 현재 발행 검사는 candidate block을 정상적으로 차단해야 한다.
 
 ## 08. 관리자 Block Editor
 
@@ -144,6 +146,7 @@
 - [x] block 복제/삭제
 - [x] variant 변경
 - [x] content 문자열/숫자/배열/객체 편집 inspector
+- [x] block AI 수정 정책 / field lock / fact state inspector
 - [x] desktop/tablet/mobile preview (1180/768/390)
 - [x] light/dark preview
 - [x] edit/preview mode
@@ -156,6 +159,8 @@
 - [x] 서버 연결 UI
 - [x] 서버 초안 목록 / 저장 / 불러오기 UI
 - [x] 관리자 토큰은 `sessionStorage`에만 보관
+- [x] SEO metadata 편집 UI
+- [x] 발행 검사 / 발행 action UI
 
 ### Google Sheets V1 DB — 실제 생성/검증됨
 - [x] `PLATFORM_PAGES`
@@ -163,6 +168,9 @@
 - [x] `BLOCK_REVISIONS`
 - [x] `BLOCK_REVIEWS`
 - [x] `MEDIA_ASSETS`
+- [x] `PUBLISH_SNAPSHOTS`
+- [x] `PUBLISHED_BLOCKS`
+- [x] `PLATFORM_PAGES`에 `brief_json`, `ai_status`, `ai_review_json` 추가
 - [x] 헤더/기본 validation 설정
 
 ### 보호된 Editor API — 코드 구현됨
@@ -174,17 +182,22 @@
 - [x] draft page 저장
 - [x] block revision 기록
 - [x] block review 저장
-- [x] draft save 시 기존 행을 먼저 삭제하지 않는 non-destructive 순서로 보완
+- [x] AI brief/status/review 저장
+- [x] draft save 시 기존 행을 먼저 삭제하지 않는 non-destructive 순서
+- [x] 발행 전 server-side validation
+- [x] immutable-style publish snapshot append
+- [x] 이전 active snapshot supersede
+- [x] disabled block은 publish 대상에서 제외
 - [-] Cloudflare `ADMIN_EDITOR_TOKEN` 환경변수 설정 및 live API 검증
 
 ### Production 관리자 연결 — 남음
-- [ ] block-specific friendly inspector schema 정제
-- [ ] 이미지 asset picker/Drive 연결
+- [ ] block-specific friendly inspector schema 2차 정제
+- [ ] 이미지 asset picker / Drive 업로드 연결
 - [ ] 정식 관리자 인증/session 방식으로 교체 여부 결정
-- [ ] draft/published publish workflow
-- [ ] published page preview/publish action
+- [ ] revision history 조회/복원 UI
+- [ ] published snapshot preview
 - [ ] approved block만 production picker에 노출
-- [ ] server save/load 실사용 QA
+- [ ] server save/load/publish 실사용 QA
 
 저장 설계:
 - `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
@@ -195,24 +208,64 @@
 
 ## 09. AI 콘텐츠 작성/검수
 
-- [ ] page brief 입력
-- [ ] block 단위 AI 초안
-- [ ] 전체 페이지 AI 검토
-- [ ] 사용자 작성 내용 lock
-- [ ] 사실/수치/출처 검증 상태
-- [ ] editorial profile 적용
-- [ ] reference profile 적용
+공급자 API에 종속되지 않는 JSON 왕복 방식으로 구현한다.
+
+- [x] page brief 입력 UI
+- [x] topic / audience / goal / context / mustCover / avoid / tone / research / source priority / sensitivity
+- [x] `platform-ai-content-request/v1` export
+- [x] block별 editorialProfile / referenceProfiles를 AI request에 포함
+- [x] block AI policy: `full / wording_only / fact_check_only / locked`
+- [x] top-level field lock UI
+- [x] factState / evidence 구조
+- [x] `platform-ai-content-response/v1` 계약
+- [x] AI 결과 JSON import
+- [x] pageId / blockId / block type 검증
+- [x] wording-only 구조 보존
+- [x] locked / fact-check-only 자동 수정 차단
+- [x] evidence 없는 `verified` 자동 거부
+- [x] 전체 페이지 AI review / blocker 기록
+- [x] AI 적용 후 자동 `needs_review`
+- [x] `aiReview` Google Sheets 서버 draft 저장/복원
+- [x] 최근 AI 검토 요약 Editor 표시
+- [ ] 실제 산업 페이지 1개로 end-to-end AI 작성/검수 QA
+
+문서:
+- `docs/library/ai-content/README.md`
+- `AI-CONTENT-CONTRACT-V1.md`
+- `AI-CONTENT-RESPONSE-V1.md`
 
 ## 10. SEO/GEO + Publish
 
-- [ ] pack별 SEO metadata
-- [ ] source/evidence 필드
-- [ ] structured data 필드
-- [ ] robots/sitemap 정책
-- [ ] AI crawler 정책
-- [ ] publish snapshot
+- [x] 공통 publish/SEO/GEO 계약 — `docs/library/publishing/PUBLISH-SEO-GEO-V1.md`
+- [x] page `seo_json` 구조 정의
+- [x] Editor SEO metadata UI
+- [x] SEO title / description / Article|WebPage / OG image / site / author / index policy / reviewedAt
+- [x] source/evidence를 published block snapshot에 포함
+- [x] draft와 published snapshot 분리
+- [x] `PUBLISH_SNAPSHOTS` / `PUBLISHED_BLOCKS` 생성
+- [x] protected publish-check endpoint
+- [x] protected publish endpoint
+- [x] block approval / AI review / stale fact 검사
+- [x] `/block-lab/`, `/editor-lab/`, `/api/` crawler 제외 정책
+- [x] `public/robots.txt` 생성
+- [x] public route에서 `OAI-SearchBot`을 차단하지 않는 정책
+- [ ] 승인 block 기반 public snapshot renderer
+- [ ] 실제 public canonical route 확정
+- [ ] `<title>` / meta description / canonical / OG/Twitter runtime 적용
+- [ ] JSON-LD 렌더
+- [ ] published canonical URL 기반 sitemap 생성
+- [ ] public 404/soft-404 처리
+- [ ] Core Web Vitals/광고 rail QA
 - [ ] 실사용 QA
 - [ ] Drive workstream archive
+
+현재 Phase 10의 public renderer 관련 항목은 사용자 Block 승인 전 production에 연결하지 않는다.
+
+## 현재 외부 blocker
+
+- [!] 사용자 `/block-lab/` 시각 검토 및 block 최종 판정 필요
+- [!] Cloudflare 배포 환경 `ADMIN_EDITOR_TOKEN` 설정 필요
+- [!] 현재 도구 환경에서 live Pages UI/device browser QA 미완료
 
 ## 재개 규칙
 
