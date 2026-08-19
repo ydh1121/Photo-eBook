@@ -37,7 +37,7 @@
   async function saveBeforePublish(){
     const draft=readDraft();
     if(!draft.pageId||!Array.isArray(draft.blocks))throw new Error('현재 초안을 확인하세요.');
-    const {response,data}=await requestApi('page',{body:toServerPayload(draft)});
+    const {response,data}=await requestApi('save-page',{body:toServerPayload(draft)});
     if(!response.ok||data?.ok===false)throw new Error(data?.message||'서버 초안을 저장하지 못했습니다.');
     draft.pageId=data.pageId||draft.pageId;
     draft.slug=data.slug??draft.slug;
