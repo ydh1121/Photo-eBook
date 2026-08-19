@@ -1,366 +1,258 @@
 # 12. 초기화 순서와 상태/DOM 소유권
 
-V1의 가장 중요한 구조 규칙은 **같은 상태를 여러 스크립트가 동시에 쓰지 않는 것**이다. 기준 코드는 누적 revision 때문에 일부 중복이 남아 있으므로, 현재 최종 owner와 기술부채를 분리해서 기록한다.
+가장 중요한 구조 규칙은 **같은 상태를 여러 모듈이 동시에 source of truth로 쓰지 않는 것**이다. 파일명은 역할을 설명하지만 실제 owner는 load order, guard, DOM lifecycle까지 함께 판단한다.
 
-## LIFE-001 — Document phase
+## LIFE-001 — Document bootstrap
 
-HTML parse 중 inline bootstrap이 수행하는 것:
+`public/index.html` inline bootstrap:
 
-- iOS WebKit class.
-- theme choice.
-- actual theme.
-- color-scheme.
+- iOS WebKit detection/class.
+- theme choice 읽기.
+- effective theme 설정.
+- `color-scheme` 설정.
 
-이 phase에서 app DOM을 재구성하지 않는다.
+이 단계에서는 app DOM을 만들지 않는다.
 
-## LIFE-002 — Deferred data phase
+## LIFE-002 — bundled data / API phase
 
-`site-data-1..8.js`:
-- bundled fallback JSON fragments 등록.
+`public/data/site-data/part-01.js` ~ `part-08.js`가 bundled fallback JSON fragment를 등록한다.
 
-`script-1.js`:
-- cache/fallback/live API helper 등록.
+`assets/js/core/site-data-client.js`가:
+- local cache 읽기/쓰기.
+- bundled fallback parse.
+- `/api/site-data` live fetch.
+- `/api/rpc` helper.
 
-아직 user-facing app render가 완료됐다고 간주하지 않는다.
+를 제공한다.
 
 ## LIFE-003 — Renderer definition phase
 
-`script-2.js`:
-- helper와 image/callout functions.
+- `assets/js/core/render-helpers.js` — 공통 helper/image/callout.
+- `assets/js/render/chapter-renderers.js` — 기본 chapter/component markup renderer.
 
-`script-3.js`:
-- base markup renderers.
+후속 compatibility module이 일부 global renderer를 보정할 수 있으므로 최종 `app-shell` 실행 시점의 함수가 실제 renderer다.
 
-후속 scripts가 일부 renderer를 override할 수 있으므로 `renderApp()` 호출 시점의 최종 global function이 실제 renderer다.
+## OWN-001 — 전체 app assembly
 
-## OWN-001 — `renderApp` owner
-
-현재 `script-5.js`가 main app assembly owner다.
+Owner: `assets/js/app/app-shell.js`
 
 책임:
 - nav data 정렬/필터.
-- hero + nav + 10 chapter 조합.
+- hero + nav + chapters 조합.
 - `#app.innerHTML` 설정.
 - app hidden 해제.
 - boot 제거.
-- navigation/copy/question setup 호출.
+- navigation/question/copy setup 호출.
 
-다른 postload script가 전체 `#app.innerHTML`을 다시 쓰면 안 된다.
+postload module이 전체 `#app.innerHTML`을 다시 쓰면 안 된다.
 
-## LIFE-004 — UI gate
+## LIFE-004 — UI readiness / recovery
 
-`script-gate.js`는 UI/data readiness gate를 제공한다.
+- `assets/js/core/ui-ready-gate.js` — required renderer가 준비되기 전 premature render 방지, timeout fallback.
+- `assets/js/app/boot-recovery.js` — app이 아직 정상 렌더되지 않은 경우에만 cache/bundled/live data로 복구.
 
-목적:
-- required scripts/renderer가 준비되기 전 premature render 방지.
-- fallback timeout으로 deadlock 방지.
+이미 app이 정상 렌더된 뒤 destructive rerender하지 않는다.
 
-새 gate를 하나 더 추가해 boot가 두 개의 Promise를 기다리게 만들지 않는다.
+## OWN-002 — Theme state
 
-## LIFE-005 — Boot recovery
+초기 owner: `index.html` inline bootstrap.
 
-`script-11.js`:
-- app이 아직 렌더되지 않은 경우만 복구 시도.
-- cache/bundled/live data로 render 재시도.
+runtime owner: `assets/js/ui/liquid-controller.js`.
 
-MUST:
-- 이미 app이 정상 렌더된 상태에서는 destructive rerender 금지.
-
-## OWN-002 — Theme state owner
-
-초기 state:
-- `index.html` bootstrap.
-
-runtime state/UI:
-- `script-liquid-core.js`.
-
-keys/datasets:
+Source:
 - localStorage `photoRoadmapThemeV1`
 - html `data-theme-choice`
 - html `data-theme`
 
-다른 script는 theme를 읽을 수 있으나 별도 storage key/parallel source를 만들지 않는다.
+다른 module은 읽을 수 있으나 parallel theme storage를 만들지 않는다.
 
-## OWN-003 — Liquid controller owner
+## OWN-003 — Liquid moving indicator
 
-현재 canonical owner:
-`script-liquid-core.js`
+Canonical owner: `assets/js/ui/liquid-controller.js`.
 
 소유:
 - top nav moving indicator.
 - collection primary tabs moving indicator.
 - theme choice moving indicator.
-- shared skin mount/self-heal.
+- common liquid skin mount/self-heal.
 
-이 owner는 `window.__photoV49CoreInstalled=true`로 retired script27을 차단한다.
+다른 module의 geometry write는 compatibility repair일 뿐 새 owner가 아니다.
 
-## OWN-004 — Liquid visual material owner
+## OWN-004 — Top chapter navigation state
 
-공통 paint rules:
-- `style-25.css` `.v37-liquid-skin`
-- 후속 style30~35 z/overflow/first-paint adjustments
+Owner: `assets/js/navigation/chapter-navigation.js`.
 
-JS는 material color 자체를 inline style로 반복 쓰지 않는다.
+소유:
+- 현재 chapter 판정.
+- nav-chip active class.
+- chapter click scroll target.
+- nav progress source 값.
 
-## OWN-005 — Top chapter active state
+moving liquid paint/motion은 `liquid-controller.js`가 관찰해 표현한다.
 
-현재 기준 코드에는 여러 `setupNavigation` 세대가 순서대로 정의된다.
+과거 최종 호출 전에 덮어써지기만 하던 중간 `setupNavigation()` 파일은 삭제됐다.
 
-실제 render 직전 마지막 override 계열은 `script-9.js` 쪽이다. 이후 canonical liquid controller는 active class 이동 indicator를 관찰한다.
+## OWN-005 — Safari initial nav geometry
 
-소유권 분리:
-- chapter 결정/scroll target: navigation setup.
-- moving blue indicator: liquid controller.
-- reading progress surface: navigation/liquid progress helper.
+Owner pair:
+- `assets/js/safari/deferred-sticky-nav.js`
+- `assets/styles/safari/deferred-sticky-chrome.css`
 
-하나의 함수가 셋을 모두 강제로 animate하지 않는다.
+소유:
+- iOS WebKit initial normal-flow nav.
+- visualViewport/scroll compact signal.
+- `safari-nav-sticky-armed` class.
+- armed 후 sticky 복귀.
+- iOS browser-facing root theme background.
+
+collection popup lifecycle을 Safari chrome repair 수단으로 사용하지 않는다.
+
+## LIFE-005 — Postload boundary
+
+Owner: `assets/js/app/postload-enhancements.js`
+
+순서:
+1. app ready 대기.
+2. 약 900ms wait.
+3. stale interaction lock 정리.
+4. idle callback.
+5. `assets/js/media/generated-image-blob-cache.js` load.
+6. guarded MutationObserver 환경에서 `assets/js/collection/collection-hub.js` load.
+7. lock 재정리.
+
+core first paint를 늦추지 않는다.
 
 ## OWN-006 — Collection DOM/base state
 
-현재 active owner:
-postload `script-14.js`.
+Owner: postload `assets/js/collection/collection-hub.js`.
 
 소유:
-- collectionLayer/FAB/backdrop/sheet 생성.
-- libraryTab/filter/search internal state.
+- collection layer/FAB/backdrop/sheet 생성.
 - open/close.
-- item render.
-- base filter render.
-- settings render.
-- favorite item aggregation.
+- primary tab/filter/search state.
+- item rendering.
+- settings rendering.
+- favorite aggregation.
 - drag close.
 
-## LIFE-006 — Postload boundary
+Outside interaction shield: `assets/js/collection/modal-shield.js`.
 
-`script-postload-v27.js`:
+## OWN-007 — Collection bulk selection
 
-1. app ready 대기.
-2. 약 900ms wait.
-3. stale modal/collection lock 정리.
-4. idle callback.
-5. `script-asset-fix.js` load.
-6. guarded MutationObserver 환경에서 `script-14.js` load.
-7. lock 재정리.
+주요 owner: `assets/js/collection/bulk-selection.js`.
 
-이 sequence는 core first paint를 늦추지 않기 위한 구조다.
-
-## OWN-007 — Collection bulk state
-
-현재 주요 owner:
-`script-19.js`
-
-보조 repair:
-`script-24.js`, `script-25.js`
-
-current invariant:
-- select toggle state가 active 여부 source.
-- `collectionBody.is-bulk-selecting` class.
+State projection:
+- select toggle active state.
+- `collectionBody.is-bulk-selecting`.
 - card `.is-selected`.
 - selectbox `aria-pressed`.
-- bulkbar count/delete.
+- bulk bar count/delete.
 
-새 구현에서 repair owner를 추가하지 않는다.
+질문 workspace rerender 후 repair가 일부 존재하지만 새 bulk source를 만들지 않는다.
 
-## OWN-008 — Question base data/form owner
+## OWN-008 — Device continuation
 
-`script-5.js`:
-- selected text base state.
-- quote/input base elements.
-- local question store.
-- save/sync base.
-- selection bubble base.
+Primary owner: `assets/js/collection/device-handoff.js`.
 
-## OWN-009 — Question workspace owner
+Compatibility/transition helper: `assets/js/collection/device-handoff-compat.js`.
 
-`script-24.js`:
-- V40 controls.
-- write/saved mode state.
-- parking/mounting composer.
-- deterministic force write.
-- legacy question hub stripping.
+Source:
+- `photoRoadmapDeviceKeyV1` localStorage key.
+- QUESTION_HISTORY RPC deviceId.
 
-## OWN-010 — Question canonical structure owner
+accordion visual state는 trigger의 `aria-expanded`를 기준으로 유지한다.
 
-`script-29.js`:
-- duplicate control cleanup.
-- label normalization.
-- indicator/skin existence.
-- contextual selection → collection question handoff.
+## OWN-009 — Question base data/form
 
-명시적으로 indicator geometry를 쓰지 않는다.
+Base state/form은 `assets/js/app/app-shell.js`가 최초 생성하는 legacy-compatible form elements와 local question data를 사용한다.
 
-## OWN-011 — Question visible geometry owner
+질문 user state source:
+- localStorage `photoRoadmapQuestionsV2`.
+- QUESTION_HISTORY sheet/RPC sync.
 
-`style-34.css`:
-- V40 grid geometry.
-- left/right mirrored slots.
-- visible indicator transform.
-- 410ms CSS transition.
+## OWN-010 — Question workspace
 
-## OWN-012 — Question legacy JS motion debt
+Owner: `assets/js/questions/question-workspace.js`.
 
-`script-25.js`에도 v40 geometry/motion write 코드가 남아 있다.
+소유:
+- 질문 작성 / 저장한 질문 controls.
+- write/saved mode.
+- composer mount/parking.
+- force-write entry.
 
-현재 CSS `!important`가 최종 visual geometry를 이긴다. 이는 정상적인 새 architecture가 아니라 compatibility debt다.
+## OWN-011 — Contextual question handoff
 
-새 code는 script25를 본떠 세 번째 owner를 만들지 않는다.
+Owner: `assets/js/questions/context-handoff.js`.
 
-## OWN-013 — Article favorite owner
+소유:
+- text selection / contextual GPT entry intent.
+- collection question tab/write mode로 deterministic handoff.
+- write panel 보존/reconcile.
 
-현재 user state source:
-- localStorage ID set.
+과거 별도 canonical `script-29` 세대는 제거됐다.
+
+## OWN-012 — Question visible geometry
+
+Final visual owner:
+- `assets/styles/questions/workspace-final.css`
+
+보조 layer:
+- `styles/questions/workspace-controls.css`
+- `styles/questions/workspace-stability.css`
+- `assets/js/ui/breeze-repair.js`
+
+승인 기준:
+- write/saved 두 슬롯 대칭.
+- moving pill 하나.
+- 라벨 중심과 badge 독립.
+- current CSS `!important` geometry가 legacy inline repair보다 우선.
+
+향후 JS/CSS double ownership은 기술부채로 단계적으로 제거한다.
+
+## OWN-013 — Question actions
+
+Owner: `assets/js/questions/question-actions.js`.
+
+소유:
+- prompt copy.
+- question save/action enhancement.
+- ChatGPT handoff.
+- swipe/delete interaction 보강.
+
+## OWN-014 — Article/video favorite state
+
+Source of truth:
+- localStorage favorite ID set.
 - localStorage snapshot object.
 
-render/sync는 script13/script14 계열이 관여하지만 **key와 ID 상태가 source of truth**다.
+`content-discovery.js`와 collection/content renderer는 이를 projection한다. 버튼 DOM 자체를 state source로 삼지 않는다.
 
-## OWN-014 — Video favorite owner
+## OWN-015 — Generated/contextual images
 
-동일하게 ID set + snapshot object.
+- registry: `assets/js/media/image-slot-registry.js`
+- DOM binding: `assets/js/media/image-slot-binder.js`
+- postload data URL helper: `assets/js/media/generated-image-blob-cache.js`
+- static approved production images: `public/assets/images/generated/v1/`
 
-button UI는 state projection이며 별도 진실 source가 아니다.
+slot은 `ready:true`일 때만 generated path를 활성화한다.
 
-## OWN-015 — External discovery owner
+## OWN-016 — Desktop horizontal rail drag
 
-backend:
-- curated fixed/cache: `curated.js`
-- discovery: `discover.js`
-- videos: `videos.js`
+Owner: `assets/js/desktop/rail-drag.js`.
 
-frontend:
-- article render base `script-6.js`
-- endless/durable augmentation `script-13.js`
-- current canonical sentinel/collection snapshot integration `script-14.js`/`script-24.js`
+PC pointer/mouse interaction만 보강하며 모바일 native touch scroll을 소유하지 않는다.
 
-## OWN-016 — Generated media owner
+## OWN-017 — Copy presentation compatibility
 
-registry:
-`window.__PHOTO_GENERATED_IMAGES`
+- `assets/js/compat/curated-copy.js`
+- `assets/js/compat/copy-contract.js`
 
-initial values:
-- generated JS assets.
+Google Sheet가 content source인 영역을 임의로 별도 데이터 source로 복제하지 않는다. 이 계층은 승인된 표시/라벨/line-break contract만 보장한다.
 
-postload conversion:
-- script-asset-fix.
+## REG-001 — owner 변경 규칙
 
-renderer는 registry를 읽을 수 있지만 registry key마다 별도의 hidden image owner를 만들지 않는다.
-
-## OWN-017 — Safari compact prime owner
-
-유일 owner:
-`script-safari-compact-prime.js`
-
-다른 script에서 visualViewport compact threshold를 또 추적하지 않는다.
-
-## OWN-018 — Safari theme-color owner
-
-`script-28.js`가 theme-color meta removal을 지속적으로 수행한다.
-
-새 script가 동시에 meta theme-color를 추가/삭제하는 ping-pong 구조를 만들지 않는다.
-
-## LIFE-007 — DOM replacement hazards
-
-다음 DOM은 rerender/replace 가능성이 있으므로 stale reference에 주의한다.
-
-- `#app` initial render.
-- `#skillsInfiniteRow` postload clone/replace.
-- `#collectionBody` tab/search/filter rerender.
-- question legacy hub strip/replace.
-- curated rail renderer.
-
-controller는 replacement 가능한 child에 한번만 listener를 달고 끝내기보다 delegation 또는 owner render 시 binding을 사용한다.
-
-## LIFE-008 — MutationObserver 규칙
-
-MUST NOT:
-- documentElement 전체 subtree를 여러 script가 무제한 observe.
-- observer callback에서 자기 subtree를 매번 rewrite하여 무한 loop.
-
-`script-postload-v27.js`는 old enhancement가 global subtree observer를 붙이지 못하도록 guard wrapper를 사용한다.
-
-## LIFE-009 — Event delegation
-
-dynamic collection/bookmark/question 요소는 document-level delegation을 사용할 수 있다.
-
-단:
-- capture handler가 normal click owner를 `stopImmediatePropagation`할 경우 정확한 selector scope 필요.
-- unrelated buttons까지 막지 않는다.
-
-## LIFE-010 — Pageshow
-
-iOS Safari BFCache/pageshow 복귀에서:
-- stale modal lock 정리.
-- needed skin/question repair.
-- theme-color cleanup.
-- compact prime state check.
-
-가능.
-
-그러나 pageshow마다 app 전체 rerender는 하지 않는다.
-
-## LIFE-011 — Resize
-
-resize 종류를 구분한다.
-
-- 실제 width/orientation change: geometry recalibration 가능.
-- Safari chrome height-only change: top nav 전체 layout 재구성 금지.
-
-## LIFE-012 — Scroll
-
-vertical scroll frame에서 수행 가능한 작업:
-- active chapter scan requestAnimationFrame.
-- reading progress update.
-- compact Safari state check.
-
-MUST NOT:
-- 모든 card layout 재계산.
-- top nav indicator mount repeatedly.
-- horizontal momentum loop.
-
-## LIFE-013 — Click transition order
-
-Liquid control click:
-1. user action owner가 active class/state 변경.
-2. canonical liquid controller가 class mutation/handler로 target geometry 이동.
-
-self-heal이 active click 직후 `transition:none`을 쓰면 안 된다.
-
-## LIFE-014 — Collection tab transition
-
-primary tab click:
-1. `libraryTab` state.
-2. active class.
-3. renderLibrary.
-4. question tab이면 V40 repair/mount.
-5. liquid indicator moves independently.
-
-## LIFE-015 — Theme transition
-
-theme button click:
-1. choice update.
-2. actual theme apply.
-3. custom event.
-4. relevant skins/surfaces CSS update.
-5. indicator endpoint는 same button geometry 유지.
-
-## LIFE-016 — App surface ownership
-
-`html/body`는 browser-facing transparent layer.
-`#app/.app`가 page canvas.
-
-popup/browser workaround를 이유로 이 ownership을 다시 뒤집지 않는다.
-
-## LIFE-017 — Cache version ownership
-
-asset code 변경자 = 해당 query version 변경 책임자.
-
-문서만 변경할 때 `index.html` asset version을 건드리지 않는다.
-
-## REG-LIFE-001 — lifecycle regression
-
-- first load와 third load의 glass state가 다름.
-- refresh하면만 정상화되는 UI.
-- popup tab을 한 번 눌러야 state가 완성됨(의도된 Safari compact prime 제외).
-- 동일 selector를 두 controller가 계속 서로 transform.
-- MutationObserver loop.
-- postload가 first content render를 막음.
-- pageshow 후 body lock이 남음.
+1. 새 상태를 추가하기 전에 기존 owner를 찾는다.
+2. 같은 state를 쓰는 parallel module을 추가하지 않는다.
+3. compatibility repair를 canonical owner로 승격하려면 문서와 regression test를 함께 갱신한다.
+4. semantic filename만 보고 owner라고 판단하지 않는다.
+5. DOM rerender boundary를 변경할 때 question/collection parking과 event listener 생존 여부를 검증한다.
