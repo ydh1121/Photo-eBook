@@ -1,6 +1,6 @@
 import {isKnownBlockType} from './block-registry-v1.js';
 import {isKnownBlockVariant} from './block-variants-v1.js';
-import {isApprovedBlockVariant,getBlockVariantApproval} from './block-approval-v1.js';
+import {getBlockVariantApproval} from './block-approval-v1.js';
 import {normalizeBlockStyleV1} from './block-style-v1.js';
 import {isKnownUiCapability} from './ui-capabilities-v1.js';
 
@@ -9,6 +9,7 @@ let cachedToken=null;
 const SHEETS={
   pages:'PLATFORM_PAGES',
   blocks:'PAGE_BLOCKS',
+  variantReviews:'BLOCK_VARIANT_REVIEWS',
   stylePresets:'BLOCK_STYLE_PRESETS',
   pageUi:'PAGE_UI_CONFIG',
   uiPresets:'UI_PRESETS',
@@ -46,8 +47,10 @@ export async function validatePageForPublish(env,pageId){
       errors.push(`등록되지 않은 블록 variant입니다: ${block.type}/${block.variant}`);
       continue;
     }
-    if(!isApprovedBlockVariant(block.type,block.variant)){
-      errors.push(`승인되지 않은 블록 variant입니다: ${block.type}/${block.variant} (${getBlockVariantApproval(block.type,block.variant)})`);
+    const variantKey=`${block.type}::${block.variant}`;
+    const variantApproval=source.variantApprovalByKey.get(variantKey)||getBlockVariantApproval(block.type,block.variant);
+    if(variantApproval!=='approved'){
+      errors.push(`승인되지 않은 블록 variant입니다: ${block.type}/${block.variant} (${variantApproval})`);
     }
     const factState=String(block.aiPolicy?.factState||'not_required');
     if(['needs_verification','stale'].includes(factState))errors.push(`최신 사실 확인이 필요한 블록입니다: ${block.type}`);
@@ -134,12 +137,13 @@ export async function publishPageSnapshot(env,pageId,actor='platform-owner'){
 }
 
 async function loadSource(env,pageId){
-  const names=[SHEETS.pages,SHEETS.blocks,SHEETS.stylePresets,SHEETS.pageUi,SHEETS.uiPresets,SHEETS.snapshots];
+  const names=[SHEETS.pages,SHEETS.blocks,SHEETS.variantReviews,SHEETS.stylePresets,SHEETS.pageUi,SHEETS.uiPresets,SHEETS.snapshots];
   const values=await Promise.all(names.map(name=>readSheetValues(env,name)));
   const byName=Object.fromEntries(names.map((name,index)=>[name,values[index]]));
 
   const pageHeaders=ensureHeaderMap(byName[SHEETS.pages][0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at','brief_json','ai_status','ai_review_json']);
   const blockHeaders=ensureHeaderMap(byName[SHEETS.blocks][0],['page_id','block_id','sort_order','type','variant','enabled','content_json','evidence_json','ai_policy_json','revision_version','created_at','updated_at','published_version','style_preset_id','style_overrides_json']);
+  const variantReviewHeaders=ensureHeaderMap(byName[SHEETS.variantReviews][0],['block_type','variant','decision','note','reviewer','updated_at','difference_type','maturity']);
   const styleHeaders=ensureHeaderMap(byName[SHEETS.stylePresets][0],['preset_id','block_type','variant','name','style_json','source','status','created_at','updated_at','notes','version','preview_meta_json']);
   const pageUiHeaders=ensureHeaderMap(byName[SHEETS.pageUi][0],['page_id','capability_id','enabled','preset_id','override_json','updated_at','updated_by','version']);
   const uiPresetHeaders=ensureHeaderMap(byName[SHEETS.uiPresets][0],['preset_id','capability_id','name','config_json','source','status','created_at','updated_at','notes','version']);
@@ -163,6 +167,16 @@ async function loadSource(env,pageId){
     if(String(row[blockHeaders.page_id]||'')!==pageId)continue;
     const block={id:String(row[blockHeaders.block_id]||''),sortOrder:Number(row[blockHeaders.sort_order]||0),type:String(row[blockHeaders.type]||''),variant:String(row[blockHeaders.variant]||'default'),enabled:String(row[blockHeaders.enabled]||'TRUE').toUpperCase()!=='FALSE',content:parseJson(row[blockHeaders.content_json],{}),evidence:parseJson(row[blockHeaders.evidence_json],[]),aiPolicy:parseJson(row[blockHeaders.ai_policy_json],{mode:'full'}),revisionVersion:Number(row[blockHeaders.revision_version]||1)||1,stylePresetId:String(row[blockHeaders.style_preset_id]||''),styleOverrides:normalizeBlockStyleV1(parseJson(row[blockHeaders.style_overrides_json],{})),rowNumber:i+1};
     blocks.push(block);blockRows.push({blockId:block.id,rowNumber:i+1});
+  }
+
+  const variantApprovalByKey=new Map();
+  for(let i=1;i<byName[SHEETS.variantReviews].length;i++){
+    const row=byName[SHEETS.variantReviews][i];
+    const type=String(row[variantReviewHeaders.block_type]||'');
+    const variant=String(row[variantReviewHeaders.variant]||'');
+    if(!type||!variant||!isKnownBlockVariant(type,variant))continue;
+    const decision=String(row[variantReviewHeaders.decision]||'undecided');
+    variantApprovalByKey.set(`${type}::${variant}`,decision);
   }
 
   const stylePresetById=new Map();
@@ -191,7 +205,7 @@ async function loadSource(env,pageId){
     snapshots.push(item);snapshotRows.push({values:row,rowNumber:i+1});
   }
 
-  return {page,pageRowNumber,pageHeaders,blocks,blockRows,blockHeaders,stylePresetById,pageUi,uiPresetById,snapshots,snapshotRows,snapshotHeaders};
+  return {page,pageRowNumber,pageHeaders,blocks,blockRows,blockHeaders,variantApprovalByKey,stylePresetById,pageUi,uiPresetById,snapshots,snapshotRows,snapshotHeaders};
 }
 
 async function markPagePublished(env,source,page,now){
@@ -220,7 +234,7 @@ async function readSheetValues(env,sheetName){const token=await getAccessToken(e
 async function appendRange(env,range,values){const token=await getAccessToken(env);const id=requireSheetId(env);const url=`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`;const response=await fetch(url,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({majorDimension:'ROWS',values})});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data?.error?.message||`Google Sheets 추가 실패 (${response.status})`);return data;}
 async function updateRange(env,range,values){const token=await getAccessToken(env);const id=requireSheetId(env);const url=`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(id)}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;const response=await fetch(url,{method:'PUT',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({majorDimension:'ROWS',values})});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data?.error?.message||`Google Sheets 수정 실패 (${response.status})`);return data;}
 
-async function getAccessToken(env){const now=Math.floor(Date.now()/1000);if(cachedToken?.token&&cachedToken.expiresAt-60>now)return cachedToken.token;const account=parseServiceAccount(env);if(!account?.client_email||!account?.private_key)throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON Secret을 확인해 주세요.');const tokenUri=account.token_uri||'https://oauth2.googleapis.com/token';const header=base64UrlJson({alg:'RS256',typ:'JWT'});const claims=base64UrlJson({iss:account.client_email,scope:'https://www.googleapis.com/auth/spreadsheets',aud:tokenUri,exp:now+3600,iat:now});const signingInput=`${header}.${claims}`;const key=await crypto.subtle.importKey('pkcs8',pemToArrayBuffer(account.private_key),{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);const signature=await crypto.subtle.sign({name:'RSASSA-PKCS1-v1_5'},key,new TextEncoder().encode(signingInput));const assertion=`${signingInput}.${base64UrlBytes(new Uint8Array(signature))}`;const response=await fetch(tokenUri,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'urn:ietf:params:oauth:grant-type:jwt-bearer',assertion})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.access_token)throw new Error(data?.error_description||data?.error||`Google 인증 실패 (${response.status})`);cachedToken={token:data.access_token,expiresAt:now+Number(data.expires_in||3600)};return cachedToken.token;}
+async function getAccessToken(env){const now=Math.floor(Date.now()/1000);if(cachedToken?.token&&cachedToken.expiresAt-60>now)return cachedToken.token;const account=parseServiceAccount(env);if(!account?.client_email||!account?.private_key)throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON Secret을 확인해 주세요.');const tokenUri=account.token_uri||'https://oauth2.googleapis.com/token';const header=base64UrlJson({alg:'RS256',typ:'JWT'});const claims=base64UrlJson({iss:account.client_email,scope:'https://www.googleapis.com/auth/spreadsheets',aud:tokenUri,exp:now+3600,iat:now});const signingInput=`${header}.${claims}`;const key=await crypto.subtle.importKey('pkcs8',pemToArrayBuffer(account.private_key),{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);const signature=await crypto.subtle.sign({name:'RSASSA-PKCS1-v1_5'},key,new TextEncoder().encode(signingInput));const assertion=`${signingInput}.${base64UrlBytes(new Uint8Array(signature))}`;const response=await fetch(tokenUri,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'urn:ietf:params:oauth-grant-type:jwt-bearer',assertion})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.access_token)throw new Error(data?.error_description||data?.error||`Google 인증 실패 (${response.status})`);cachedToken={token:data.access_token,expiresAt:now+Number(data.expires_in||3600)};return cachedToken.token;}
 function parseServiceAccount(env){const raw=env.GOOGLE_SERVICE_ACCOUNT_JSON||env.GOOGLE_SERVICE_ACCOUNT_JS||'';if(!raw)return null;try{return typeof raw==='string'?JSON.parse(raw):raw;}catch{throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON 값이 올바른 JSON 형식이 아닙니다.');}}
 function requireSheetId(env){const id=String(env.GOOGLE_SHEET_ID||'').trim();if(!id)throw new Error('GOOGLE_SHEET_ID 환경변수가 없습니다.');return id;}
 function base64UrlJson(value){return base64UrlBytes(new TextEncoder().encode(JSON.stringify(value)));}
