@@ -11,6 +11,31 @@ export function cleanPublicSlugV2(value){
   return String(value||'').trim().toLowerCase().replace(/[^a-z0-9가-힣-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,160);
 }
 
+export async function listIndexableSnapshotRoutesV2(env){
+  const values=await readSheetValues(env,SHEETS.snapshots);
+  const headers=ensureHeaderMap(values[0],['snapshot_id','page_id','version','slug','industry_id','title','theme','seo_json','source_updated_at','published_at','state']);
+  const bySlug=new Map();
+
+  for(let i=1;i<values.length;i++){
+    const row=values[i];
+    if(String(row[headers.state]||'')!=='active')continue;
+    const slug=cleanPublicSlugV2(row[headers.slug]);
+    if(!slug)continue;
+    const seo=parseJson(row[headers.seo_json],{});
+    if(String(seo.indexPolicy||seo.index_policy||'index')==='noindex')continue;
+    const candidate={
+      slug,
+      version:Number(row[headers.version]||0),
+      publishedAt:String(row[headers.published_at]||''),
+      sourceUpdatedAt:String(row[headers.source_updated_at]||'')
+    };
+    const previous=bySlug.get(slug);
+    if(!previous||candidate.version>previous.version||String(candidate.publishedAt).localeCompare(String(previous.publishedAt))>0)bySlug.set(slug,candidate);
+  }
+
+  return [...bySlug.values()].sort((a,b)=>a.slug.localeCompare(b.slug,'ko'));
+}
+
 export async function loadActiveSnapshotV2(env,inputSlug){
   const slug=cleanPublicSlugV2(inputSlug);
   if(!slug)return null;
