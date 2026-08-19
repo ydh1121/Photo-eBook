@@ -42,7 +42,8 @@ Platform Chrome는 산업 pack의 block 배열에 넣지 않는다.
 
 ## 문서
 
-- `V1-INVENTORY.md` — 현재 photography 화면에서 추출한 block family와 통합 판단
+- `V1-INVENTORY.md` — photography에서 추출한 기존 17개 block family와 통합 판단
+- `V1-EXPANSION.md` — 여러 산업 확장을 위해 추가한 10개 candidate와 보류 판단
 - `BLOCK-CONTRACT.md` — 모든 block이 따를 데이터/상태/반응형/접근성 계약
 
 ## Block Lab
@@ -54,19 +55,35 @@ Platform Chrome는 산업 pack의 block 배열에 넣지 않는다.
 관련 코드:
 - `public/assets/js/blocks/block-registry.js`
 - `public/assets/js/blocks/block-renderers.js`
+- `public/assets/js/blocks/block-renderers-extended.js`
 - `public/assets/js/block-lab/lab-data.js`
+- `public/assets/js/block-lab/lab-data-extended.js`
+- `public/assets/js/block-lab/lab-interactions-extended.js`
 - `public/assets/js/block-lab/lab-app.js`
 - `public/assets/styles/block-lab/`
+
+현재 Block Lab에는 **27개 candidate family**가 있다.
 
 현재 Block Lab renderer는 **candidate**다. 기존 photography production renderer는 아직 교체하지 않는다.
 
 Block Lab에서 가독성, 정보 구조, mobile/desktop, light/dark, variant를 검토하고 block이 `approved` 상태가 된 뒤 production과 관리자 preview의 canonical renderer로 승격한다.
 
-## V1 목표
+## V1 구성
 
-현재 photography에서 추출한 17개 block family를 기준으로 시작한다. Block Lab에서 실제 가독성과 재사용성을 검토하면서 필요한 범용 block을 추가한다.
+- photography에서 추출: 17개
+- 신규 범용 candidate: 10개
+- 합계: 27개
 
-초기 목표는 약 25개이며 숫자를 맞추기 위해 불필요한 block을 만들지는 않는다.
+숫자를 맞추기 위해 중복 block을 만들지 않는다. KPI/stat은 `metric-grid`에 통합했고 지도는 provider/API 계약 전까지 보류했다.
+
+## UI Refinement
+
+Block Lab에는 production과 분리된 정제 레이어가 적용된다.
+
+- `refinement-v2.css` — 기존 17개 block의 hierarchy, spacing, surface, rail, roadmap 등을 정제
+- `new-blocks-v2.css` — 신규 10개 block
+
+핵심 방향은 `docs/library/design-taste/PLATFORM-TASTES.md`를 따른다.
 
 ## 설계 원칙
 
