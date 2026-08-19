@@ -1,7 +1,8 @@
 (function(){
   if(window.PlatformUiCapabilityRuntime)return;
 
-  const rootState=new WeakMap();
+  const railState=new WeakMap();
+  const progressState=new WeakMap();
   const DESKTOP_QUERY='(min-width:1024px)';
   const RAIL_SELECTOR='.pb-rail';
 
@@ -22,11 +23,12 @@
 
   function clearCapabilityAttributes(root){
     [...root.attributes].forEach(attribute=>{
-      if(attribute.name.startsWith('data-ui-capability-')||attribute.name.startsWith('data-ui-rail-'))root.removeAttribute(attribute.name);
+      if(attribute.name.startsWith('data-ui-capability-')||attribute.name.startsWith('data-ui-rail-')||attribute.name.startsWith('data-ui-progress-'))root.removeAttribute(attribute.name);
     });
     [
       '--ui-rail-left-runway','--ui-rail-right-padding','--ui-rail-right-fade',
-      '--ui-rail-drag-threshold','--ui-rail-click-suppress-ms'
+      '--ui-rail-drag-threshold','--ui-rail-click-suppress-ms',
+      '--ui-progress-color','--ui-progress-thickness','--ui-progress-opacity'
     ].forEach(name=>root.style.removeProperty(name));
   }
 
@@ -37,29 +39,38 @@
     for(const item of enabled)root.setAttribute(`data-ui-capability-${item.capabilityId}`,'true');
 
     const rail=enabled.find(item=>item.capabilityId==='horizontal-card-rail');
-    if(!rail)return;
-    const config=rail.config||{};
-    const leftRunway=cleanNumber(config.leftPaintRunway,16,0,96);
-    const rightPadding=cleanNumber(config.rightContentPadding,122,0,240);
-    const rightFade=cleanNumber(config.rightFadeWidth,112,0,240);
-    const dragThreshold=cleanNumber(config.dragThreshold,5,2,24);
-    const clickSuppressMs=cleanNumber(config.clickSuppressMs,220,0,800);
+    if(rail){
+      const config=rail.config||{};
+      const leftRunway=cleanNumber(config.leftPaintRunway,16,0,96);
+      const rightPadding=cleanNumber(config.rightContentPadding,122,0,240);
+      const rightFade=cleanNumber(config.rightFadeWidth,112,0,240);
+      const dragThreshold=cleanNumber(config.dragThreshold,5,2,24);
+      const clickSuppressMs=cleanNumber(config.clickSuppressMs,220,0,800);
 
-    root.style.setProperty('--ui-rail-left-runway',`${leftRunway}px`);
-    root.style.setProperty('--ui-rail-right-padding',`${rightPadding}px`);
-    root.style.setProperty('--ui-rail-right-fade',`${rightFade}px`);
-    root.style.setProperty('--ui-rail-drag-threshold',String(dragThreshold));
-    root.style.setProperty('--ui-rail-click-suppress-ms',String(clickSuppressMs));
-    root.dataset.uiRailLeftShadowGuard=truthy(config.leftShadowGuard)?'true':'false';
-    root.dataset.uiRailLeftFade=truthy(config.leftFade)?'true':'false';
-    root.dataset.uiRailRightFade=truthy(config.rightFade)?'true':'false';
-    root.dataset.uiRailScrollbar=cleanString(config.scrollbar,'hidden')==='auto'?'auto':'hidden';
-    root.dataset.uiRailDesktopDrag=config.desktopDrag===false?'false':'true';
-    root.dataset.uiRailNativeTouch=config.nativeTouch===false?'false':'true';
+      root.style.setProperty('--ui-rail-left-runway',`${leftRunway}px`);
+      root.style.setProperty('--ui-rail-right-padding',`${rightPadding}px`);
+      root.style.setProperty('--ui-rail-right-fade',`${rightFade}px`);
+      root.style.setProperty('--ui-rail-drag-threshold',String(dragThreshold));
+      root.style.setProperty('--ui-rail-click-suppress-ms',String(clickSuppressMs));
+      root.dataset.uiRailLeftShadowGuard=truthy(config.leftShadowGuard)?'true':'false';
+      root.dataset.uiRailLeftFade=truthy(config.leftFade)?'true':'false';
+      root.dataset.uiRailRightFade=truthy(config.rightFade)?'true':'false';
+      root.dataset.uiRailScrollbar=cleanString(config.scrollbar,'hidden')==='auto'?'auto':'hidden';
+      root.dataset.uiRailDesktopDrag=config.desktopDrag===false?'false':'true';
+      root.dataset.uiRailNativeTouch=config.nativeTouch===false?'false':'true';
+    }
+
+    const progress=enabled.find(item=>item.capabilityId==='reading-progress');
+    if(progress){
+      const config=progress.config||{};
+      root.style.setProperty('--ui-progress-color',cleanString(config.color,'#4081ef'));
+      root.style.setProperty('--ui-progress-thickness',`${cleanNumber(config.thickness,2,1,8)}px`);
+      root.style.setProperty('--ui-progress-opacity',String(cleanNumber(config.opacity,100,0,100)/100));
+    }
   }
 
   function installRailInteractions(root){
-    const existing=rootState.get(root);
+    const existing=railState.get(root);
     if(existing)return existing;
 
     const state={
@@ -120,7 +131,40 @@
     root.addEventListener('selectstart',preventSelection,true);
     root.addEventListener('click',suppressClick,true);
 
-    const api={state};rootState.set(root,api);return api;
+    const api={state};railState.set(root,api);return api;
+  }
+
+  function configureReadingProgress(root){
+    const enabled=root.dataset.uiCapabilityReadingProgress==='true';
+    let state=progressState.get(root);
+
+    if(!enabled){
+      if(state){
+        window.removeEventListener('scroll',state.update);
+        window.removeEventListener('resize',state.update);
+        state.node.remove();
+        progressState.delete(root);
+      }
+      return;
+    }
+
+    if(!state){
+      const node=document.createElement('div');
+      node.className='platform-reading-progress';
+      node.setAttribute('aria-hidden','true');
+      node.innerHTML='<i></i>';
+      root.prepend(node);
+      const update=()=>{
+        const max=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+        const ratio=max>0?Math.min(1,Math.max(0,window.scrollY/max)):1;
+        node.style.setProperty('--ui-reading-progress',String(ratio));
+      };
+      state={node,update};
+      progressState.set(root,state);
+      window.addEventListener('scroll',update,{passive:true});
+      window.addEventListener('resize',update,{passive:true});
+    }
+    state.update();
   }
 
   function apply(root,input,{snapshot}={}){
@@ -128,12 +172,24 @@
     const items=(Array.isArray(input)?input:[]).map(normalizeItem).filter(item=>item.capabilityId);
     applyCapabilityAttributes(root,items);
     installRailInteractions(root);
+    configureReadingProgress(root);
     const enabled=items.filter(item=>item.enabled);
     root.dispatchEvent(new CustomEvent('platform-ui-capabilities-applied',{detail:{items,enabled,snapshotId:String(snapshot?.snapshotId||'')}}));
     return {items,enabled};
   }
 
-  function clear(root){if(!root)return;clearCapabilityAttributes(root);root.dataset.uiCapabilityCount='0';}
+  function clear(root){
+    if(!root)return;
+    clearCapabilityAttributes(root);
+    root.dataset.uiCapabilityCount='0';
+    const state=progressState.get(root);
+    if(state){
+      window.removeEventListener('scroll',state.update);
+      window.removeEventListener('resize',state.update);
+      state.node.remove();
+      progressState.delete(root);
+    }
+  }
 
   window.PlatformUiCapabilityRuntime={apply,clear,normalizeItem};
 })();
