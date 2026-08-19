@@ -71,6 +71,7 @@
 - [x] Registry health
 - [x] publish validation은 server `approved`만 허용
 - [x] CI에 Registry sync 포함
+- [x] Editor Library Registry 상태 필터 준비 — 전체 / 승인만 / 후보만
 - [-] 사용자 Block Lab review 결과 수집
 - [ ] block별 최종 판정
 - [ ] browser/server Registry status 반영
@@ -98,6 +99,7 @@
 - [x] publish snapshot history
 - [x] snapshot 390/768/1180 full UI preview
 - [x] snapshot → browser draft rollback
+- [x] Block Library status filter: 전체 / 승인만 / 후보만
 
 ### Google Sheets V1 DB
 - [x] `PLATFORM_PAGES`
@@ -152,8 +154,17 @@
 - [x] QA seed validator: `scripts/check-platform-qa-seed.mjs`
 - [x] CI에 QA seed 검사 연결
 - [x] 전체 페이지 QA route `/qa/video-editor/`
-- [ ] 최신 공식 자료 조사 후 content/evidence 2차 보완
+- [x] Adobe Premiere 공식 가격/기능 evidence 연결
+- [x] Blackmagic DaVinci Resolve 무료 버전/기능 evidence 연결
+- [x] 고용24 영상편집 NCS/훈련과정 evidence 연결
+- [x] 변동 가격 충돌 시 확정값으로 잠그지 않는 정책 적용
+- [x] evidence 변경 revision 기록
+- [-] 시장수요·실제 단가·계약/세금/플랫폼 정책 evidence 추가 보완
 - [!] authenticated Editor → AI → server save roundtrip live QA는 ADMIN token 필요
+
+QA evidence:
+- `docs/workstreams/platform-library-v1/qa/video-editor-evidence-v1.json`
+- `public/data/qa/video-editor-evidence-v1.js`
 
 ## 10. SEO/GEO + Publish
 - [x] publish/SEO/GEO contract
@@ -164,32 +175,44 @@
 - [x] server publish-check/publish
 - [x] approved block / AI review / stale fact 검사
 - [x] disabled block 제외
-- [x] labs/API/QA crawler 제외
+- [x] labs/API/QA/staging crawler 제외
 - [x] `robots.txt`
 - [x] OAI-SearchBot public route 별도 차단하지 않는 정책
 - [x] published snapshot history/preview/rollback draft UI
-- [ ] approved block 기반 public snapshot renderer
-- [ ] canonical public route 확정
-- [ ] public title/meta/canonical/OG/Twitter
-- [ ] JSON-LD
+- [x] shared public snapshot runtime — `public/assets/js/public-snapshot/runtime.js`
+- [x] title/description/robots/OG/Twitter metadata 적용 함수
+- [x] Article/WebPage JSON-LD 생성 함수
+- [x] candidate 허용 staging `/staging/public-renderer/`
+- [x] active snapshot 전용 read-only API `/api/public/snapshot?slug=`
+- [x] public snapshot API는 draft 미노출, active snapshot만 반환
+- [ ] approved block 기반 public snapshot renderer production 연결
+- [ ] canonical industry route 확정
+- [ ] production canonical URL 적용
 - [ ] sitemap
 - [ ] real 404 / soft-404 해소
 - [ ] Core Web Vitals / 광고 side rail QA
 - [ ] 실사용 QA
 - [ ] Drive workstream archive
 
+## CI / validation
+- [x] Registry sync script
+- [x] QA seed validator
+- [x] public snapshot/editor/public API syntax 검사 범위 포함
+- [!] GitHub connector에서 workflow run 성공 여부는 아직 확인되지 않음
+
 ## Current blockers / checkpoints
 - [!] 사용자 `/block-lab/` 시각 검토 및 27 block 최종 판정
 - [!] 사용자 `/qa/video-editor/` 전체 페이지 흐름 검토
+- [!] 사용자 `/staging/public-renderer/` 공개 형태 검토
 - [!] Cloudflare `ADMIN_EDITOR_TOKEN` 설정
 - [!] 실제 Pages PC/mobile browser QA
 - [!] candidate block 때문에 production publish는 의도적으로 차단됨
 
 ## 다음 자동 진행 가능 항목
-- [ ] video-editor 최신 공식 자료 조사 + evidence 보완
-- [ ] public snapshot renderer를 production 미연결 staging 형태로 구현
-- [ ] page-level draft revision/rollback UX
-- [ ] approval 이후 production picker가 approved만 노출하도록 전환 준비
+- [-] video-editor 시장/계약/비용 evidence 추가 보완
+- [ ] page-level draft revision/rollback UX 추가 검토
+- [ ] public route/404/sitemap production 연결을 위한 route 설계 마무리
+- [ ] 광고 side rail용 desktop layout contract 사전 설계
 
 ## V1 완료 목표
 1. Block 최종 승인/정제
