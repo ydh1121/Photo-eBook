@@ -33,7 +33,8 @@
     });
     const uiCapabilities=[
       {capabilityId:'top-chapter-navigation',enabled:false,presetId:'photo-topnav-blue-progress',config:{chipFamily:'ios-liquid',accentColor:'#437ce7',progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef'}},
-      {capabilityId:'horizontal-card-rail',enabled:true,presetId:'photo-rail-balanced-fade',config:{nativeTouch:true,desktopDrag:true,leftShadowGuard:true,leftPaintRunway:16,rightFade:true,rightFadeMode:'alpha-mask',rightFadeWidth:112,rightContentPadding:122,scrollbar:'hidden'}},
+      {capabilityId:'horizontal-card-rail',enabled:true,presetId:'photo-rail-balanced-fade',config:{nativeTouch:true,desktopDrag:true,leftShadowGuard:true,leftPaintRunway:16,rightFade:true,rightFadeMode:'alpha-mask',rightFadeWidth:112,rightContentPadding:122,scrollbar:'hidden',dragThreshold:5,clickSuppressMs:220}},
+      {capabilityId:'reading-progress',enabled:true,presetId:'photo-progress-blue',config:{enabled:true,color:'#4081ef',thickness:2,opacity:100}},
       {capabilityId:'filter-chip-rail',enabled:false,presetId:'photo-collection-filter-flat',config:{family:'ios-flat',accentColor:'#202226'}}
     ];
     return {snapshot,blocks:decorated,uiCapabilities};
