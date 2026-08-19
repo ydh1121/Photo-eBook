@@ -25,6 +25,44 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 raw CSS를 preset 데이터로 저장하지 않는다.
 
+## Current publish architecture — Snapshot V2
+
+Canonical publish implementation:
+- `functions/lib/publish-v2.js`
+- `functions/api/editor/publish-check.js`
+- `functions/api/editor/publish.js`
+
+Snapshot storage:
+- `PUBLISH_SNAPSHOTS`
+- `PUBLISHED_BLOCKS`
+- `PUBLISHED_BLOCK_STYLES`
+- `PUBLISHED_UI_CONFIG`
+
+Public read/runtime:
+- `/api/public/snapshot-v2?slug=...`
+- `public/assets/js/public-snapshot/runtime-v2.js`
+- staging: `/staging/snapshot-v2.html`
+
+발행 시점의 Block style과 Page UI config를 resolved 값으로 고정한다. 나중에 preset 원본이 바뀌어도 과거 snapshot 디자인이 변하지 않는다.
+
+Public API는 active snapshot만 반환한다. `fetchAndRender()`로 API에서 받은 active snapshot은 서버 publish gate를 이미 통과한 결과로 신뢰하며, 브라우저에서는 구조 유효성만 다시 검사한다. 직접 주입하는 candidate staging payload는 별도 `allowCandidate` 경로를 사용한다.
+
+## Publish approval gate
+
+자동 승인은 금지한다.
+
+현재 gate:
+- known Block type + variant
+- `BLOCK_VARIANT_REVIEWS`의 저장된 variant 판정 우선
+- 저장된 판정이 없으면 static candidate registry fallback
+- variant decision이 `approved`여야 통과
+- 선택한 Block Style preset이 있으면 해당 type+variant와 일치 + `approved`
+- enabled Page UI는 preset 필수 + capability 일치 + `approved`
+- AI fact state / evidence 조건 유지
+- SEO / slug / active slug conflict 검사 유지
+
+중요: Block Lab에서 사용자가 variant를 `승인`하고 서버에 저장하면 publish gate가 그 Sheet 판정을 실제로 읽는다.
+
 ## Block Lab
 
 Route: `/block-lab/`
@@ -38,9 +76,10 @@ Status: candidate lab / noindex.
 - maturity: implemented / partial / placeholder
 - constrained Block Style preset editor
 - style preset local/server save/load
+- Block Style preset lifecycle: `draft / approved / redesign / deprecated`
 - server sync: BLOCK_REVIEWS + BLOCK_VARIANT_REVIEWS + BLOCK_STYLE_PRESETS
 
-모든 Block type은 아직 server status `candidate`. 자동 승인 금지.
+Photography built-in Style preset 12개가 `BLOCK_STYLE_PRESETS`에 seed돼 있으며 모두 자동 승인하지 않고 `draft`로 시작한다.
 
 ## Photography advanced Block parity
 
@@ -61,9 +100,7 @@ Files:
 - `public/assets/styles/block-lab/photography-parity-v1.css`
 - `public/assets/js/block-lab/lab-parity-data.js`
 
-`/block-lab/`, `/qa/video-editor/`, `/staging/public-renderer/`, Editor candidate runtime에서 parity renderer를 사용할 수 있게 준비돼 있다.
-
-Photography production renderer 자체는 변경하지 않았다.
+Photography production renderer 자체는 변경하지 않는다.
 
 ## Block Style preset
 
@@ -80,14 +117,12 @@ Tokens:
 - mediaRatio
 - edgeTreatment
 
-Storage:
-- Sheet `BLOCK_STYLE_PRESETS`
+Draft storage:
+- `BLOCK_STYLE_PRESETS`
 - `PAGE_BLOCKS` N/O: `style_preset_id`, `style_overrides_json`
 
-API:
-- `/api/editor/block-style-presets`
-- exact `/api/editor/save-page` now writes A:O and includes style fields in change detection/revisions
-- exact `/api/editor/page` now returns stylePresetId/styleOverrides
+Immutable publish storage:
+- `PUBLISHED_BLOCK_STYLES`
 
 Shared runtime:
 - `public/assets/js/blocks/block-style-runtime.js`
@@ -95,22 +130,17 @@ Shared runtime:
 
 Editor:
 - `public/assets/js/editor-lab/block-style.js`
-- `public/assets/styles/editor-lab/block-style.css`
-- current block type + variant에 맞는 preset만 표시
-- 선택값은 normal Editor field path를 통해 변경되어 undo/redo/save 흐름을 유지
-- Canvas에 constrained style 즉시 적용
-- server preset이 있으면 관리자 token 세션에서 merge load
-- MutationObserver self-loop 방지 처리 완료
+- current type + variant에 맞는 preset만 표시
+- 선택값은 Editor draft에 저장
+- Canvas immediate preview
+- server preset merge
 
-아직 미완료:
-- publish snapshot에 resolved style preset 저장
-- public runtime에서 snapshot style 적용
-- publish gate에서 style preset approval 검사
+Snapshot preview/rollback도 발행 당시 resolved style을 보존한다.
 
 ## UI Capability / Design Dashboard
 
 Route: `/ui-dashboard/`
-Status: noindex + robots exclude.
+Status: noindex.
 
 Current 7 capability:
 1. top-chapter-navigation
@@ -121,85 +151,39 @@ Current 7 capability:
 6. reading-progress
 7. floating-action
 
-Files:
-- `public/data/ui-capabilities/v1/manifest.js` v2
-- `functions/lib/ui-capabilities-v1.js`
-- `public/ui-dashboard/index.html`
-- `public/assets/js/ui-dashboard/dashboard.js`
-- `public/assets/styles/ui-dashboard/dashboard.css`
-- `public/assets/styles/ui-dashboard/parity-v2.css`
-- server sync files
-
 Storage/API:
-- Sheet `UI_PRESETS`
+- `UI_PRESETS`
 - `/api/editor/ui-presets`
-- Sheet `PAGE_UI_CONFIG`
+- `PAGE_UI_CONFIG`
 - `/api/editor/page-ui`
+- immutable publish: `PUBLISHED_UI_CONFIG`
 
-Editor left panel has `페이지 UI` capability on/off + preset selection + server load/save.
+Built-in photography/system UI preset 8개가 Sheet에 seed돼 있고 모두 `draft`에서 시작한다.
 
-아직 미완료:
-- PAGE_UI_CONFIG를 publish snapshot에 immutable resolved config로 넣기
-- production public runtime에서 capability config 실제 적용
+Dashboard:
+- custom preset save/load/export
+- preset lifecycle: `draft / approved / redesign / deprecated`
+- server sync
 
-## Photography UI Capability parity extracted
-
-Permanent docs:
-- `docs/library/ui-capabilities/photography/top-chapter-navigation-v1.md`
-- `horizontal-card-rail-v1.md`
-- `collection-bottom-sheet-v1.md`
-- `device-handoff-accordion-v1.md`
-
-### Top nav key production values
-- mobile native horizontal scroll owner
-- iOS Safari initial normal-flow + deferred sticky invariant 유지
-- chip gap mobile 6px / desktop 약 9px
-- selected liquid easing: `cubic-bezier(0.34,1.56,0.64,1)`
-- nav durationScale 1.10
-- chapter progress is measured chip/chapter geometry wash, not simple document percentage
-- photography dashboard preset updated to actual direction
-
-### Horizontal rail key production values
-- mobile native scroll invariant
-- PC mouse drag >=1024 only
-- drag threshold 5px
-- post-drag click suppression 220ms
-- left shadow runway 16px
-- right alpha-mask fade 112px
-- right content padding 122px
-- scrollbar hidden
-- blur overlay fade 금지; Chromium seam 회귀 때문에 continuous alpha mask 사용
-
-### Collection sheet/filter
-- max width 760px
-- max height 84dvh
-- top radius 30px
-- sheet blur 26px / saturate 135%
-- backdrop blur 12px
-- primary tab and secondary filter role 분리
-- current photography secondary filters are flat pills, not moving liquid
-
-### Device handoff accordion
-- FAQ와 별도 capability
-- persistent outer shell
-- measured scrollHeight animation
-- copy/connect/status controls
-- aria-expanded/aria-hidden/inert/keyboard semantics
+Public runtime:
+- `public/assets/js/ui-capabilities/runtime.js`
+- `public/assets/styles/ui-capabilities/runtime.css`
+- Snapshot V2가 resolved capability context를 전달
+- horizontal-card-rail은 현재 generic surface에 실제 적용
+- top nav / bottom sheet 등은 generic surface가 준비되는 순서대로 연결
 
 ## Editor / DB
 
-Existing V1 DB tabs:
-- PLATFORM_PAGES
-- PAGE_BLOCKS
-- BLOCK_REVISIONS
-- BLOCK_REVIEWS
-- BLOCK_VARIANT_REVIEWS
-- BLOCK_STYLE_PRESETS
-- UI_PRESETS
-- PAGE_UI_CONFIG
-- MEDIA_ASSETS
-- PUBLISH_SNAPSHOTS
-- PUBLISHED_BLOCKS
+Editor supports:
+- page/block editing
+- server draft save/load
+- SEO
+- AI brief/response/review
+- revisions
+- publish history
+- snapshot preview/rollback
+- Page UI preset assignment
+- Block Style preset assignment
 
 Protected APIs require same-origin + Bearer `ADMIN_EDITOR_TOKEN`.
 Token 미설정 시 closed.
@@ -216,19 +200,26 @@ state: draft / noindex / needs_review
 Routes:
 - `/qa/video-editor/`
 - `/staging/public-renderer/`
+- `/staging/snapshot-v2.html`
 
 User iPhone QA:
-- image 없는 product-tool/list narrow-column bug 수정 후 정상화 확인.
-- QA wrapper `--lab-*` token 누락으로 내부 선이 사라지던 원인 확인 및 수정.
+- product-tool/list narrow-column bug 수정 후 정상화 확인
+- QA wrapper 내부 선 token 회귀 수정
+
+남은 content QA:
+- 시장수요/실제 단가 evidence
+- 계약/세금/platform policy/license evidence
 
 ## Production safety invariants
 
 - photography production renderer를 candidate renderer로 교체하지 않는다.
 - Safari deferred sticky fix 건드리지 않는다.
-- 사용자 review 전 Block/variant 자동 승인 금지.
-- candidate production publish 계속 차단.
+- mobile native horizontal scroll owner 유지.
+- 사용자 review 전 Block/variant/style/UI preset 자동 승인 금지.
+- candidate production publish 차단.
 - labs/dashboard/QA/staging noindex.
 - public snapshot API는 active snapshot만 반환하고 draft 반환 금지.
+- active API snapshot만 browser trusted-published 경로 사용.
 
 ## CI
 
@@ -239,29 +230,27 @@ Checks:
 - Block variant browser/server sync
 - UI Capability browser/server sync
 - video-editor QA seed
-- Block Lab / Editor / UI Dashboard / Functions syntax
+- Block Lab / Editor / UI runtime / UI Dashboard / Public Snapshot / Functions syntax
 
-최신 workflow success는 connector로 아직 검증하지 못했으므로 성공으로 추정하지 않는다.
+GitHub connector는 push workflow run/check-run을 현재 노출하지 않으므로 최신 success를 성공으로 추정하지 않는다.
 
 ## Exact next action
 
 1. current `main` 확인.
-2. publish snapshot schema 확장:
-   - `PUBLISHED_BLOCKS`에 style preset/resolved style
-   - `PUBLISH_SNAPSHOTS`에 resolved page UI config
-3. exact publish-check/publish API로 catch-all publish logic 분리 검토.
-4. publish gate를 `type + variant + approved style preset` 기준으로 확장할 준비.
-5. public snapshot API/runtime이 resolved Block style을 적용하도록 연결.
-6. UI Capability resolved config를 snapshot/public runtime에 연결.
-7. Photography parity에서 기존 variant 고도화용 built-in Style presets 추가.
-8. 사용자 `/block-lab/`, `/ui-dashboard/` 검토 결과 반영.
+2. Snapshot V2를 canonical public route에 안전하게 연결한다.
+3. canonical route와 함께 sitemap / real 404를 설계한다.
+4. generic surface가 있는 UI Capability부터 runtime 실제 적용 범위를 늘린다.
+5. 사용자 `/block-lab/` + `/ui-dashboard/` review 결과를 server `approved` 상태로 저장한다.
+6. approval 이후 production Editor approved-only 최종 모드를 켠다.
+7. video-editor 남은 evidence를 채운다.
+8. `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→public→rollback live QA.
 
 ## Current user checkpoints
 
-- `/block-lab/`: type/variant/style preset별 실제 디자인 검토
-- `/ui-dashboard/`: PC/mobile capability/preset 검토
-- `/qa/video-editor/`: 전체 페이지 흐름 검토
-- `/staging/public-renderer/`: 공개형 검토
+- `/block-lab/`: type/variant/style preset 실제 디자인 검토
+- `/ui-dashboard/`: Page UI capability/preset 검토
+- `/qa/video-editor/`: 비사진 분야 전체 흐름 검토
+- `/staging/snapshot-v2.html`: immutable style/UI가 포함된 공개형 V2 검토
 - Cloudflare `ADMIN_EDITOR_TOKEN` 설정 후 protected live QA
 
 ## V1 completion target
