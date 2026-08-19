@@ -1,8 +1,0 @@
-{
-  "source": "approved Google Drive WebP asset",
-  "files": 1,
-  "retry": 4,
-  "target": "sony-fe-85-f18.webp",
-  "adjustment": "24px left",
-  "transfer": "authenticated proxy"
-}
