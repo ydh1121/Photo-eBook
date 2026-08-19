@@ -1,23 +1,12 @@
 import {cleanPublicSlugV2,loadActiveSnapshotV2} from './lib/public-snapshot-v2.js';
 
-const INDEX_ROUTES=Object.freeze({
-  'block-lab':'/block-lab/index.html',
-  'editor-lab':'/editor-lab/index.html',
-  'ui-dashboard':'/ui-dashboard/index.html',
-  photography:'/index.html'
-});
-const STATIC_PASSTHROUGH=new Set(['assets','data','content-packs','qa','staging']);
-
 export async function onRequest(context){
   const {request,params}=context;
   if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers:securityHeaders({'Allow':'GET, HEAD'})});
 
   const rawSlug=String(params?.slug||'');
   if(!rawSlug)return context.next();
-  if(rawSlug.includes('.')||STATIC_PASSTHROUGH.has(rawSlug))return context.next();
-
-  const mapped=INDEX_ROUTES[rawSlug];
-  if(mapped)return serveStaticIndex(context,mapped);
+  if(rawSlug.includes('.'))return context.next();
 
   const slug=cleanPublicSlugV2(rawSlug);
   if(!slug||slug!==rawSlug.toLowerCase())return notFoundResponse(request);
@@ -48,13 +37,6 @@ export async function onRequest(context){
     const html=renderErrorPage('페이지를 표시하지 못했습니다.','잠시 후 다시 시도해 주세요.');
     return new Response(request.method==='HEAD'?null:html,{status:500,headers:securityHeaders({'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow, noarchive'})});
   }
-}
-
-async function serveStaticIndex(context,path){
-  if(!context.env?.ASSETS?.fetch)return context.next();
-  const url=new URL(path,context.request.url);
-  const request=new Request(url,{method:context.request.method,headers:context.request.headers});
-  return context.env.ASSETS.fetch(request);
 }
 
 function renderPublicPage(payload,canonical){
