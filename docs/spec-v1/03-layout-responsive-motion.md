@@ -13,7 +13,7 @@ V1은 iPhone Safari를 핵심 기준으로 설계한다. 데스크톱은 모바�
 3. 앱 렌더 후 `#app` 표시, boot 제거
 4. postload에서 collection layer 등 동적 UI가 body에 추가될 수 있음
 
-`#app`은 실제 페이지 surface owner다. `html/body`는 Safari browser chrome과 상호작용하기 때문에 별도 카드/plate처럼 칠하지 않는다.
+`#app`은 실제 앱 canvas를 소유한다. 일반 browser-facing root 정책과 별개로 iOS WebKit 최초 접속에서는 Safari 주소영역 합성을 안정시키기 위해 `html/body`에도 실제 테마 canvas를 제공한다. 이 Safari 예외는 `10-theme-and-safari.md`가 authority다.
 
 ## LAY-003 — content containers
 
@@ -63,9 +63,19 @@ hero 이미지 밝기가 텍스트 가독성을 해치면 overlay를 조정하�
 - `overscroll-behavior-x: contain/auto`는 rail 목적에 따라 사용.
 - sentinel은 빈 카드처럼 큰 surface를 만들지 않는다.
 
+PC의 마우스 drag 보강은 `assets/js/desktop/rail-drag.js`가 담당하며 모바일 touch ownership을 가로채지 않는다.
+
 ## LAY-008 — 상단 chapter rail
 
-`.nav-shell`은 sticky geometry를 안정적으로 유지한다. Safari toolbar resize 때문에 높이를 scroll 중 동적으로 바꾸지 않는다.
+일반 scroll 상태에서 `.nav-shell`의 높이/scale/y offset을 동적으로 변경하지 않는다. Safari toolbar resize 때문에 nav geometry 자체가 흔들리면 안 된다.
+
+단, iOS WebKit 최초 expanded browser chrome에서는 승인된 예외가 있다.
+
+- 최초: `.nav-shell { position:relative; top:auto; }`
+- Safari compact 감지 후: `safari-nav-sticky-armed`
+- 이후: 기존 `.nav-shell { position:sticky; top:0; }`
+
+이 lifecycle은 `assets/js/safari/deferred-sticky-nav.js`와 `assets/styles/safari/deferred-sticky-chrome.css`가 소유한다.
 
 `.nav-scroll`:
 
@@ -74,18 +84,18 @@ hero 이미지 밝기가 텍스트 가독성을 해치면 overlay를 조정하�
 - native `overflow-x:auto`
 - scrollbar hidden
 - chip `flex:0 0 auto`
-- 현재 V1에서는 first/last liquid overshoot runway를 위해 좌우 padding이 비대칭일 수 있음. 이것은 rail clip 회피를 위한 구조이며 active chip outer visual alignment와 별개로 검증한다.
+- first/last liquid overshoot runway를 위한 좌우 padding 허용
 
 ## LAY-009 — native horizontal ownership
 
 MUST:
 
-- pointermove/touchmove 기반 커스텀 수평 drag 금지.
-- momentum simulation 금지.
+- 모바일 pointermove/touchmove 기반 커스텀 수평 drag 금지.
+- 모바일 momentum simulation 금지.
 - scroll frame마다 강제 `scrollLeft` 보정 금지.
 - indicator는 hit target이 아니며 `pointer-events:none`.
 
-KNOWN DEBT: 일부 navigation revision이 vertical scroll 완료 후 active chip 가시성 정렬을 수행할 수 있다. 새 구현에서는 native ownership 원칙을 우선하고 강제 pan을 확대하지 않는다.
+PC mouse drag는 명시적인 desktop interaction 범위에서만 허용한다.
 
 ## LAY-010 — breakpoints
 
@@ -136,7 +146,7 @@ Liquid selector의 핵심 z 순서:
 3. `.v37-liquid-skin` paint
 4. button label/content
 
-현재 후반 CSS에서 indicator 약 z6, label 약 z8 계열을 사용한다. selected pill은 rail 안쪽에 ‘갇혀’ 보이지 않고 일부 control에서 spring overshoot가 밖으로 보일 수 있어야 한다.
+selected pill은 rail 안쪽에 과도하게 갇혀 보이지 않아야 하며, spring overshoot가 필요한 control은 승인된 runway/overflow 규칙을 사용한다.
 
 ## LAY-015 — spring travel
 
@@ -149,20 +159,23 @@ Liquid selector의 핵심 z 순서:
 - first mount는 instant settle 가능
 - 사용자 click 이후 이동은 spring이 보여야 함
 
-## LAY-016 — v40 question spring
+## LAY-016 — question secondary selector
 
 현재 `질문 작성하기 / 저장한 질문` selector의 **보이는 최종 geometry는 CSS grid가 owner**다.
 
-- rail total height 50px
-- padding 5px
-- center gap 5px
-- indicator height 40px
+Final visual owner: `assets/styles/questions/workspace-final.css`
+
+현재 승인 family:
+- rail total height 약 50px
+- padding 약 5px
+- center gap 약 5px
+- indicator height 약 40px
 - 두 column 동일 폭
-- saved state: 한 track + gap만큼 translate
-- transition 410ms Breeze
+- saved state는 한 track + gap만큼 이동
+- Breeze 계열 transition
 - rail overflow visible
 
-JS가 inline geometry를 쓰더라도 `style-34.css`의 `!important` geometry와 충돌하지 않아야 한다.
+JS compatibility layer가 inline geometry를 쓰더라도 final CSS geometry와 충돌하지 않아야 한다.
 
 ## LAY-017 — reduced motion
 
@@ -177,8 +190,9 @@ JS가 inline geometry를 쓰더라도 `style-34.css`의 `!important` geometry와
 
 다음은 회귀다.
 
-- vertical scroll 중 sticky nav y축 흔들림
-- Safari chrome resize마다 rail 높이 변경
+- Safari compact 후 sticky 상태에서 vertical scroll 중 nav y축 흔들림
+- Safari chrome resize마다 rail 높이/scale 변화
+- 최초 iPhone Safari에서 주소영역 뒤 site-owned solid plate 재발
 - 카드 이미지 load로 전체 row 높이가 크게 점프
 - 질문 write/saved 전환 시 collection body 폭 변화
 - bulk select 진입 시 thumb/Q icon이 text와 겹침
