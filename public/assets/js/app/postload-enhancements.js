@@ -102,13 +102,13 @@
     });
 
     try{
-      await loadScript('/assets/script-asset-fix.js?v=30');
+      await loadScript('/assets/js/media/generated-image-blob-cache.js?v=1');
     }catch(error){
       console.warn('postload image helper skipped',error);
     }
 
     try{
-      await loadEnhancementWithoutGlobalSubtreeObserver('/assets/script-14.js?v=29');
+      await loadEnhancementWithoutGlobalSubtreeObserver('/assets/js/collection/collection-hub.js?v=1');
     }catch(error){
       console.error('postload enhancement failed',error);
     }
