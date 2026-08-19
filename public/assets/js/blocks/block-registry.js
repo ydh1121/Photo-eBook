@@ -5,7 +5,7 @@
 
   function escapeHtml(value=''){
     return String(value??'').replace(/[&<>"']/g,char=>({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'
     }[char]));
   }
 
@@ -26,6 +26,8 @@
       editorialProfile:String(block.editorialProfile||''),
       referenceProfiles:Array.isArray(block.referenceProfiles)?block.referenceProfiles:[],
       layout:block.layout&&typeof block.layout==='object'?block.layout:{},
+      stylePresetId:String(block.stylePresetId||''),
+      styleOverrides:block.styleOverrides&&typeof block.styleOverrides==='object'&&!Array.isArray(block.styleOverrides)?block.styleOverrides:{},
       content:block.content&&typeof block.content==='object'?block.content:{},
       evidence:Array.isArray(block.evidence)?block.evidence:[],
       aiPolicy:block.aiPolicy&&typeof block.aiPolicy==='object'?block.aiPolicy:{mode:'full'},
