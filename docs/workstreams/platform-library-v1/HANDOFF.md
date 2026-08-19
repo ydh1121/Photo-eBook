@@ -1,6 +1,6 @@
 # Platform Library V1 Handoff
 
-이 파일은 채팅방 길이 제한, 세션 종료, 다른 작업자/에이전트로의 전환이 발생해도 작업이 끊기지 않도록 현재 작업 상태를 짧게 고정하는 handoff 문서다.
+이 파일은 채팅방 길이 제한, 세션 종료, 다른 작업자/에이전트로의 전환이 발생해도 작업이 끊기지 않도록 현재 작업 상태를 고정한다.
 
 ## Canonical status
 
@@ -11,64 +11,46 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 ## Current phase
 
-Phase 07 사용자 Block review 수집 + Phase 08 Editor Lab prototype 구현 완료 수준
-
-완료된 단계:
-- Phase 01 Reference Library
-- Phase 02 Editorial Library
-- Phase 03 UI Block Inventory + Block Contract
-- Phase 04 Block Lab 기본 구현
-- Phase 05 UI Refinement 코드 레벨 1차 정제
-- Phase 06 신규 범용 Block candidate 확장
-- Phase 07 registry/review infrastructure
-- Phase 08 local-only Editor Lab prototype
-
-현재 checkpoint:
-- `/block-lab/`에 총 27개 candidate block family가 있음.
-- 각 block에 `미결정 / 승인 / 재설계 / 통합 / 폐기` 검토 선택과 메모 UI가 있음.
-- 검토는 localStorage에 저장되고 JSON으로 export 가능.
-- runtime manifest와 renderer health check가 있음.
-- production validation은 manifest status가 `approved`인 type만 통과하도록 구현했으나 현재 27개는 모두 candidate.
-- `/editor-lab/`에서 candidate block을 실제로 배치·편집할 수 있음.
-- Editor Lab은 localStorage draft만 사용하며 서버/Google Sheet write와 아직 연결하지 않음.
+- Phase 07: 사용자 Block review 대기
+- Phase 08: Editor Lab + V1 Sheets DB + 보호된 draft API 구현, live auth 검증 대기
+- 다음 비차단 작업: Phase 09 AI 콘텐츠 계약 / Phase 10 publish 구조 설계
 
 ## Production safety
 
-- photography production 페이지는 content-pack 분리 후 정상 동작한다고 사용자가 확인함.
-- 기존 photography production renderer는 Block Library/Editor Lab으로 교체하지 않았음.
-- Block Lab/Editor Lab CSS와 runtime은 별도 route로 격리됨.
-- `/block-lab/`, `/editor-lab/` 모두 `noindex,nofollow,noarchive`.
-- exact 200 proxy가 기존 SPA wildcard보다 앞에 있음.
-- 기존 Safari navigation/runtime 계약은 변경하지 않았음.
-- 관리자 인증이 없으므로 서버 write API는 추가하지 않았음.
+- 기존 photography production renderer는 교체하지 않았다.
+- 기존 Safari navigation/runtime 계약은 건드리지 않았다.
+- `/block-lab/`, `/editor-lab/`은 별도 route이며 meta + `X-Robots-Tag` noindex 처리했다.
+- `/api/editor/*`는 기존 공개 `/api/rpc`와 분리했다.
+- `ADMIN_EDITOR_TOKEN`이 배포 환경에 없으면 editor API는 모두 401로 닫힌다.
+- Editor Lab의 관리자 토큰은 브라우저 `sessionStorage`에만 저장한다.
 
-## Permanent Reference Library
+## Reference / Editorial
 
-Index:
+Reference index:
 - `docs/library/references/README.md`
 
-사용자가 2026-08-19에 제공한 외부 GitHub 링크 9개는 모두 정식 entry 또는 기존 entry로 반영됨:
+2026-08-19 사용자 제공 GitHub 링크 9개 모두 등록됨:
 - `emilkowalski/skills`
 - `Meliwat/awesome-ios-design-md`
 - `VoltAgent/awesome-design-md` Apple `DESIGN.md`
 - `Leonxlnx/taste-skill`
 - `tastesmd/TASTES.md`
-- GitHub `topics/ai-design` discovery source
+- GitHub `topics/ai-design`
 - `Shinwoo-Park/katfishnet`
 - `DaleSeo/korean-skills`
 - `dotoricode/korean-humanizer`
 
-기존 추가 reference:
+기존 reference:
 - `NomaDamas/k-skill` korean-humanizer
 - `arknow91/liquid-taffy`
 
-## Project design taste
-
-영구 기준:
+Project design taste:
 - `docs/library/design-taste/PLATFORM-TASTES.md`
 
-우선순위:
-`사용자 현재 피드백 → PLATFORM-TASTES → 프로젝트 spec → Approved Registry → external reference`
+Editorial:
+- `docs/library/editorial/`
+- photography 특수 계약: `docs/spec-v1/20-korean-copywriting-skill.md`
+- Google Sheet `COPY_GUIDE`가 live copy rule source
 
 ## Block Library
 
@@ -84,165 +66,143 @@ Registry:
 - `public/assets/js/blocks/block-registry.js`
 - `public/assets/js/blocks/block-registry-health.js`
 
-27개 candidate:
-1. hero
-2. chapter-hero
-3. section-heading
-4. rich-text
-5. process/ranking
-6. metric-grid
-7. offer-rail
-8. notice
-9. comparison-cards
-10. checklist
-11. media-rail
-12. case-study-rail
-13. product-tool
-14. roadmap
-15. script-copy
-16. tutorial
-17. resources
-18. faq
-19. pros-cons
-20. comparison-table
-21. timeline
-22. image-copy-split
-23. gallery
-24. quote-expert
-25. calculator
-26. cta
-27. service-list
+현재 27개 type은 모두 `candidate`다. 사용자 시각 검토 전에 자동 승인하지 않는다.
 
 보류:
 - location/map → provider/API/geocoding/privacy 계약 전까지 보류
 
-## Block Lab runtime
+## Block Lab
 
 Route:
 - `/block-lab/`
 
-Core:
-- `public/assets/js/blocks/block-registry.js`
-- `public/assets/js/blocks/block-renderers.js`
-- `public/assets/js/blocks/block-renderers-extended.js`
-- `public/assets/js/blocks/block-registry-health.js`
-- `public/data/block-registry/v1/manifest.js`
-
-Lab:
-- `public/assets/js/block-lab/lab-data.js`
-- `public/assets/js/block-lab/lab-data-extended.js`
-- `public/assets/js/block-lab/lab-interactions-extended.js`
-- `public/assets/js/block-lab/lab-app.js`
-- `public/assets/js/block-lab/lab-review.js`
-
-Styles:
-- `public/assets/styles/block-lab/lab.css`
-- `a11y.css`
-- `refinement-v2.css`
-- `new-blocks-v2.css`
-- `review-v1.css`
-
-Review features:
+기능:
+- 27개 candidate
 - category filter
-- review-decision filter
 - Light/Dark
-- Fit / 390 / 768 / 1180 preview
-- block variant selector
-- review decision + memo
-- localStorage persistence
+- Fit/390/768/1180
+- variant 비교
+- `미결정 / 승인 / 재설계 / 통합 / 폐기`
+- review memo
+- localStorage review persistence
 - review JSON export
-- registry health count
+- registry health 표시
+
+Google Sheet `BLOCK_REVIEWS`에는 27개 type을 `undecided`로 seed했다. 아직 사용자 판정은 반영하지 않았다.
 
 ## Editor Lab
 
 Route:
 - `/editor-lab/`
 
-Code:
+주요 파일:
 - `public/editor-lab/index.html`
 - `public/assets/js/editor-lab/editor-app.js`
+- `public/assets/js/editor-lab/editor-server.js`
+- `public/assets/js/editor-lab/page-meta.js`
 - `public/assets/styles/editor-lab/editor.css`
+- `public/assets/styles/editor-lab/server.css`
+- `public/assets/styles/editor-lab/page-meta.css`
 
-Features:
-- 27개 block library
-- search
-- block add
-- drag-and-drop reorder
-- up/down reorder fallback
-- duplicate/delete
-- variant edit
-- recursive content inspector for strings/numbers/arrays/objects
-- Light/Dark
-- 390/768/1180
+기능:
+- 27개 block library/search
+- block add/reorder/duplicate/delete
+- drag-and-drop + up/down fallback
+- variant/content inspector
+- Light/Dark, 390/768/1180
 - edit/preview
 - undo/redo
-- localStorage draft
 - JSON import/export
-- canonical Block Registry renderer 재사용
+- localStorage browser draft
+- 산업 ID / URL slug
+- 새 페이지 / 페이지 복제
+- 선택적 서버 연결
+- 서버 초안 목록/저장/불러오기
+- 관리자 token은 sessionStorage only
 
-중요:
-- Editor Lab은 production 관리자 페이지가 아님.
-- 인증/서버 저장 전까지 local-only prototype.
-- candidate도 실험용으로 추가 가능하지만 production publish validation은 candidate를 거부함.
+## V1 Sheets DB — 실제 생성/검증됨
 
-## Storage decision
+Spreadsheet:
+- `사진작가 수익화 로드맵 | 모바일 LANDING + DB`
+- ID `1TgA_-C9rDPRvgxTnG5cPnWihwC48KZxod-sPeEoMWUc`
 
-문서:
-- `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
-
-V1 방향:
-- 구조화 페이지/블록 데이터 → Google Sheets
-- 이미지/파일/workstream archive → Google Drive
-- renderer/schema/permanent rules → Git
-- localStorage → Editor Lab 검증용 draft만
-
-권장 future sheets:
+추가된 tabs:
 - `PLATFORM_PAGES`
 - `PAGE_BLOCKS`
 - `BLOCK_REVISIONS`
 - `BLOCK_REVIEWS`
 - `MEDIA_ASSETS`
 
-광고 기반 초기 운영/소수 관리자 조건에서는 별도 Supabase/D1을 먼저 추가하지 않음. 여러 관리자 동시 편집, 복잡한 권한/검색/대규모 revision이 필요해지면 migration 검토.
+헤더와 기본 data validation까지 생성·확인했다.
 
-## Current unresolved checks
+Storage decision:
+- 구조화 페이지/블록 → Google Sheets
+- 이미지/파일/archive → Google Drive
+- renderer/schema/permanent rules → Git
+- localStorage → local/offline draft fallback
 
-- 이 도구 세션의 container에서 `photo-ebook.pages.dev` DNS 조회가 실패해서 실제 live `/block-lab/`/`/editor-lab/` 브라우저 렌더 검증은 하지 못함.
-- 따라서 live success를 추정해 완료 처리하지 않음.
-- 사용자 실제 PC/모바일 검토가 필요함.
+문서:
+- `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
+
+## Protected Editor API
+
+파일:
+- `functions/api/editor/[[path]].js`
+
+Endpoints:
+- `GET /api/editor/health`
+- `GET /api/editor/pages`
+- `GET /api/editor/page?id=...`
+- `POST /api/editor/page`
+- `POST /api/editor/reviews`
+
+보호:
+- same-origin 확인
+- Bearer `ADMIN_EDITOR_TOKEN`
+- token 미설정 시 closed
+
+Draft persistence:
+- page status를 강제로 `draft`로 저장
+- block type allowlist 검증
+- block revision 기록
+- 기존 block row를 먼저 전체 삭제하지 않도록 보완
+- 기존 block은 제자리 update
+- 신규 block은 append
+- 현재 draft에서 사라진 block만 마지막에 clear
+
+## Current blockers / unresolved checks
+
+1. Cloudflare Pages/Functions 배포 환경에 `ADMIN_EDITOR_TOKEN` secret을 아직 설정하지 못했다. 현재 도구에는 Cloudflare 환경변수를 설정할 connector가 없다.
+2. 따라서 `/api/editor/*`의 live authenticated save/load는 아직 검증하지 못했다.
+3. 이 도구 세션에서는 `photo-ebook.pages.dev` DNS 접근이 실패해 Block Lab/Editor Lab의 live browser visual QA를 하지 못했다.
+4. 27개 block은 사용자 실제 화면 판정 전이므로 candidate 상태를 유지한다.
 
 ## Next action
 
-1. 배포된 `/block-lab/`에서 27개 block 검토 UI 확인
-2. 사용자가 주요 block을 `승인 / 재설계 / 통합 / 폐기`로 판정하고 필요 시 메모
-3. review JSON 또는 사용자 피드백을 Git canonical manifest에 반영
-4. approved lifecycle 확정 및 publish validation 연결
-5. `/editor-lab/` 실화면 QA
-6. block-specific inspector를 사용자 편집 관점에서 정제
-7. 관리자 인증 방식을 확정한 뒤 Google Sheets draft save/load API 연결
-8. draft/published + revision + publish 흐름 구현
+비차단 작업은 계속 진행 가능:
+1. Phase 09 AI content request / lock / fact-state schema와 Editor UI 설계
+2. draft → review → publish snapshot contract 설계
+3. SEO/GEO page metadata contract를 platform page schema에 연결
 
-중요:
-- 사용자 시각 검토 전에 block 자동 승인 금지.
-- candidate renderer를 photography production에 바로 적용하지 않음.
-- 인증 전에는 공개 admin write endpoint를 만들지 않음.
+사용자/환경 입력이 필요한 checkpoint:
+1. `/block-lab/` 실제 검토 후 block 판정
+2. Cloudflare에 `ADMIN_EDITOR_TOKEN` 설정
+3. `/editor-lab/` 서버 연결 후 save/load QA
+
+이후:
+- approved Registry 확정
+- production picker는 approved만 노출
+- 이미지 asset picker/Drive 연결
+- publish workflow 구현
+- 기존 photography page를 새 platform renderer로 옮길지는 별도 회귀 QA 후 결정
 
 ## Resume protocol
 
-새 채팅방에서는 사용자가 이전 대화를 다시 설명할 필요가 없어야 한다.
-
-재개 시 에이전트는:
+새 채팅방에서는 다음 순서로 재개한다.
 1. `AGENTS.md`
 2. `docs/workstreams/platform-library-v1/TASKS.md`
 3. 이 `HANDOFF.md`
 4. `main` 최신 commit
-을 먼저 확인한다.
+5. active task와 Next action 일치 확인
 
-작업 시작 전 `Next action`이 실제 repository 상태와 일치하는지 확인한다.
-
-작업을 한 단위 완료할 때마다:
-- `TASKS.md` 상태 갱신
-- 이 파일의 `Current phase`, `Next action`, 중요 결정사항 갱신
-- 최종 규칙은 영구 `docs/library/` 또는 `docs/spec-v1/`에 반영
-
-세션이 끝날 때 작업이 완결되지 않았더라도 중간 상태를 Git에 기록해 다음 세션이 추측 없이 이어갈 수 있게 한다.
+의미 있는 작업 단위가 끝날 때마다 TASKS/HANDOFF를 함께 갱신한다.
