@@ -19,6 +19,8 @@ Phase 01 — Reference Library
 - UI Block Lab → Approved Block Registry → 관리자 Block Editor → AI 콘텐츠 작성/검수 순으로 진행하기로 함.
 - 최종 목표는 관리자가 산업 주제와 기본 블록 배치/방향만 정하고 AI가 세부 콘텐츠를 작성·검수하는 운영 구조임.
 - 진행 중 자료는 Git workstream에 저장하고, 실사용 완료 시 workstream 폴더를 Google Drive로 아카이브하기로 함.
+- 채팅방 길이 제한에 대비한 restart-safe workstream protocol을 루트 `AGENTS.md`에 추가함.
+- `TASKS.md`와 이 `HANDOFF.md`를 새 채팅방 재개의 canonical source로 고정함.
 
 ## Reference currently approved for library intake
 
