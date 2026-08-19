@@ -107,8 +107,25 @@
     finally{setBusy(false);}
   }
 
+  function loadSnapshotHistoryModule(){
+    if(!document.querySelector('link[data-editor-snapshot-history]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href='/assets/styles/editor-lab/snapshot-history.css?v=2';
+      link.dataset.editorSnapshotHistory='true';
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('script[data-editor-snapshot-history]')){
+      const script=document.createElement('script');
+      script.src='/assets/js/editor-lab/snapshot-history.js?v=2';
+      script.dataset.editorSnapshotHistory='true';
+      document.body.appendChild(script);
+    }
+  }
+
   checkButton.addEventListener('click',runCheck);
   publishButton.addEventListener('click',publish);
   publishButton.disabled=true;
   setStatus(getToken()?'서버 저장 후 발행 검사를 실행하세요.':'서버 연결 후 사용할 수 있습니다.');
+  loadSnapshotHistoryModule();
 })();
