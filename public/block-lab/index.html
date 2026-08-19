@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/assets/styles/block-lab/responsive-fixes-v1.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/review-v1.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/review-server.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/block-lab/variant-review.css?v=1">
 </head>
 <body>
   <div class="block-lab" data-theme="light" data-preview="fluid">
@@ -50,7 +51,7 @@
         <div class="lab-sidebar__intro">
           <small>Candidate Library V1</small>
           <h1>콘텐츠 블록을 한 화면에서 검토합니다</h1>
-          <p>현재 photography 페이지에서 추출한 블록과 여러 산업에 필요한 신규 후보를 함께 검토합니다. 실제 운영 화면은 아직 이 renderer로 교체하지 않았습니다.</p>
+          <p>블록 전체와 각 디자인 variant를 따로 검토합니다. PC와 모바일에서 구조가 달라지는 variant도 같은 화면에서 확인할 수 있습니다.</p>
         </div>
         <nav class="lab-nav" id="labNav" aria-label="블록 목록"></nav>
       </aside>
@@ -59,11 +60,11 @@
         <section class="lab-intro">
           <span class="lab-intro__tag">UI 검토용 / 검색 노출 제외</span>
           <h2>산업이 달라도 재사용할 수 있는 기본 UI를 정제합니다</h2>
-          <p>각 블록의 variant와 화면 폭을 비교한 뒤 검토 상태를 선택할 수 있습니다. 검토 내용은 이 브라우저에 저장되고 JSON으로 내보낼 수 있습니다. 아래 수치와 문장은 UI 샘플이며 실제 시장 정보가 아닙니다.</p>
+          <p>블록 전체 판정과 variant별 판정을 분리했습니다. variant마다 승인, 재설계, 통합, 폐기 상태와 메모를 따로 남길 수 있습니다. 반응형 variant는 모바일에서 구조가 같아지는 이유도 함께 표시합니다.</p>
           <div class="lab-intro__notes">
             <span>현재 production 영향 없음</span>
             <span>27개 candidate family</span>
-            <span>검토 상태와 메모 저장</span>
+            <span>variant별 검토 저장</span>
             <span>승인 전 신규 pack 사용 금지</span>
           </div>
         </section>
@@ -75,6 +76,7 @@
 
   <script src="/assets/js/blocks/block-registry.js?v=2"></script>
   <script src="/data/block-registry/v1/manifest.js?v=1"></script>
+  <script src="/data/block-registry/v1/variant-meta.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script>
   <script src="/assets/js/blocks/block-registry-health.js?v=1"></script>
@@ -83,6 +85,7 @@
   <script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-app.js?v=2"></script>
   <script src="/assets/js/block-lab/lab-review.js?v=1"></script>
-  <script src="/assets/js/block-lab/lab-review-server.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-variant-review.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-review-server.js?v=2"></script>
 </body>
 </html>
