@@ -17,3 +17,21 @@ export function normalizeBlockStyleV1(input={}){
   }
   return output;
 }
+
+export function findBlockStylePresetV1(block,presets=[]){
+  const id=String(block?.stylePresetId||'').trim();
+  if(!id)return null;
+  return (Array.isArray(presets)?presets:[]).find(item=>
+    String(item?.id||'')===id&&
+    String(item?.blockType||'')===String(block?.type||'')&&
+    String(item?.variant||'')===String(block?.variant||'')
+  )||null;
+}
+
+export function resolveBlockStyleV1(block,presets=[]){
+  const preset=findBlockStylePresetV1(block,presets);
+  const presetStyle=normalizeBlockStyleV1(preset?.style||{});
+  const embedded=normalizeBlockStyleV1(block?.resolvedStyle||block?.style||{});
+  const overrides=normalizeBlockStyleV1(block?.styleOverrides||{});
+  return {...presetStyle,...embedded,...overrides};
+}
