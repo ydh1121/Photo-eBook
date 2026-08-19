@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/assets/styles/editor-lab/editor.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/server.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/page-meta.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/editor-lab/seo-meta.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/ai-brief.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/ai-policy.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/ai-response.css?v=1">
@@ -36,6 +37,18 @@
       <aside class="editor-library" aria-label="블록 라이브러리">
         <div class="editor-pane-head"><div><small>BLOCK LIBRARY</small><h1>블록 추가</h1></div><span id="editorLibraryCount">27</span></div>
         <section class="editor-page-meta" aria-labelledby="editorPageMetaTitle"><div class="editor-page-meta__head"><strong id="editorPageMetaTitle">페이지 설정</strong><span id="editorPageIdLabel"></span></div><label>산업 ID<input id="editorIndustryId" type="text" value="general" placeholder="photography"></label><label>URL slug<input id="editorSlug" type="text" placeholder="photography"></label><div class="editor-page-meta__actions"><button type="button" id="editorNewPage">새 페이지</button><button type="button" id="editorDuplicatePage">페이지 복제</button></div></section>
+        <details class="editor-seo" id="editorSeo">
+          <summary><span><small>SEARCH</small><strong>SEO / 검색 정보</strong></span><span id="editorSeoStatus">입력 필요</span></summary>
+          <div class="editor-seo__body">
+            <label>SEO 제목<input id="editorSeoTitle" type="text" maxlength="300" placeholder="검색 결과에 표시할 고유 제목"></label>
+            <label>설명<textarea id="editorSeoDescription" rows="3" maxlength="1000" placeholder="페이지 내용을 실제로 요약합니다."></textarea></label>
+            <div class="editor-seo__grid"><label>페이지 유형<select id="editorSeoSchemaType"><option value="Article">Article</option><option value="WebPage">WebPage</option></select></label><label>검색 노출<select id="editorSeoIndexPolicy"><option value="index">공개 시 index</option><option value="noindex">공개해도 noindex</option></select></label></div>
+            <label>대표 이미지 URL<input id="editorSeoOgImage" type="url" placeholder="https://..."></label>
+            <div class="editor-seo__grid"><label>사이트 이름<input id="editorSeoSiteName" type="text" value="먹고살기"></label><label>작성/검토자<input id="editorSeoAuthorName" type="text"></label></div>
+            <label>내용 확인일<input id="editorSeoReviewedAt" type="date"></label>
+            <div class="editor-seo__actions"><button type="button" id="editorSeoUsePageTitle">페이지 제목 가져오기</button><button type="button" id="editorSeoSave">검색 정보 저장</button></div>
+          </div>
+        </details>
         <details class="editor-ai-brief" id="editorAiBrief">
           <summary><span><small>AI CONTENT</small><strong>AI 작성 기준</strong></span><span id="editorAiStatusLabel">미요청</span></summary>
           <div class="editor-ai-brief__body">
@@ -63,6 +76,6 @@
     <dialog id="editorConnectDialog" class="editor-connect-dialog"><div class="editor-connect-card"><div><small>ADMIN CONNECTION</small><h2>관리자 서버 연결</h2><p>배포 환경의 관리자 토큰을 입력하세요. 토큰은 이 탭의 세션에만 보관합니다.</p></div><label>관리자 토큰<input id="editorAdminToken" type="password" autocomplete="off" spellcheck="false"></label><p id="editorConnectMessage" class="editor-connect-message" role="status"></p><div class="editor-connect-actions"><button type="button" id="editorConnectCancel">취소</button><button type="button" id="editorConnectSubmit">연결</button></div></div></dialog>
   </div>
 
-  <script src="/assets/js/blocks/block-registry.js?v=2"></script><script src="/data/block-registry/v1/manifest.js?v=1"></script><script src="/assets/js/blocks/block-renderers.js?v=1"></script><script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-data.js?v=1"></script><script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script><script src="/assets/js/editor-lab/editor-app.js?v=2"></script><script src="/assets/js/editor-lab/page-meta.js?v=1"></script><script src="/assets/js/editor-lab/ai-brief.js?v=2"></script><script src="/assets/js/editor-lab/ai-response.js?v=1"></script><script src="/assets/js/editor-lab/ai-review.js?v=1"></script><script src="/assets/js/editor-lab/editor-server.js?v=3"></script>
+  <script src="/assets/js/blocks/block-registry.js?v=2"></script><script src="/data/block-registry/v1/manifest.js?v=1"></script><script src="/assets/js/blocks/block-renderers.js?v=1"></script><script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-data.js?v=1"></script><script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script><script src="/assets/js/editor-lab/editor-app.js?v=2"></script><script src="/assets/js/editor-lab/page-meta.js?v=1"></script><script src="/assets/js/editor-lab/seo-meta.js?v=1"></script><script src="/assets/js/editor-lab/ai-brief.js?v=2"></script><script src="/assets/js/editor-lab/ai-response.js?v=1"></script><script src="/assets/js/editor-lab/ai-review.js?v=1"></script><script src="/assets/js/editor-lab/editor-server.js?v=3"></script>
 </body>
 </html>
