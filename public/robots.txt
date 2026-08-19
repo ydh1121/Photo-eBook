@@ -3,6 +3,7 @@ Allow: /
 Disallow: /block-lab/
 Disallow: /editor-lab/
 Disallow: /qa/
+Disallow: /staging/
 Disallow: /api/
 
 User-agent: OAI-SearchBot
@@ -10,4 +11,5 @@ Allow: /
 Disallow: /block-lab/
 Disallow: /editor-lab/
 Disallow: /qa/
+Disallow: /staging/
 Disallow: /api/
