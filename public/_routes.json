@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/",
+    "/index.html",
+    "/404.html",
+    "/robots.txt",
+    "/favicon.ico",
+    "/assets/*",
+    "/data/*",
+    "/content-packs/*",
+    "/block-lab",
+    "/block-lab/*",
+    "/editor-lab",
+    "/editor-lab/*",
+    "/ui-dashboard",
+    "/ui-dashboard/*",
+    "/qa/*",
+    "/staging/*"
+  ]
+}
