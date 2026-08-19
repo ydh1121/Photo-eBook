@@ -1,222 +1,143 @@
 # 16. AI / Codex 작업 수행 규약
 
-이 문서는 `docs/spec-v1/`의 제품 명세를 ChatGPT, Codex 또는 향후 자동화 스킬이 실제 코드 작업에 적용할 때 따라야 하는 **실행 규약**이다. 이 문서가 새로운 UI/기능을 정의하지는 않는다. 제품 규칙의 근거는 각 세부 명세이며, 이 문서는 그 명세를 무시하거나 우회하지 못하게 하는 작업 절차를 고정한다.
+이 문서는 ChatGPT, Codex 또는 자동화 스킬이 Photo-eBook을 수정할 때 따를 실행 규약이다. 새로운 UI를 정의하지 않고, 현재 명세와 owner를 잘못 우회하지 않도록 작업 순서를 고정한다.
 
-## WORK-001 — V1 기준점
-
-모든 작업은 다음 애플리케이션 기준에서 시작한다.
+## WORK-001 — 기준
 
 - repository: `ydh1121/Photo-eBook`
-- V1 application baseline SHA: `6fe9f6883baa45c3d39ad68d57c21f9d76bf5bfd`
-- normative specification root: `docs/spec-v1/`
 - production branch: `main`
+- deploy root: `public/`
+- normative spec: `docs/spec-v1/`
+- 사용자 승인 모바일 기준: `UI_REGRESSION_SPEC.md`
 
-명세 문서 추가 이후의 Git SHA를 V1 애플리케이션 기준 SHA로 바꾸어 해석하지 않는다.
+과거 V1 baseline SHA는 역사 기준점으로 보존하되, 현재 runtime 파일 경로와 owner는 `01-runtime-file-map.md`, `12-lifecycle-ownership.md`를 source of truth로 사용한다.
 
 ## WORK-002 — 작업 전 필수 읽기
 
-어떤 코드 작업이든 최소 다음 순서로 확인한다.
+최소:
+1. repository `README.md`
+2. `01-runtime-file-map.md`
+3. 변경 대상 세부 명세
+4. `12-lifecycle-ownership.md`
+5. `14-legacy-and-tech-debt.md`
+6. `15-regression-checklist.md`
+7. `UI_REGRESSION_SPEC.md`
 
-1. `README.md`
-2. `00-baseline-governance.md`
-3. `01-runtime-file-map.md`
-4. 변경 대상과 직접 관련된 세부 명세
-5. `12-lifecycle-ownership.md`
-6. `14-legacy-and-tech-debt.md`
-7. `15-regression-checklist.md`
-
-디자인 요소를 수정하면 추가로:
-- `02-design-tokens.md`
-- `03-layout-responsive-motion.md`
-- `04-component-registry.md`
-
-Liquid/navigation을 수정하면 추가로:
-- `06-liquid-navigation.md`
-
-내 모음/질문을 수정하면 추가로:
-- `07-collection-hub.md`
-- `08-question-workflow.md`
-
-외부 글/영상을 수정하면 추가로:
-- `09-curated-video.md`
-
-테마/Safari를 수정하면 추가로:
-- `10-theme-and-safari.md`
-
-데이터/API/storage를 수정하면 추가로:
-- `11-data-api-storage.md`
+추가:
+- Liquid/navigation → `06-liquid-navigation.md`
+- collection → `07-collection-hub.md`
+- question → `08-question-workflow.md`
+- theme/Safari → `10-theme-and-safari.md`
+- data/API → `11-data-api-storage.md`
+- image generation → `17`, `18` 이미지 시스템 명세
 
 ## WORK-003 — 변경 범위 선언
 
-코드를 쓰기 전에 내부적으로 다음을 확정한다.
+코드 작성 전 확인:
+- 사용자가 요청한 변화.
+- 변화하면 안 되는 인접 영역.
+- 실제 DOM selector/state/data attribute.
+- current semantic module/owner.
+- 후반 CSS override/repair 여부.
+- direct load인지 postload인지.
 
-- 사용자가 요청한 변화가 무엇인지.
-- 변화하지 않아야 하는 인접 요소가 무엇인지.
-- 관련 spec ID가 무엇인지.
-- 실제 DOM selector가 무엇인지.
-- 실제 state/class/data attribute가 무엇인지.
-- 해당 상태의 current owner가 어떤 파일/함수인지.
-- 후반 CSS override 또는 secondary repair가 있는지.
+owner를 못 찾은 상태에서 새 override/controller를 추가하지 않는다.
 
-대상 owner를 찾지 못한 상태에서 새 override/controller를 추가하지 않는다.
+## WORK-004 — 실제 runtime 확인
 
-## WORK-004 — 구현보다 먼저 실제 runtime 확인
+파일명만 보고 authority를 추정하지 않는다.
 
-파일 이름이나 주석만 보고 authority를 추정하지 않는다.
+반드시:
+1. `public/index.html` 실제 load path/order 확인.
+2. `assets/js/app/postload-enhancements.js` 동적 load 확인.
+3. global function 후속 override 확인.
+4. 동일 selector 후반 cascade 확인.
+5. guard flag 확인.
+6. MutationObserver/timeout repair 확인.
 
-반드시 확인할 것:
+2026-08-19 cleanup에서 삭제된 과거 numbered `script-N.js`, `style-N.css`를 history에서 발견해도 production dependency로 다시 연결하지 않는다.
 
-1. `public/index.html`의 실제 load 여부와 순서.
-2. postload/dynamic load 여부.
-3. 같은 global function의 후속 재정의 여부.
-4. 같은 selector의 후반 cascade 여부.
-5. guard flag로 retirement된 controller 여부.
-6. MutationObserver/repair layer가 DOM을 다시 쓰는지.
+## WORK-005 — Single owner
 
-`script-15`~`script-27` 등 historical 세대 파일이 저장소에 존재한다는 이유만으로 다시 활성화하지 않는다.
+중복 owner를 만들지 않는다.
 
-## WORK-005 — Single Owner 원칙
+특히:
+- moving liquid indicator → `js/ui/liquid-controller.js`
+- chapter active/scroll target → `js/navigation/chapter-navigation.js`
+- collection base DOM/state → `js/collection/collection-hub.js`
+- bulk selection → `js/collection/bulk-selection.js`
+- question workspace → `js/questions/question-workspace.js`
+- contextual question handoff → `js/questions/context-handoff.js`
+- device continuity → `js/collection/device-handoff.js`
+- runtime theme → `js/ui/liquid-controller.js`
+- Safari initial nav lifecycle → `js/safari/deferred-sticky-nav.js`
 
-한 상태/동작에는 하나의 주 owner만 둔다.
-
-특히 다음은 중복 owner를 만들면 안 된다.
-
-- moving liquid indicator
-- navigation horizontal scroll
-- active tab/chip state
-- V40 question mode
-- collection open/close state
-- bulk selection state
-- theme choice
-- Safari compact prime
-
-기존 코드에 secondary repair가 이미 존재하는 경우 `14-legacy-and-tech-debt.md`의 known debt로 취급한다. 신규 구현에서 같은 패턴을 더 늘리지 않는다.
+compat/repair layer는 canonical state source로 승격하지 않는다.
 
 ## WORK-006 — 디자인 변경 최소 단위
 
-사용자가 특정 영역만 수정하라고 하면 해당 영역만 수정한다.
+금지 예:
+- 질문 selector 버그를 고치면서 unrelated global card/token 변경.
+- 카드 하나를 고치면서 전체 radius 변경.
+- Safari 문제를 고치면서 FAB/sheet geometry 변경.
+- desktop 문제를 고치면서 mobile baseline 변경.
 
-금지:
+공용 token 변경이 필요하면 영향 component를 먼저 식별한다.
 
-- 질문 selector 버그를 고치면서 전역 `html/body` 색을 변경.
-- 카드 한 종류를 수정하면서 모든 카드 radius를 변경.
-- Safari 문제를 고치면서 FAB 위치나 sheet geometry를 임의 변경.
-- Liquid 문제를 고치면서 easing 또는 rail material을 재디자인.
-- light-mode contrast를 고치면서 dark theme를 동시에 재설계.
+## WORK-007 — 모바일 기준선
 
-공용 token을 바꿔야 한다면 영향을 받는 component 목록을 먼저 식별한다.
+모바일은 명시적 사용자 요청이 없는 한 승인된 시각 기준선을 유지한다.
 
-## WORK-007 — 기존 컴포넌트 언어 재사용
+PC 전용 개선은 가능한 `min-width:1024px` 범위에 둔다.
 
-새 UI를 추가하기 전에 `04-component-registry.md`에서 동일 의미의 component family를 찾는다.
+공통 JS 기능 수정은 가능하지만 모바일 위치/크기/여백/표면이 달라지면 회귀다.
 
-- badge
-- rail
-- selected liquid pill
-- card
-- callout
-- search
-- bottom sheet
-- action button
-- empty state
+## WORK-008 — Safari 규칙
 
-기존 family가 있으면 새로운 독립 디자인을 만들지 말고 그 계층/재질/spacing을 재사용한다.
+현재 승인된 iPhone Safari 해결책:
+- iOS WebKit `html/body`에 실제 theme root canvas.
+- 최초 nav normal flow.
+- visualViewport/scroll compact signal 이후 sticky arm.
+- hidden collection open/tab/close replay 없음.
 
-단, 이미지 위 `.curated-platform`처럼 명세가 contextual exception으로 정의한 요소는 억지로 공통 badge와 통일하지 않는다.
+Safari 문제를 고친다는 이유로:
+- root를 무조건 transparent로 되돌리거나,
+- initial sticky를 다시 강제하거나,
+- 5px edge offset hack을 넣거나,
+- hidden popup lifecycle을 replay하지 않는다.
 
-## WORK-008 — V1과 기술부채를 구분
+실기기 회귀는 `10-theme-and-safari.md`, `15-regression-checklist.md`를 따른다.
 
-현재 코드의 다음 특성은 V1 제품 요구가 아니다.
-
-- numbered CSS override 누적 구조
-- 다중 global `setupNavigation()` 정의
-- broad `!important`
-- parking node 세대 중복
-- retired JS 파일 잔존
-- repair layer 중복
-
-재구축 시 이 구조를 복제할 필요는 없다.
-
-반대로 다음은 V1 제품 계약이다.
-
-- 10개 챕터 정보 구조
-- 모바일 우선 읽기 흐름
-- native horizontal top rail
-- Liquid Glass rail + one moving selected pill
-- Breeze 계열 spring
-- 내 모음 bottom sheet
-- 전체/영상/읽을거리/질문/설정 primary tabs
-- 질문 작성하기/저장한 질문 secondary selector
-- 본문 선택 → GPT에 질문 → 질문 작성 흐름
-- local durable favorites
-- 질문 local + Google Sheet sync
-- light/dark/system
-- 현재 필요한 Safari compact-prime behavior
-
-## WORK-009 — 명세와 구현이 다를 때
-
-다음 순서로 판단한다.
-
-1. 사용자의 현재 명시적 요청.
-2. `docs/spec-v1/` 세부 규칙.
-3. 기존 `UI_REGRESSION_SPEC.md`.
-4. V1 baseline의 실제 구현.
-5. historical comment.
-
-현재 구현에 known bug/debt가 있어 명세와 다르면 코드를 정답으로 승격시키지 않는다.
-
-## WORK-010 — 명세 자체를 바꾸는 조건
-
-버그 수정으로 spec을 사용자 몰래 바꾸지 않는다.
-
-V1 규칙 자체가 변경되는 경우에만:
-
-1. 사용자가 새 최종 상태를 명시적으로 승인.
-2. 관련 spec ID 수정.
-3. 관련 component/state/owner 문서 수정.
-4. regression checklist 수정 필요 여부 확인.
-5. 변경 이유와 이전 규칙의 관계 기록.
-
-단순 구현 수정은 V1 baseline 의미를 바꾸지 않는다.
-
-## WORK-011 — CSS 작업 규칙
+## WORK-009 — CSS 작업
 
 CSS 수정 전:
-
 - base selector 검색.
 - 동일 selector의 모든 active override 확인.
-- 최종 computed authority 확인.
-- light/dark/media query 확인.
-- Safari-specific selector 확인.
+- light/dark/media/Safari scope 확인.
+- final computed authority 확인.
+
+현재 semantic directory 구조가 생겼어도 CSS 내부 cascade debt는 남아 있다. 파일을 카테고리별로 보기 좋게 재정렬하는 이유만으로 load order를 바꾸지 않는다.
 
 새 `!important`는 기존 cascade를 이해하지 못한 상태에서 임시로 추가하지 않는다.
 
-active stylesheet를 수정했다면 실제 `public/index.html` cache query version도 함께 확인한다.
-
-## WORK-012 — JS 작업 규칙
+## WORK-010 — JS 작업
 
 JS 수정 전:
+- direct/postload 구분.
+- guard flag.
+- global override.
+- event listener phase/중복.
+- observer/timeout repair.
+- localStorage/API side effect.
 
-- 파일이 direct load인지 postload인지 확인.
-- guard flag 확인.
-- global override 확인.
-- capture/bubble event listener 중복 확인.
-- MutationObserver/timeout repair 확인.
-- state persistence/localStorage/API side effect 확인.
+동일 click을 처리하는 capture listener를 새로 만들기 전에 current owner로 해결 가능한지 확인한다.
 
-동일 click을 처리하는 새로운 capture listener를 추가하기 전에 기존 owner로 해결 가능한지 우선 확인한다.
+## WORK-011 — Storage/API
 
-## WORK-013 — Storage/API 변경 규칙
-
-localStorage key, Sheet column, API response shape는 UI class보다 더 강한 호환성 계약으로 취급한다.
-
-변경 시 반드시 migration/backward compatibility를 검토한다.
-
-특히:
-
+호환성 계약으로 취급:
 - `photoRoadmapQuestionsV2`
 - `photoRoadmapDeviceKeyV1`
-- video/article favorite ID/item stores
+- article/video favorite stores
 - `photoRoadmapThemeV1`
 - `QUESTION_HISTORY`
 - `CURATED_LINKS`
@@ -226,81 +147,77 @@ localStorage key, Sheet column, API response shape는 UI class보다 더 강한 
 - `/api/discover`
 - `/api/videos`
 
-을 이름만 깔끔하게 만들기 위해 임의 변경하지 않는다.
+파일명 cleanup이나 미관을 위해 storage/API 이름을 임의 변경하지 않는다.
 
-## WORK-014 — Safari 작업 규칙
+## WORK-012 — Runtime file naming
 
-Safari 브라우저 UI와 사이트 DOM을 구분한다.
+새 runtime 파일:
+- 기능을 설명하는 kebab-case.
+- 적절한 semantic directory.
+- 파일명에 revision 순번을 identity로 사용하지 않음.
 
-사이트가 보장할 수 있는 것:
+예:
+- `js/questions/context-handoff.js`
+- `styles/safari/deferred-sticky-chrome.css`
 
-- app/root surface 처리
-- nav geometry stability
-- collection geometry
-- safe-area 처리
-- compact 상태 감지 및 prime lifecycle
+파일 내용 revision/cache bust가 필요하면 URL query version으로 관리한다.
 
-사이트가 완전히 소유하지 않는 것:
+## WORK-013 — 파일 이동/rename
 
-- Safari expanded toolbar 자체의 색/투명도
-- Safari compact address pill 자체의 최종 browser rendering
+반드시 함께 확인:
+1. `index.html` path.
+2. postload dynamic URL.
+3. JS 내부 asset URL.
+4. CSS relative `url(...)`.
+5. Functions/static asset reference.
+6. docs owner path.
+7. cache query.
 
-browser-owned 영역을 억지로 바꾸기 위해 app geometry를 희생하지 않는다.
+active file move는 old/new blob이 동일한지 검증하는 것을 기본으로 한다.
 
-## WORK-015 — 구현 후 필수 회귀 검증
+## WORK-014 — 제거 규칙
 
-최소 다음을 수행한다.
+다음 조건이면 production tree에서 제거 가능:
+- dependency graph에서 실제로 load되지 않음.
+- global definition이 최종 호출 전에 항상 덮어써지고 side effect 없음.
+- temporary diagnostic/one-off migration 파일.
+- replacement semantic asset이 동일 blob/content를 보유.
 
-1. 변경 selector/state의 직접 동작.
-2. 관련 theme light/dark.
-3. mobile width.
-4. collection과 연관되면 primary tab/search/bulk.
-5. liquid와 연관되면 duplicate indicator 및 spring.
-6. question과 연관되면 selection → write → save → reopen.
-7. root/nav/Safari와 연관되면 iPhone Safari 실제 동작.
-8. storage/API와 연관되면 기존 저장 데이터 보존.
+단, image generation manifest/status, approved WebP, deployment/functions 운영 파일은 단순히 “현재 화면에서 직접 안 보인다”는 이유로 삭제하지 않는다.
 
-상세 항목은 `15-regression-checklist.md`를 따른다.
+## WORK-015 — 이미지 파이프라인
 
-## WORK-016 — Git 종료 검증
+이미지 생성/교체는 `17-image-generation-system.md`, `18-image-generation-commit-automation.md`, root `AGENTS.md`를 따른다.
 
-작업 종료 시 시작 SHA와 종료 SHA를 compare한다.
+- contextual slot 확인.
+- 1 slot = 1 generation.
+- QA.
+- Drive mirror.
+- WebP/Git production path.
+- ready/applied 상태.
+- 배포 검증.
 
-반드시 확인:
+## WORK-016 — 한국어 카피
 
-- 요청한 파일만 변경되었는지.
-- unrelated 파일이 섞이지 않았는지.
-- active asset 변경 시 cache query가 맞는지.
-- docs-only 작업이면 `public/`, `functions/`가 변경되지 않았는지.
-- spec 변경이 있다면 실제 사용자 승인 범위인지.
+새 한국어 문장/윤문은 `20-korean-copywriting-skill.md`와 COPY_GUIDE를 따른다.
 
-검증 없이 “완료”라고 보고하지 않는다.
+코드 cleanup 중 content source나 사용자 확정 카피를 임의 수정하지 않는다.
 
-## WORK-017 — 후속 작업 보고 형식
+## WORK-017 — 완료 전 검증
 
-후속 구현 완료 보고에는 최소 다음 정보를 포함한다.
+- `15-regression-checklist.md` 수행.
+- branch compare 검토.
+- main이 작업 시작 뒤 외부 변경됐는지 재확인.
+- fast-forward 가능한 경우 force push 금지.
+- main 반영 뒤 entry/tree 확인.
+- live visual 검증을 실제로 하지 않았다면 했다고 표현하지 않는다.
 
-- 무엇을 변경했는지.
-- 관련 spec ID.
-- 변경 파일.
-- 의도적으로 유지한 인접 동작.
-- 회귀 검증 결과.
-- final commit SHA.
+## WORK-018 — 명세 변경
 
-버그가 남아 있으면 완료로 숨기지 않고 known limitation/debt로 구분한다.
+버그 수정/파일 rename을 제품 규칙 변경으로 오해하지 않는다.
 
-## WORK-018 — Skill로 전환할 때
-
-향후 이 프로젝트 전용 Skill을 만들 경우 이 문서를 entry contract로 사용한다.
-
-Skill은 최소 다음 행동을 강제해야 한다.
-
-1. 요청을 spec ID와 연결.
-2. 관련 source owner를 먼저 찾음.
-3. V1 규칙 위반 여부를 구현 전에 판단.
-4. 코드 변경 범위를 제한.
-5. 변경 후 `15-regression-checklist.md`에서 관련 항목 검증.
-6. Git compare로 unrelated changes 차단.
-7. V1 변경이 필요하면 사용자 명시적 승인 없이는 spec을 수정하지 않음.
-
-즉 Skill의 목적은 ‘코드를 자동으로 많이 고치는 것’이 아니라 **V1 명세에서 벗어나지 않게 작업 과정을 통제하는 것**이다.
+제품 규칙이 실제 변경된 경우에만:
+1. 사용자 승인.
+2. 관련 spec 수정.
+3. owner/component/regression 문서 수정.
+4. 이전 규칙과 변경 이유 기록.
