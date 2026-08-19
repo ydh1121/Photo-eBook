@@ -25,7 +25,7 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 raw CSS를 preset 데이터로 저장하지 않는다.
 
-## Current publish architecture — Snapshot V2
+## Snapshot V2 publish architecture
 
 Canonical publish implementation:
 - `functions/lib/publish-v2.js`
@@ -38,14 +38,16 @@ Snapshot storage:
 - `PUBLISHED_BLOCK_STYLES`
 - `PUBLISHED_UI_CONFIG`
 
-Public read/runtime:
-- `/api/public/snapshot-v2?slug=...`
-- `public/assets/js/public-snapshot/runtime-v2.js`
+Public source/runtime:
+- shared loader: `functions/lib/public-snapshot-v2.js`
+- API: `/api/public/snapshot-v2?slug=...`
+- client runtime: `public/assets/js/public-snapshot/runtime-v2.js`
+- generic public interactions: `public/assets/js/public-snapshot/interactions.js`
 - staging: `/staging/snapshot-v2.html`
 
 발행 시점의 Block style과 Page UI config를 resolved 값으로 고정한다. 나중에 preset 원본이 바뀌어도 과거 snapshot 디자인이 변하지 않는다.
 
-Public API는 active snapshot만 반환한다. `fetchAndRender()`로 API에서 받은 active snapshot은 서버 publish gate를 이미 통과한 결과로 신뢰하며, 브라우저에서는 구조 유효성만 다시 검사한다. 직접 주입하는 candidate staging payload는 별도 `allowCandidate` 경로를 사용한다.
+Public API와 canonical route는 active snapshot만 읽는다. API에서 받은 active snapshot은 서버 publish gate를 이미 통과한 immutable 결과로 취급하며 browser에서는 구조 유효성만 다시 확인한다. 직접 주입하는 staging candidate는 `allowCandidate` 경로를 사용한다.
 
 ## Publish approval gate
 
@@ -53,15 +55,63 @@ Public API는 active snapshot만 반환한다. `fetchAndRender()`로 API에서 �
 
 현재 gate:
 - known Block type + variant
-- `BLOCK_VARIANT_REVIEWS`의 저장된 variant 판정 우선
+- `BLOCK_VARIANT_REVIEWS`의 저장된 `type::variant` 판정을 우선 사용
 - 저장된 판정이 없으면 static candidate registry fallback
 - variant decision이 `approved`여야 통과
-- 선택한 Block Style preset이 있으면 해당 type+variant와 일치 + `approved`
+- 선택한 Block Style preset은 현재 type+variant와 일치하고 `approved`여야 통과
 - enabled Page UI는 preset 필수 + capability 일치 + `approved`
 - AI fact state / evidence 조건 유지
 - SEO / slug / active slug conflict 검사 유지
 
-중요: Block Lab에서 사용자가 variant를 `승인`하고 서버에 저장하면 publish gate가 그 Sheet 판정을 실제로 읽는다.
+Block Lab에서 사용자가 variant를 `승인`하고 서버 저장하면 publish gate가 해당 Sheet 판정을 실제로 읽는다.
+
+## Canonical public routes
+
+새 산업 public route:
+- `functions/[slug].js`
+- active Snapshot V2가 존재하는 `/:slug/`만 200
+- active snapshot이 없는 draft/unknown slug는 실제 404
+- slash 없는 active slug는 `/:slug/`로 308
+- GET/HEAD만 허용
+
+Legacy photography:
+- `/`는 기존 photography renderer 유지
+- `/photography/`도 `public/_redirects`를 통해 기존 `/index.html` renderer 유지
+- `/photography`와 `/photography/*`는 `public/_routes.json`에서 Functions 호출 제외
+- photography production renderer와 Safari deferred sticky fix는 변경하지 않음
+
+Search/AI rendering:
+- canonical Function이 title/description/canonical/robots/OG/Twitter/JSON-LD를 서버 HTML에 먼저 출력
+- 같은 immutable snapshot에서 semantic text fallback도 서버 렌더
+- fallback에는 block 제목/설명/items/facts/FAQ/resources/공식 링크 등이 실제 visible HTML로 들어감
+- JS 가능 시 같은 payload를 `runtime-v2.js`가 advanced block UI로 교체
+- 숨겨진 duplicate SEO content는 만들지 않음
+
+Files:
+- `functions/[slug].js`
+- `functions/lib/public-snapshot-v2.js`
+- `functions/sitemap.xml.js`
+- `public/404.html`
+- `public/_routes.json`
+- `public/_redirects`
+- `public/_headers`
+- `public/assets/styles/public-snapshot/runtime.css`
+
+Sitemap:
+- `/sitemap.xml`
+- active snapshot만 대상
+- `seo.indexPolicy=noindex` 제외
+- `/` + active/indexable `/:slug/`
+- lastmod는 sourceUpdatedAt/publishedAt 사용
+
+404:
+- 기존 `/* → /index.html 200` SPA fallback 제거
+- dynamic slug missing/draft는 404
+- 정적 `public/404.html`도 존재
+
+Internal review routes:
+- Block Lab / Editor Lab / UI Dashboard / QA / staging은 noindex/no-store header 강화
+- `_routes.json`으로 static surfaces를 Functions invocation에서 제외
 
 ## Block Lab
 
@@ -79,7 +129,7 @@ Status: candidate lab / noindex.
 - Block Style preset lifecycle: `draft / approved / redesign / deprecated`
 - server sync: BLOCK_REVIEWS + BLOCK_VARIANT_REVIEWS + BLOCK_STYLE_PRESETS
 
-Photography built-in Style preset 12개가 `BLOCK_STYLE_PRESETS`에 seed돼 있으며 모두 자동 승인하지 않고 `draft`로 시작한다.
+Photography built-in Style preset 12개가 `BLOCK_STYLE_PRESETS`에 seed돼 있으며 모두 자동 승인하지 않고 `draft`에서 시작한다.
 
 ## Photography advanced Block parity
 
@@ -129,13 +179,10 @@ Shared runtime:
 - `public/assets/styles/blocks/style-runtime.css`
 
 Editor:
-- `public/assets/js/editor-lab/block-style.js`
 - current type + variant에 맞는 preset만 표시
-- 선택값은 Editor draft에 저장
+- 선택값 draft/server round-trip
 - Canvas immediate preview
-- server preset merge
-
-Snapshot preview/rollback도 발행 당시 resolved style을 보존한다.
+- snapshot preview/rollback에서도 resolved style 보존
 
 ## UI Capability / Design Dashboard
 
@@ -169,8 +216,16 @@ Public runtime:
 - `public/assets/js/ui-capabilities/runtime.js`
 - `public/assets/styles/ui-capabilities/runtime.css`
 - Snapshot V2가 resolved capability context를 전달
-- horizontal-card-rail은 현재 generic surface에 실제 적용
-- top nav / bottom sheet 등은 generic surface가 준비되는 순서대로 연결
+- `horizontal-card-rail`: 실제 generic surface 적용 완료
+  - left runway/right padding/fade
+  - hidden/auto scrollbar
+  - PC mouse drag + click suppression
+  - mobile native horizontal scroll owner 유지
+- `reading-progress`: 실제 generic surface 적용 완료
+  - color/thickness/opacity
+  - scroll/resize progress
+  - reduced-motion safety
+- top chapter nav / bottom sheet / filter 등은 실제 generic surface와 data contract가 준비되기 전 임의 생성하지 않는다.
 
 ## Editor / DB
 
@@ -190,7 +245,7 @@ Token 미설정 시 closed.
 
 Cloudflare live authenticated QA는 아직 token secret 설정이 필요하다.
 
-## First non-photography QA
+## First non-photography QA — video editor
 
 Page: `page_video_editor_qa_v1`
 slug: `video-editor`
@@ -202,13 +257,81 @@ Routes:
 - `/staging/public-renderer/`
 - `/staging/snapshot-v2.html`
 
-User iPhone QA:
-- product-tool/list narrow-column bug 수정 후 정상화 확인
-- QA wrapper 내부 선 token 회귀 수정
+Current evidence scope:
+- Adobe Premiere official plan/function evidence
+- Blackmagic DaVinci Resolve official evidence
+- 고용24 영상편집 훈련 evidence
+- 크몽 개별 공개 판매 등록가 예시
+- 한국콘텐츠진흥원 방송영상 표준계약서 reference
+- 국세청 인적용역/종합소득세 reference
+- 한국저작권위원회 음원·폰트 이용허락 reference
+- 크몽 판매 이용약관 reference
 
-남은 content QA:
-- 시장수요/실제 단가 evidence
-- 계약/세금/platform policy/license evidence
+Important pricing rule:
+- 현재 가격은 확인일 기준 `개별 공개 등록가 예시`다.
+- 평균 단가, 실제 거래가, 시장 평균으로 표현하지 않는다.
+- 시장 수요 규모는 현재 정량 근거가 없어 수치로 주장하지 않는다.
+
+Sheet source was updated first, then browser QA overlay matched.
+Verified effective blocks:
+- `ve_market_compare`
+- `ve_process`
+- `ve_tools`
+- `ve_offer`
+- `ve_faq`
+- `ve_resources`
+
+`ve_hero`는 외부 사실 주장이 아니므로 `factState:not_required`.
+
+`PLATFORM_PAGES.ai_review_json`도 갱신돼 남은 blocker를 사용자 content/design review + approval로 정확히 표시한다.
+
+Browser evidence overlay:
+- `public/data/qa/video-editor-evidence-v1.js`
+
+CI validator:
+- `scripts/check-platform-qa-seed.mjs`
+- canonical JSON seed뿐 아니라 browser draft + evidence overlay를 VM에서 실제 실행
+- verified block은 evidence publisher/url/checkedAt가 없으면 실패
+- effective block IDs/count도 canonical seed와 비교
+
+## COPY_GUIDE additions
+
+Live `COPY_GUIDE`에 추가됨:
+- `public_route_status`
+  - public route/404에서 Snapshot/version 같은 개발 상태 문구 금지
+  - 짧은 상태 + 다음 행동만 표시
+- `public_route_loading`
+  - loading/failure는 현재 상태와 다음 행동만 짧게 표시
+
+## CI
+
+Workflow: `.github/workflows/platform-library-checks.yml`
+
+Checks:
+- Block type browser/server sync
+- Block variant browser/server sync
+- UI Capability browser/server sync
+- video-editor canonical seed + effective evidence overlay
+- Block Lab / Editor / UI runtime / UI Dashboard / Public Snapshot / Functions syntax
+- root `functions/*.js`도 syntax 범위
+- `_routes.json`, `_redirects`, `404.html` 변경이 workflow trigger
+
+Known CI limitation:
+- GitHub connector가 push workflow run/check-run을 현재 노출하지 않는다.
+- combined status도 status context가 없어 latest success를 성공으로 추정하지 않는다.
+- local clone 시 container DNS 문제로 full local run은 수행하지 못했다.
+
+## Live deployment verification
+
+아직 실제 Cloudflare 응답 smoke test를 성공적으로 읽지 못했다.
+Web tool이 `photo-ebook.pages.dev` 직접 open을 정상 fetch하지 못했다.
+따라서 아래를 배포 성공으로 간주하지 않는다:
+- canonical dynamic slug response
+- 404 response status
+- sitemap response
+- `_routes.json` runtime behavior
+
+코드/Sheet 상태만 확인된 상태다.
 
 ## Production safety invariants
 
@@ -219,38 +342,28 @@ User iPhone QA:
 - candidate production publish 차단.
 - labs/dashboard/QA/staging noindex.
 - public snapshot API는 active snapshot만 반환하고 draft 반환 금지.
+- canonical `/:slug/`도 active snapshot만 반환.
 - active API snapshot만 browser trusted-published 경로 사용.
-
-## CI
-
-Workflow: `.github/workflows/platform-library-checks.yml`
-
-Checks:
-- Block type browser/server sync
-- Block variant browser/server sync
-- UI Capability browser/server sync
-- video-editor QA seed
-- Block Lab / Editor / UI runtime / UI Dashboard / Public Snapshot / Functions syntax
-
-GitHub connector는 push workflow run/check-run을 현재 노출하지 않으므로 최신 success를 성공으로 추정하지 않는다.
+- `/video-editor/`는 현재 draft이므로 active snapshot 생성 전 공개되면 안 된다.
 
 ## Exact next action
 
 1. current `main` 확인.
-2. Snapshot V2를 canonical public route에 안전하게 연결한다.
-3. canonical route와 함께 sitemap / real 404를 설계한다.
-4. generic surface가 있는 UI Capability부터 runtime 실제 적용 범위를 늘린다.
-5. 사용자 `/block-lab/` + `/ui-dashboard/` review 결과를 server `approved` 상태로 저장한다.
-6. approval 이후 production Editor approved-only 최종 모드를 켠다.
-7. video-editor 남은 evidence를 채운다.
-8. `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→public→rollback live QA.
+2. 사용자 `/block-lab/` + `/ui-dashboard/` + `/qa/video-editor/` review 결과를 받는다.
+3. review 결과에 따라 variant/style/UI preset을 server `approved` 또는 redesign/deprecated로 저장한다.
+4. approval 이후 production Editor approved-only 최종 모드를 켠다.
+5. `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→canonical→rollback live QA.
+6. 실제 Cloudflare canonical/404/sitemap smoke test.
+7. generic surface가 준비된 UI Capability runtime 적용 확대.
+8. PC/mobile/CWV + 광고 side rail QA.
+9. workstream QA Drive archive.
 
 ## Current user checkpoints
 
 - `/block-lab/`: type/variant/style preset 실제 디자인 검토
 - `/ui-dashboard/`: Page UI capability/preset 검토
-- `/qa/video-editor/`: 비사진 분야 전체 흐름 검토
-- `/staging/snapshot-v2.html`: immutable style/UI가 포함된 공개형 V2 검토
+- `/qa/video-editor/`: 비사진 분야 전체 흐름/문구/근거 검토
+- `/staging/snapshot-v2.html`: immutable style/UI + public runtime 검토
 - Cloudflare `ADMIN_EDITOR_TOKEN` 설정 후 protected live QA
 
 ## V1 completion target
