@@ -6,6 +6,7 @@ on:
     paths:
       - 'public/_routes.json'
       - 'public/_redirects'
+      - 'public/_headers'
       - 'public/404.html'
       - 'public/data/block-registry/**'
       - 'public/data/block-styles/**'
@@ -35,12 +36,14 @@ on:
       - 'scripts/check-block-variant-sync.mjs'
       - 'scripts/check-ui-capability-sync.mjs'
       - 'scripts/check-platform-qa-seed.mjs'
+      - 'scripts/check-public-route-v2.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
   pull_request:
     paths:
       - 'public/_routes.json'
       - 'public/_redirects'
+      - 'public/_headers'
       - 'public/404.html'
       - 'public/data/block-registry/**'
       - 'public/data/block-styles/**'
@@ -70,6 +73,7 @@ on:
       - 'scripts/check-block-variant-sync.mjs'
       - 'scripts/check-ui-capability-sync.mjs'
       - 'scripts/check-platform-qa-seed.mjs'
+      - 'scripts/check-public-route-v2.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
 
@@ -93,6 +97,8 @@ jobs:
         run: node scripts/check-ui-capability-sync.mjs
       - name: Check first non-photography QA page seed
         run: node scripts/check-platform-qa-seed.mjs
+      - name: Check canonical Snapshot V2 HTML
+        run: node scripts/check-public-route-v2.mjs
       - name: Check platform JavaScript syntax
         shell: bash
         run: |
@@ -107,3 +113,4 @@ jobs:
           node --check scripts/check-block-variant-sync.mjs
           node --check scripts/check-ui-capability-sync.mjs
           node --check scripts/check-platform-qa-seed.mjs
+          node --check scripts/check-public-route-v2.mjs
