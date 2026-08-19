@@ -34,6 +34,7 @@
   function readDraft(){try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}')||{};}catch{return {};}}
   function writeDraft(draft){draft.updatedAt=new Date().toISOString();localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));}
   function escapeHtml(value=''){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));}
+  function hasKeys(value){return Boolean(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length);}
 
   async function api(params){
     const token=getToken();
@@ -73,13 +74,25 @@
     widthButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.snapshotWidth===value)));
   }
 
+  function applySnapshotDesign(snapshot){
+    const styles=window.PlatformBlockStyles;
+    if(styles){
+      for(const block of snapshot.blocks||[]){
+        const host=previewSurface.querySelector(`[data-snapshot-block-id="${CSS.escape(String(block.id||''))}"]`);
+        if(host)styles.apply(host,block);
+      }
+    }
+    window.PlatformUiCapabilityRuntime?.apply?.(previewSurface,snapshot.uiCapabilities||[],{snapshot});
+  }
+
   function renderSnapshotPreview(snapshot){
     const blocks=Array.isArray(snapshot.blocks)?snapshot.blocks:[];
     previewTitle.textContent=`${snapshot.title||'페이지'} · v${snapshot.version||''}`;
     previewMeta.textContent=`${snapshot.state==='active'?'현재 공개':'이전 버전'} · ${snapshot.publishedAt||''}`;
     previewSurface.dataset.theme=snapshot.theme==='dark'?'dark':'light';
-    previewSurface.innerHTML=blocks.length?blocks.map(block=>`<section class="editor-snapshot-preview-block" data-block-type="${escapeHtml(block.type||'')}">${registry.render(registry.normalize(block),{editor:false})}</section>`).join(''):'<p class="editor-snapshot-preview-empty">표시할 블록이 없습니다.</p>';
+    previewSurface.innerHTML=blocks.length?blocks.map(block=>`<section class="editor-snapshot-preview-block" data-block-type="${escapeHtml(block.type||'')}" data-snapshot-block-id="${escapeHtml(block.id||'')}">${registry.render(registry.normalize(block),{editor:false})}</section>`).join(''):'<p class="editor-snapshot-preview-empty">표시할 블록이 없습니다.</p>';
     setPreviewWidth('1180');
+    applySnapshotDesign(snapshot);
     if(typeof window.bindBlockLabEnhancements==='function')window.bindBlockLabEnhancements();
   }
 
@@ -108,12 +121,15 @@
       const currentById=new Map((Array.isArray(draft.blocks)?draft.blocks:[]).map(block=>[String(block.id),block]));
       const blocks=snapshot.blocks.map(block=>{
         const current=currentById.get(String(block.id));
+        const resolvedStyle=hasKeys(block.resolvedStyle)?block.resolvedStyle:null;
         return registry.normalize({
           ...(current||{}),
           ...block,
           id:block.id,
           type:block.type,
           enabled:true,
+          stylePresetId:String(block.stylePresetId||current?.stylePresetId||''),
+          styleOverrides:resolvedStyle||block.styleOverrides||current?.styleOverrides||{},
           aiPolicy:current?.aiPolicy||{mode:'full',factState:'needs_verification',fields:{}},
           editorialProfile:current?.editorialProfile||registry.get(block.type)?.editorialProfile||'',
           referenceProfiles:current?.referenceProfiles||registry.get(block.type)?.referenceProfiles||[],
@@ -127,6 +143,12 @@
       draft.theme=snapshot.theme==='dark'?'dark':'light';
       draft.seo=snapshot.seo||draft.seo||{};
       draft.blocks=blocks;
+      if(Array.isArray(snapshot.uiCapabilities)){
+        draft.uiCapabilities=Object.fromEntries(snapshot.uiCapabilities.map(item=>[
+          String(item.capabilityId||''),
+          {enabled:item.enabled===true,presetId:String(item.presetId||''),overrides:item.config&&typeof item.config==='object'?item.config:{}}
+        ]).filter(([id])=>id));
+      }
       draft.aiStatus='needs_review';
       draft.aiReview={
         summary:`발행 snapshot v${snapshot.version}을 브라우저 초안으로 복원했습니다. 다시 발행하기 전에 현재 기준으로 내용을 검토하세요.`,
