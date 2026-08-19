@@ -67,13 +67,14 @@
 - [x] review JSON export
 - [x] review 상태 필터/요약
 - [x] registry manifest/runtime health 표시
+- [x] `BLOCK_REVIEWS` Sheet에 27개 type을 `undecided`로 초기화
 - [ ] 승인 후 실제 production renderer로 승격/공유
 - [-] 배포 후 실제 화면 QA 및 사용자 디자인 검토
 
 중요:
 - Block Lab renderer는 아직 `candidate`다.
 - 기존 photography production renderer는 변경하지 않았다.
-- `/block-lab/`은 `noindex,nofollow,noarchive`다.
+- `/block-lab/`은 HTML meta와 `X-Robots-Tag` 모두 noindex 처리함.
 
 ## 05. UI Refinement
 
@@ -120,6 +121,8 @@
 - [x] production 사용 가능 여부 검사 API 추가
 - [x] approval lifecycle 문서화 — `docs/library/blocks/APPROVAL-WORKFLOW.md`
 - [x] 사용자 Block Lab review 결과를 저장/내보낼 UI 구현
+- [x] Google Sheet `BLOCK_REVIEWS` 저장 구조 준비
+- [x] 보호된 `/api/editor/reviews` write endpoint 코드 준비
 - [-] 사용자 Block Lab 검토 결과 수집
 - [ ] block별 `approved / redesign / merge / deprecated` 최종 판정
 - [ ] approved block lifecycle 반영
@@ -134,7 +137,7 @@
 
 ### Editor Lab — 구현됨
 - [x] production과 분리된 `/editor-lab/` route
-- [x] 27개 candidate library 표시
+- [x] 27개 candidate library 표시/search
 - [x] block 추가
 - [x] drag-and-drop 순서 변경
 - [x] 위/아래 이동 대체 조작
@@ -148,24 +151,47 @@
 - [x] undo/redo
 - [x] JSON import/export
 - [x] 같은 Block Registry renderer 사용
+- [x] 산업 ID / URL slug 페이지 메타데이터 UI
+- [x] 새 페이지 / 페이지 복제
+- [x] 서버 연결 UI
+- [x] 서버 초안 목록 / 저장 / 불러오기 UI
+- [x] 관리자 토큰은 `sessionStorage`에만 보관
+
+### Google Sheets V1 DB — 실제 생성/검증됨
+- [x] `PLATFORM_PAGES`
+- [x] `PAGE_BLOCKS`
+- [x] `BLOCK_REVISIONS`
+- [x] `BLOCK_REVIEWS`
+- [x] `MEDIA_ASSETS`
+- [x] 헤더/기본 validation 설정
+
+### 보호된 Editor API — 코드 구현됨
+- [x] 별도 `functions/api/editor/[[path]].js`
+- [x] 기존 공개 `/api/rpc`와 분리
+- [x] same-origin + Bearer `ADMIN_EDITOR_TOKEN`
+- [x] token 미설정 시 모든 editor API 거부
+- [x] page 목록/불러오기
+- [x] draft page 저장
+- [x] block revision 기록
+- [x] block review 저장
+- [x] draft save 시 기존 행을 먼저 삭제하지 않는 non-destructive 순서로 보완
+- [-] Cloudflare `ADMIN_EDITOR_TOKEN` 환경변수 설정 및 live API 검증
 
 ### Production 관리자 연결 — 남음
-- [ ] 산업 분야 생성/복제 메타데이터 UI
 - [ ] block-specific friendly inspector schema 정제
 - [ ] 이미지 asset picker/Drive 연결
-- [ ] 관리자 인증
-- [ ] Google Sheets draft save/load
-- [ ] draft/published 분리
-- [ ] server-side revision history
+- [ ] 정식 관리자 인증/session 방식으로 교체 여부 결정
+- [ ] draft/published publish workflow
 - [ ] published page preview/publish action
 - [ ] approved block만 production picker에 노출
+- [ ] server save/load 실사용 QA
 
 저장 설계:
 - `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
 - V1 구조화 콘텐츠: Google Sheets
 - 이미지/파일/archive: Google Drive
 - renderer/schema/permanent rules: Git
-- `/editor-lab/` localStorage는 검증용 임시 draft만 담당
+- `/editor-lab/` localStorage는 offline/local draft fallback
 
 ## 09. AI 콘텐츠 작성/검수
 
