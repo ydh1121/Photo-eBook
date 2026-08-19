@@ -9,6 +9,7 @@
 - [x] 사용자 문체 규칙 + COPY_GUIDE 연결
 - [x] Block별 editorial profile
 - [x] AI 사실/수치/사용자 문장 보존 계약
+- [x] canonical route loading/404 copy를 COPY_GUIDE에 추가
 - [ ] 이후 발견되는 reference 지속 등록
 
 ## 02. Block System
@@ -88,11 +89,13 @@ Photography production renderer 자체는 변경하지 않는다.
 - [x] `PAGE_UI_CONFIG` page assignment
 - [x] Editor `페이지 UI` on/off + preset 선택 + server save/load
 - [x] publish snapshot에 immutable resolved UI config 저장
-- [-] public runtime에 capability config 실제 적용
+- [x] public runtime: horizontal-card-rail 실제 적용
+- [x] public runtime: reading-progress 실제 적용
+- [-] generic surface가 필요한 capability의 실제 적용 확대
 - [ ] capability 자체 approved/deprecated lifecycle UI
 - [ ] shared primitive/token 관리 탭
 
-현재 public UI runtime은 capability context를 전달하고 horizontal-card-rail의 공통 surface 동작을 적용한다. 상단 메뉴, bottom sheet 등은 실제 generic surface가 있는 경우에만 단계적으로 연결한다.
+상단 chapter nav, bottom sheet, filter 등은 실제 generic surface/data contract가 준비되기 전 임의 생성하지 않는다. Safari deferred sticky safety를 우선한다.
 
 Current capabilities:
 1. top-chapter-navigation
@@ -138,6 +141,7 @@ Current capabilities:
 - [x] Page UI capability panel
 - [x] Block Style preset selector
 - [x] snapshot preview/rollback에서 resolved style/UI 상태 보존
+- [ ] production Editor에서 approved variant만 노출/선택하는 최종 모드
 - [!] Cloudflare `ADMIN_EDITOR_TOKEN` secret 설정 후 authenticated live QA
 
 ## 08. Approval Registry
@@ -149,7 +153,6 @@ Current capabilities:
 - [x] approved Style preset lifecycle
 - [x] approved UI preset lifecycle
 - [ ] user review 결과를 canonical approved variant 상태로 확정
-- [ ] production Editor에서 approved variant만 노출/선택하는 최종 모드
 
 ## 09. First non-photo QA — video editor
 - [x] `page_video_editor_qa_v1`
@@ -157,12 +160,20 @@ Current capabilities:
 - [x] `/qa/video-editor/`
 - [x] `/staging/public-renderer/`
 - [x] Snapshot V2 candidate staging `/staging/snapshot-v2.html`
-- [x] Adobe/Blackmagic/고용24 1차 evidence
+- [x] Adobe/Blackmagic/고용24 evidence
+- [x] 크몽 개별 공개 판매가 예시 evidence
+- [x] KOCCA 표준계약서 evidence
+- [x] 국세청 인적용역/종합소득세 evidence
+- [x] 한국저작권위원회 음원·폰트 이용허락 evidence
+- [x] 크몽 판매 이용약관 evidence
+- [x] `verified` block evidence overlay CI 검증
 - [x] product-tool mobile narrow-column regression fix
 - [x] QA wrapper internal line token fix
-- [-] 시장수요/실제 단가 evidence
-- [ ] 계약/세금/platform policy/license evidence
+- [x] 시장 수요 규모는 근거 없이 수치화하지 않도록 명시적으로 제외
+- [-] 사용자 내용/디자인 최종 review
 - [!] authenticated Editor→AI→server round-trip live QA는 ADMIN token 필요
+
+가격 evidence는 평균 단가/실거래가가 아니라 확인일 기준 개별 공개 등록가 예시다.
 
 ## 10. Publish / Public Runtime
 - [x] draft/published snapshot tables
@@ -172,14 +183,19 @@ Current capabilities:
 - [x] active Snapshot V2 read-only API
 - [x] public Snapshot V2 renderer
 - [x] resolved Block style 적용
-- [-] resolved Page UI capability 적용
+- [-] resolved Page UI capability 적용 확대
 - [x] type + variant + approved style/UI preset publish gate
 - [x] active API snapshot은 publish gate를 이미 통과한 결과로 runtime에서 신뢰
 - [x] title/description/robots/OG/Twitter + Article/WebPage JSON-LD
+- [x] canonical `/:slug/` active-snapshot route
+- [x] legacy `/`와 `/photography/`는 기존 photography renderer 유지
+- [x] active + indexable snapshot 기반 dynamic sitemap
+- [x] real 404 / wildcard SPA fallback 제거
+- [x] canonical HTML에 server-rendered semantic text fallback
+- [x] public 전용 calculator/copy interaction bundle
+- [x] internal lab/QA/staging noindex/no-store header 강화
 - [x] rollback draft
-- [ ] canonical industry route
-- [ ] sitemap
-- [ ] real 404
+- [ ] 실제 Cloudflare 배포 응답 canonical/404/sitemap smoke test
 - [ ] PC/mobile/CWV QA
 - [ ] PC 광고 side rail QA
 
@@ -187,8 +203,10 @@ Current capabilities:
 - [x] Block type sync
 - [x] Block variant sync
 - [x] UI Capability sync
-- [x] video-editor QA seed validator
-- [x] Block Lab/Editor/UI Dashboard/UI runtime/Public Snapshot/Functions syntax 범위
+- [x] video-editor canonical seed validator
+- [x] video-editor effective evidence overlay validator
+- [x] Block Lab/Editor/UI runtime/UI Dashboard/Public Snapshot/root Functions syntax 범위
+- [x] canonical route/_routes/_redirects/404 변경 시 workflow trigger
 - [!] GitHub connector가 push workflow run/check-run을 노출하지 않아 최신 성공 여부를 직접 확인하지 못함
 
 Production invariants:
@@ -199,17 +217,19 @@ Production invariants:
 - labs/dashboard/qa/staging noindex
 - editor API token 없으면 closed
 - public snapshot API는 draft 반환 금지
+- canonical dynamic route는 active snapshot만 반환
 - active snapshot만 public runtime 신뢰 대상으로 취급
+- `/video-editor/`는 현재 draft이므로 active snapshot이 생기기 전 공개되지 않아야 함
 
 ## Exact next action
-1. [-] Snapshot V2를 canonical public route에 연결하는 안전한 route 구조 설계/구현
-2. [ ] sitemap + real 404를 canonical route와 함께 연결
-3. [ ] generic surface가 준비된 UI Capability부터 public runtime 실제 적용 확대
-4. [ ] 사용자 `/block-lab/` + `/ui-dashboard/` review 결과를 approved 상태로 저장
-5. [ ] approved variant만 사용하는 production Editor 최종 모드
-6. [ ] video-editor 남은 evidence 보강
-7. [ ] `ADMIN_EDITOR_TOKEN` live QA
-8. [ ] PC/mobile/CWV + 광고 side rail QA
+1. [-] 사용자 `/block-lab/` + `/ui-dashboard/` + `/qa/video-editor/` review 결과 수집
+2. [ ] review 결과에 따라 variant/style/UI preset을 server `approved` 또는 redesign/deprecated로 저장
+3. [ ] approved-only production Editor 최종 모드
+4. [ ] `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→canonical→rollback live QA
+5. [ ] 실제 Cloudflare canonical/404/sitemap smoke test
+6. [ ] generic surface가 준비된 UI Capability runtime 적용 확대
+7. [ ] PC/mobile/CWV + 광고 side rail QA
+8. [ ] workstream QA Drive archive
 
 ## V1 완료 목표
 1. Block/variant/style preset 최종 승인
