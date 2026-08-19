@@ -1,0 +1,32 @@
+/* iPhone/iPad Safari chrome fix.
+   Safari 26 can extend a solid browser-chrome background when a top-edge sticky
+   surface is present while the document root is transparent. Start the nav in
+   normal flow, give Safari a real root canvas, then arm sticky after the browser
+   chrome has compacted. Non-iOS browsers are untouched. */
+
+html.ios-webkit-chrome[data-theme="light"],
+html.ios-webkit-chrome[data-theme="light"] body{
+  background:#fff!important;
+  background-color:#fff!important;
+}
+
+html.ios-webkit-chrome[data-theme="dark"],
+html.ios-webkit-chrome[data-theme="dark"] body{
+  background:#0d0f13!important;
+  background-color:#0d0f13!important;
+}
+
+html.ios-webkit-chrome:not(.safari-nav-sticky-armed) .nav-shell,
+html.ios-webkit-chrome:not(.safari-nav-sticky-armed) .nav-shell.is-compact,
+html.ios-webkit-chrome:not(.safari-nav-sticky-armed) .nav-shell.is-scrolled{
+  position:relative!important;
+  top:auto!important;
+}
+
+html.ios-webkit-chrome.safari-nav-sticky-armed .nav-shell,
+html.ios-webkit-chrome.safari-nav-sticky-armed .nav-shell.is-compact,
+html.ios-webkit-chrome.safari-nav-sticky-armed .nav-shell.is-scrolled{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:0!important;
+}
