@@ -16,7 +16,6 @@ export async function onRequest(context){
       'Content-Type':'application/xml; charset=utf-8',
       'Cache-Control':'public, max-age=300, stale-while-revalidate=900',
       'X-Content-Type-Options':'nosniff',
-      'X-Robots-Tag':'noindex',
       'Vary':'Accept-Encoding'
     }});
   }catch(error){
