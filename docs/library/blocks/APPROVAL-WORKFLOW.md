@@ -44,16 +44,32 @@ production 신규 페이지에서 사용할 수 있는 상태는 기본적으로
 
 `검토 내보내기`를 누르면 `platform-block-review-YYYY-MM-DD.json`을 만들고 가능한 경우 같은 JSON을 clipboard에도 복사한다.
 
+Google Sheet `BLOCK_REVIEWS`는 검토 결과를 저장하는 운영 데이터이며 그 자체가 production approval authority는 아니다.
+
 ## 3. Registry 반영
 
-사용자 review JSON을 받은 뒤 Git에서 다음 순서로 반영한다.
+사용자 review 결과를 받은 뒤 Git에서 다음 순서로 반영한다.
 
 ### approved
 
 - 관련 visual/interaction QA가 통과했는지 확인
 - schema/variant를 최종 확정
-- manifest lifecycle을 `approved`로 변경
-- production validation allowlist에 포함
+- browser manifest lifecycle을 `approved`로 변경
+- server publish Registry도 `approved`로 변경
+- registry sync 검사 실행
+- production validation 통과 여부 확인
+
+반드시 함께 수정할 파일:
+- `public/data/block-registry/v1/manifest.js`
+- `functions/lib/block-registry-v1.js`
+
+검사:
+
+```bash
+node scripts/check-block-registry-sync.mjs
+```
+
+browser/server status가 다르면 approval 작업을 완료하지 않는다.
 
 ### redesign
 
@@ -69,6 +85,7 @@ production 신규 페이지에서 사용할 수 있는 상태는 기본적으로
 
 ### deprecated
 
+- browser/server Registry 상태를 같이 반영
 - 신규 pack 선택 목록에서 제외
 - 기존 published content가 있으면 renderer compatibility를 유지할 수 있음
 - 안전하게 migration이 끝난 뒤 제거
@@ -87,21 +104,27 @@ production 신규 페이지에서 사용할 수 있는 상태는 기본적으로
 
 ## 5. Canonical files
 
-- runtime manifest: `public/data/block-registry/v1/manifest.js`
+- browser/runtime manifest: `public/data/block-registry/v1/manifest.js`
+- server publish Registry: `functions/lib/block-registry-v1.js`
 - renderer definitions: `public/assets/js/blocks/`
+- sync 검사: `scripts/check-block-registry-sync.mjs`
 - Block contract: `docs/library/blocks/BLOCK-CONTRACT.md`
 - 이 approval workflow: `docs/library/blocks/APPROVAL-WORKFLOW.md`
 
-향후 관리자 Block Editor의 block picker는 canonical registry에서 `approved` 상태만 기본 노출한다. 관리자 개발/실험 모드에서만 candidate를 별도로 볼 수 있다.
+향후 production용 Block Editor picker는 canonical registry에서 `approved` 상태만 기본 노출한다. 관리자 개발/실험 모드에서만 candidate를 별도로 볼 수 있다.
 
 ## 6. Production validation
 
-신규 산업 pack publish 시 최소 확인:
+신규 산업 page publish 시 최소 확인:
 
-- type이 manifest에 존재하는가
+- type이 Registry에 존재하는가
 - type lifecycle이 `approved`인가
 - variant가 해당 type의 허용 목록에 포함되는가
 - 필수 content field가 schema를 만족하는가
 - evidence가 필요한 field의 검증 상태가 적절한가
+- AI 적용 후 `needs_review`가 남아 있지 않은가
+- page review에 `blocker`가 없는가
+
+현재 보호된 `/api/editor/publish-check`와 `/api/editor/publish`는 server Registry의 `approved` 상태를 다시 확인한다.
 
 기존 photography production renderer는 Block Registry 전환이 완료될 때까지 legacy-compatible 경로를 유지한다.
