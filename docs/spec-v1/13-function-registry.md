@@ -1,709 +1,244 @@
 # 13. 함수/스크립트 책임 레지스트리
 
-이 문서는 기준 SHA의 **실제 active runtime 함수와 파일 책임**을 추적하기 위한 인덱스다. 함수 내부 구현을 그대로 복제하라는 의미가 아니라, 후속 수정 시 어느 파일이 무엇을 소유하는지 찾는 출발점이다.
+이 문서는 현재 production tree의 **active runtime module**을 찾기 위한 인덱스다. 2026-08-19 semantic module cleanup 이후 삭제된 numbered script를 기준으로 탐색하지 않는다.
 
----
+## Core / app
 
-## JS-001 — `public/assets/script-1.js`
+### `assets/js/core/site-data-client.js`
 
-### State
-- `SITE_DATA_CACHE_KEY = photoRoadmapSiteDataV2`
-- `siteDataRequest`
+Owner: site data acquisition/API helper.
 
-### Functions
-- `isUsableSiteData(data)` — nav array 존재로 data shape 최소 검증.
-- `readCachedSiteData()` — localStorage cache 읽기.
-- `readBundledSiteData()` — `__SITE_DATA_FALLBACK_PARTS` 합쳐 parse.
-- `writeCachedSiteData(data)` — timestamp와 함께 cache 저장.
-- `fetchSiteDataOnce()` — `/api/site-data`, no-store, AbortController 6500ms.
-- `delay(ms,value)` — fallback race helper.
-- `apiGetSiteData()` — live/cache/bundled race orchestration.
-- `apiRpc(action,payload)` — POST `/api/rpc`.
+주요 책임:
+- `photoRoadmapSiteDataV2` cache 읽기/쓰기.
+- bundled site-data fragment parse.
+- `/api/site-data` live fetch.
+- `/api/rpc` POST helper.
+- live/cache/bundled race orchestration.
 
-**Owner**: site data acquisition/API helper.
+### `assets/js/core/render-helpers.js`
 
----
+Owner: global markup/media helper.
 
-## JS-002 — `script-2.js`
+대표 함수:
+- `$`, `$$`, `esc`, `attr`, `reduceMotion`.
+- `imageFor()`.
+- `paragraphs()`.
+- `calloutHtml()`.
+- product/link helper 계열.
 
-### Utility functions
-- `$`
-- `$$`
-- `esc`
-- `attr`
-- `reduceMotion`
-- `by`
-- `pipe`
-- `lines`
-- `splitDeliverables`
+### `assets/js/core/ui-ready-gate.js`
 
-### Media/helper
-- `imageFor(key)` — fallback image map.
-- `naverShoppingUrl(query)` — Naver shopping search URL.
-- `paragraphs(text)` — prose to escaped paragraphs.
-- `presetImageForScenario(name)` — preset context image mapping.
-- `calloutHtml(label,text,helper,tone)` — guide-key renderer.
-  - nested `bodyHtml(value)` — normal text / arrow flow rendering.
+Owner: premature render 방지.
 
-**Owner**: global markup helpers and base image/callout utilities.
+- `apiGetSiteData` 호출을 UI-ready 신호까지 gate.
+- timeout fallback으로 boot deadlock 방지.
 
----
+### `assets/js/app/app-shell.js`
 
-## JS-003 — `script-3.js`
+Owner: 전체 app assembly와 base question form/data.
 
-### Main renderers
-- `hero(data)`
-- `nav(data)`
-- `chapterHero(n,index,key)`
-- `guideRows(data,section)`
-- `guideModule(row)`
-- `renderGuide(data,section)`
-- `marketSection(data,n,index)`
-- `introSection(data,n,index)`
-- `educationSection(data,n,index)`
-- `skillsSection(data,n,index)` — later overridden by script12.
-- `portfolioImage(key)` — later overridden/mapped.
-- `portfolioSection(data,n,index)`
-- `gearSection(data,n,index)`
-- `phaseCards(data)`
-- `planSection(data,n,index)`
-- `scriptsSection(data,n,index)`
-- `lessonImage(r)`
-- `iphoneSection(data,n,index)`
-- `sourcesSection(data,n,index)` — later overridden by script6.
+대표 책임:
+- `renderApp(data)`.
+- hero/nav/chapter 조립.
+- boot 제거.
+- navigation/copy/question setup.
+- local question/device key helper.
+- base selection/question drawer DOM/state.
 
-### Product helpers
-기준 file 중간부의 제품 카드/표 렌더 helpers가 `gearSection`에서 사용된다. 후속 작업은 `gearSection` 호출 관계를 먼저 확인한다.
+### `assets/js/app/boot-recovery.js`
 
-**Owner**: base page markup factory.
+Owner: 초기 render 실패 recovery.
 
----
+정상 app이 이미 렌더된 경우 destructive rerender하지 않는다.
 
-## JS-004 — `script-liquid-core.js`
+### `assets/js/app/postload-enhancements.js`
 
-### Constants/state
-- `THEME_KEY`
-- `BREEZE`
-- `EDGE`
-- `controllers: WeakMap`
-- guard `__photoCanonicalLiquidInstalled`
-- retirement guard `__photoV49CoreInstalled`
+Owner: non-critical runtime extension lifecycle.
 
-### Theme
-- `currentThemeChoice()`
-- `applyTheme(choice)`
-- `installTheme()`
+동적 로드:
+- `assets/js/media/generated-image-blob-cache.js`
+- `assets/js/collection/collection-hub.js`
 
-### Liquid markup/controller
-- `skinMarkup()`
-- wrapped `window.nav()` — initial nav indicator+skin seed.
-- `ensureIndicator(root,indicatorClass)`
-- `makeController(root, config)`
-  - nested `durationFor(x,w)`
-  - `activeItem()`
-  - `geometry()`
-  - `setTransition(...)`
-  - `update({instant})`
-  - `repair()`
-  - resize handler
-- `installReadingProgress(nav)`
-- `installNav()`
-- `installCollectionTabs()`
+## Render / content
 
-### Theme settings UI
-- `themeCardMarkup()`
-- `injectThemeControls()`
+### `assets/js/render/chapter-renderers.js`
 
-### Boot
-- `watchInitialNav()`
+Owner: base page markup factory.
 
-**Owner**: top nav / collection tabs / theme moving liquid indicators and runtime theme UI.
+대표 renderer:
+- hero/nav/chapter hero.
+- intro/market/education/skills/portfolio/gear/plan/scripts/iphone/sources section.
 
----
+후속 content/media module이 일부 renderer를 보강할 수 있다.
 
-## JS-005 — `script-4.js`
+### `assets/js/content/curated-content.js`
 
-Defines an older `setupNavigation()` implementation.
+Owner: curated article source section과 favorite base UI.
 
-Responsibilities in that generation:
-- sticky/fixed nav state.
-- active chapter scan.
-- top tap/top button.
-- chip click smooth scroll.
-- progress bar transform.
+- current sources section override.
+- curated card rendering.
+- favorites read/write/render.
+- `/api/curated` load/refresh.
 
-**Current status**: loaded but later `setupNavigation` definitions override it before app render. Do not edit this file expecting final nav behavior without checking later definitions.
+### `assets/js/content/content-discovery.js`
 
----
+Owner: endless curated/video discovery와 durable favorite snapshot 보강.
 
-## JS-006 — `script-6.js`
+## Navigation / liquid
 
-### Curated state
-- `CURATED_FAVORITES_KEY`
-- `curatedItemsCache`
-- refresh/reload state.
+### `assets/js/navigation/chapter-navigation.js`
 
-### Section renderer
-- overrides `sourcesSection(data,n,index)` to include curated article tools/rail + official source cards.
+Owner: chapter active state와 click scroll target.
 
-### Favorite helpers
-- `curatedFavorites()`
-- `writeCuratedFavorites(set)`
-- `curatedBookmarkSvg()`
-- `curatedTags(value)`
-- `curatedDisplayTitle(item)`
-- `curatedDisplayImage(item)`
-- `updateFavoriteCount()`
-- `renderCuratedFavoritesList()`
-
-### Article rendering/data
-- `renderCuratedItems(items)`
-- `loadCuratedLinks({background})`
-- `setupCuratedControls()`
-
-**Critical DOM source**: current curated card class names originate here.
-
----
-
-## JS-007 — `script-gate.js`
-
-**Responsibility**: UI readiness/data render gate.
-
-- waits for renderer/helper readiness.
-- resolves UI-ready promise/flag.
-- protects against premature data render.
-- fallback timeout around 1800ms family prevents permanent wait.
-
-Do not add a parallel gate without consolidating lifecycle.
-
----
-
-## JS-008 — `script-5.js`
-
-### App
-- `renderApp(data)` — fixed 10-chapter assembly, boot removal, setup calls.
-- `setupCopyButtons()` — script/card copy action.
-
-### Question storage
-- `readLocalQuestions()`
-- `writeLocalQuestions(items)`
-- `saveLocalQuestion(item)`
-- `makeDeviceKey()`
-- `getDeviceKey()`
-
-### Question UI
-- `setupQuestionDrawer()` — creates base legacy/current-shared question DOM and all nested state/actions.
-
-Important nested functions inside `setupQuestionDrawer()`:
-- `blockBackgroundMove(e)`
-- `lockPageScroll()`
-- `unlockPageScroll()`
-- `currentSelection()`
-- `setSelectedText(text,resetQuestion)`
-- `hideBubble()`
-- `showBubble(info)`
-- `setTab(tab)`
-- `openSheet(tab)`
-- `minimizeSheet()`
-- `buildPrompt()`
-- `copyPrompt()`
-- `mergeHistory()`
-- `renderHistory()`
-- `refreshRemoteHistory()`
-- `saveRemote(item)`
-- `deleteQuestion(id)`
-- `saveQuestion()`
-- `refreshSelection()`
-- drag start/move/end helpers for sheet.
-
-**Important**: `showBubble()` calls `setSelectedText()` before the bubble is clicked. Current `script-29.js` relies on this ordering.
-
----
-
-## JS-009 — `script-7.js`
-
-Defines another navigation revision `setupNavigation()`.
-
-Nested concepts:
-- fixed geometry.
-- `computeBounds()`
-- `keepChipInside()`
-- `setActive()`
-- `updateScrollState()`
-- `schedule()`
+- 최종 effective `setupNavigation()`.
 - IntersectionObserver chapter detection.
+- active nav chip.
+- reading progress source.
 
-**Current status**: loaded, then later navigation revisions override global setup function.
+과거 중간 `setupNavigation()` 정의 파일은 production tree에서 제거했다.
 
----
+### `assets/js/ui/liquid-controller.js`
 
-## JS-010 — `script-8.js`
+Owner: canonical Liquid Glass moving indicator와 runtime theme UI.
 
-IIFE v14.
+- top nav moving indicator.
+- collection primary tab indicator.
+- theme choice indicator.
+- shared liquid skin mount/self-heal.
+- runtime theme apply/system preference sync.
 
-### Navigation
-- `stableSetupNavigation()` replaces `window.setupNavigation`.
-- internal active/progress separation.
+### `assets/js/ui/breeze-repair.js`
 
-### Question enhancement
-- `enhanceQuestionDrawer()`
-- settings panel creation.
-- document lock/unlock.
-- modal observer.
+Compatibility/repair layer.
 
-**Current status**: compatibility layer; current collection hub later supersedes user-facing question destination.
+- current question/liquid UI가 rerender 뒤 승인 geometry를 잃지 않도록 보정.
+- canonical state source가 아니며 향후 consolidation 대상.
 
----
+## Questions
 
-## JS-011 — `script-12.js`
+### `assets/js/questions/drawer-enhancements.js`
 
-IIFE v25.
+Compatibility layer for base question drawer/settings behavior.
 
-### Generated media
-- `generated()`
-- `generatedImage(name,fallbackKey)`
-- overrides `window.imageFor(key)`
+### `assets/js/questions/question-actions.js`
 
-### Process/skill
-- `processLabel(type,index)`
-- overrides `window.guideModule(row)` for flow/ranking refined markup.
-- `skillImage(row,index)`
-- `skillQuery(row)`
-- overrides `window.skillsSection(data,n,index)`
-- overrides `window.portfolioImage(key)`
-- overrides `window.lessonImage(row)`
+Owner: prompt copy/save/ChatGPT handoff/swipe-delete action 보강.
 
-### Video
-- `readVideoFavorites()`
-- `writeVideoFavorites(set)`
-- `bookmarkSvg()`
-- `videoCard(item,{mini})`
-- `requestVideos(params)`
-- `fillSkillSlots()`
-- `appendVideoBatch()`
-- `bindVideoFavorites(root)`
-- `setupSkillInfiniteRail()`
-- clone/bookmark/infinite rail helpers.
+### `assets/js/questions/question-workspace.js`
 
-**Owner**: initial refined skill media experience; postload script14 further canonicalizes it.
+Owner: collection 내부 `질문 작성 / 저장한 질문` workspace.
 
----
+- V40 controls mount.
+- write/saved state.
+- composer parking/reuse.
+- force-write entry.
 
-## JS-012 — `script-9.js`
+### `assets/js/questions/context-handoff.js`
 
-IIFE v18 navigation revision.
+Owner: selected text/context → collection question workspace handoff.
 
-Defines the later effective `setupNavigationV18()` / `window.setupNavigation` path used at initial `renderApp()` time.
+- fresh contextual draft.
+- question tab/write mode deterministic entry.
+- current question structure/form reconcile.
 
-Responsibilities:
-- vertical scroll active chapter detection.
-- scroll-state throttling.
-- minimize competing horizontal work during vertical scroll.
-- settle-time active chip visibility correction.
-- progress state.
+과거 별도 `script-29.js` 세대는 제거됐다.
 
-**Known debt**: some horizontal alignment logic overlaps native rail ownership goals; do not expand.
+## Collection
 
----
+### `assets/js/collection/collection-hub.js`
 
-## JS-013 — `script-10.js`
+Owner: collection DOM/base state. Postload로 활성화된다.
 
-v23 safe copy cleanup.
+- FAB/backdrop/sheet 생성.
+- open/close.
+- primary tabs/filter/search.
+- item render.
+- settings/favorite aggregation.
+- drag close.
 
-Purpose:
-- curated reading user-facing wording normalization.
-- explicitly avoids document-wide mutation/rewrite.
+### `assets/js/collection/bulk-selection.js`
 
-No core geometry ownership.
+Owner: bulk select state/action.
 
----
+- edit/select mode.
+- selected card state.
+- count/delete bar.
 
-## JS-014 — `script-11.js`
+### `assets/js/collection/device-handoff.js`
 
-v22 boot recovery.
+Owner: 다른 기기에서 이어보기.
 
-Purpose:
-- detect app not rendered.
-- prefer bundled/cache data for immediate recovery.
-- still allow live API.
-- call `renderApp()` only as recovery.
+- sync key UI.
+- QUESTION_HISTORY device id handoff.
+- accordion state/action.
 
-Guard prevents duplicate installation.
+### `assets/js/collection/device-handoff-compat.js`
 
----
+Compatibility layer for existing collection DOM/state transition. Primary device state source가 아니다.
 
-## JS-015 — `script-13.js`
-
-v26 endless discovery/durable favorites.
-
-### Article state/helpers
-- `readJson(key,fallback)`
-- `writeJson(key,value)`
-- `favoriteIds()`
-- `savedFavoriteItems()`
-- `saveFavoriteSnapshot(item)`
-- `removeFavoriteSnapshot(id)`
-- `mergeArticles(items)`
-- wraps `window.renderCuratedItems`
-- wraps `window.loadCuratedLinks`
-- `blockLegacyCuratedClones()`
-- `fetchJsonWithTimeout(...)`
-- `ensureArticleSentinel()`
-- `loadMoreArticles({force})`
-- `setupArticleDiscovery()`
-- `escHtml`, `attrHtml`, `articleTitle`, `articleImage`
-- `renderDurableFavorites()`
-
-### Video helpers
-- `videoFavoriteIds()`
-- `bookmarkSvg()`
-- `fallbackThumb(card)`
-- `makeFallbackVideo(query,card)`
-- `videoMarkup(item,{mini,card})`
-- `loadVideoForCard(card,index)`
-- `hydrateVideoSlots()`
-- `appendVideoCards()`
-- `setupVideoRail()`
-
-**Owner**: endless discovery and durable snapshot augmentation before postload collection canonicalization.
-
----
-
-## JS-016 — `script-postload-v27.js`
-
-v30 postload orchestration.
-
-Responsibilities:
-- wait for rendered app.
-- wait/idle scheduling.
-- clear stale UI locks.
-- dynamically load `script-asset-fix.js?v=30`.
-- dynamically load `script-14.js?v=29`.
-- guard against problematic global MutationObserver behavior in optional layer.
-
-**Owner**: non-critical enhancement loading boundary.
-
----
-
-## JS-017 — `script-asset-fix.js` (dynamic active)
-
-Functions:
-- `decodeBase64(payload)`
-- `dataUrlToBlobUrl(value)`
-
-Top-level:
-- iterate `__PHOTO_GENERATED_IMAGES`.
-- convert data image to Blob URL.
-- revoke on pagehide.
-
----
-
-## JS-018 — `script-14.js` (dynamic active)
-
-가장 큰 postload module 중 하나.
-
-### Storage/favorite helpers
-- read/write array/object local storage helpers.
-- favorite ID/snapshot synchronization.
-
-### Skill/video canonicalization
-- skill category/query mapping.
-- clone/repair skill cards.
-- normalize video item.
-- render video card.
-- hydrate skill slots.
-- append discover batch.
-- bind video favorite actions.
-
-### Unified collection
-대표 named responsibilities/functions:
-- `ensureLibraryUi()` — collection DOM 생성.
-- `libraryVideoItems()`
-- `libraryArticleItems()`
-- `libraryQuestionItems()`
-- `allSavedItems()`
-- `updateCollectionCount()`
-- `lockLibraryScroll()`
-- `unlockLibraryScroll()`
-- `renderLibraryFilters()`
-- `renderLibrarySettings()`
-- `renderLibrary()`
-- `openLibrary(tab)`
-- `closeLibrary()`
-- `openQuestionSettings()`
-- drag handling/binding.
-
-이 file의 exact function 이름이 후속 revision에서 일부 다를 수 있으므로 변경 전 baseline source를 다시 fetch한다. 기능 owner는 `07-collection-hub.md`가 normative다.
-
----
-
-## JS-019 — `script-17.js`
-
-v34 question/ChatGPT/action polish.
-
-Responsibilities:
-- question action controls 보강.
-- ChatGPT handoff UI.
-- OpenAI-related CTA normalization.
-- collection item swipe polish/delete path.
-
-현재 user-facing final behavior는 script24/25/29 및 collection hub와 함께 결정된다.
-
----
-
-## JS-020 — `script-19.js`
-
-v37 bulk + repair layer.
-
-### Local storage helpers
-- `readArray(key)`
-- `readObject(key)`
-- `writeArray(key,value)`
-- `writeObject(key,value)`
-
-### Legacy question indicator only
-- `syncQuestionIndicator(root,instant)` — v40 explicitly excluded.
-- `ensureQuestionIndicator(instant)`
-
-### Top nav repair debt
-- `syncTopIndicator()`
-- `scheduleTopHeal()`
-
-### Bulk selection
-- `keyFor(card)`
-- `currentCards()`
-- `currentTab()`
-- `updateVisibleFavoriteButton(type,id)`
-- `deleteLocal(type,id)`
-- `refreshCounts()`
-- `enhanceCollectionCards()`
-- `syncBulkUi()`
-- `ensureBulkUi()`
-- `setBulkMode(next)`
-- `toggleCard(card)`
-- `toggleAllVisible()`
-- `deleteSelected()`
-- `scheduleCollectionRefresh(delay)`
-- `installEvents()`
-- `init()`
-
-**Owner**: current bulk selection; top nav indicator write is known overlap debt.
-
----
-
-## JS-021 — `script-24.js`
-
-v44 V40 question controls.
-
-Representative functions/responsibilities:
-- read questions/count.
-- parking node creation.
-- create/ensure `#v40QuestionControls`.
-- `mountWritePanel()`.
-- `restoreSavedList()`.
-- set question mode.
-- `forceQuestionWrite()` exported as `window.__photoForceQuestionWrite`.
-- strip legacy question hubs.
-- maintain one curated loader.
-- bulk UI repair around question mode.
-
-**Owner**: current question write/saved mode lifecycle.
-
----
-
-## JS-022 — `script-25.js`
-
-v46 compatibility/motion/question/bulk/handoff layer.
-
-### General
-- `readQuestions()`
-- `copyText(value)`
-- `legacyCopy(value)`
-- `buildPrompt()`
-
-### Liquid/question
-- `indicatorSpec(root)`
-- `springTransition(duration)`
-- `questionGeometry(root,button,indicator)`
-- `ensureSkin(root)`
-- `repairSkins()`
-- `moveV40QuestionIndicator(chip)`
-
-### Question DOM
-- `parking()`
-- `currentQuestionMode()`
-- `stripLegacyQuestionHubs()`
-- `moveQuestionControlsIntoTools()`
-- `dedupeQuestionControls()`
-- `rewriteQuestionOpenButtons()`
-- `loadSavedQuestion(id)`
-- `openChatGPTReliably(event)`
-
-### Bulk/repair
-- `bulkActive()`
-- `ensureBulkBoxes()`
-- `repairCollection()`
-- `scheduleRepair()`
-- `bindSheetObserver()`
-- `init()`
-
-**Known debt**: v40 geometry write remains even though style34 final visible geometry is CSS-owned.
-
----
-
-## JS-023 — `script-28.js`
-
-v52 Safari theme-color cleanup.
-
-Functions:
-- `clearThemeColor()`
-- `sweep()`
-
-Triggers:
-- init.
-- theme change.
-- pageshow.
-
----
-
-## JS-024 — `script-29.js`
-
-v66 canonical question cleanup.
-
-Functions:
-- `ensureQuestionStructure()`
-- `schedule()`
-- `forceWrite()`
-- `openCurrentQuestionUi()`
-- `init()`
-
-**Owner**:
-- contextual `#askBubble` capture handoff.
-- duplicate/current question structure normalization.
-- NO geometry ownership.
-
----
-
-## JS-025 — `script-safari-compact-prime.js`
-
-v3 compact Safari workaround.
-
-Functions:
-- `appReady()`
-- `collectionReady()`
-- `collectionOpen()`
-- `compactNow()`
-- `trulyExpandedAgain()`
-- `nextFrame()`
-- `wait(ms)`
-- `prime()`
-- `schedule()`
-- `captureBaseline()`
-- `onViewportChange()`
-- `boot()`
-
-**Owner**: compact address-pill prime/rearm only.
-
----
-
-# Backend function registry
-
-## API-001 — `functions/api/[[path]].js`
-
-Top-level:
-- `onRequest(context)` route dispatcher.
-- Google OAuth/service-account access token helper family.
-- Sheet range read/write helpers.
-- row→object mapping helpers.
-- `/api/site-data` aggregate builder.
-- RPC validation and question history get/save/delete handlers.
-
-Stable public contracts are defined in `11-data-api-storage.md`; internal helper names may be refactored if route/schema remains compatible.
-
-## API-002 — `functions/api/curated.js`
-
-Top-level:
-- `onRequest(context)` GET/POST dispatcher.
-- `readRows(env)` family.
-- visibility/truthy helpers.
-- `needsInitialFetch(row)`.
-- `isStale(row)`.
-- manual refresh cooldown.
-- metadata fetch/enrich/Sheet update helpers.
-
-## API-003 — `functions/api/discover.js`
-
-Top-level responsibility functions:
-- read/cache CURATED_LINKS rows.
-- choose search terms.
-- fetch Bing RSS/Naver fallback.
-- normalize candidate URLs/items.
-- relevance/negative scoring.
-- fetch/enrich external article metadata.
-- dedupe against Sheet/cache.
-- persist useful discoveries.
-- cursor/limit response.
-
-## API-004 — `functions/api/videos.js`
-
-Top-level:
-- `onRequestGet(context)`.
-- query preset selection.
-- YouTube search document request/parsing.
-- video normalization/ranking/dedupe.
-- fallback search handling.
-
----
-
-# CSS file responsibility index
-
-CSS는 함수가 없지만 cascade owner 추적을 위해 파일 역할을 같이 고정한다.
-
-- `style-1`: root tokens.
-- `style-2`: reset/layout/boot primitives.
-- `style-3`: hero/base nav/chapter/guide/question.
-- `style-4`: legacy nav top control.
-- `style-5`: base cards.
-- `style-6`: card tuning.
-- `style-7`: equipment row title/price geometry.
-- `style-8`: breakpoints/accessibility.
-- `style-9`: Safari nav + curated base.
-- `style-10`: middle-dot removal.
-- `style-11`: sticky Safari jitter guard.
-- `style-12`: nav/curated polish.
-- `style-13`: nav/question drawer generation.
-- `style-14`: sticky performance.
-- `style-15`: Safari browser surface generation.
-- `style-16`: process/skill media.
-- `style-17`: discovery sentinel.
-- `style-18`: collection hub base.
-- `style-19`: rail stability/collection layout/bookmark.
-- `style-20`: liquid/question v32 generation.
-- `style-21`: progress/theme generation.
-- `style-22`: dark/question/swipe.
-- `style-23`: dormant/not loaded.
-- `style-24`: v36 liquid/dark/bulk.
-- `style-25`: canonical liquid material.
-- `style-26`: interaction repairs.
-- `style-27`: v39 continuity.
-- `style-28`: v40 question/bulk/sentinel cleanup.
-- `style-29`: question workspace/bulk.
-- `style-30`: native nav/Safari root.
-- `style-31`: native pan/FAB.
-- `style-32`: liquid z/overshoot.
-- `style-33`: runway/question glass.
-- `style-34`: final V40 question geometry/root surfaces.
-- `style-35`: liquid first-paint + hidden compact prime.
-- `style-36`: light contrast/current badge consistency.
-
-## REG-FUNC-001 — 작업 전 확인
-
-함수/selector를 수정하기 전:
-
-1. 이 registry에서 current 역할 확인.
-2. `01-runtime-file-map.md`에서 실제 load 여부 확인.
-3. 같은 global function이 뒤에서 override되는지 확인.
-4. same state를 다른 script도 쓰는지 `12-lifecycle-ownership.md` 확인.
-5. 최종 cascade CSS owner 확인.
-
-낮은 번호 파일만 수정하고 최종 UI가 안 바뀌는 것은 정상일 수 있다. 그 경우 `!important`를 더 넣기 전에 후반 owner를 찾아야 한다.
+### `assets/js/collection/modal-shield.js`
+
+Owner: open collection sheet 바깥 click/touch 차단과 outside dismissal.
+
+## Media
+
+### `assets/js/media/media-enrichment.js`
+
+Owner: generated image/skill media/video presentation 보강.
+
+### `assets/js/media/image-slot-registry.js`
+
+Owner: semantic image slot metadata (`path`, `fallbackKey`, `ready`, `rev`).
+
+### `assets/js/media/image-slot-binder.js`
+
+Owner: rendered DOM element와 semantic image slot 연결.
+
+### `assets/js/media/generated-image-blob-cache.js`
+
+Postload helper: generated data URL registry를 안전한 Blob URL로 변환.
+
+### `assets/js/media/generated/*.js`
+
+Generated image registry payload. 장기적으로 static WebP migration 가능한 기술부채다.
+
+## Safari / desktop
+
+### `assets/js/safari/theme-color-cleanup.js`
+
+Owner: stale `meta[name="theme-color"]` 제거.
+
+### `assets/js/safari/deferred-sticky-nav.js`
+
+Owner: iOS Safari initial nav lifecycle.
+
+- initial visual viewport baseline.
+- compact signal 감지.
+- `safari-nav-sticky-armed` class 설정.
+- hidden popup replay 없음.
+
+### `assets/js/desktop/rail-drag.js`
+
+Owner: PC horizontal content rail mouse drag.
+
+모바일 touch/pointer interaction을 가로채지 않는다.
+
+## Compatibility copy
+
+### `assets/js/compat/curated-copy.js`
+
+Curated display copy cleanup.
+
+### `assets/js/compat/copy-contract.js`
+
+Approved Korean presentation contract와 collection/question label hierarchy 보정.
+
+Google Sheet를 대체하는 content source가 아니다.
+
+## Registry rules
+
+1. 새 기능 수정 전 `12-lifecycle-ownership.md`와 이 registry에서 owner를 찾는다.
+2. 삭제된 numbered path를 다시 연결하지 않는다.
+3. 같은 state를 다루는 새 repair module을 만들기 전에 canonical owner를 확장한다.
+4. postload module은 `index.html`에 없다고 inactive로 판단하지 않는다.
+5. semantic filename은 탐색성 개선용이며 실제 authority는 load order/guard/DOM lifecycle로 판정한다.
