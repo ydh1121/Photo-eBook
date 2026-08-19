@@ -10,6 +10,8 @@
     "/assets/*",
     "/data/*",
     "/content-packs/*",
+    "/photography",
+    "/photography/*",
     "/block-lab",
     "/block-lab/*",
     "/editor-lab",
