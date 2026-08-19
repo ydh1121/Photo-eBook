@@ -23,7 +23,7 @@
 
   const dialog=document.createElement('dialog');
   dialog.className='lab-review-server-dialog';
-  dialog.innerHTML=`<div class="lab-review-server-card"><div><small>BLOCK REVIEW</small><h2>검토 서버 연결</h2><p>관리자 토큰은 이 탭의 세션에만 보관합니다.</p></div><label>관리자 토큰<input id="labReviewAdminToken" type="password" autocomplete="off" spellcheck="false"></label><span id="labReviewConnectMessage" role="status"></span><div class="lab-review-server-actions"><button type="button" data-review-server-cancel>취소</button><button type="button" data-review-server-submit>연결</button></div></div>`;
+  dialog.innerHTML=`<div class="lab-review-server-card"><div><small>BLOCK REVIEW</small><h2>검토 서버 연결</h2><p>블록 전체와 variant별 검토를 함께 불러오고 저장합니다. 관리자 토큰은 이 탭의 세션에만 보관합니다.</p></div><label>관리자 토큰<input id="labReviewAdminToken" type="password" autocomplete="off" spellcheck="false"></label><span id="labReviewConnectMessage" role="status"></span><div class="lab-review-server-actions"><button type="button" data-review-server-cancel>취소</button><button type="button" data-review-server-submit>연결</button></div></div>`;
   document.body.appendChild(dialog);
 
   const connect=wrap.querySelector('#labReviewServerConnect');
@@ -82,9 +82,12 @@
   async function loadReviews(){
     load.disabled=true;save.disabled=true;setStatus('검토 불러오는 중');
     try{
-      const data=await request('/api/editor/review-list');
+      const [blockData,variantData]=await Promise.all([
+        request('/api/editor/review-list'),
+        request('/api/editor/variant-reviews')
+      ]);
       const current=readLocal();
-      for(const item of Array.isArray(data.reviews)?data.reviews:[]){
+      for(const item of Array.isArray(blockData.reviews)?blockData.reviews:[]){
         if(!manifest.blocks.some(block=>block.type===item.type))continue;
         current[item.type]={
           decision:VALID.has(item.decision)?item.decision:'undecided',
@@ -93,7 +96,9 @@
         };
       }
       writeLocal(current);
-      setStatus(`검토 ${data.count||0}개 불러옴`,'ok');
+      window.BlockLabVariantReview?.replaceFromServer?.(variantData.reviews||[]);
+      const total=Number(blockData.count||0)+Number(variantData.count||0);
+      setStatus(`검토 ${total}개 불러옴`,'ok');
       window.location.reload();
     }catch(error){setStatus(error?.message||'검토를 불러오지 못했습니다.','error');syncButtons();}
   }
@@ -102,8 +107,13 @@
     load.disabled=true;save.disabled=true;setStatus('검토 저장 중');
     try{
       const reviews=localPayload();
-      const data=await request('/api/editor/reviews',{method:'POST',body:{reviewer:'platform-owner',reviews}});
-      setStatus(`검토 ${data.count||reviews.length}개 저장됨`,'ok');
+      const variantReviews=window.BlockLabVariantReview?.exportPayload?.()||[];
+      const [blockData,variantData]=await Promise.all([
+        request('/api/editor/reviews',{method:'POST',body:{reviewer:'platform-owner',reviews}}),
+        request('/api/editor/variant-reviews',{method:'POST',body:{reviewer:'platform-owner',reviews:variantReviews}})
+      ]);
+      const total=Number(blockData.count||reviews.length)+Number(variantData.count||variantReviews.length);
+      setStatus(`검토 ${total}개 저장됨`,'ok');
     }catch(error){setStatus(error?.message||'검토를 저장하지 못했습니다.','error');}
     finally{syncButtons();}
   }
