@@ -39,7 +39,7 @@ export async function onRequest(context){
   }
 }
 
-function renderPublicPage(payload,canonical){
+export function renderPublicPage(payload,canonical){
   const snapshot=payload.snapshot||{};
   const seo=snapshot.seo&&typeof snapshot.seo==='object'?snapshot.seo:{};
   const title=String(seo.title||snapshot.title||'먹고살기').trim();
@@ -129,7 +129,7 @@ function renderPublicPage(payload,canonical){
 </html>`;
 }
 
-function renderStaticSnapshot(payload){
+export function renderStaticSnapshot(payload){
   const snapshot=payload?.snapshot||{};
   const blocks=Array.isArray(payload?.blocks)?payload.blocks.filter(block=>block&&block.enabled!==false):[];
   const hasHero=blocks.some(block=>block.type==='hero');
@@ -144,6 +144,7 @@ function renderStaticBlock(block){
   const description=firstText(content.description,content.note);
   const headingTag=block.type==='hero'?'h1':'h2';
   const items=Array.isArray(content.items)?content.items:[];
+  const columns=Array.isArray(content.columns)?content.columns:[];
   const paragraphs=Array.isArray(content.paragraphs)?content.paragraphs:[];
   const facts=Array.isArray(content.facts)?content.facts:[];
   const pros=Array.isArray(content.pros)?content.pros:[];
@@ -153,7 +154,7 @@ function renderStaticBlock(block){
   let body='';
   if(paragraphs.length)body+=`<div class="public-static-prose">${paragraphs.map(value=>`<p>${escapeHtml(textValue(value))}</p>`).join('')}</div>`;
   if(facts.length)body+=`<dl class="public-static-facts">${facts.map(item=>`<div><dt>${escapeHtml(firstText(item?.label,'정보'))}</dt><dd><strong>${escapeHtml(firstText(item?.value,''))}</strong>${item?.note?`<span>${escapeHtml(textValue(item.note))}</span>`:''}</dd></div>`).join('')}</dl>`;
-  if(items.length)body+=renderStaticItems(items,block.type);
+  if(items.length)body+=renderStaticItems(items,block.type,columns);
   if(pros.length||cons.length)body+=`<div class="public-static-split">${pros.length?`<section><h3>${escapeHtml(firstText(content.proLabel,'장점'))}</h3><ul>${pros.map(item=>`<li>${escapeHtml(textValue(item))}</li>`).join('')}</ul></section>`:''}${cons.length?`<section><h3>${escapeHtml(firstText(content.conLabel,'확인할 점'))}</h3><ul>${cons.map(item=>`<li>${escapeHtml(textValue(item))}</li>`).join('')}</ul></section>`:''}</div>`;
 
   const primaryUrl=safeHref(content.primaryUrl||content.actionUrl||'');
@@ -163,7 +164,7 @@ function renderStaticBlock(block){
   return `<section class="public-static-block" data-static-type="${type}">${eyebrow?`<div class="public-static-eyebrow">${escapeHtml(eyebrow)}</div>`:''}${title?`<${headingTag}>${escapeHtml(title)}</${headingTag}>`:''}${description?`<p class="public-static-description">${escapeHtml(description)}</p>`:''}${body}</section>`;
 }
 
-function renderStaticItems(items,type){
+function renderStaticItems(items,type,columns=[]){
   if(type==='faq'){
     return `<div class="public-static-faq">${items.map(item=>`<details><summary>${escapeHtml(firstText(item?.question,item?.title,'질문'))}</summary>${item?.answer?`<p>${escapeHtml(textValue(item.answer))}</p>`:''}</details>`).join('')}</div>`;
   }
@@ -176,10 +177,10 @@ function renderStaticItems(items,type){
       return `<li>${href?`<a href="${escapeHtml(href)}">${escapeHtml(title)}</a>`:`<strong>${escapeHtml(title)}</strong>`}${publisher&&publisher!==title?`<span>${escapeHtml(publisher)}</span>`:''}${supports?`<p>${escapeHtml(supports)}</p>`:''}</li>`;
     }).join('')}</ul>`;
   }
-  return `<div class="public-static-items">${items.map((item,index)=>renderStaticItem(item,index)).join('')}</div>`;
+  return `<div class="public-static-items">${items.map((item,index)=>renderStaticItem(item,index,columns)).join('')}</div>`;
 }
 
-function renderStaticItem(item,index){
+function renderStaticItem(item,index,columns=[]){
   if(item===null||item===undefined)return '';
   if(typeof item!=='object')return `<article><strong>${escapeHtml(textValue(item))}</strong></article>`;
   const label=firstText(item.label,item.kind,item.channel,item.period,item.step);
@@ -187,8 +188,9 @@ function renderStaticItem(item,index){
   const description=firstText(item.description,item.answer,item.action,item.message,item.note);
   const price=firstText(item.price,item.value,item.outcome);
   const values=item.values&&typeof item.values==='object'&&!Array.isArray(item.values)?Object.entries(item.values):[];
+  const columnLabels=new Map(columns.map(column=>[String(column?.key||''),firstText(column?.label,column?.key,'')]));
   const tags=Array.isArray(item.tags)?item.tags:[];
-  return `<article>${label?`<small>${escapeHtml(label)}</small>`:''}<h3>${escapeHtml(title)}</h3>${price?`<strong class="public-static-value">${escapeHtml(price)}</strong>`:''}${description?`<p>${escapeHtml(description)}</p>`:''}${values.length?`<dl>${values.map(([key,value])=>`<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(textValue(value))}</dd></div>`).join('')}</dl>`:''}${tags.length?`<p class="public-static-tags">${tags.map(tag=>`<span>${escapeHtml(textValue(tag))}</span>`).join('')}</p>`:''}</article>`;
+  return `<article>${label?`<small>${escapeHtml(label)}</small>`:''}<h3>${escapeHtml(title)}</h3>${price?`<strong class="public-static-value">${escapeHtml(price)}</strong>`:''}${description?`<p>${escapeHtml(description)}</p>`:''}${values.length?`<dl>${values.map(([key,value])=>`<div><dt>${escapeHtml(columnLabels.get(key)||key)}</dt><dd>${escapeHtml(textValue(value))}</dd></div>`).join('')}</dl>`:''}${tags.length?`<p class="public-static-tags">${tags.map(tag=>`<span>${escapeHtml(textValue(tag))}</span>`).join('')}</p>`:''}</article>`;
 }
 
 function textValue(value){
@@ -215,7 +217,7 @@ function notFoundResponse(request){
   return new Response(request.method==='HEAD'?null:html,{status:404,headers:securityHeaders({'Content-Type':'text/html; charset=utf-8','Cache-Control':'public, max-age=60','X-Robots-Tag':'noindex, nofollow, noarchive'})});
 }
 
-function renderErrorPage(title,description){
+export function renderErrorPage(title,description){
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><title>${escapeHtml(title)}</title><link rel="stylesheet" href="/assets/styles/public-snapshot/runtime.css?v=3"></head><body><div class="public-snapshot-shell" data-theme="light"><div id="publicSnapshotRoot"><section class="public-snapshot-error"><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></section></div></div></body></html>`;
 }
 
@@ -230,7 +232,7 @@ function securityHeaders(extra={}){
 }
 
 function escapeHtml(value=''){
-  return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+  return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[char]));
 }
 
 function escapeJsonForHtml(value){
