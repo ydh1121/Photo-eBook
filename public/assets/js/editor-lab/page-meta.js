@@ -80,6 +80,20 @@
     window.location.reload();
   });
 
+  function ensureStyle(href){
+    if([...document.styleSheets].some(sheet=>String(sheet.href||'').includes(href)))return;
+    const link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.appendChild(link);
+  }
+  function loadScript(src){return new Promise((resolve,reject)=>{const existing=[...document.scripts].find(script=>String(script.src||'').includes(src));if(existing){if(window.__PLATFORM_UI_CAPABILITY_MANIFEST||src.includes('page-ui.js'))return resolve();}const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.body.appendChild(script);});}
+  async function installPageUi(){
+    ensureStyle('/assets/styles/editor-lab/page-ui.css?v=1');
+    try{
+      if(!window.__PLATFORM_UI_CAPABILITY_MANIFEST)await loadScript('/data/ui-capabilities/v1/manifest.js?v=1');
+      await loadScript('/assets/js/editor-lab/page-ui.js?v=1');
+    }catch(error){console.error('page-ui extension load failed',error);}
+  }
+
   sync();
   checkSlug();
+  installPageUi();
 })();
