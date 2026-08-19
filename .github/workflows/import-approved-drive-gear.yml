@@ -1,0 +1,76 @@
+name: Import approved Drive gear WebP assets
+
+on:
+  push:
+    paths:
+      - 'image-upload-staging/drive-ready.json'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download and verify approved Drive WebP assets
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import pathlib
+          import urllib.request
+
+          files = [
+              {
+                  'id': '1tjciwRi7gmT2qcgGaTgn-tt4JwuecLzn',
+                  'target': 'public/assets/images/generated/v1/gear/sony-a7-iii.webp',
+                  'size': 149916,
+                  'sha256': '2fdc59292ad6a3463374744ebdc457216f9f712d7116471188904dddc1f41530',
+              },
+              {
+                  'id': '1-9fM4-TO1SGzS92WXmUsYM3wP96a3UBt',
+                  'target': 'public/assets/images/generated/v1/gear/tamron-28-75-g2.webp',
+                  'size': 75578,
+                  'sha256': '3c88f1255f5ef543924288fb9c7b7753d9d1967b9c0cc5cebc534459d51bdbab',
+              },
+              {
+                  'id': '1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx',
+                  'target': 'public/assets/images/generated/v1/gear/sony-fe-85-f18.webp',
+                  'size': 131818,
+                  'sha256': 'aaf2b432ceefd93795d80c3489d4f834c7235cdcd97ce4131ecac9d436493b3b',
+              },
+          ]
+
+          for item in files:
+              url = f"https://drive.usercontent.google.com/download?id={item['id']}&export=download&confirm=t"
+              req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+              with urllib.request.urlopen(req, timeout=60) as response:
+                  data = response.read()
+              if len(data) != item['size']:
+                  raise SystemExit(f"size mismatch for {item['target']}: {len(data)} != {item['size']}")
+              digest = hashlib.sha256(data).hexdigest()
+              if digest != item['sha256']:
+                  raise SystemExit(f"sha256 mismatch for {item['target']}: {digest}")
+              if not (data.startswith(b'RIFF') and data[8:12] == b'WEBP'):
+                  raise SystemExit(f"not a WebP: {item['target']}")
+              target = pathlib.Path(item['target'])
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(data)
+              print(item['target'], len(data), digest)
+          PY
+
+      - name: Commit verified production assets and clean temporary importer
+        shell: bash
+        run: |
+          rm -rf image-upload-staging
+          rm -f .github/workflows/image-binary-import.yml
+          rm -f .github/workflows/import-approved-drive-gear.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Apply approved gear product WebP assets'
+          git push origin HEAD:main
