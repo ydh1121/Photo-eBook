@@ -1,0 +1,25 @@
+(function(){
+  window.registerContentPack?.({
+    id:'photography',
+    kind:'career-income-guide',
+    routes:['/','/photography/'],
+    bootMessage:'사진 수익화 로드맵을 준비하는 중',
+    data:{
+      cacheKey:'photoRoadmapSiteDataV2',
+      apiEndpoint:'/api/site-data?pack=photography'
+    },
+    sections:[
+      {id:'intro',renderer:'introSection'},
+      {id:'market',renderer:'marketSection'},
+      {id:'education',renderer:'educationSection'},
+      {id:'skills',renderer:'skillsSection'},
+      {id:'portfolio',renderer:'portfolioSection'},
+      {id:'gear',renderer:'gearSection'},
+      {id:'plan',renderer:'planSection'},
+      {id:'scripts',renderer:'scriptsSection'},
+      {id:'iphone',renderer:'iphoneSection'},
+      {id:'sources',renderer:'sourcesSection'}
+    ]
+  });
+  window.applyContentPackBootMessage?.();
+})();

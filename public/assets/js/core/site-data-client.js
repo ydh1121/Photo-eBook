@@ -1,5 +1,16 @@
-const SITE_DATA_CACHE_KEY='photoRoadmapSiteDataV2';
 let siteDataRequest=null;
+
+function activeContentPack(){
+  return typeof window.getContentPack==='function'?window.getContentPack():null;
+}
+
+function siteDataCacheKey(){
+  return activeContentPack()?.data?.cacheKey||'siteDataCacheV1';
+}
+
+function siteDataEndpoint(){
+  return activeContentPack()?.data?.apiEndpoint||'/api/site-data';
+}
 
 function isUsableSiteData(data){
   return Boolean(data&&Array.isArray(data.nav)&&data.nav.length);
@@ -7,7 +18,7 @@ function isUsableSiteData(data){
 
 function readCachedSiteData(){
   try{
-    const cached=JSON.parse(localStorage.getItem(SITE_DATA_CACHE_KEY)||'null');
+    const cached=JSON.parse(localStorage.getItem(siteDataCacheKey())||'null');
     return isUsableSiteData(cached?.data)?cached.data:null;
   }catch{return null;}
 }
@@ -27,7 +38,7 @@ function readBundledSiteData(){
 function writeCachedSiteData(data){
   if(!isUsableSiteData(data))return;
   try{
-    localStorage.setItem(SITE_DATA_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}));
+    localStorage.setItem(siteDataCacheKey(),JSON.stringify({savedAt:Date.now(),data}));
   }catch{}
 }
 
@@ -35,7 +46,7 @@ async function fetchSiteDataOnce(){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),6500);
   try{
-    const response=await fetch('/api/site-data',{cache:'no-store',signal:controller.signal});
+    const response=await fetch(siteDataEndpoint(),{cache:'no-store',signal:controller.signal});
     const json=await response.json();
     if(!response.ok||!json?.ok||!isUsableSiteData(json.data))throw new Error(json?.message||'콘텐츠를 불러오지 못했습니다.');
     writeCachedSiteData(json.data);
@@ -54,15 +65,10 @@ async function apiGetSiteData(){
 
   const fallback=readCachedSiteData()||readBundledSiteData();
   const live=fetchSiteDataOnce();
-
-  // Keep refreshing the local copy even when the bundled snapshot wins first paint.
   live.catch(()=>{});
 
   siteDataRequest=fallback
-    ? Promise.race([
-        live.catch(()=>fallback),
-        delay(650,fallback)
-      ])
+    ? Promise.race([live.catch(()=>fallback),delay(650,fallback)])
     : live;
 
   try{
@@ -80,6 +86,6 @@ async function apiRpc(action,payload={}){
     body:JSON.stringify({action,...payload})
   });
   const json=await response.json();
-  if(!response.ok) throw new Error(json?.message||'요청을 처리하지 못했습니다.');
+  if(!response.ok)throw new Error(json?.message||'요청을 처리하지 못했습니다.');
   return json;
 }

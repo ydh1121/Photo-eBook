@@ -69,15 +69,17 @@
   <link rel="stylesheet" href="/assets/styles/collection/modal-shield.css?v=1">
   <link rel="stylesheet" href="/assets/styles/navigation/chapter-progress.css?v=1">
   <link rel="stylesheet" href="/assets/styles/safari/deferred-sticky-chrome.css?v=1">
-  <script src="/data/site-data/part-01.js?v=1" defer></script>
-  <script src="/data/site-data/part-02.js?v=1" defer></script>
-  <script src="/data/site-data/part-03.js?v=1" defer></script>
-  <script src="/data/site-data/part-04.js?v=1" defer></script>
-  <script src="/data/site-data/part-05.js?v=1" defer></script>
-  <script src="/data/site-data/part-06.js?v=1" defer></script>
-  <script src="/data/site-data/part-07.js?v=1" defer></script>
-  <script src="/data/site-data/part-08.js?v=1" defer></script>
-  <script src="/assets/js/core/site-data-client.js?v=1" defer></script>
+  <script src="/assets/js/core/content-pack-runtime.js?v=1" defer></script>
+  <script src="/content-packs/photography/pack.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-01.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-02.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-03.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-04.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-05.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-06.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-07.js?v=1" defer></script>
+  <script src="/content-packs/photography/data/part-08.js?v=1" defer></script>
+  <script src="/assets/js/core/site-data-client.js?v=2" defer></script>
 </head>
 <body>
   <div id="boot" class="boot">
@@ -86,39 +88,40 @@
       <div class="boot__line big"></div>
       <div class="boot__line mid"></div>
       <div class="boot__line short"></div>
-      <div class="micro">사진 수익화 로드맵을 준비하는 중</div>
+      <div class="micro" id="bootMessage"></div>
     </div>
   </div>
   <main id="app" class="app" hidden></main>
-  <script src="/assets/js/media/generated/client-review.js?v=1" defer></script>
-  <script src="/assets/js/media/generated/product-studio.js?v=1" defer></script>
-  <script src="/assets/js/media/generated/retouch-workstation.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/generated/client-review.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/generated/product-studio.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/generated/retouch-workstation.js?v=1" defer></script>
   <script src="/assets/js/core/render-helpers.js?v=1" defer></script>
-  <script src="/assets/js/render/chapter-renderers.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/chapter-renderers.js?v=1" defer></script>
   <script src="/assets/js/ui/liquid-controller.js?v=1" defer></script>
-  <script src="/assets/js/content/curated-content.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/curated-content.js?v=1" defer></script>
   <script src="/assets/js/core/ui-ready-gate.js?v=1" defer></script>
   <script src="/assets/js/app/app-shell.js?v=1" defer></script>
   <script src="/assets/js/questions/drawer-enhancements.js?v=1" defer></script>
-  <script src="/assets/js/media/media-enrichment.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/media-enrichment.js?v=1" defer></script>
   <script src="/assets/js/navigation/chapter-navigation.js?v=1" defer></script>
-  <script src="/assets/js/compat/curated-copy.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/curated-copy.js?v=1" defer></script>
   <script src="/assets/js/app/boot-recovery.js?v=1" defer></script>
-  <script src="/assets/js/content/content-discovery.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/content-discovery.js?v=1" defer></script>
   <script src="/assets/js/app/postload-enhancements.js?v=1" defer></script>
   <script src="/assets/js/questions/question-actions.js?v=1" defer></script>
   <script src="/assets/js/collection/bulk-selection.js?v=1" defer></script>
   <script src="/assets/js/questions/question-workspace.js?v=1" defer></script>
   <script src="/assets/js/ui/breeze-repair.js?v=1" defer></script>
   <script src="/assets/js/safari/theme-color-cleanup.js?v=1" defer></script>
-  <script src="/assets/js/media/image-slot-registry.js?v=1" defer></script>
-  <script src="/assets/js/media/image-slot-binder.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/image-slot-registry.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/image-slot-binder.js?v=1" defer></script>
   <script src="/assets/js/safari/deferred-sticky-nav.js?v=1" defer></script>
   <script src="/assets/js/desktop/rail-drag.js?v=1" defer></script>
   <script src="/assets/js/collection/device-handoff-compat.js?v=1" defer></script>
   <script src="/assets/js/collection/device-handoff.js?v=1" defer></script>
   <script src="/assets/js/questions/context-handoff.js?v=1" defer></script>
   <script src="/assets/js/collection/modal-shield.js?v=1" defer></script>
-  <script src="/assets/js/compat/copy-contract.js?v=1" defer></script>
+  <script src="/content-packs/photography/runtime/copy-contract.js?v=1" defer></script>
+  <script src="/assets/js/app/render-app-from-pack.js?v=1" defer></script>
 </body>
 </html>
