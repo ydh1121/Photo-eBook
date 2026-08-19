@@ -119,7 +119,10 @@ async function saveDraftPage(env,body){
   if(blocks.length>300)throw new Error('한 페이지의 블록 수가 너무 많습니다.');
 
   const normalizedBlocks=blocks.map((block,index)=>normalizeBlockForSave(block,index));
-  const [pageValues,blockValues]=await Promise.all([readSheetValues(env,SHEETS.pages,true),readSheetValues(env,SHEETS.blocks,true)]);
+  const uniqueBlockIds=new Set(normalizedBlocks.map(block=>block.id));
+  if(uniqueBlockIds.size!==normalizedBlocks.length)throw new Error('같은 block id가 중복돼 있습니다.');
+
+  const [pageValues,blockValues]=await Promise.all([readSheetValues(env,SHEETS.pages),readSheetValues(env,SHEETS.blocks)]);
   const pageHeaders=ensureHeaderMap(pageValues[0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at']);
   const blockHeaders=ensureHeaderMap(blockValues[0],['page_id','block_id','sort_order','type','variant','enabled','content_json','evidence_json','ai_policy_json','revision_version','created_at','updated_at','published_version']);
 
@@ -140,29 +143,39 @@ async function saveDraftPage(env,body){
   else await appendRange(env,`${SHEETS.pages}!A:J`,pageRecord);
 
   const existingById=new Map();
-  const rowsToClear=[];
   for(let i=1;i<blockValues.length;i++){
     if(String(blockValues[i][blockHeaders.page_id]||'')!==pageId)continue;
     const blockId=String(blockValues[i][blockHeaders.block_id]||'');
     if(blockId)existingById.set(blockId,{row:blockValues[i],rowNumber:i+1});
-    rowsToClear.push(i+1);
   }
 
-  for(const rowNumber of rowsToClear)await clearRange(env,`${SHEETS.blocks}!A${rowNumber}:M${rowNumber}`);
-
-  const rows=[];
+  const currentIds=new Set();
+  const rowsToAppend=[];
   const revisionRows=[];
+
   for(const block of normalizedBlocks){
+    currentIds.add(block.id);
     const existing=existingById.get(block.id);
     const previousVersion=existing?Number(existing.row[blockHeaders.revision_version]||0):0;
     const version=Math.max(1,previousVersion+1);
     const blockCreatedAt=existing?String(existing.row[blockHeaders.created_at]||now):now;
     const publishedVersion=existing?String(existing.row[blockHeaders.published_version]||''):'';
-    rows.push([pageId,block.id,block.sortOrder,block.type,block.variant,block.enabled?'TRUE':'FALSE',JSON.stringify(block.content),JSON.stringify(block.evidence),JSON.stringify(block.aiPolicy),version,blockCreatedAt,now,publishedVersion]);
-    revisionRows.push([crypto.randomUUID(),pageId,block.id,version,'admin','draft save',JSON.stringify(block),now]);
+    const row=[pageId,block.id,block.sortOrder,block.type,block.variant,block.enabled?'TRUE':'FALSE',JSON.stringify(block.content),JSON.stringify(block.evidence),JSON.stringify(block.aiPolicy),version,blockCreatedAt,now,publishedVersion];
+
+    if(existing)await updateRange(env,`${SHEETS.blocks}!A${existing.rowNumber}:M${existing.rowNumber}`,[row]);
+    else rowsToAppend.push(row);
+
+    revisionRows.push([crypto.randomUUID(),pageId,block.id,version,'admin','draft save',JSON.stringify({...block,revision:{version,updatedAt:now}}),now]);
   }
 
-  if(rows.length)await appendRange(env,`${SHEETS.blocks}!A:M`,rows);
+  if(rowsToAppend.length)await appendRange(env,`${SHEETS.blocks}!A:M`,rowsToAppend);
+
+  const obsoleteRows=[...existingById.entries()]
+    .filter(([blockId])=>!currentIds.has(blockId))
+    .map(([,entry])=>entry.rowNumber)
+    .sort((a,b)=>b-a);
+
+  for(const rowNumber of obsoleteRows)await clearRange(env,`${SHEETS.blocks}!A${rowNumber}:M${rowNumber}`);
   if(revisionRows.length)await appendRange(env,`${SHEETS.revisions}!A:H`,revisionRows);
 
   return {ok:true,pageId,slug,status:'draft',blockCount:normalizedBlocks.length,updatedAt:now};
@@ -188,7 +201,7 @@ async function saveBlockReviews(env,body){
   const allowed=new Set(['undecided','approved','redesign','merge','deprecated']);
   const reviewer=String(body?.reviewer||'admin').trim().slice(0,120)||'admin';
   const now=koreaTime();
-  const values=await readSheetValues(env,SHEETS.reviews,true);
+  const values=await readSheetValues(env,SHEETS.reviews);
   const headers=ensureHeaderMap(values[0],['block_type','decision','note','reviewer','updated_at']);
   const rowByType=new Map();
   for(let i=1;i<values.length;i++){
@@ -232,7 +245,7 @@ function valuesToObjects(values){
 }
 
 async function readSheetObjects(env,sheetName,allowMissing=false){
-  try{return valuesToObjects(await readSheetValues(env,sheetName,allowMissing));}
+  try{return valuesToObjects(await readSheetValues(env,sheetName));}
   catch(error){if(allowMissing)return [];throw error;}
 }
 
