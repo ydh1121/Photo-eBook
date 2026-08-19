@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/assets/styles/block-lab/a11y.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/refinement-v2.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/new-blocks-v2.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/block-lab/review-v1.css?v=1">
 </head>
 <body>
   <div class="block-lab" data-theme="light" data-preview="fluid">
@@ -56,11 +57,11 @@
         <section class="lab-intro">
           <span class="lab-intro__tag">UI 검토용 / 검색 노출 제외</span>
           <h2>산업이 달라도 재사용할 수 있는 기본 UI를 정제합니다</h2>
-          <p>각 specimen의 variant를 바꾸고 Light/Dark, 390·768·1180px 폭에서 비교할 수 있습니다. 아래 수치와 문장은 UI 검토용 샘플이며 실제 시장 정보가 아닙니다.</p>
+          <p>각 블록의 variant와 화면 폭을 비교한 뒤 검토 상태를 선택할 수 있습니다. 검토 내용은 이 브라우저에 저장되고 JSON으로 내보낼 수 있습니다. 아래 수치와 문장은 UI 샘플이며 실제 시장 정보가 아닙니다.</p>
           <div class="lab-intro__notes">
             <span>현재 production 영향 없음</span>
             <span>27개 candidate family</span>
-            <span>Block Editor용 데이터 계약 준비</span>
+            <span>검토 상태와 메모 저장</span>
             <span>승인 전 신규 pack 사용 금지</span>
           </div>
         </section>
@@ -71,11 +72,14 @@
   </div>
 
   <script src="/assets/js/blocks/block-registry.js?v=1"></script>
+  <script src="/data/block-registry/v1/manifest.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script>
+  <script src="/assets/js/blocks/block-registry-health.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-data.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script>
-  <script src="/assets/js/block-lab/lab-app.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-app.js?v=2"></script>
+  <script src="/assets/js/block-lab/lab-review.js?v=1"></script>
 </body>
 </html>
