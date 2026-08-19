@@ -5,9 +5,12 @@ on:
     branches: [main]
     paths:
       - 'public/data/block-registry/**'
+      - 'public/data/qa/**'
+      - 'public/qa/**'
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/editor-lab/**'
+      - 'public/assets/js/qa-page/**'
       - 'functions/api/editor/**'
       - 'functions/lib/block-registry-v1.js'
       - 'scripts/check-block-registry-sync.mjs'
@@ -17,9 +20,12 @@ on:
   pull_request:
     paths:
       - 'public/data/block-registry/**'
+      - 'public/data/qa/**'
+      - 'public/qa/**'
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/editor-lab/**'
+      - 'public/assets/js/qa-page/**'
       - 'functions/api/editor/**'
       - 'functions/lib/block-registry-v1.js'
       - 'scripts/check-block-registry-sync.mjs'
@@ -43,12 +49,12 @@ jobs:
         run: node scripts/check-block-registry-sync.mjs
       - name: Check first non-photography QA page seed
         run: node scripts/check-platform-qa-seed.mjs
-      - name: Check editor and block JavaScript syntax
+      - name: Check editor, block, and QA JavaScript syntax
         shell: bash
         run: |
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab functions/api/editor functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/qa-page functions/api/editor functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           node --check scripts/check-block-registry-sync.mjs
           node --check scripts/check-platform-qa-seed.mjs
