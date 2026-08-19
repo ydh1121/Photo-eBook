@@ -1,15 +1,18 @@
-/* v22: immediate boot recovery. Prefer bundled/cache data, then live API. */
+/* v23: immediate boot recovery. Prefer bundled/cache data, then live API. */
 (function(){
   if(window.__photoBootRecoveryInstalled)return;
   window.__photoBootRecoveryInstalled=true;
 
-  const BOOT_COPY='사진 수익화 로드맵을 준비하는 중';
   let recovering=false;
 
-  function setBootCopy(text=BOOT_COPY){
+  function defaultBootCopy(){
+    return window.getContentPack?.()?.bootMessage||'';
+  }
+
+  function setBootCopy(text){
     const boot=document.querySelector('#boot');
     const copy=boot?.querySelector('.micro');
-    if(copy)copy.textContent=text;
+    if(copy)copy.textContent=text===undefined?defaultBootCopy():text;
   }
 
   function appNeedsBoot(){
@@ -93,12 +96,10 @@
 
   function start(){
     setBootCopy();
-    // First attempt happens almost immediately after deferred scripts finish.
     setTimeout(recover,80);
-    // A few bounded retries cover Safari's occasional deferred-script lag.
     [350,900,1800,3200].forEach(ms=>setTimeout(()=>{if(appNeedsBoot())recover();},ms));
   }
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
 })();
