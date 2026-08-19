@@ -73,6 +73,7 @@
 
   function normalizeSnapshot(input={}){
     const blocks=Array.isArray(input.blocks)?input.blocks:[];
+    const uiCapabilities=Array.isArray(input.uiCapabilities)?input.uiCapabilities:[];
     return {
       snapshotId:String(input.snapshotId||''),
       pageId:String(input.pageId||input.page?.pageId||''),
@@ -83,6 +84,7 @@
       theme:['light','dark'].includes(input.theme||input.page?.theme)?(input.theme||input.page?.theme):'light',
       seo:input.seo||input.page?.seo||{},
       publishedAt:input.publishedAt||null,
+      uiCapabilities:uiCapabilities.filter(item=>item&&item.capabilityId),
       blocks:blocks.filter(block=>block&&block.enabled!==false)
     };
   }
@@ -103,6 +105,21 @@
     return {ok:errors.length===0,errors};
   }
 
+  function applyResolvedStyles(root,snapshot){
+    const styles=window.PlatformBlockStyles;
+    if(!styles)return;
+    for(const block of snapshot.blocks){
+      const host=root.querySelector(`[data-public-block-id="${CSS.escape(block.id)}"]`);
+      if(host)styles.apply(host,block);
+    }
+  }
+
+  function applyPageUi(root,snapshot){
+    const runtime=window.PlatformUiCapabilityRuntime;
+    if(runtime?.apply)runtime.apply(root,snapshot.uiCapabilities,{snapshot});
+    else root.dataset.uiCapabilityCount=String(snapshot.uiCapabilities.filter(item=>item.enabled!==false).length);
+  }
+
   function render(input,{root,canonicalUrl='',indexable=false,allowCandidate=false,showStatus=false}={}){
     if(!root)throw new Error('렌더링 대상이 필요합니다.');
     const snapshot=normalizeSnapshot(input);
@@ -116,10 +133,12 @@
     }
 
     applyMetadata(snapshot,{canonicalUrl,indexable});
-    const rendered=snapshot.blocks.map(block=>registry.render(block,{publicSnapshot:true})).join('');
+    const rendered=snapshot.blocks.map(block=>`<div class="public-block-host" data-public-block-id="${registry.escapeHtml(block.id)}">${registry.render(block,{publicSnapshot:true})}</div>`).join('');
     root.innerHTML=`${showStatus?`<aside class="public-snapshot-status" role="note"><strong>공개 renderer 검토</strong><span>${snapshot.blocks.length}개 block · ${snapshot.industryId}</span></aside>`:''}<main class="public-snapshot-flow">${rendered}</main>`;
+    applyResolvedStyles(root,snapshot);
+    applyPageUi(root,snapshot);
     return {snapshot,validation};
   }
 
-  window.PlatformPublicSnapshot={render,validate,normalizeSnapshot,applyMetadata};
+  window.PlatformPublicSnapshot={render,validate,normalizeSnapshot,applyMetadata,applyResolvedStyles,applyPageUi};
 })();
