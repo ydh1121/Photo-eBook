@@ -31,6 +31,11 @@
   function parsePath(value){try{return JSON.parse(decodeURIComponent(value));}catch{return [];}}
   function fieldLabel(key){return labels[key]||key.replace(/_/g,' ');}
 
+  function normalizeAiPolicy(value){
+    const policy=value&&typeof value==='object'&&!Array.isArray(value)?value:{};
+    return {mode:'full',factState:'needs_verification',fields:{},...policy,fields:policy.fields&&typeof policy.fields==='object'&&!Array.isArray(policy.fields)?policy.fields:{}};
+  }
+
   function freshBlock(type){
     const source=sampleMap.get(type);
     const def=registry.get(type);
@@ -40,6 +45,7 @@
     base.variant=base.variant||def?.variants?.[0]||'default';
     base.status='candidate';
     base.enabled=true;
+    base.aiPolicy=normalizeAiPolicy(base.aiPolicy);
     base.revision={version:1,updatedAt:new Date().toISOString(),updatedBy:'editor-lab'};
     return registry.normalize(base);
   }
@@ -48,10 +54,15 @@
     return {
       schema:'platform-editor-lab/v1',
       pageId:uid('page'),
+      industryId:'general',
+      slug:'',
       pageTitle:'새 분야 가이드',
       theme:'light',
       preview:'desktop',
       mode:'edit',
+      seo:{},
+      brief:{},
+      aiStatus:'not_requested',
       blocks:['hero','section-heading','rich-text'].map(freshBlock),
       updatedAt:new Date().toISOString()
     };
@@ -61,7 +72,11 @@
     try{
       const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
       if(!parsed||!Array.isArray(parsed.blocks))return defaultState();
-      parsed.blocks=parsed.blocks.map(block=>registry.normalize(block));
+      parsed.blocks=parsed.blocks.map(block=>{
+        const normalized=registry.normalize(block);
+        normalized.aiPolicy=normalizeAiPolicy(normalized.aiPolicy);
+        return normalized;
+      });
       return {...defaultState(),...parsed};
     }catch{return defaultState();}
   }
@@ -70,122 +85,58 @@
   selectedId=state.blocks[0]?.id||null;
 
   function snapshot(){return clone(state);}
-  function save(){
-    state.updatedAt=new Date().toISOString();
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch{}
-  }
-  function remember(){
-    past.push(snapshot());
-    if(past.length>50)past.shift();
-    future=[];
-    updateHistoryButtons();
-  }
+  function save(){state.updatedAt=new Date().toISOString();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch{}}
+  function remember(){past.push(snapshot());if(past.length>50)past.shift();future=[];updateHistoryButtons();}
   function restore(next){
     state=clone(next);
-    state.blocks=state.blocks.map(block=>registry.normalize(block));
+    state.blocks=state.blocks.map(block=>{const normalized=registry.normalize(block);normalized.aiPolicy=normalizeAiPolicy(normalized.aiPolicy);return normalized;});
     if(!state.blocks.some(block=>block.id===selectedId))selectedId=state.blocks[0]?.id||null;
-    save();
-    syncTopState();
-    renderCanvas();
-    renderInspector();
-    updateHistoryButtons();
+    save();syncTopState();renderCanvas();renderInspector();updateHistoryButtons();
   }
   function undo(){if(!past.length)return;future.push(snapshot());restore(past.pop());}
   function redo(){if(!future.length)return;past.push(snapshot());restore(future.pop());}
-  function updateHistoryButtons(){
-    const undoButton=document.querySelector('#editorUndo');
-    const redoButton=document.querySelector('#editorRedo');
-    if(undoButton)undoButton.disabled=!past.length;
-    if(redoButton)redoButton.disabled=!future.length;
-  }
+  function updateHistoryButtons(){const undoButton=document.querySelector('#editorUndo');const redoButton=document.querySelector('#editorRedo');if(undoButton)undoButton.disabled=!past.length;if(redoButton)redoButton.disabled=!future.length;}
 
-  function mutate(fn,{rerender=true,inspectorToo=true}={}){
-    remember();
-    fn();
-    save();
-    if(rerender)renderCanvas();
-    if(inspectorToo)renderInspector();
-  }
-
+  function mutate(fn,{rerender=true,inspectorToo=true}={}){remember();fn();save();if(rerender)renderCanvas();if(inspectorToo)renderInspector();}
   function selectedBlock(){return state.blocks.find(block=>block.id===selectedId)||null;}
 
   function renderLibrary(){
     const query=String(searchInput?.value||'').trim().toLowerCase();
-    const entries=manifest.blocks.filter(item=>{
-      if(!query)return true;
-      return `${item.type} ${item.label} ${item.category}`.toLowerCase().includes(query);
-    });
+    const entries=manifest.blocks.filter(item=>!query||`${item.type} ${item.label} ${item.category}`.toLowerCase().includes(query));
     library.innerHTML=entries.map(item=>`<button type="button" class="editor-library-item" data-add-block="${escapeHtml(item.type)}"><span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.type)} · ${escapeHtml(item.category)}</small></span><span>${escapeHtml(item.status)}</span></button>`).join('');
-    const count=document.querySelector('#editorLibraryCount');
-    if(count)count.textContent=String(entries.length);
+    const count=document.querySelector('#editorLibraryCount');if(count)count.textContent=String(entries.length);
     library.querySelectorAll('[data-add-block]').forEach(button=>button.addEventListener('click',()=>{
-      const block=freshBlock(button.dataset.addBlock);
-      mutate(()=>{state.blocks.push(block);selectedId=block.id;});
+      const block=freshBlock(button.dataset.addBlock);mutate(()=>{state.blocks.push(block);selectedId=block.id;});
       requestAnimationFrame(()=>document.querySelector(`[data-editor-block="${CSS.escape(block.id)}"]`)?.scrollIntoView({behavior:'smooth',block:'center'}));
     }));
   }
 
   function toolbar(block,index){
-    return `<div class="editor-block-toolbar">
-      <span class="editor-block-toolbar__type">${escapeHtml(block.type)}</span>
-      <button type="button" data-block-action="up" title="위로" ${index===0?'disabled':''}>↑</button>
-      <button type="button" data-block-action="down" title="아래로" ${index===state.blocks.length-1?'disabled':''}>↓</button>
-      <button type="button" data-block-action="duplicate" title="복제">복제</button>
-      <button type="button" class="editor-block-delete" data-block-action="delete" title="삭제">삭제</button>
-    </div>`;
+    return `<div class="editor-block-toolbar"><span class="editor-block-toolbar__type">${escapeHtml(block.type)}</span><button type="button" data-block-action="up" title="위로" ${index===0?'disabled':''}>↑</button><button type="button" data-block-action="down" title="아래로" ${index===state.blocks.length-1?'disabled':''}>↓</button><button type="button" data-block-action="duplicate" title="복제">복제</button><button type="button" class="editor-block-delete" data-block-action="delete" title="삭제">삭제</button></div>`;
   }
 
   function renderCanvas(){
-    root.dataset.theme=state.theme;
-    root.dataset.preview=state.preview;
-    root.dataset.mode=state.mode;
-    if(!state.blocks.length){
-      canvas.innerHTML='<div class="editor-empty-canvas"><strong>아직 블록이 없습니다</strong><p>왼쪽 블록 목록에서 필요한 UI를 추가하세요.</p></div>';
-    }else{
-      canvas.innerHTML=state.blocks.map((block,index)=>`<section class="editor-block ${block.id===selectedId?'is-selected':''}" data-editor-block="${escapeHtml(block.id)}" draggable="${state.mode==='edit'?'true':'false'}">${toolbar(block,index)}<div class="editor-render">${registry.render(block,{editor:true})}</div></section>`).join('');
-    }
+    root.dataset.theme=state.theme;root.dataset.preview=state.preview;root.dataset.mode=state.mode;
+    if(!state.blocks.length)canvas.innerHTML='<div class="editor-empty-canvas"><strong>아직 블록이 없습니다</strong><p>왼쪽 블록 목록에서 필요한 UI를 추가하세요.</p></div>';
+    else canvas.innerHTML=state.blocks.map((block,index)=>`<section class="editor-block ${block.id===selectedId?'is-selected':''}" data-editor-block="${escapeHtml(block.id)}" draggable="${state.mode==='edit'?'true':'false'}">${toolbar(block,index)}<div class="editor-render">${registry.render(block,{editor:true})}</div></section>`).join('');
     if(countNode)countNode.textContent=`${state.blocks.length}개 블록`;
-    bindCanvas();
-    if(typeof window.bindBlockLabEnhancements==='function')window.bindBlockLabEnhancements();
+    bindCanvas();if(typeof window.bindBlockLabEnhancements==='function')window.bindBlockLabEnhancements();
   }
 
   function bindCanvas(){
     canvas.querySelectorAll('[data-editor-block]').forEach(node=>{
       const id=node.dataset.editorBlock;
-      node.addEventListener('click',event=>{
-        if(state.mode!=='edit')return;
-        if(event.target.closest('[data-block-action]'))return;
-        selectedId=id;
-        renderCanvas();
-        renderInspector();
-      });
-      node.addEventListener('dragstart',event=>{
-        if(state.mode!=='edit')return event.preventDefault();
-        draggedId=id;
-        node.classList.add('is-dragging');
-        event.dataTransfer.effectAllowed='move';
-        event.dataTransfer.setData('text/plain',id);
-      });
+      node.addEventListener('click',event=>{if(state.mode!=='edit'||event.target.closest('[data-block-action]'))return;selectedId=id;renderCanvas();renderInspector();});
+      node.addEventListener('dragstart',event=>{if(state.mode!=='edit')return event.preventDefault();draggedId=id;node.classList.add('is-dragging');event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',id);});
       node.addEventListener('dragend',()=>{draggedId=null;node.classList.remove('is-dragging');});
       node.addEventListener('dragover',event=>{if(draggedId&&draggedId!==id)event.preventDefault();});
       node.addEventListener('drop',event=>{
-        event.preventDefault();
-        const sourceId=draggedId||event.dataTransfer.getData('text/plain');
-        if(!sourceId||sourceId===id)return;
-        const from=state.blocks.findIndex(block=>block.id===sourceId);
-        const to=state.blocks.findIndex(block=>block.id===id);
-        if(from<0||to<0)return;
-        mutate(()=>{
-          const [moved]=state.blocks.splice(from,1);
-          state.blocks.splice(to,0,moved);
-          selectedId=moved.id;
-        });
+        event.preventDefault();const sourceId=draggedId||event.dataTransfer.getData('text/plain');if(!sourceId||sourceId===id)return;
+        const from=state.blocks.findIndex(block=>block.id===sourceId);const to=state.blocks.findIndex(block=>block.id===id);if(from<0||to<0)return;
+        mutate(()=>{const [moved]=state.blocks.splice(from,1);state.blocks.splice(to,0,moved);selectedId=moved.id;});
       });
       node.querySelectorAll('[data-block-action]').forEach(button=>button.addEventListener('click',event=>{
-        event.stopPropagation();
-        const action=button.dataset.blockAction;
-        const index=state.blocks.findIndex(block=>block.id===id);
-        if(index<0)return;
+        event.stopPropagation();const action=button.dataset.blockAction;const index=state.blocks.findIndex(block=>block.id===id);if(index<0)return;
         if(action==='up'&&index>0)mutate(()=>{[state.blocks[index-1],state.blocks[index]]=[state.blocks[index],state.blocks[index-1]];selectedId=id;});
         if(action==='down'&&index<state.blocks.length-1)mutate(()=>{[state.blocks[index+1],state.blocks[index]]=[state.blocks[index],state.blocks[index+1]];selectedId=id;});
         if(action==='duplicate')mutate(()=>{const copy=clone(state.blocks[index]);copy.id=uid(copy.type);copy.revision={version:1,updatedAt:new Date().toISOString(),updatedBy:'editor-lab'};state.blocks.splice(index+1,0,copy);selectedId=copy.id;});
@@ -195,79 +146,55 @@
   }
 
   function getAt(rootValue,path){return path.reduce((value,key)=>value?.[key],rootValue);}
-  function setAt(rootValue,path,value){
-    let target=rootValue;
-    for(let i=0;i<path.length-1;i++)target=target[path[i]];
-    target[path[path.length-1]]=value;
-  }
-  function removeAt(rootValue,path){
-    const parent=getAt(rootValue,path.slice(0,-1));
-    const key=path[path.length-1];
-    if(Array.isArray(parent))parent.splice(Number(key),1);else if(parent&&typeof parent==='object')delete parent[key];
-  }
+  function setAt(rootValue,path,value){let target=rootValue;for(let i=0;i<path.length-1;i++)target=target[path[i]];target[path[path.length-1]]=value;}
+  function removeAt(rootValue,path){const parent=getAt(rootValue,path.slice(0,-1));const key=path[path.length-1];if(Array.isArray(parent))parent.splice(Number(key),1);else if(parent&&typeof parent==='object')delete parent[key];}
   function addAt(rootValue,path){
-    const target=getAt(rootValue,path);
-    if(!Array.isArray(target))return;
-    const sample=target[0];
-    if(sample&&typeof sample==='object'&&!Array.isArray(sample)){
-      const blank={};Object.keys(sample).forEach(key=>blank[key]=typeof sample[key]==='number'?0:Array.isArray(sample[key])?[]:typeof sample[key]==='boolean'?false:'');target.push(blank);
-    }else target.push(typeof sample==='number'?0:'');
+    const target=getAt(rootValue,path);if(!Array.isArray(target))return;const sample=target[0];
+    if(sample&&typeof sample==='object'&&!Array.isArray(sample)){const blank={};Object.keys(sample).forEach(key=>blank[key]=typeof sample[key]==='number'?0:Array.isArray(sample[key])?[]:typeof sample[key]==='boolean'?false:'');target.push(blank);}else target.push(typeof sample==='number'?0:'');
   }
 
   function primitiveField(value,path,key){
-    const label=fieldLabel(key);
-    const pathValue=pathAttr(path);
+    const label=fieldLabel(key);const pathValue=pathAttr(path);
     if(typeof value==='boolean')return `<div class="editor-field"><label>${escapeHtml(label)}</label><select data-edit-path="${pathValue}" data-value-type="boolean"><option value="true" ${value?'selected':''}>표시</option><option value="false" ${!value?'selected':''}>숨김</option></select></div>`;
     if(typeof value==='number')return `<div class="editor-field"><label>${escapeHtml(label)}</label><input type="number" data-edit-path="${pathValue}" data-value-type="number" value="${escapeHtml(value)}"></div>`;
-    const text=String(value??'');
-    const long=text.length>70||['description','message','quote','answer','action','mission'].includes(String(key));
+    const text=String(value??'');const long=text.length>70||['description','message','quote','answer','action','mission'].includes(String(key));
     return `<div class="editor-field"><label>${escapeHtml(label)}</label>${long?`<textarea data-edit-path="${pathValue}" data-value-type="string" rows="${Math.min(8,Math.max(3,Math.ceil(text.length/55)))}">${escapeHtml(text)}</textarea>`:`<input type="text" data-edit-path="${pathValue}" data-value-type="string" value="${escapeHtml(text)}">`}</div>`;
   }
 
-  function renderEditorValue(value,path,key,depth=0){
-    if(Array.isArray(value)){
-      return `<fieldset class="editor-fieldset"><legend>${escapeHtml(fieldLabel(key))}</legend><div class="editor-array">${value.map((item,index)=>`<div class="editor-array-item"><div class="editor-array-item-head"><strong>${index+1}</strong><button type="button" class="editor-small-action" data-array-remove="${pathAttr([...path,index])}">삭제</button></div>${item&&typeof item==='object'&&!Array.isArray(item)?Object.entries(item).map(([childKey,childValue])=>renderEditorValue(childValue,[...path,index,childKey],childKey,depth+1)).join(''):primitiveField(item,[...path,index],String(index+1))}</div>`).join('')}</div><button type="button" class="editor-add-array" data-array-add="${pathAttr(path)}">항목 추가</button></fieldset>`;
-    }
-    if(value&&typeof value==='object'){
-      return `<fieldset class="editor-fieldset"><legend>${escapeHtml(fieldLabel(key))}</legend>${Object.entries(value).map(([childKey,childValue])=>renderEditorValue(childValue,[...path,childKey],childKey,depth+1)).join('')}</fieldset>`;
-    }
+  function renderEditorValue(value,path,key){
+    if(Array.isArray(value))return `<fieldset class="editor-fieldset"><legend>${escapeHtml(fieldLabel(key))}</legend><div class="editor-array">${value.map((item,index)=>`<div class="editor-array-item"><div class="editor-array-item-head"><strong>${index+1}</strong><button type="button" class="editor-small-action" data-array-remove="${pathAttr([...path,index])}">삭제</button></div>${item&&typeof item==='object'&&!Array.isArray(item)?Object.entries(item).map(([childKey,childValue])=>renderEditorValue(childValue,[...path,index,childKey],childKey)).join(''):primitiveField(item,[...path,index],String(index+1))}</div>`).join('')}</div><button type="button" class="editor-add-array" data-array-add="${pathAttr(path)}">항목 추가</button></fieldset>`;
+    if(value&&typeof value==='object')return `<fieldset class="editor-fieldset"><legend>${escapeHtml(fieldLabel(key))}</legend>${Object.entries(value).map(([childKey,childValue])=>renderEditorValue(childValue,[...path,childKey],childKey)).join('')}</fieldset>`;
     return primitiveField(value,path,key);
   }
 
+  function renderAiPolicy(block){
+    const policy=normalizeAiPolicy(block.aiPolicy);
+    const locked=policy.fields||{};
+    const keys=Object.keys(block.content||{});
+    return `<fieldset class="editor-fieldset editor-ai-policy"><legend>AI 수정 권한</legend>
+      <div class="editor-field"><label>작업 범위</label><select data-ai-mode><option value="full" ${policy.mode==='full'?'selected':''}>전체 수정</option><option value="wording_only" ${policy.mode==='wording_only'?'selected':''}>문장만 수정</option><option value="fact_check_only" ${policy.mode==='fact_check_only'?'selected':''}>사실 검토만</option><option value="locked" ${policy.mode==='locked'?'selected':''}>AI 수정 금지</option></select></div>
+      <div class="editor-field"><label>사실 검증</label><select data-ai-fact-state><option value="not_required" ${policy.factState==='not_required'?'selected':''}>검증 불필요</option><option value="needs_verification" ${policy.factState==='needs_verification'?'selected':''}>검증 필요</option><option value="verified" ${policy.factState==='verified'?'selected':''}>검증 완료</option><option value="stale" ${policy.factState==='stale'?'selected':''}>재확인 필요</option></select></div>
+      ${keys.length?`<div class="editor-ai-locks"><strong>AI가 바꾸면 안 되는 필드</strong>${keys.map(key=>{const path=`content.${key}`;return `<label><input type="checkbox" data-ai-lock-field="${escapeHtml(path)}" ${locked[path]==='locked'?'checked':''}><span>${escapeHtml(fieldLabel(key))}</span></label>`;}).join('')}</div>`:''}
+    </fieldset>`;
+  }
+
   function renderInspector(){
-    const block=selectedBlock();
-    if(!block){inspector.innerHTML='<p class="editor-empty">편집할 블록을 선택하세요.</p>';return;}
-    const def=registry.get(block.type);
-    const manifestEntry=registry.getManifestEntry(block.type);
-    inspector.innerHTML=`
-      <div class="editor-inspector-meta"><strong>${escapeHtml(def?.label||block.type)}</strong><span>${escapeHtml(block.type)} · ${escapeHtml(manifestEntry?.status||'unknown')}</span></div>
-      <div class="editor-field"><label>Variant</label><select data-edit-variant>${(def?.variants||[]).map(variant=>`<option value="${escapeHtml(variant)}" ${variant===block.variant?'selected':''}>${escapeHtml(variant)}</option>`).join('')}</select></div>
-      ${Object.entries(block.content||{}).map(([key,value])=>renderEditorValue(value,['content',key],key)).join('')}
-      <div class="editor-inspector-actions"><button type="button" data-inspector-action="duplicate">블록 복제</button><button type="button" class="danger" data-inspector-action="delete">블록 삭제</button></div>`;
+    const block=selectedBlock();if(!block){inspector.innerHTML='<p class="editor-empty">편집할 블록을 선택하세요.</p>';return;}
+    const def=registry.get(block.type);const manifestEntry=registry.getManifestEntry(block.type);
+    inspector.innerHTML=`<div class="editor-inspector-meta"><strong>${escapeHtml(def?.label||block.type)}</strong><span>${escapeHtml(block.type)} · ${escapeHtml(manifestEntry?.status||'unknown')}</span></div><div class="editor-field"><label>Variant</label><select data-edit-variant>${(def?.variants||[]).map(variant=>`<option value="${escapeHtml(variant)}" ${variant===block.variant?'selected':''}>${escapeHtml(variant)}</option>`).join('')}</select></div>${renderAiPolicy(block)}${Object.entries(block.content||{}).map(([key,value])=>renderEditorValue(value,['content',key],key)).join('')}<div class="editor-inspector-actions"><button type="button" data-inspector-action="duplicate">블록 복제</button><button type="button" class="danger" data-inspector-action="delete">블록 삭제</button></div>`;
     bindInspector();
   }
 
   function bindInspector(){
     const block=selectedBlock();if(!block)return;
     inspector.querySelector('[data-edit-variant]')?.addEventListener('change',event=>mutate(()=>{block.variant=event.target.value;},{inspectorToo:false}));
-    inspector.querySelectorAll('[data-edit-path]').forEach(field=>field.addEventListener('change',()=>{
-      const path=parsePath(field.dataset.editPath);
-      let value=field.value;
-      if(field.dataset.valueType==='number')value=Number(value||0);
-      if(field.dataset.valueType==='boolean')value=value==='true';
-      mutate(()=>setAt(block,path,value),{inspectorToo:false});
-    }));
-    inspector.querySelectorAll('[data-array-remove]').forEach(button=>button.addEventListener('click',()=>{
-      const path=parsePath(button.dataset.arrayRemove);mutate(()=>removeAt(block,path));
-    }));
-    inspector.querySelectorAll('[data-array-add]').forEach(button=>button.addEventListener('click',()=>{
-      const path=parsePath(button.dataset.arrayAdd);mutate(()=>addAt(block,path));
-    }));
-    inspector.querySelectorAll('[data-inspector-action]').forEach(button=>button.addEventListener('click',()=>{
-      const index=state.blocks.findIndex(item=>item.id===block.id);if(index<0)return;
-      if(button.dataset.inspectorAction==='duplicate')mutate(()=>{const copy=clone(block);copy.id=uid(copy.type);state.blocks.splice(index+1,0,copy);selectedId=copy.id;});
-      if(button.dataset.inspectorAction==='delete')mutate(()=>{state.blocks.splice(index,1);selectedId=state.blocks[Math.min(index,state.blocks.length-1)]?.id||null;});
-    }));
+    inspector.querySelector('[data-ai-mode]')?.addEventListener('change',event=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);block.aiPolicy.mode=event.target.value;},{inspectorToo:false}));
+    inspector.querySelector('[data-ai-fact-state]')?.addEventListener('change',event=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);block.aiPolicy.factState=event.target.value;},{inspectorToo:false}));
+    inspector.querySelectorAll('[data-ai-lock-field]').forEach(input=>input.addEventListener('change',()=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);if(input.checked)block.aiPolicy.fields[input.dataset.aiLockField]='locked';else delete block.aiPolicy.fields[input.dataset.aiLockField];},{inspectorToo:false})));
+    inspector.querySelectorAll('[data-edit-path]').forEach(field=>field.addEventListener('change',()=>{const path=parsePath(field.dataset.editPath);let value=field.value;if(field.dataset.valueType==='number')value=Number(value||0);if(field.dataset.valueType==='boolean')value=value==='true';mutate(()=>setAt(block,path,value),{inspectorToo:false});}));
+    inspector.querySelectorAll('[data-array-remove]').forEach(button=>button.addEventListener('click',()=>{const path=parsePath(button.dataset.arrayRemove);mutate(()=>removeAt(block,path));}));
+    inspector.querySelectorAll('[data-array-add]').forEach(button=>button.addEventListener('click',()=>{const path=parsePath(button.dataset.arrayAdd);mutate(()=>addAt(block,path));}));
+    inspector.querySelectorAll('[data-inspector-action]').forEach(button=>button.addEventListener('click',()=>{const index=state.blocks.findIndex(item=>item.id===block.id);if(index<0)return;if(button.dataset.inspectorAction==='duplicate')mutate(()=>{const copy=clone(block);copy.id=uid(copy.type);copy.revision={version:1,updatedAt:new Date().toISOString(),updatedBy:'editor-lab'};state.blocks.splice(index+1,0,copy);selectedId=copy.id;});if(button.dataset.inspectorAction==='delete')mutate(()=>{state.blocks.splice(index,1);selectedId=state.blocks[Math.min(index,state.blocks.length-1)]?.id||null;});}));
   }
 
   function syncTopState(){
@@ -285,14 +212,10 @@
 
   async function importDraft(file){
     try{
-      const parsed=JSON.parse(await file.text());
-      if(!parsed||!Array.isArray(parsed.blocks))throw new Error('blocks 배열이 없습니다.');
-      const blocks=parsed.blocks.map(block=>registry.normalize(block));
-      const invalid=blocks.flatMap(block=>registry.validateUsage(block,{production:false}).errors);
-      if(invalid.length)throw new Error(invalid.slice(0,3).join('\n'));
-      remember();
-      state={...defaultState(),...parsed,blocks,updatedAt:new Date().toISOString()};
-      selectedId=blocks[0]?.id||null;future=[];save();syncTopState();renderCanvas();renderInspector();updateHistoryButtons();
+      const parsed=JSON.parse(await file.text());if(!parsed||!Array.isArray(parsed.blocks))throw new Error('blocks 배열이 없습니다.');
+      const blocks=parsed.blocks.map(block=>{const normalized=registry.normalize(block);normalized.aiPolicy=normalizeAiPolicy(normalized.aiPolicy);return normalized;});
+      const invalid=blocks.flatMap(block=>registry.validateUsage(block,{production:false}).errors);if(invalid.length)throw new Error(invalid.slice(0,3).join('\n'));
+      remember();state={...defaultState(),...parsed,blocks,updatedAt:new Date().toISOString()};selectedId=blocks[0]?.id||null;future=[];save();syncTopState();renderCanvas();renderInspector();updateHistoryButtons();
     }catch(error){alert(`가져오지 못했습니다.\n${error.message||error}`);}
   }
 
@@ -309,6 +232,7 @@
   }
 
   bindTop();
+  save();
   syncTopState();
   renderLibrary();
   renderCanvas();
