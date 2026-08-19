@@ -7,11 +7,15 @@ on:
       - 'public/data/block-registry/**'
       - 'public/data/qa/**'
       - 'public/qa/**'
+      - 'public/staging/**'
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/editor-lab/**'
       - 'public/assets/js/qa-page/**'
+      - 'public/assets/js/public-snapshot/**'
+      - 'public/assets/styles/public-snapshot/**'
       - 'functions/api/editor/**'
+      - 'functions/api/public/**'
       - 'functions/lib/block-registry-v1.js'
       - 'scripts/check-block-registry-sync.mjs'
       - 'scripts/check-platform-qa-seed.mjs'
@@ -22,11 +26,15 @@ on:
       - 'public/data/block-registry/**'
       - 'public/data/qa/**'
       - 'public/qa/**'
+      - 'public/staging/**'
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/editor-lab/**'
       - 'public/assets/js/qa-page/**'
+      - 'public/assets/js/public-snapshot/**'
+      - 'public/assets/styles/public-snapshot/**'
       - 'functions/api/editor/**'
+      - 'functions/api/public/**'
       - 'functions/lib/block-registry-v1.js'
       - 'scripts/check-block-registry-sync.mjs'
       - 'scripts/check-platform-qa-seed.mjs'
@@ -49,12 +57,12 @@ jobs:
         run: node scripts/check-block-registry-sync.mjs
       - name: Check first non-photography QA page seed
         run: node scripts/check-platform-qa-seed.mjs
-      - name: Check editor, block, and QA JavaScript syntax
+      - name: Check platform JavaScript syntax
         shell: bash
         run: |
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/qa-page functions/api/editor functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/qa-page public/assets/js/public-snapshot functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           node --check scripts/check-block-registry-sync.mjs
           node --check scripts/check-platform-qa-seed.mjs
