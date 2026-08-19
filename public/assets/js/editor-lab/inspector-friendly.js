@@ -36,6 +36,9 @@
     'content.eyebrow':'상단 라벨','content.index':'번호','content.title':'제목','content.description':'설명','content.image':'대표 이미지','content.imageAlt':'이미지 설명','content.note':'추가 안내','content.action':'행동 문구','content.label':'라벨','content.mission':'직접 해보기','content.proLabel':'장점 제목','content.conLabel':'주의 제목','content.actionLabel':'링크 문구','content.actionUrl':'링크 주소','content.quote':'인용문','content.name':'이름','content.role':'직함','content.source':'출처','content.avatar':'프로필 이미지','content.outputLabel':'결과 제목','content.outputPrefix':'앞 단위','content.outputSuffix':'뒤 단위','content.outputNote':'결과 설명','content.primaryLabel':'주요 버튼','content.primaryUrl':'주요 링크','content.secondaryLabel':'보조 버튼','content.secondaryUrl':'보조 링크'
   };
 
+  function escapeHtml(value=''){
+    return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+  }
   function encodePath(path){return encodeURIComponent(JSON.stringify(path.split('.')));}
   function originalField(path){
     const encoded=encodePath(path);
@@ -47,19 +50,20 @@
   function proxyMarkup(path,field){
     const value=field.value??'';
     const type=field.dataset.valueType||'string';
+    const safePath=escapeHtml(path);
+    const safeLabel=escapeHtml(labelFor(path));
     if(field.tagName==='SELECT'){
-      return `<label class="editor-friendly-field"><span>${labelFor(path)}</span><select data-friendly-path="${path}">${[...field.options].map(option=>`<option value="${option.value}" ${option.value===field.value?'selected':''}>${option.textContent}</option>`).join('')}</select></label>`;
+      return `<label class="editor-friendly-field"><span>${safeLabel}</span><select data-friendly-path="${safePath}">${[...field.options].map(option=>`<option value="${escapeHtml(option.value)}" ${option.value===field.value?'selected':''}>${escapeHtml(option.textContent)}</option>`).join('')}</select></label>`;
     }
-    if(type==='number')return `<label class="editor-friendly-field"><span>${labelFor(path)}</span><input type="number" data-friendly-path="${path}" value="${String(value).replace(/"/g,'&quot;')}"></label>`;
-    if(isLong(path,value))return `<label class="editor-friendly-field"><span>${labelFor(path)}</span><textarea data-friendly-path="${path}" rows="3">${String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea></label>`;
-    return `<label class="editor-friendly-field"><span>${labelFor(path)}</span><input type="text" data-friendly-path="${path}" value="${String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" /></label>`;
+    if(type==='number')return `<label class="editor-friendly-field"><span>${safeLabel}</span><input type="number" data-friendly-path="${safePath}" value="${escapeHtml(value)}"></label>`;
+    if(isLong(path,value))return `<label class="editor-friendly-field"><span>${safeLabel}</span><textarea data-friendly-path="${safePath}" rows="3">${escapeHtml(value)}</textarea></label>`;
+    return `<label class="editor-friendly-field"><span>${safeLabel}</span><input type="text" data-friendly-path="${safePath}" value="${escapeHtml(value)}"></label>`;
   }
 
   function bind(panel){
     panel.querySelectorAll('[data-friendly-path]').forEach(proxy=>{
       proxy.dataset.friendlyProxy='true';
-      const eventName=proxy.tagName==='TEXTAREA'?'change':'change';
-      proxy.addEventListener(eventName,()=>{
+      proxy.addEventListener('change',()=>{
         const field=originalField(proxy.dataset.friendlyPath);
         if(!field)return;
         field.value=proxy.value;
@@ -77,7 +81,7 @@
     const fields=profile.paths.map(path=>({path,field:originalField(path)})).filter(item=>item.field);
     const panel=document.createElement('section');
     panel.className='editor-friendly-panel';
-    panel.innerHTML=`<div class="editor-friendly-head"><div><small>빠른 편집</small><strong>${profile.name}</strong></div><p>${profile.hint}</p></div>${fields.length?`<div class="editor-friendly-fields">${fields.map(item=>proxyMarkup(item.path,item.field)).join('')}</div>`:'<p class="editor-friendly-empty">이 블록은 아래 세부 항목에서 내용을 편집하세요.</p>'}<details class="editor-friendly-help"><summary>세부 편집 안내</summary><p>반복 항목, 표의 행과 열, 카드 안쪽 내용은 아래 기본 편집 영역에서 수정합니다. 빠른 편집과 아래 필드는 같은 block 데이터를 사용합니다.</p></details>`;
+    panel.innerHTML=`<div class="editor-friendly-head"><div><small>빠른 편집</small><strong>${escapeHtml(profile.name)}</strong></div><p>${escapeHtml(profile.hint)}</p></div>${fields.length?`<div class="editor-friendly-fields">${fields.map(item=>proxyMarkup(item.path,item.field)).join('')}</div>`:'<p class="editor-friendly-empty">이 블록은 아래 세부 항목에서 내용을 편집하세요.</p>'}<details class="editor-friendly-help"><summary>세부 편집 안내</summary><p>반복 항목, 표의 행과 열, 카드 안쪽 내용은 아래 기본 편집 영역에서 수정합니다. 빠른 편집과 아래 필드는 같은 block 데이터를 사용합니다.</p></details>`;
     meta.insertAdjacentElement('afterend',panel);
     bind(panel);
   }
