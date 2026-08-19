@@ -11,37 +11,22 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 ## Current phase
 
-- Phase 07 — 27개 Block 사용자 시각 review 대기
-- Phase 08 — Editor Lab, Sheets DB, protected APIs, media/revision/save hardening 구현
-- Phase 09 — AI request/response/lock/review 왕복 구현; 실제 신규 산업 end-to-end QA 대기
-- Phase 10 — SEO metadata + snapshot publish infra 구현; public renderer는 Block 승인 전 미연결
+- Phase 07 — 27개 Block 사용자 시각 review/최종 판정 대기
+- Phase 08 — Editor Lab + Sheets DB + protected API + revision/media/publish UX 구현
+- Phase 09 — 첫 비사진 분야 `video-editor` 실제 draft와 공식 evidence 생성
+- Phase 10 — public snapshot runtime/API를 staging까지 구현, production route는 승인 전 미연결
 
 ## 절대 유지할 production safety
 
-- 기존 photography production renderer를 이 workstream의 candidate renderer로 교체하지 않는다.
+- 기존 photography production renderer를 candidate renderer로 교체하지 않는다.
 - 기존 Safari navigation/runtime fix를 건드리지 않는다.
-- `/block-lab/`, `/editor-lab/`은 noindex 상태를 유지한다.
-- `/api/editor/*`는 기존 공개 `/api/rpc`와 분리한다.
-- `ADMIN_EDITOR_TOKEN`이 없으면 editor API는 닫혀 있어야 한다.
-- 27개 Block은 현재 모두 `candidate`; 사용자 검토 전 자동 승인 금지.
-- candidate block이 포함된 페이지의 production publish는 실패해야 한다.
+- 27개 Block은 사용자 판정 전 자동 승인하지 않는다.
+- candidate block이 포함된 page의 production publish는 실패해야 한다.
+- `/block-lab/`, `/editor-lab/`, `/qa/`, `/staging/`은 검색 노출 제외.
+- `/api/editor/*`는 `ADMIN_EDITOR_TOKEN` 없으면 닫혀 있어야 한다.
+- 공개 read API `/api/public/snapshot`은 active publish snapshot만 반환하고 draft를 반환하지 않는다.
 
-## Reference / Editorial
-
-Reference index:
-- `docs/library/references/README.md`
-
-사용자 제공 9개 GitHub 링크 + 기존 `liquid-taffy`, NomaDamas reference 모두 등록됨.
-
-Project design authority:
-- `docs/library/design-taste/PLATFORM-TASTES.md`
-
-Editorial:
-- `docs/library/editorial/`
-- photography: `docs/spec-v1/20-korean-copywriting-skill.md`
-- Google Sheet `COPY_GUIDE`가 live copy rule source
-
-## Block Registry
+## Block Registry / Lab
 
 Browser:
 - `public/data/block-registry/v1/manifest.js`
@@ -51,251 +36,280 @@ Browser:
 Server:
 - `functions/lib/block-registry-v1.js`
 
-Sync:
+검사:
 - `scripts/check-block-registry-sync.mjs`
 - `.github/workflows/platform-library-checks.yml`
 
-Approval 시 browser/server Registry를 같이 수정하고 sync script를 통과시켜야 한다.
+현재 27 type 전부 `candidate`.
 
-27 type 모두 현재 `candidate`.
+Block Lab:
+- `/block-lab/`
+- 27 candidate
+- category/variant/Light-Dark/Fit-390-768-1180
+- undecided/approved/redesign/merge/deprecated + memo
+- localStorage + JSON export
+- `BLOCK_REVIEWS` server sync 추가
+- `GET /api/editor/review-list`
+- UI: `서버 연결 / 검토 불러오기 / 검토 저장`
 
-## Block Lab
-
-Route: `/block-lab/`
-
-- 27개 candidate
-- category / variant / Light-Dark / Fit-390-768-1180
-- review decision: undecided/approved/redesign/merge/deprecated
-- memo/localStorage/JSON export/filter/summary
-- Google Sheet `BLOCK_REVIEWS` 27개 `undecided` seed
-
-사용자의 실제 화면 판정이 아직 없다.
+사용자의 실제 시각 판정이 아직 없다.
 
 ## Editor Lab
 
 Route: `/editor-lab/`
 
-현재 구현:
+구현:
 - 27 block library/search
 - add/reorder/drag-drop/up-down/duplicate/delete
-- recursive content inspector
-- block별 빠른 편집 profile — `inspector-friendly.js`
-- variant
+- recursive inspector + 빠른 편집
 - AI policy/field lock/fact state
-- Light/Dark + 390/768/1180
-- edit/preview
-- undo/redo
-- localStorage draft
-- JSON import/export
-- industry ID / slug / new/duplicate page
+- edit/preview, Light/Dark, 390/768/1180
+- undo/redo/localStorage/JSON import-export
+- industry ID/slug/new/duplicate
 - SEO metadata
-- AI brief/request export
-- AI response safe import
-- recent AI review
-- optional server connect/save/load
+- AI brief/request/response safe import/review
+- server connect/list/save/load
 - media picker
-- revision history/restore to browser draft
-- publish-check/publish controls
+- block revision history/restore
+- slug conflict
+- publish-check/publish
+- publish snapshot history
+- snapshot full UI preview 390/768/1180
+- snapshot rollback to browser draft
+- Registry status filter `전체 / 승인만 / 후보만`
 
-주요 runtime:
-- `public/editor-lab/index.html`
-- `public/assets/js/editor-lab/editor-app.js`
-- `page-meta.js`
-- `seo-meta.js`
-- `ai-brief.js`
-- `ai-response.js`
-- `ai-review.js`
-- `editor-server.js`
-- `publish-controls.js`
-- `media-picker.js`
-- `revision-history.js`
-- `inspector-friendly.js`
+새 status filter:
+- `public/assets/js/editor-lab/library-status-filter.js`
+- `public/assets/styles/editor-lab/library-status-filter.css`
+- `publish-controls.js`가 extension으로 로드
 
-## V1 Sheets DB
+## Sheets V1 DB
 
-Spreadsheet ID:
+Spreadsheet:
 `1TgA_-C9rDPRvgxTnG5cPnWihwC48KZxod-sPeEoMWUc`
 
 Tabs:
-- `PLATFORM_PAGES`
-- `PAGE_BLOCKS`
-- `BLOCK_REVISIONS`
-- `BLOCK_REVIEWS`
-- `MEDIA_ASSETS`
-- `PUBLISH_SNAPSHOTS`
-- `PUBLISHED_BLOCKS`
-
-`PLATFORM_PAGES` A:M:
-`page_id, slug, industry_id, title, status, theme, seo_json, created_at, updated_at, published_at, brief_json, ai_status, ai_review_json`
+- PLATFORM_PAGES
+- PAGE_BLOCKS
+- BLOCK_REVISIONS
+- BLOCK_REVIEWS
+- MEDIA_ASSETS
+- PUBLISH_SNAPSHOTS
+- PUBLISHED_BLOCKS
 
 Storage authority:
-- structured page/block → Sheets
+- structured page/block/review → Sheets
 - master/files/archive → Drive
-- public static asset/renderer/schema/permanent rules → Git + Cloudflare
-- localStorage → local/offline draft fallback
+- public asset/renderer/schema/permanent rules → Git + Cloudflare
+- localStorage → local draft fallback
 
-Permanent doc:
-- `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
+## First non-photography QA page
 
-## Existing Drive image pipeline
+Page:
+- pageId: `page_video_editor_qa_v1`
+- slug: `video-editor`
+- industry: `video-editor`
+- title: `영상편집으로 먹고살기`
+- status: draft
+- seo indexPolicy: noindex
+- aiStatus: needs_review
 
-기존 폴더를 재사용한다.
-- `Photo-eBook Image Pipeline V1`
-- Generated PNG
-- Generated WebP
+실제 Sheets row 생성됨.
+PAGE_BLOCKS 13개:
+1. hero
+2. chapter-hero
+3. comparison-cards
+4. process
+5. checklist
+6. pros-cons
+7. product-tool
+8. offer-rail
+9. roadmap
+10. script-copy
+11. faq
+12. resources
+13. cta
 
-Drive를 public CDN처럼 쓰지 않는다.
-`MEDIA_ASSETS.public_url`은 실제 Editor/public renderer가 읽을 수 있는 배포 URL이어야 한다.
+Git seed:
+- `docs/workstreams/platform-library-v1/qa/video-editor-draft-v1.json`
 
-현재 `MEDIA_ASSETS`에는 photography repo sample 8개가 seed돼 있고 Editor media picker에서 사용할 수 있다.
+주의:
+- seed v1 마지막 CTA에 legacy `primaryHref`가 남아 있음.
+- 실제 Sheet와 QA public fixture는 renderer 계약에 맞게 `primaryUrl` 사용.
+- 이후 seed v2/migration으로 정리 가능하나 현재 runtime blocker는 아님.
 
-## Protected Editor APIs
+## Video editor official evidence
+
+Evidence doc:
+- `docs/workstreams/platform-library-v1/qa/video-editor-evidence-v1.json`
+
+QA overlay:
+- `public/data/qa/video-editor-evidence-v1.js`
+
+현재 연결:
+- Adobe Premiere 공식 한국 페이지
+  - 2026-08-20 확인 당시 개인 Premiere: 연간 약정/월 청구 월 30,800원(부가세 포함)
+- Blackmagic Design DaVinci Resolve
+  - Resolve 21 무료 버전 제공 확인
+  - Studio 가격은 최근 공식 검색 결과가 538,800원/565,800원으로 엇갈려 확정값으로 잠그지 않음
+- 고용24
+  - 영상편집 NCS `08030406`
+  - 현재 과정 예시 확인
+  - 특정 기관 추천이 아니라 지역/기간/자비부담 비교 경로로 사용
+
+Sheet:
+- `ve_tools` revision 2 + evidence
+- `ve_resources` revision 2 + evidence
+- `BLOCK_REVISIONS`에 두 변경 이력 추가
+- page aiReview도 source-added 상태로 갱신
+
+아직 보완 필요:
+- 실제 편집 분야별 수요/단가
+- 계약/세금
+- 플랫폼 수수료/정책
+- 음원/폰트/소스별 라이선스
+
+## Full page QA
+
+Route:
+- `/qa/video-editor/`
+
+Files:
+- `public/qa/video-editor/index.html`
+- `public/data/qa/video-editor-draft-v1.js`
+- `public/data/qa/video-editor-evidence-v1.js`
+- `public/assets/js/qa-page/video-editor.js`
+- `public/assets/styles/qa-page/page.css`
+
+실제 candidate renderer로 13 block을 한 페이지 흐름으로 렌더.
+390/768/1180 + Light/Dark.
+noindex + robots `/qa/` disallow.
+
+## Public snapshot staging
+
+Shared runtime:
+- `public/assets/js/public-snapshot/runtime.js`
+
+Staging route:
+- `/staging/public-renderer/`
+
+Files:
+- `public/staging/public-renderer/index.html`
+- `public/assets/js/public-snapshot/staging.js`
+- `public/assets/styles/public-snapshot/runtime.css`
+
+Runtime 구현:
+- snapshot normalize/validation
+- approved-only gate가 기본
+- staging에서만 `allowCandidate:true`
+- title/description/robots
+- OG title/description/type/site/url/image
+- Twitter card/title/description/image
+- canonical 적용 함수
+- Article/WebPage JSON-LD
+
+Staging은 noindex이며 production URL에 연결하지 않음.
+
+## Public active snapshot read API
+
+Route:
+- `GET /api/public/snapshot?slug=<slug>`
+
+File:
+- `functions/api/public/snapshot.js`
+
+동작:
+- PUBLISH_SNAPSHOTS에서 `state=active`인 slug만 조회
+- 해당 PUBLISHED_BLOCKS만 반환
+- draft/PLATFORM_PAGES/PAGE_BLOCKS는 노출하지 않음
+- active가 없으면 404
+- public cache header 적용
+
+현재 active snapshot이 없으므로 `video-editor`는 공개 API에서 조회되면 안 됨.
+
+## Protected Editor API
+
+Canonical write:
+- `POST /api/editor/save-page`
+
+Exact read/support:
+- `/api/editor/assets`
+- `/api/editor/revisions`
+- `/api/editor/slug-check`
+- `/api/editor/snapshots`
+- `/api/editor/review-list`
 
 Catch-all:
-- `functions/api/editor/[[path]].js`
-
-Exact routes:
-- `POST /api/editor/save-page` — change-aware draft save
-- `GET|POST /api/editor/assets`
-- `GET /api/editor/revisions`
-
-Catch-all routes:
-- `GET /health`
-- `GET /pages`
-- `GET /page?id=...`
-- `POST /reviews`
-- `POST /publish-check`
-- `POST /publish`
+- health/pages/page/reviews/publish-check/publish
 
 보호:
 - same-origin
-- Bearer `ADMIN_EDITOR_TOKEN`
-- no token → closed
-- Editor token은 sessionStorage only
+- Bearer ADMIN_EDITOR_TOKEN
+- token missing → closed
 
-### change-aware save
-
-`/api/editor/save-page`가 Editor와 publish pre-save의 canonical write path다.
-
-- page metadata는 draft로 저장
-- new block → version 1 + revision
-- existing changed block → version +1 + row update + revision
-- unchanged block → row update/revision 생략
-- stable JSON으로 content/evidence/AI policy 비교
-- removed block → 삭제 snapshot revision 후 마지막 clear
-- 기존 데이터 전체 선삭제 금지
-
-기존 catch-all `POST /page`는 호환용 legacy 경로이며 Editor UI에서는 사용하지 않는다.
-
-Google OAuth grant type은 반드시:
+Google JWT grant type 유지:
 `urn:ietf:params:oauth:grant-type:jwt-bearer`
 
-## Revision history
-
-- server: `functions/api/editor/revisions.js`
-- UI: `revision-history.js`
-- 과거 block snapshot을 browser draft로 먼저 불러온다.
-- 서버는 사용자가 다시 저장하기 전까지 변경하지 않는다.
-
-## Media picker
-
-- server metadata API: `functions/api/editor/assets.js`
-- UI: `media-picker.js`
-- MEDIA_ASSETS + Block Lab repo sample merge
-- image/avatar 및 SEO ogImage 선택 지원
-- imageAlt가 비어 있으면 asset alt를 보조 입력
-
-아직 웹 관리자에서 신규 파일을 Drive에 업로드하고 Git/public asset으로 승격하는 자동 파이프라인은 연결하지 않았다.
-
-## AI Content
-
-문서:
-- `docs/library/ai-content/README.md`
-- `AI-CONTENT-CONTRACT-V1.md`
-- `AI-CONTENT-RESPONSE-V1.md`
-
-흐름:
-`rough layout → AI request JSON → AI 작성/검토 → response JSON → lock-aware import → needs_review → 사용자 검토 → server draft`
-
-중요:
-- AI가 page/block identity, block type/order/variant/enabled, approval/publish status를 변경하지 않음
-- `locked`/`fact_check_only` 자동 content 수정 금지
-- `wording_only`는 문자열만 변경하고 구조 보존
-- evidence 없는 verified 거부
-- pageReview blocker는 publish 차단
-
-## SEO/GEO + Publish
-
-문서:
-- `docs/library/publishing/PUBLISH-SEO-GEO-V1.md`
-
-구현:
-- seo_json Editor
-- source/evidence snapshot
-- `PUBLISH_SNAPSHOTS`, `PUBLISHED_BLOCKS`
-- publish-check/publish server validation
-- approved Registry only
-- disabled block 제외
-- AI needs_review/blocker/stale fact 차단
-- `public/robots.txt`
-- labs/API crawler 제외
-
-아직 미연결:
-- approved snapshot public renderer
-- canonical 산업 route
-- public title/meta/canonical/OG/Twitter
-- JSON-LD
-- sitemap
-- real 404
-- 광고 side rail
-
-기존 photography `/`는 그대로 둔다.
-
-## CI / validation
+## CI
 
 Workflow:
 - `.github/workflows/platform-library-checks.yml`
 
-검사:
+검사 범위:
 - browser/server Registry sync
-- block/editor/Functions JS `node --check`
+- first industry QA seed validator
+- block-lab/editor-lab/qa-page/public-snapshot JS syntax
+- editor/public Functions syntax
 
-현재 connector의 combined status에는 status가 반환되지 않아 CI 성공 여부를 이 세션에서 확인하지 못했다. live success로 추정하지 않는다.
+GitHub connector에서 실제 workflow run 성공 결과는 아직 확인하지 못했으므로 성공으로 추정하지 않는다.
 
-## Current blockers
+## Current checkpoints
 
-1. 사용자의 `/block-lab/` 실제 시각 검토/최종 Block 판정
-2. Cloudflare `ADMIN_EDITOR_TOKEN` secret 설정
-3. 실제 `/editor-lab/` authenticated save/load/revision/media/publish-check QA
-4. 실제 PC/mobile browser visual QA
+1. `/block-lab/` 사용자 시각 검토 및 27 block 최종 판정
+2. `/qa/video-editor/` 전체 페이지 흐름 검토
+3. `/staging/public-renderer/` 공개 형태 검토
+4. Cloudflare `ADMIN_EDITOR_TOKEN` 설정
+5. 실제 Pages PC/mobile browser QA
+
+이 환경의 container는 `photo-ebook.pages.dev` DNS lookup에 실패했으므로 live route 정상 여부를 추정하지 않는다.
 
 ## Next action
 
-자동으로 더 진행 가능한 것:
-1. slug 중복/URL 충돌 검사
-2. published snapshot history/preview UI
-3. page-level rollback UX
-4. approval 이후 production picker 필터 준비
-5. public snapshot renderer를 production에 연결하지 않은 staging 형태로 설계
+자동 가능:
+1. video-editor 시장/계약/비용 evidence 추가 보완
+2. public route/404/sitemap 연결 전 route contract 마무리
+3. 광고 side rail용 desktop layout contract 설계
+4. QA seed v1 CTA legacy field를 v2에서 정리
 
-사용자/환경 checkpoint:
-1. `/block-lab/` 검토
-2. Cloudflare secret 설정
-3. `/editor-lab/` 실사용 QA
+사용자 checkpoint 후:
+1. Block review를 server에 저장
+2. browser/server Registry final status 반영
+3. approved renderer canonical 승격
+4. Editor approved-only 운영 모드 전환
+5. video-editor AI/human review 완료
+6. publish snapshot 생성
+7. active snapshot public route 연결
+8. metadata/canonical/sitemap/404/CWV/ad rail QA
 
-승인 후:
-- browser/server Registry status 반영
-- approved renderer canonical 승격
-- public renderer/canonical route
-- metadata/JSON-LD/sitemap/404
-- 광고 side rail + CWV QA
+## V1 완료 목표
+
+1. Block 최종 승인/정제
+2. Editor 저장/AI/미디어/버전/발행 live QA
+3. 사진 외 산업 1개를 draft→AI→human review→publish→rollback 통과
+4. 산업별 public renderer/canonical route
+5. SEO metadata + JSON-LD + sitemap + real 404
+6. PC/mobile + Core Web Vitals QA
+7. PC side AdSense 영역을 넣어도 콘텐츠/내비게이션이 무너지지 않는 layout
+8. workstream QA 자료 Drive archive
+
+AdSense 승인/publisher ID는 외부 checkpoint로 별도 관리.
 
 ## Resume protocol
 
-1. `AGENTS.md`
-2. `TASKS.md`
-3. 이 `HANDOFF.md`
-4. `main` 최신 commit
-5. active/checkpoint 일치 확인
+1. AGENTS.md
+2. TASKS.md
+3. 이 HANDOFF.md
+4. main 최신 commit
+5. checkpoint/next action 확인
 
 대화만 보고 상태를 추정하지 않는다.
