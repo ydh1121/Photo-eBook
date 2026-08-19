@@ -1,0 +1,58 @@
+{
+  "schema": "platform-qa-evidence/v1",
+  "pageId": "page_video_editor_qa_v1",
+  "checkedAt": "2026-08-20",
+  "sources": [
+    {
+      "id": "adobe-premiere-20260820",
+      "publisher": "Adobe",
+      "title": "전문 영상 편집 소프트웨어 | Adobe Premiere",
+      "url": "https://www.adobe.com/kr/products/premiere.html",
+      "supports": [
+        "Premiere 개인 플랜의 현재 공식 가격 표시",
+        "Premiere에 포함된 주요 기능과 서비스"
+      ],
+      "observed": {
+        "billing": "연간 약정, 매월 청구",
+        "priceKrwPerMonthVatIncluded": 30800,
+        "included": ["Premiere", "Adobe Express Premium", "Frame.io", "100GB cloud storage"]
+      },
+      "volatility": "high"
+    },
+    {
+      "id": "blackmagic-davinci-20260820",
+      "publisher": "Blackmagic Design",
+      "title": "DaVinci Resolve | Blackmagic Design",
+      "url": "https://www.blackmagicdesign.com/kr/products/davinciresolve",
+      "supports": [
+        "DaVinci Resolve 21 무료 버전 제공",
+        "편집·색보정·VFX·모션 그래픽·오디오 후반 작업 통합"
+      ],
+      "observed": {
+        "freeVersion": true,
+        "studioPrice": "DO_NOT_LOCK",
+        "note": "최근 공식 페이지 검색 결과에서 Studio 가격 표시가 538,800원과 565,800원으로 엇갈려 발행 직전 재확인 필요"
+      },
+      "volatility": "high"
+    },
+    {
+      "id": "work24-video-training-20260820",
+      "publisher": "고용24",
+      "title": "국민내일배움카드 훈련과정상세 — 영상편집자 양성 과정 예시",
+      "url": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?crseTracseSe=C0061&tracseId=AIG20250000534328&tracseTme=4&trainstCstmrId=500020042738",
+      "supports": [
+        "영상편집 NCS 직무분류 08030406 확인",
+        "2026년에도 영상편집 직업훈련 과정이 운영·모집되고 있음을 보여주는 현재 예시",
+        "실제 자비부담은 개인 조건에 따라 달라질 수 있다는 고용24 안내"
+      ],
+      "observed": {
+        "ncs": "영상편집(08030406)",
+        "exampleHours": 850,
+        "exampleStart": "2026-08-24",
+        "exampleEnd": "2027-02-05",
+        "recommendationRule": "특정 기관을 대표 추천하지 않고 고용24에서 지역·기간·자비부담을 비교하도록 안내"
+      },
+      "volatility": "high"
+    }
+  ]
+}
