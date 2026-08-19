@@ -2,35 +2,26 @@
 
 ## THEME-001 — 지원 모드
 
-V1은 다음 3개 user choice를 지원한다.
+V1은 `light`, `dark`, `system` 세 choice를 지원한다.
 
-- `light`
-- `dark`
-- `system`
-
-저장 key:
-`photoRoadmapThemeV1`
+저장 key: `photoRoadmapThemeV1`
 
 ## THEME-002 — first-paint bootstrap
 
-`index.html`의 inline script는 CSS 이전에 theme choice를 적용한다.
+`public/index.html`의 inline script는 CSS 이전에 다음을 적용한다.
 
-MUST:
 - 저장 choice 읽기.
 - `system`이면 `prefers-color-scheme` 확인.
 - `<html data-theme-choice>` 설정.
 - `<html data-theme>`를 실제 `light|dark`로 설정.
 - `style.colorScheme` 동기화.
+- iOS + WebKit이면 `ios-webkit-chrome` class 추가.
 
-이 로직을 defer하면 첫 paint theme flash가 생길 수 있다.
+이 bootstrap을 defer하면 theme flash와 Safari first-paint surface 회귀가 생길 수 있다.
 
-## THEME-003 — 기본값
+## THEME-003 — runtime theme owner
 
-저장값이 없거나 invalid면 `light`가 기본 choice다.
-
-## THEME-004 — runtime theme controller
-
-`script-liquid-core.js`가 current theme selection UI와 runtime apply를 담당한다.
+`assets/js/ui/liquid-controller.js`가 runtime theme state와 theme choice UI를 담당한다.
 
 테마 변경 시:
 - dataset 갱신.
@@ -39,81 +30,31 @@ MUST:
 - `photo-theme-change` custom event dispatch.
 - liquid indicator/theme UI 정렬.
 
-## THEME-005 — system live update
+choice가 `system`일 때 OS preference 변경을 반영하되 choice 자체를 `light`/`dark`로 덮어쓰지 않는다.
 
-choice가 `system`일 때 OS preference 변경을 반영해야 한다. choice 자체를 light/dark로 덮어쓰면 안 된다.
+## THEME-004 — surfaces
 
-## THEME-006 — light surface
-
+Light:
 - app canvas: white.
-- grouped: #f5f5f7 family.
-- card: white 또는 very light blue-grey.
-- text: ink/dark grey.
-- border/shadow를 low contrast로 유지하되 카드 면이 사라지지 않아야 함.
+- grouped: `#f5f5f7` family.
+- card: white/light blue-grey.
 
-## THEME-007 — light callout correction
+Dark:
+- app canvas: `#0d0f13` graphite-black.
+- 일반 page canvas에 pure black `#000`을 사용하지 않는다.
+- cards: `#171b21`, raised `#1b2028`, soft `#20252d` family.
 
-`guide-key`는 과거 dark typography를 밝은 background 위에 남겨 text가 사라지는 회귀가 있었다.
+제품 컷아웃 등 콘텐츠 특성상 흰 이미지 stage가 필요한 영역은 dark mode에서도 밝게 유지할 수 있다.
 
-현재 `style-36.css`가 light에서:
-- dark text
-- subtle blue-grey background
-- thin border
-- low shadow
+## THEME-005 — theme-color policy
 
-를 확정한다.
-
-## THEME-008 — light common badge
-
-`.soft-tag`, 장비 meta, curated content tag는 매우 밝은 grouped badge family. 별도 진한 border/굵은 font로 과장하지 않는다.
-
-## THEME-009 — dark canvas
-
-앱/section/grouped의 current dark canvas는 `#0d0f13` graphite-black이다.
-
-**pure black `#000`을 일반 page canvas로 쓰지 않는다.**
-
-## THEME-010 — dark cards
-
-카드는:
-- surface #171b21
-- raised #1b2028
-- soft #20252d
-- white-ish text
-- muted #aeb6c2
-- line rgba white .05~.09
-
-계열을 사용.
-
-## THEME-011 — dark nested panels
-
-inner metric, message bubble, market price, guide key 등은 outer card와 한 단계 surface 차이를 둔다. 같은 색으로 뭉개지지 않아야 한다.
-
-## THEME-012 — dark media exception
-
-제품 컷아웃/흰 배경 이미지 stage는 이미지 콘텐츠 특성상 white/light background를 유지할 수 있다. 모든 흰 surface를 다크로 강제하지 않는다.
-
-## THEME-013 — dark badge
-
-common tag:
-- dark-surface-3 계열.
-- #bcc4cf text.
-- thin line.
-
-image source badge는 white text/dark translucent.
-
-## THEME-014 — liquid across themes
-
-selected blue liquid material은 light/dark 모두 같은 blue identity를 유지한다. dark에서는 shadow/rail contrast만 조정한다.
-
-## THEME-015 — theme-color meta policy
-
-V1 runtime은 `script-28.js`에서 `meta[name="theme-color"]`를 반복 제거한다.
+`assets/js/safari/theme-color-cleanup.js`는 runtime에서 `meta[name="theme-color"]`를 제거한다.
 
 이유:
-- iOS Safari bottom/top chrome tint가 theme-color로 강하게 고정되는 회귀를 피함.
+- Safari browser chrome이 stale theme-color로 고정되는 회귀를 피함.
+- 실제 browser-facing surface는 document/app surface와 Safari-specific root rule로 제어함.
 
-새 theme-color를 추가하려면 실제 iOS Safari expanded/compact 상태를 함께 검증한다.
+새 `theme-color`를 추가하려면 iPhone Safari expanded/compact 상태를 함께 실기기 검증한다.
 
 ---
 
@@ -121,181 +62,105 @@ V1 runtime은 `script-28.js`에서 `meta[name="theme-color"]`를 반복 제거�
 
 ## SAFARI-001 — detection
 
-`index.html` bootstrap:
+`index.html` bootstrap에서 iPhone/iPad/iPod 또는 touch MacIntel + WebKit이면 `<html>`에 `ios-webkit-chrome`을 추가한다.
 
-iPhone/iPad/iPod 또는 touch MacIntel + `WebKit`이면 `<html>`에:
+Safari 전용 geometry/surface 수정은 이 class에 scope한다.
 
-`ios-webkit-chrome`
+## SAFARI-002 — 2026-08-19 실기기에서 확인된 원인
 
-class를 추가한다.
+iPhone Safari 최초 접속 시 주소 영역 뒤에 고체 배경이 나타나는 현상을 격리 페이지로 비교했다.
 
-Safari 전용 workaround는 가능하면 이 class에 scope한다.
+확인 결과:
 
-## SAFARI-002 — browser-owned area
+- 앱 코드가 없는 최소 페이지: 문제 없음.
+- 하단 collection/FAB/question UI 제거: 문제 유지.
+- root background만 정상화하고 sticky nav 유지: 문제 유지.
+- sticky nav만 늦추고 root를 transparent로 유지: 문제 유지.
+- nav를 제거하거나, real root background + non-sticky initial nav 조합: 문제 없음.
+- `sticky; top:5px`처럼 viewport edge에서 몇 px 띄우는 방식: 문제 유지.
+- real root background + initial normal-flow nav + Safari chrome compact 후 sticky 전환: 문제 없음.
 
-iOS Safari 26의 하단 주소 UI/obscured inset 일부는 페이지 DOM이 직접 소유하지 않는다.
+따라서 현재 승인 원인은 단일 popup이 아니라 **transparent browser-facing root와 최초 sticky top navigation의 결합 조건**이다.
 
-따라서:
-- 웹 CSS로 주소 UI 자체를 완전 투명하게 ‘강제’할 수 있다고 가정하지 않는다.
-- browser chrome 문제를 고치기 위해 app UI geometry를 반복 이동시키지 않는다.
+## SAFARI-003 — 승인된 browser-facing root
 
-## SAFARI-003 — expanded vs compact
+`assets/styles/safari/deferred-sticky-chrome.css`에서 iOS WebKit에 한해:
 
-실사용 검증에서 두 상태는 다르게 동작한다.
+Light:
+- `html`, `body`: `#fff`
 
-### Expanded
-최초 진입 또는 맨 위 상태의 큰 주소 영역.
-- browser가 고체/불투명 배경을 보일 수 있음.
-- V1에서 웹페이지가 이를 완전 투명화하는 것을 보장하지 않는다.
+Dark:
+- `html`, `body`: `#0d0f13`
 
-### Compact
-스크롤 후 작은 floating address pill.
-- Safari가 페이지 content를 통한 translucent/transparent 합성을 보여줄 수 있음.
-- 현재 V1 workaround가 이 상태를 prime한다.
+을 실제 배경으로 사용한다.
 
-## SAFARI-004 — compact detection
+이 규칙은 iOS Safari의 browser chrome composition을 안정시키기 위한 예외다. 다른 브라우저의 기존 root/app surface 정책을 전역으로 바꾸지 않는다.
 
-`script-safari-compact-prime.js`:
+## SAFARI-004 — 최초 nav state
 
-- initial `visualViewport.height` baseline 저장.
-- viewport height growth >= 약 28px.
-- scrollY > 8.
+`ios-webkit-chrome`이면서 아직 `safari-nav-sticky-armed`가 없으면 `.nav-shell`은:
 
-이면 compact candidate.
+- `position: relative`
+- `top: auto`
 
-## SAFARI-005 — compact prime trigger
+로 시작한다.
 
-user scroll이 멈춘 뒤 약 150ms 이상 안정화된 상태에서 prime을 시도한다.
+즉 Safari가 expanded address chrome으로 최초 paint하는 동안 top-edge sticky surface를 만들지 않는다.
 
-조건:
-- app ready.
-- collection UI ready.
-- collection이 실제 user에게 open 상태가 아님.
-- compact 상태.
-- 아직 primed 아님.
+## SAFARI-005 — compact detection / sticky arm
 
-## SAFARI-006 — compact prime sequence
+`assets/js/safari/deferred-sticky-nav.js`가 최초 visual viewport height를 baseline으로 저장한다.
 
-Safari bottom chrome 재합성을 유도하기 위해 **실제로 동작이 확인된 production lifecycle**을 invisibly replay한다.
+다음 중 하나면 sticky를 arm한다.
 
-1. `<html>`에 `safari-compact-prime`.
-2. collection FAB click.
-3. 몇 frame wait.
-4. `영상` primary tab click.
-5. 몇 frame wait.
-6. close click.
-7. 약 230ms wait.
-8. scroll position 복원.
-9. class 제거.
+- `visualViewport.height - baseline > 24px`
+- fallback으로 `scrollY > 140`
 
-## SAFARI-007 — prime visual hiding
+arm 시 `<html>`에 `safari-nav-sticky-armed`를 한 번 추가한다.
 
-prime 중 `style-35.css`:
+## SAFARI-006 — armed nav state
 
-- `#collectionLayer opacity:.001`
-- pointer-events none
-- sheet/backdrop animation none
+`assets/styles/safari/deferred-sticky-chrome.css`에서 `safari-nav-sticky-armed` 이후 `.nav-shell`은 기존 승인 동작으로 복귀한다.
 
-WebKit render tree에는 존재하지만 사용자에게 popup flicker가 보여서는 안 된다.
+- `position: -webkit-sticky / sticky`
+- `top: 0`
 
-## SAFARI-008 — compact rearm
+따라서 최초 접속의 browser chrome 문제를 피하면서 실제 스크롤 중 상단 챕터 메뉴 고정 기능은 유지한다.
 
-한 번 prime한 뒤 사용자가 실제로 top으로 돌아가 Safari toolbar가 expanded 상태가 된 경우에만 rearm.
+## SAFARI-007 — 금지된 이전 workaround
 
-조건:
-- viewport growth <= 약 12px.
-- scrollY <= 약 4.
-- priming 중 아님.
+과거 `script-safari-compact-prime.js`는 compact 상태에서 Safari 재합성을 유도하려고 다음 동작을 사용자에게 보이지 않게 replay했다.
 
-그 후 다시 compact로 내려오면 prime 재실행 가능.
+- collection 열기
+- 영상 탭 전환
+- collection 닫기
+- scroll 위치 복원
 
-## SAFARI-009 — known confirmed behavior
+2026-08-19 원인 분리 후 이 방식은 제거했다.
 
-V1 직전 사용자 확인:
-- compact address pill로 줄어들면 자동으로 뒤 surface가 translucent/transparent 상태로 전환되는 경로가 작동함.
+현재 `deferred-sticky-nav.js`는 popup lifecycle을 호출하지 않는다. Safari 문제를 고치기 위해 숨은 modal/tab interaction을 다시 도입하지 않는다.
 
-이 기능을 제거하지 않는다.
+## SAFARI-008 — collection/popup 관계
 
-## SAFARI-010 — known limitation: popup open tint
+하단 popup/FAB를 완전히 제외한 진단에서도 문제가 남았으므로 **최초 주소영역 배경 문제의 직접 원인은 collection popup이 아니다.**
 
-실사용 과정에서 **하단 collection popup을 실제로 열어 둔 동안 Safari address pill 뒤가 검정/고체 tint로 바뀌는 현상**이 관찰됐다.
+다만 modal open 상태에서 browser chrome tint/composition이 별도로 바뀔 가능성은 있으므로 collection geometry 수정은 독립적으로 회귀 검증한다.
 
-이는 V1에서 완전히 해결됐다고 명세하지 않는다.
+## SAFARI-009 — 회귀 기준
 
-사용자가 당시 ‘여기서 마무리’하고 다른 디자인 작업으로 이동했으므로:
-- compact auto-prime은 보존.
-- popup-open Safari tint는 KNOWN LIMITATION.
-- future work는 app geometry를 무작정 옮기지 말고 별도 Safari research/isolated test로 처리.
+물리 iPhone Safari에서 다음을 확인한다.
 
-## SAFARI-011 — no site-owned bottom plate
+1. 새 탭/최초 접속, 스크롤 전 주소 영역 뒤에 사이트 고체 색상판이 보이지 않는다.
+2. 초기 nav가 페이지 흐름 안에 자연스럽게 표시된다.
+3. 스크롤 후 Safari chrome이 compact되면 nav가 상단 sticky로 정상 전환된다.
+4. 전환 후 페이지가 점프하지 않는다.
+5. collection/FAB/question 기능이 그대로 동작한다.
+6. 다크 모드 root가 pure black으로 바뀌지 않는다.
 
-MUST NOT:
-- footer-like solid strip를 address pill 뒤에 고정.
-- safe-area를 별도 black/grey rectangle로 채움.
-- body pseudo-element로 browser chrome 뒤를 덮음.
+## SAFARI-010 — 변경 규칙
 
-현재 후반 CSS는 html/body/pseudo surfaces를 transparent로 유지하고 actual app/sections가 surface를 소유한다.
-
-## SAFARI-012 — root/app surface split
-
-최종 V1:
-- html/body: browser-facing transparent.
-- light `#app/.app`: white.
-- dark `#app/.app`: #0d0f13.
-
-이 split은 Safari chrome 실험 때문에 생긴 확정 구조다.
-
-## SAFARI-013 — sticky nav stability
-
-Safari toolbar expand/collapse 중:
-- nav-shell height 고정.
-- sticky ancestor backdrop-filter 제거.
-- y transform 없음.
-- height-only viewport resize에 layout recalculation을 최소화.
-
-## SAFARI-014 — native horizontal rail
-
-iOS에서 nav horizontal pan은 native overflow scroll이어야 한다. touch gesture override를 추가하지 않는다.
-
-## SAFARI-015 — FAB
-
-FAB bottom은 safe-area + 약 20px family. Safari address UI를 피하려고 70~80px 추가로 임의 상승시키는 것은 과거 회귀이므로 금지.
-
-## SAFARI-016 — bottom sheet
-
-collection sheet는 원래 bottom sheet geometry를 유지한다. Safari tint workaround를 위해 중앙 floating dialog로 올리면 안 된다.
-
-## SAFARI-017 — popup bottom gap
-
-sheet와 viewport bottom 사이에 main page가 보이는 gap을 workaround로 만들지 않는다. 이는 과거 실험에서 발생한 회귀다.
-
-## SAFARI-018 — failed experiments 기록
-
-V1 이전에 효과 없거나 부작용을 만든 접근:
-
-- root background를 임의 grey/black으로 강제.
-- transparent root만 반복 덮기.
-- popup/FAB를 큰 fixed clearance만큼 위로 이동.
-- full-screen fixed wrapper 구조 변경.
-- 1px edge-scroll guard만으로 chrome 갱신 기대.
-- fake lock/unlock만으로 first paint chrome 갱신.
-- popup fixed background만 투명화 + app brightness dim.
-
-이 접근을 같은 근거 없이 반복하지 않는다.
-
-## REG-THEME-001 — Theme regression
-
-- 첫 paint가 light였다 dark로 flash.
-- light guide-key text가 흰 배경에서 사라짐.
-- dark nested panel hierarchy가 사라짐.
-- common badge가 모듈마다 서로 다른 style.
-
-## REG-SAFARI-001 — Safari regression
-
-- compact auto-prime 제거.
-- compact 진입 시 visible popup flicker.
-- FAB가 과도하게 위로 이동.
-- bottom sheet가 중앙 dialog가 됨.
-- popup bottom gap.
-- root에 pure black plate가 다시 생김.
-- nav가 Safari toolbar 움직임에 따라 y축 jitter.
+- 이 문제를 다시 고치기 위해 `html/body`를 무조건 transparent로 되돌리지 않는다.
+- 최초부터 sticky를 강제하지 않는다.
+- 4~5px edge offset 같은 추정 workaround를 production fix로 사용하지 않는다.
+- hidden popup replay를 다시 추가하지 않는다.
+- Safari-only 변경은 `ios-webkit-chrome` 범위에 둔다.
