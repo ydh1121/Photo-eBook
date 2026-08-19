@@ -6,12 +6,20 @@
 
 ## 01. Reference Library
 
-- [-] 레퍼런스 분류 체계 정의
+- [x] 레퍼런스 분류 체계 정의
 - [x] `arknow91/liquid-taffy` 분석
-- [ ] `arknow91/liquid-taffy` interaction/motion 레퍼런스 정식 등록
-- [ ] 이전 프로젝트 대화에서 사용한 외부 GitHub/UI 레퍼런스 회수
-- [ ] 각 레퍼런스에 `참고할 것 / 적용 후보 / 적용 금지 / 라이선스 / 기술 의존성` 기록
-- [ ] UI 작업 전에 읽어야 하는 reference index 확정
+- [x] `arknow91/liquid-taffy` interaction/motion 레퍼런스 정식 등록
+- [x] Git/`COPY_GUIDE`에서 식별 가능한 기존 외부 GitHub/UI/에디토리얼 레퍼런스 회수
+- [x] 각 레퍼런스에 `참고할 것 / 적용 후보 / 적용 금지 / 라이선스 / 기술 의존성` 기록
+- [x] UI 작업 전에 읽어야 하는 reference index 확정
+- [ ] 과거 대화에만 남아 있고 현재 이름/URL을 식별할 수 없는 레퍼런스는 발견 시 지속 등록
+
+완료 메모:
+- `docs/library/references/README.md`
+- `arknow91/liquid-taffy`
+- `DaleSeo/korean-skills`
+- `NomaDamas/k-skill`의 `korean-humanizer`
+- 미식별 과거 링크는 추측해서 등록하지 않으며 이후 발견 시 inbox 방식으로 추가한다. 이 항목은 다음 단계의 blocker가 아니다.
 
 완료 기준:
 - 디자인/인터랙션 작업자가 레퍼런스의 목적과 적용 범위를 Git만 읽고 이해할 수 있음
@@ -19,12 +27,20 @@
 
 ## 02. Editorial Library
 
-- [ ] 기존 `docs/spec-v1/20-korean-copywriting-skill.md`를 상위 Editorial Library와 연결
-- [ ] 사용자가 기획자로서 확정한 문장 작성 규칙 회수
-- [ ] 실제 before/after 사례 분류
-- [ ] heading / body / comparison / process / metric / CTA / source / SEO-GEO 규칙 분리
-- [ ] AI 작성 허용 범위와 사실 검증 규칙 정의
-- [ ] 산업 독립 규칙과 photography 특수 규칙 분리
+- [x] 기존 `docs/spec-v1/20-korean-copywriting-skill.md`를 상위 Editorial Library와 연결
+- [x] 사용자가 기획자로서 확정한 문장 작성 규칙 회수
+- [x] 실제 before/after 사례 분류
+- [x] heading / body / comparison / process / metric / CTA / source / SEO-GEO 규칙 분리
+- [x] AI 작성 허용 범위와 사실 검증 규칙 정의
+- [x] 산업 독립 규칙과 photography 특수 규칙 분리
+
+완료 메모:
+- `docs/library/editorial/README.md`
+- `01-voice-principles.md`
+- `02-block-copy-profiles.md`
+- `03-ai-writing-and-review.md`
+- `04-before-after-examples.md`
+- 운영 `COPY_GUIDE`에도 회수된 사용자 규칙을 먼저 반영함
 
 완료 기준:
 - 각 Block type이 어떤 문장 규칙을 사용해야 하는지 참조 가능
@@ -32,7 +48,7 @@
 
 ## 03. UI Block Inventory + Block System V1
 
-- [ ] 현재 photography 페이지의 시각 패턴 전수 분해
+- [-] 현재 photography 페이지의 시각 패턴 전수 분해
 - [ ] 중복 블록 통합
 - [ ] 챕터에 묶인 UI를 독립 block 후보로 분리
 - [ ] block data schema 정의
