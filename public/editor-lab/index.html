@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Platform Block Editor Lab</title>
+  <link rel="stylesheet" href="/assets/styles/block-lab/lab.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/block-lab/a11y.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/block-lab/refinement-v2.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/block-lab/new-blocks-v2.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/editor-lab/editor.css?v=1">
+</head>
+<body>
+  <div class="block-lab editor-lab" data-theme="light" data-preview="desktop" data-mode="edit">
+    <header class="editor-topbar">
+      <div class="editor-brand">
+        <strong>Block Editor Lab</strong>
+        <span>브라우저 draft / production 미연결</span>
+      </div>
+      <input id="editorPageTitle" class="editor-page-title" type="text" value="새 분야 가이드" aria-label="페이지 이름">
+      <div class="editor-top-actions">
+        <button type="button" id="editorUndo">실행 취소</button>
+        <button type="button" id="editorRedo">다시 실행</button>
+        <div class="editor-segment" aria-label="편집 모드">
+          <button type="button" data-editor-mode="edit" aria-pressed="true">편집</button>
+          <button type="button" data-editor-mode="preview" aria-pressed="false">미리보기</button>
+        </div>
+        <div class="editor-segment" aria-label="화면 폭">
+          <button type="button" data-editor-preview="mobile" aria-pressed="false">390</button>
+          <button type="button" data-editor-preview="tablet" aria-pressed="false">768</button>
+          <button type="button" data-editor-preview="desktop" aria-pressed="true">1180</button>
+        </div>
+        <div class="editor-segment" aria-label="테마">
+          <button type="button" data-editor-theme="light" aria-pressed="true">Light</button>
+          <button type="button" data-editor-theme="dark" aria-pressed="false">Dark</button>
+        </div>
+        <button type="button" id="editorExport">내보내기</button>
+        <label class="editor-import">가져오기<input id="editorImport" type="file" accept="application/json,.json"></label>
+      </div>
+    </header>
+
+    <div class="editor-shell">
+      <aside class="editor-library" aria-label="블록 라이브러리">
+        <div class="editor-pane-head">
+          <div><small>BLOCK LIBRARY</small><h1>블록 추가</h1></div>
+          <span id="editorLibraryCount">27</span>
+        </div>
+        <input id="editorLibrarySearch" class="editor-search" type="search" placeholder="블록 검색" aria-label="블록 검색">
+        <div id="editorLibraryList" class="editor-library-list"></div>
+      </aside>
+
+      <main class="editor-workspace">
+        <div class="editor-workspace-head">
+          <div><small>PAGE CANVAS</small><strong id="editorBlockCount">0개 블록</strong></div>
+          <p>블록을 추가한 뒤 드래그하거나 위·아래 버튼으로 순서를 바꿀 수 있습니다.</p>
+        </div>
+        <div class="editor-stage">
+          <div id="editorCanvas" class="editor-canvas" aria-label="페이지 편집 영역"></div>
+        </div>
+      </main>
+
+      <aside class="editor-inspector" aria-label="블록 속성">
+        <div class="editor-pane-head">
+          <div><small>INSPECTOR</small><h2>블록 편집</h2></div>
+        </div>
+        <div id="editorInspector" class="editor-inspector-body">
+          <p class="editor-empty">편집할 블록을 선택하세요.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="/assets/js/blocks/block-registry.js?v=2"></script>
+  <script src="/data/block-registry/v1/manifest.js?v=1"></script>
+  <script src="/assets/js/blocks/block-renderers.js?v=1"></script>
+  <script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-data.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script>
+  <script src="/assets/js/editor-lab/editor-app.js?v=1"></script>
+</body>
+</html>
