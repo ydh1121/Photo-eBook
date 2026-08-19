@@ -1,13 +1,15 @@
+import {BLOCK_REGISTRY_V1,blockStatus,isKnownBlockType,isApprovedBlockType} from '../../lib/block-registry-v1.js';
+
 const SHEETS={
   pages:'PLATFORM_PAGES',
   blocks:'PAGE_BLOCKS',
   revisions:'BLOCK_REVISIONS',
-  reviews:'BLOCK_REVIEWS'
+  reviews:'BLOCK_REVIEWS',
+  snapshots:'PUBLISH_SNAPSHOTS',
+  publishedBlocks:'PUBLISHED_BLOCKS'
 };
 
-const KNOWN_BLOCK_TYPES=new Set([
-  'hero','chapter-hero','section-heading','rich-text','process','metric-grid','offer-rail','notice','comparison-cards','checklist','media-rail','case-study-rail','product-tool','roadmap','script-copy','tutorial','resources','faq','pros-cons','comparison-table','timeline','image-copy-split','gallery','quote-expert','calculator','cta','service-list'
-]);
+const KNOWN_BLOCK_TYPES=new Set(Object.keys(BLOCK_REGISTRY_V1));
 const AI_STATUSES=new Set(['not_requested','brief_ready','drafting','needs_review','approved']);
 
 let cachedToken=null;
@@ -46,6 +48,18 @@ export async function onRequest(context){
     if(request.method==='POST'&&path==='reviews'){
       const body=await readJson(request);
       return json(await saveBlockReviews(env,body),200,{'Cache-Control':'no-store'});
+    }
+
+    if(request.method==='POST'&&path==='publish-check'){
+      const body=await readJson(request);
+      const result=await publishCheck(env,String(body?.pageId||''));
+      return json(result,result.ok?200:400,{'Cache-Control':'no-store'});
+    }
+
+    if(request.method==='POST'&&path==='publish'){
+      const body=await readJson(request);
+      const result=await publishPage(env,String(body?.pageId||''));
+      return json(result,result.ok?200:400,{'Cache-Control':'no-store'});
     }
 
     return json({ok:false,message:'Not found'},404,{'Cache-Control':'no-store'});
@@ -225,6 +239,113 @@ async function saveBlockReviews(env,body){
     else await appendRange(env,`${SHEETS.reviews}!A:E`,row);
   }
   return {ok:true,count:reviews.length,updatedAt:now};
+}
+
+async function publishCheck(env,pageId){
+  const id=String(pageId||'').trim();
+  if(!id)return {ok:false,canPublish:false,message:'page id가 필요합니다.',errors:['page id가 없습니다.'],warnings:[]};
+  const result=await getPage(env,id);
+  if(!result.ok||!result.page)return {ok:false,canPublish:false,message:'페이지를 찾지 못했습니다.',errors:['서버 초안을 찾지 못했습니다.'],warnings:[]};
+  const validation=validateForPublish(result.page);
+  return {ok:true,pageId:id,...validation};
+}
+
+function validateForPublish(page){
+  const errors=[];
+  const warnings=[];
+  const seo=page.seo&&typeof page.seo==='object'?page.seo:{};
+  const blocks=Array.isArray(page.blocks)?page.blocks:[];
+
+  if(!page.pageId)errors.push('page id가 없습니다.');
+  if(!String(page.slug||'').trim())errors.push('URL slug가 없습니다.');
+  if(!String(page.title||'').trim())errors.push('페이지 제목이 없습니다.');
+  if(!String(seo.title||'').trim())errors.push('SEO 제목이 없습니다.');
+  if(!String(seo.description||'').trim())errors.push('SEO 설명이 없습니다.');
+  if(!blocks.length)errors.push('공개할 블록이 없습니다.');
+
+  const ids=new Set();
+  const duplicateIds=new Set();
+  const nonApprovedTypes=new Map();
+  for(const block of blocks){
+    const id=String(block.id||'');
+    if(ids.has(id))duplicateIds.add(id);else ids.add(id);
+    if(!isKnownBlockType(block.type))nonApprovedTypes.set(String(block.type||''),'unknown');
+    else if(!isApprovedBlockType(block.type))nonApprovedTypes.set(block.type,blockStatus(block.type));
+    const factState=String(block?.aiPolicy?.factState||'');
+    if(factState==='stale')errors.push(`${block.type} (${id}): 사실 정보가 stale 상태입니다.`);
+    else if(factState==='needs_verification')warnings.push(`${block.type} (${id}): 사실 확인이 필요합니다.`);
+  }
+  if(duplicateIds.size)errors.push(`중복 block id: ${[...duplicateIds].join(', ')}`);
+  if(nonApprovedTypes.size){
+    const detail=[...nonApprovedTypes.entries()].map(([type,status])=>`${type}(${status})`).join(', ');
+    errors.push(`승인되지 않은 block type이 있습니다: ${detail}`);
+  }
+
+  const review=page.aiReview&&typeof page.aiReview==='object'?page.aiReview:{};
+  const issues=Array.isArray(review.issues)?review.issues:[];
+  const blockers=issues.filter(item=>String(item?.severity||'')==='blocker');
+  if(blockers.length)errors.push(`AI/편집 검토의 차단 항목 ${blockers.length}개를 해결해야 합니다.`);
+
+  if(!String(seo.ogImage||'').trim())warnings.push('대표 이미지가 없습니다.');
+  if(!String(seo.authorName||'').trim())warnings.push('작성/검토자 정보가 없습니다.');
+  if(!String(seo.reviewedAt||'').trim())warnings.push('내용 확인일이 없습니다.');
+
+  return {canPublish:errors.length===0,errors,warnings,checkedAt:koreaTime()};
+}
+
+async function publishPage(env,pageId){
+  const id=String(pageId||'').trim();
+  if(!id)return {ok:false,canPublish:false,message:'page id가 필요합니다.',errors:['page id가 없습니다.'],warnings:[]};
+  const result=await getPage(env,id);
+  if(!result.ok||!result.page)return {ok:false,canPublish:false,message:'페이지를 찾지 못했습니다.',errors:['서버 초안을 찾지 못했습니다.'],warnings:[]};
+  const page=result.page;
+  const validation=validateForPublish(page);
+  if(!validation.canPublish)return {ok:false,pageId:id,...validation,message:'발행 조건을 충족하지 못했습니다.'};
+
+  const [snapshotValues,pageValues,blockValues]=await Promise.all([
+    readSheetValues(env,SHEETS.snapshots),
+    readSheetValues(env,SHEETS.pages),
+    readSheetValues(env,SHEETS.blocks)
+  ]);
+  const snapshotHeaders=ensureHeaderMap(snapshotValues[0],['snapshot_id','page_id','version','slug','industry_id','title','theme','seo_json','source_updated_at','published_at','state']);
+  const pageHeaders=ensureHeaderMap(pageValues[0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at','brief_json','ai_status','ai_review_json']);
+  const blockHeaders=ensureHeaderMap(blockValues[0],['page_id','block_id','sort_order','type','variant','enabled','content_json','evidence_json','ai_policy_json','revision_version','created_at','updated_at','published_version']);
+
+  let version=1;
+  const previousActiveRows=[];
+  for(let i=1;i<snapshotValues.length;i++){
+    if(String(snapshotValues[i][snapshotHeaders.page_id]||'')!==id)continue;
+    version=Math.max(version,Number(snapshotValues[i][snapshotHeaders.version]||0)+1);
+    if(String(snapshotValues[i][snapshotHeaders.state]||'')==='active')previousActiveRows.push(i+1);
+  }
+
+  const snapshotId=crypto.randomUUID();
+  const now=koreaTime();
+  const snapshotRow=[[snapshotId,id,version,page.slug,page.industryId,page.title,page.theme,JSON.stringify(page.seo||{}),page.updatedAt||'',now,'active']];
+  await appendRange(env,`${SHEETS.snapshots}!A:K`,snapshotRow);
+
+  const publishedRows=page.blocks.map((block,index)=>[
+    snapshotId,id,block.id,index+1,block.type,block.variant,JSON.stringify(block.content||{}),JSON.stringify(block.evidence||[]),Number(block?.revision?.version||1),now
+  ]);
+  if(publishedRows.length)await appendRange(env,`${SHEETS.publishedBlocks}!A:J`,publishedRows);
+
+  for(const rowNumber of previousActiveRows)await updateRange(env,`${SHEETS.snapshots}!K${rowNumber}:K${rowNumber}`,[['superseded']]);
+
+  let pageRow=-1;
+  for(let i=1;i<pageValues.length;i++)if(String(pageValues[i][pageHeaders.page_id]||'')===id){pageRow=i+1;break;}
+  if(pageRow>0){
+    const existing=pageValues[pageRow-1];
+    const row=[[id,page.slug,page.industryId,page.title,'published',page.theme,JSON.stringify(page.seo||{}),String(existing[pageHeaders.created_at]||now),String(existing[pageHeaders.updated_at]||now),now,JSON.stringify(page.brief||{}),page.aiStatus||'needs_review',JSON.stringify(page.aiReview||{})]];
+    await updateRange(env,`${SHEETS.pages}!A${pageRow}:M${pageRow}`,row);
+  }
+
+  for(let i=1;i<blockValues.length;i++){
+    if(String(blockValues[i][blockHeaders.page_id]||'')!==id)continue;
+    const revisionVersion=String(blockValues[i][blockHeaders.revision_version]||'');
+    await updateRange(env,`${SHEETS.blocks}!M${i+1}:M${i+1}`,[[revisionVersion]]);
+  }
+
+  return {ok:true,canPublish:true,pageId:id,snapshotId,version,publishedAt:now,warnings:validation.warnings};
 }
 
 function rowToBlock(row){
