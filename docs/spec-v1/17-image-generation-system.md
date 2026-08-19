@@ -4,7 +4,7 @@
 
 ## IMG-SYS-001 — 본문 맥락이 이미지보다 먼저다
 
-이미지 생성은 `public/data/site-data/part-01.js` ~ `part-08.js`의 실제 본문과 최종 renderer를 먼저 읽은 뒤 진행한다.
+이미지 생성은 `public/content-packs/photography/data/part-01.js` ~ `part-08.js`의 실제 본문과 최종 renderer를 먼저 읽은 뒤 진행한다.
 
 카테고리명만 보고 이미지를 생성하지 않는다. 각 슬롯의 챕터 제목, 섹션 설명, 본문, 강조문장, 카드 목적, 실제 crop을 함께 해석한다.
 
@@ -75,7 +75,7 @@ Sony A7 III, Tamron 28-75mm F2.8 G2, Sony FE 85mm F1.8 제품 카드는 자유 �
 
 ## IMG-SYS-007 — 경로는 생성 전에 예약한다
 
-출력 경로는 `content/image-prompts/v1/manifest.json`과 `public/assets/js/media/image-slot-registry.js`가 정의한다.
+출력 경로는 `content/image-prompts/v1/manifest.json`과 `public/content-packs/photography/runtime/image-slot-registry.js`가 정의한다.
 
 생성자가 임의 파일명을 만들거나 코드에서 개별 URL을 하드코딩하지 않는다.
 
@@ -84,7 +84,7 @@ Sony A7 III, Tamron 28-75mm F2.8 G2, Sony FE 85mm F1.8 제품 카드는 자유 �
 
 ## IMG-SYS-008 — ready gate
 
-`public/assets/js/media/image-slot-registry.js`의 generated/reference/fallback 슬롯은 실제 파일이 존재하고 QA가 완료되기 전 `ready:false`다.
+`public/content-packs/photography/runtime/image-slot-registry.js`의 generated/reference/fallback 슬롯은 실제 파일이 존재하고 QA가 완료되기 전 `ready:false`다.
 
 `ready:false` 상태에서는 production의 기존 이미지가 그대로 사용되어야 한다.
 
@@ -99,7 +99,7 @@ Sony A7 III, Tamron 28-75mm F2.8 G2, Sony FE 85mm F1.8 제품 카드는 자유 �
 
 ## IMG-SYS-009 — semantic binder
 
-`public/assets/js/media/image-slot-binder.js`는 현재 renderer를 다시 설계하지 않고 이미 렌더된 DOM의 semantic title/section을 기준으로 슬롯을 연결한다.
+`public/content-packs/photography/runtime/image-slot-binder.js`는 현재 renderer를 다시 설계하지 않고 이미 렌더된 DOM의 semantic title/section을 기준으로 슬롯을 연결한다.
 
 이 binder는 이미지 생성 로직을 가지지 않는다.
 
