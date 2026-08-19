@@ -1,4 +1,5 @@
 import {normalizeBlockStyleV1} from '../../lib/block-style-v1.js';
+import {isKnownUiCapability,sanitizeUiConfigV1} from '../../lib/ui-capabilities-v1.js';
 
 let cachedToken=null;
 
@@ -11,9 +12,11 @@ export async function onRequest(context){
     const slug=cleanSlug(url.searchParams.get('slug')||'');
     if(!slug)return json({ok:false,message:'slug가 필요합니다.'},400,{'Cache-Control':'no-store'});
 
-    const [snapshotValues,blockValues]=await Promise.all([
-      readSheetValues(env,'PUBLISH_SNAPSHOTS','A:K'),
-      readSheetValues(env,'PUBLISHED_BLOCKS','A:L')
+    const [snapshotValues,blockValues,styleValues,uiValues]=await Promise.all([
+      readSheetValues(env,'PUBLISH_SNAPSHOTS','A:L'),
+      readSheetValues(env,'PUBLISHED_BLOCKS','A:M'),
+      readSheetValues(env,'PUBLISHED_BLOCK_STYLES','A:F'),
+      readSheetValues(env,'PUBLISHED_UI_CONFIG','A:G')
     ]);
     const snapshots=valuesToObjects(snapshotValues)
       .filter(row=>String(row.slug||'')===slug&&String(row.state||'')==='active')
@@ -23,20 +26,59 @@ export async function onRequest(context){
     if(!row)return json({ok:false,message:'공개된 페이지를 찾지 못했습니다.'},404,{'Cache-Control':'public, max-age=30, stale-while-revalidate=120'});
 
     const snapshotId=String(row.snapshot_id||'');
+    const stylesByBlock=new Map(
+      valuesToObjects(styleValues)
+        .filter(item=>String(item.snapshot_id||'')===snapshotId&&String(item.block_id||''))
+        .map(item=>[String(item.block_id),{
+          stylePresetId:String(item.style_preset_id||''),
+          resolvedStyle:normalizeBlockStyleV1(parseJsonCell(item.style_json,{})),
+          publishedAt:String(item.published_at||row.published_at||'')
+        }])
+    );
+
     const blocks=valuesToObjects(blockValues)
       .filter(item=>String(item.snapshot_id||'')===snapshotId&&String(item.block_id||''))
       .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0))
+      .map(item=>{
+        const styleSnapshot=stylesByBlock.get(String(item.block_id||''));
+        const legacyResolved=normalizeBlockStyleV1(parseJsonCell(item.resolved_style_json,{}));
+        const legacyOverrides=normalizeBlockStyleV1(parseJsonCell(item.style_overrides_json,{}));
+        return {
+          id:String(item.block_id||''),
+          type:String(item.type||''),
+          variant:String(item.variant||'default'),
+          enabled:true,
+          content:parseJsonCell(item.content_json,{}),
+          evidence:parseJsonCell(item.evidence_json,[]),
+          stylePresetId:styleSnapshot?.stylePresetId||String(item.style_preset_id||''),
+          styleOverrides:styleSnapshot?{}:legacyOverrides,
+          resolvedStyle:styleSnapshot?.resolvedStyle||legacyResolved,
+          revision:{version:Number(item.revision_version||1),updatedAt:String(styleSnapshot?.publishedAt||item.published_at||row.published_at||'')}
+        };
+      });
+
+    let uiCapabilities=valuesToObjects(uiValues)
+      .filter(item=>String(item.snapshot_id||'')===snapshotId&&isKnownUiCapability(item.capability_id))
       .map(item=>({
-        id:String(item.block_id||''),
-        type:String(item.type||''),
-        variant:String(item.variant||'default'),
-        enabled:true,
-        content:parseJsonCell(item.content_json,{}),
-        evidence:parseJsonCell(item.evidence_json,[]),
-        stylePresetId:String(item.style_preset_id||''),
-        styleOverrides:normalizeBlockStyleV1(parseJsonCell(item.style_overrides_json,{})),
-        revision:{version:Number(item.revision_version||1),updatedAt:String(item.published_at||row.published_at||'')}
+        capabilityId:String(item.capability_id||''),
+        enabled:String(item.enabled||'TRUE').toUpperCase()!=='FALSE',
+        presetId:String(item.preset_id||''),
+        config:sanitizeUiConfigV1(parseJsonCell(item.config_json,{})),
+        publishedAt:String(item.published_at||row.published_at||'')
       }));
+
+    if(!uiCapabilities.length){
+      const legacy=parseJsonCell(row.resolved_ui_json,{});
+      if(Array.isArray(legacy?.items)){
+        uiCapabilities=legacy.items.filter(item=>isKnownUiCapability(item?.capabilityId)).map(item=>({
+          capabilityId:String(item.capabilityId||''),
+          enabled:item.enabled===true,
+          presetId:String(item.presetId||''),
+          config:sanitizeUiConfigV1(item.config||{}),
+          publishedAt:String(row.published_at||'')
+        }));
+      }
+    }
 
     const snapshot={
       snapshotId,
@@ -49,6 +91,7 @@ export async function onRequest(context){
       seo:parseJsonCell(row.seo_json,{}),
       sourceUpdatedAt:String(row.source_updated_at||''),
       publishedAt:String(row.published_at||''),
+      uiCapabilities,
       blocks
     };
 
