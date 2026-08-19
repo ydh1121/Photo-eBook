@@ -31,7 +31,7 @@
     if(!def)return '';
     const variant=state.variants.get(block.id)||def.variants[0];
     const current={...block,variant};
-    return `<article class="lab-specimen" id="specimen-${registry.escapeHtml(block.id)}" data-category="${registry.escapeHtml(def.category)}">
+    return `<article class="lab-specimen" id="specimen-${registry.escapeHtml(block.id)}" data-block-id="${registry.escapeHtml(block.id)}" data-block-type="${registry.escapeHtml(block.type)}" data-category="${registry.escapeHtml(def.category)}" data-category-visible="true">
       <header class="lab-specimen__head">
         <div class="lab-specimen__index">${String(index+1).padStart(2,'0')}</div>
         <div class="lab-specimen__meta">
@@ -56,25 +56,31 @@
     nav.innerHTML=blocks.map((block,index)=>{
       const def=blockDefinition(block);
       if(!def)return '';
-      return `<a href="#specimen-${registry.escapeHtml(block.id)}" data-nav-category="${registry.escapeHtml(def.category)}"><b>${String(index+1).padStart(2,'0')}</b><span>${registry.escapeHtml(def.label)}</span></a>`;
+      return `<a href="#specimen-${registry.escapeHtml(block.id)}" data-block-type="${registry.escapeHtml(block.type)}" data-nav-category="${registry.escapeHtml(def.category)}" data-category-visible="true"><b>${String(index+1).padStart(2,'0')}</b><span>${registry.escapeHtml(def.label)}</span></a>`;
     }).join('');
     applyFilter();
     bindSpecimenControls();
     bindCopyButtons();
     bindEnhancements();
+    window.BlockLabReview?.enhanceSpecimens?.();
+    window.BlockLabReview?.applyReviewFilter?.();
   }
 
   function applyFilter(){
     let visible=0;
     document.querySelectorAll('.lab-specimen').forEach(node=>{
       const show=state.category==='all'||node.dataset.category===state.category;
-      node.hidden=!show;
+      node.dataset.categoryVisible=show?'true':'false';
       if(show)visible+=1;
+      if(!window.BlockLabReview)node.hidden=!show;
     });
     document.querySelectorAll('.lab-nav a').forEach(node=>{
-      node.hidden=!(state.category==='all'||node.dataset.navCategory===state.category);
+      const show=state.category==='all'||node.dataset.navCategory===state.category;
+      node.dataset.categoryVisible=show?'true':'false';
+      if(!window.BlockLabReview)node.hidden=!show;
     });
     if(count)count.textContent=`${visible} / ${blocks.length} blocks`;
+    window.BlockLabReview?.applyReviewFilter?.();
   }
 
   function bindSpecimenControls(){
