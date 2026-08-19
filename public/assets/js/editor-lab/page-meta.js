@@ -96,12 +96,14 @@
   async function installExtensions(){
     ensureStyle('/assets/styles/editor-lab/page-ui.css?v=1');
     ensureStyle('/assets/styles/blocks/style-runtime.css?v=1');
+    ensureStyle('/assets/styles/ui-capabilities/runtime.css?v=1');
     ensureStyle('/assets/styles/editor-lab/block-style.css?v=1');
     try{
       await loadScript('/data/ui-capabilities/v1/manifest.js?v=2',()=>Boolean(window.__PLATFORM_UI_CAPABILITY_MANIFEST));
+      await loadScript('/assets/js/ui-capabilities/runtime.js?v=1',()=>Boolean(window.PlatformUiCapabilityRuntime));
       await loadScript('/assets/js/editor-lab/page-ui.js?v=1',()=>Boolean(document.querySelector('.editor-page-ui')));
       await loadScript('/assets/js/blocks/block-style-runtime.js?v=1',()=>Boolean(window.PlatformBlockStyles));
-      await loadScript('/assets/js/editor-lab/block-style.js?v=1',()=>Boolean(document.querySelector('.editor-block-style')));
+      await loadScript('/assets/js/editor-lab/block-style.js?v=2',()=>Boolean(document.querySelector('.editor-block-style')));
     }catch(error){console.error('Editor extension load failed',error);}
   }
 
