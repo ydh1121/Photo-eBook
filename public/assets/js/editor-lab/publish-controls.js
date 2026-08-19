@@ -8,12 +8,13 @@
   if(!checkButton||!publishButton||!status||!results)return;
 
   let busy=false;
+  let lastCheck=null;
 
   function getToken(){try{return sessionStorage.getItem(TOKEN_KEY)||'';}catch{return '';}}
   function readDraft(){try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}')||{};}catch{return {};}}
   function writeDraft(draft){localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));}
   function setStatus(text,kind='idle'){status.textContent=text;status.dataset.status=kind;}
-  function setBusy(value){busy=Boolean(value);checkButton.disabled=busy;publishButton.disabled=busy;}
+  function setBusy(value){busy=Boolean(value);checkButton.disabled=busy;publishButton.disabled=busy||!lastCheck?.canPublish;}
   function escapeHtml(value=''){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));}
 
   async function requestApi(path,{body}={}){
@@ -53,23 +54,24 @@
     for(const message of warnings)rows.push(`<li data-kind="warning"><strong>확인</strong><span>${escapeHtml(message)}</span></li>`);
     results.innerHTML=rows.length?`<ul>${rows.join('')}</ul>`:'<p>발행을 막는 항목이 없습니다.</p>';
     results.hidden=false;
-    publishButton.disabled=busy||!data?.canPublish;
   }
 
   async function runCheck(){
+    lastCheck=null;
     setBusy(true);setStatus('서버 초안 저장 및 검사 중');results.hidden=true;
     try{
       const draft=await saveBeforePublish();
       const {data}=await requestApi('publish-check',{body:{pageId:draft.pageId}});
+      lastCheck=data;
       renderResult(data);
       setStatus(data.canPublish?'발행 가능':'수정할 항목이 있습니다.',data.canPublish?'ok':'warning');
       return data;
     }catch(error){
       setStatus(error?.message||'발행 검사를 완료하지 못했습니다.','error');
-      publishButton.disabled=true;
+      lastCheck=null;
       return null;
     }finally{
-      busy=false;checkButton.disabled=false;
+      setBusy(false);
     }
   }
 
@@ -87,7 +89,8 @@
       draft.serverUpdatedAt=data.publishedAt;
       writeDraft(draft);
       setStatus(`발행 완료 · version ${data.version}`,'ok');
-    }catch(error){setStatus(error?.message||'발행하지 못했습니다.','error');}
+      lastCheck=null;
+    }catch(error){setStatus(error?.message||'발행하지 못했습니다.','error');lastCheck=null;}
     finally{setBusy(false);}
   }
 
