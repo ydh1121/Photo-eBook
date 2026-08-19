@@ -8,6 +8,7 @@ const SHEETS={
 const KNOWN_BLOCK_TYPES=new Set([
   'hero','chapter-hero','section-heading','rich-text','process','metric-grid','offer-rail','notice','comparison-cards','checklist','media-rail','case-study-rail','product-tool','roadmap','script-copy','tutorial','resources','faq','pros-cons','comparison-table','timeline','image-copy-split','gallery','quote-expert','calculator','cta','service-list'
 ]);
+const AI_STATUSES=new Set(['not_requested','brief_ready','drafting','needs_review','approved']);
 
 let cachedToken=null;
 
@@ -84,15 +85,15 @@ async function readJson(request){
 }
 
 async function listPages(env){
-  const rows=await readSheetObjects(env,SHEETS.pages,true);
+  const rows=await readSheetObjects(env,SHEETS.pages);
   const pages=rows.filter(row=>row.page_id).map(row=>({
-    pageId:String(row.page_id),slug:String(row.slug||''),industryId:String(row.industry_id||''),title:String(row.title||''),status:String(row.status||'draft'),theme:String(row.theme||'light'),updatedAt:String(row.updated_at||''),publishedAt:String(row.published_at||'')
+    pageId:String(row.page_id),slug:String(row.slug||''),industryId:String(row.industry_id||''),title:String(row.title||''),status:String(row.status||'draft'),theme:String(row.theme||'light'),aiStatus:String(row.ai_status||'not_requested'),updatedAt:String(row.updated_at||''),publishedAt:String(row.published_at||'')
   }));
   return {ok:true,pages};
 }
 
 async function getPage(env,pageId){
-  const [pageRows,blockRows]=await Promise.all([readSheetObjects(env,SHEETS.pages,true),readSheetObjects(env,SHEETS.blocks,true)]);
+  const [pageRows,blockRows]=await Promise.all([readSheetObjects(env,SHEETS.pages),readSheetObjects(env,SHEETS.blocks)]);
   const row=pageRows.find(item=>String(item.page_id||'')===pageId);
   if(!row)return {ok:false,message:'페이지를 찾지 못했습니다.',page:null};
   const blocks=blockRows
@@ -100,7 +101,7 @@ async function getPage(env,pageId){
     .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0))
     .map(rowToBlock);
   return {ok:true,page:{
-    pageId:String(row.page_id),slug:String(row.slug||''),industryId:String(row.industry_id||''),title:String(row.title||''),status:String(row.status||'draft'),theme:String(row.theme||'light'),seo:parseJsonCell(row.seo_json,{}),createdAt:String(row.created_at||''),updatedAt:String(row.updated_at||''),publishedAt:String(row.published_at||''),blocks
+    pageId:String(row.page_id),slug:String(row.slug||''),industryId:String(row.industry_id||''),title:String(row.title||''),status:String(row.status||'draft'),theme:String(row.theme||'light'),seo:parseJsonCell(row.seo_json,{}),brief:parseJsonCell(row.brief_json,{}),aiStatus:String(row.ai_status||'not_requested'),createdAt:String(row.created_at||''),updatedAt:String(row.updated_at||''),publishedAt:String(row.published_at||''),blocks
   }};
 }
 
@@ -112,18 +113,21 @@ async function saveDraftPage(env,body){
   const industryId=cleanId(page.industryId||'general',120);
   const title=String(page.title||'새 분야 가이드').trim().slice(0,300);
   const theme=['light','dark','system'].includes(page.theme)?page.theme:'light';
-  const seo=page.seo&&typeof page.seo==='object'?page.seo:{};
+  const seo=page.seo&&typeof page.seo==='object'&&!Array.isArray(page.seo)?page.seo:{};
+  const brief=page.brief&&typeof page.brief==='object'&&!Array.isArray(page.brief)?page.brief:{};
+  const aiStatus=AI_STATUSES.has(page.aiStatus)?page.aiStatus:(Object.keys(brief).length?'brief_ready':'not_requested');
   const now=koreaTime();
 
   if(!title)throw new Error('페이지 제목을 확인해 주세요.');
   if(blocks.length>300)throw new Error('한 페이지의 블록 수가 너무 많습니다.');
+  if(JSON.stringify(brief).length>30000)throw new Error('페이지 brief가 너무 큽니다.');
 
   const normalizedBlocks=blocks.map((block,index)=>normalizeBlockForSave(block,index));
   const uniqueBlockIds=new Set(normalizedBlocks.map(block=>block.id));
   if(uniqueBlockIds.size!==normalizedBlocks.length)throw new Error('같은 block id가 중복돼 있습니다.');
 
   const [pageValues,blockValues]=await Promise.all([readSheetValues(env,SHEETS.pages),readSheetValues(env,SHEETS.blocks)]);
-  const pageHeaders=ensureHeaderMap(pageValues[0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at']);
+  const pageHeaders=ensureHeaderMap(pageValues[0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at','brief_json','ai_status']);
   const blockHeaders=ensureHeaderMap(blockValues[0],['page_id','block_id','sort_order','type','variant','enabled','content_json','evidence_json','ai_policy_json','revision_version','created_at','updated_at','published_version']);
 
   let pageRow=-1;
@@ -138,9 +142,9 @@ async function saveDraftPage(env,body){
     }
   }
 
-  const pageRecord=[[pageId,slug,industryId,title,'draft',theme,JSON.stringify(seo),createdAt,now,publishedAt]];
-  if(pageRow>0)await updateRange(env,`${SHEETS.pages}!A${pageRow}:J${pageRow}`,pageRecord);
-  else await appendRange(env,`${SHEETS.pages}!A:J`,pageRecord);
+  const pageRecord=[[pageId,slug,industryId,title,'draft',theme,JSON.stringify(seo),createdAt,now,publishedAt,JSON.stringify(brief),aiStatus]];
+  if(pageRow>0)await updateRange(env,`${SHEETS.pages}!A${pageRow}:L${pageRow}`,pageRecord);
+  else await appendRange(env,`${SHEETS.pages}!A:L`,pageRecord);
 
   const existingById=new Map();
   for(let i=1;i<blockValues.length;i++){
@@ -178,7 +182,7 @@ async function saveDraftPage(env,body){
   for(const rowNumber of obsoleteRows)await clearRange(env,`${SHEETS.blocks}!A${rowNumber}:M${rowNumber}`);
   if(revisionRows.length)await appendRange(env,`${SHEETS.revisions}!A:H`,revisionRows);
 
-  return {ok:true,pageId,slug,status:'draft',blockCount:normalizedBlocks.length,updatedAt:now};
+  return {ok:true,pageId,slug,status:'draft',aiStatus,blockCount:normalizedBlocks.length,updatedAt:now};
 }
 
 function normalizeBlockForSave(input,index){
