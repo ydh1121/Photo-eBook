@@ -1,3 +1,5 @@
+import {normalizeBlockStyleV1} from '../../lib/block-style-v1.js';
+
 let cachedToken=null;
 
 export async function onRequest(context){
@@ -11,7 +13,7 @@ export async function onRequest(context){
 
     const [snapshotValues,blockValues]=await Promise.all([
       readSheetValues(env,'PUBLISH_SNAPSHOTS','A:K'),
-      readSheetValues(env,'PUBLISHED_BLOCKS','A:J')
+      readSheetValues(env,'PUBLISHED_BLOCKS','A:L')
     ]);
     const snapshots=valuesToObjects(snapshotValues)
       .filter(row=>String(row.slug||'')===slug&&String(row.state||'')==='active')
@@ -31,6 +33,8 @@ export async function onRequest(context){
         enabled:true,
         content:parseJsonCell(item.content_json,{}),
         evidence:parseJsonCell(item.evidence_json,[]),
+        stylePresetId:String(item.style_preset_id||''),
+        styleOverrides:normalizeBlockStyleV1(parseJsonCell(item.style_overrides_json,{})),
         revision:{version:Number(item.revision_version||1),updatedAt:String(item.published_at||row.published_at||'')}
       }));
 
