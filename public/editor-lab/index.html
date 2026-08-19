@@ -10,16 +10,25 @@
   <link rel="stylesheet" href="/assets/styles/block-lab/refinement-v2.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/new-blocks-v2.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/editor.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/editor-lab/server.css?v=1">
 </head>
 <body>
   <div class="block-lab editor-lab" data-theme="light" data-preview="desktop" data-mode="edit">
     <header class="editor-topbar">
       <div class="editor-brand">
         <strong>Block Editor Lab</strong>
-        <span>브라우저 draft / production 미연결</span>
+        <span id="editorServerStatus">브라우저 초안</span>
       </div>
       <input id="editorPageTitle" class="editor-page-title" type="text" value="새 분야 가이드" aria-label="페이지 이름">
       <div class="editor-top-actions">
+        <div class="editor-server-controls" aria-label="서버 초안">
+          <button type="button" id="editorServerConnect">서버 연결</button>
+          <select id="editorServerPages" aria-label="서버 초안 목록" disabled>
+            <option value="">서버 초안</option>
+          </select>
+          <button type="button" id="editorServerLoad" disabled>불러오기</button>
+          <button type="button" id="editorServerSave" disabled>서버 저장</button>
+        </div>
         <button type="button" id="editorUndo">실행 취소</button>
         <button type="button" id="editorRedo">다시 실행</button>
         <div class="editor-segment" aria-label="편집 모드">
@@ -69,6 +78,22 @@
         </div>
       </aside>
     </div>
+
+    <dialog id="editorConnectDialog" class="editor-connect-dialog">
+      <div class="editor-connect-card">
+        <div>
+          <small>ADMIN CONNECTION</small>
+          <h2>관리자 서버 연결</h2>
+          <p>배포 환경의 관리자 토큰을 입력하세요. 토큰은 이 탭의 세션에만 보관합니다.</p>
+        </div>
+        <label>관리자 토큰<input id="editorAdminToken" type="password" autocomplete="off" spellcheck="false"></label>
+        <p id="editorConnectMessage" class="editor-connect-message" role="status"></p>
+        <div class="editor-connect-actions">
+          <button type="button" id="editorConnectCancel">취소</button>
+          <button type="button" id="editorConnectSubmit">연결</button>
+        </div>
+      </div>
+    </dialog>
   </div>
 
   <script src="/assets/js/blocks/block-registry.js?v=2"></script>
@@ -79,5 +104,6 @@
   <script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script>
   <script src="/assets/js/editor-lab/editor-app.js?v=1"></script>
+  <script src="/assets/js/editor-lab/editor-server.js?v=1"></script>
 </body>
 </html>
