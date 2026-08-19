@@ -1,21 +1,21 @@
 {
-  "nonce": "2026-08-19T14:10:00+09:00",
+  "nonce": "2026-08-19T14:18:00+09:00",
   "files": [
     {
+      "proxy_name": "sony-a7-iii",
       "target": "public/assets/images/generated/v1/gear/sony-a7-iii.webp",
-      "drive_file_id": "1tjciwRi7gmT2qcgGaTgn-tt4JwuecLzn",
       "size": 163022,
       "sha256": "11c1b7df2187506c795fe33ecd2ee47fd01ebcc0d2a3381ac6d3b437f5b29854"
     },
     {
+      "proxy_name": "tamron-28-75-g2",
       "target": "public/assets/images/generated/v1/gear/tamron-28-75-g2.webp",
-      "drive_file_id": "1-9fM4-TO1SGzS92WXmUsYM3wP96a3UBt",
       "size": 89800,
       "sha256": "4f53344ccf8f625eede1051c0ea0419d0e1c17d4f6ff6e62f846dc180369e192"
     },
     {
+      "proxy_name": "sony-fe-85-f18",
       "target": "public/assets/images/generated/v1/gear/sony-fe-85-f18.webp",
-      "drive_file_id": "1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx",
       "size": 124136,
       "sha256": "476d8a2e4a1de3eb90a9be718d6d2c004fe9eb38a44033d4af3821a32a94a760"
     }
