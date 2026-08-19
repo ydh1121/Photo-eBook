@@ -156,7 +156,7 @@ Git connector를 통해 대용량 binary/base64를 한 번에 직접 `create_blo
 
 ### 캐시 규칙
 
-이미지 파일을 동일 경로에서 교체한 경우 `image-slots-v1.js`의 해당 slot `rev`와 `index.html`의 slot runtime script version을 증가시켜 Safari/CDN/browser의 이전 응답을 우회한다.
+이미지 파일을 동일 경로에서 교체한 경우 `public/assets/js/media/image-slot-registry.js`의 해당 slot `rev`와 `index.html`의 image-slot registry script version을 증가시켜 Safari/CDN/browser의 이전 응답을 우회한다.
 
 ## WORK-IMG-007 — Drive mirror
 
