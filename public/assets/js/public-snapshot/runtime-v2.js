@@ -27,7 +27,7 @@
     setJsonLd(snapshot,canonical,description);
   }
 
-  function render(payload,{root,statusNode,allowCandidate=false,trustedPublished=false,canonicalBase=location.origin}={}){
+  function render(payload,{root,statusNode,allowCandidate=false,trustedPublished=false,showStatus=false,canonicalBase=location.origin}={}){
     const snapshot=payload?.snapshot||{};
     const blocks=Array.isArray(payload?.blocks)?payload.blocks:[];
     const uiCapabilities=Array.isArray(payload?.uiCapabilities)?payload.uiCapabilities:[];
@@ -44,12 +44,13 @@
     });
 
     if(errors.length){
-      root.innerHTML=`<section class="public-snapshot-error"><strong>공개 renderer 검사를 통과하지 못했습니다.</strong><ul>${errors.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul></section>`;
+      root.innerHTML=`<section class="public-snapshot-error"><strong>페이지를 표시하지 못했습니다.</strong><ul>${errors.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ul></section>`;
       if(statusNode)statusNode.textContent='검사 실패';
       return {ok:false,errors};
     }
 
-    root.innerHTML=`<div class="public-snapshot-status"><strong>Snapshot V2</strong><span>v${escapeHtml(snapshot.version||'—')} · ${escapeHtml(snapshot.publishedAt||'미발행')}</span></div><main class="public-snapshot-flow">${rendered.join('')}</main>`;
+    const statusHtml=showStatus?`<div class="public-snapshot-status"><strong>Snapshot V2</strong><span>v${escapeHtml(snapshot.version||'—')} · ${escapeHtml(snapshot.publishedAt||'미발행')}</span></div>`:'';
+    root.innerHTML=`${statusHtml}<main class="public-snapshot-flow">${rendered.join('')}</main>`;
     const styleRuntime=window.PlatformBlockStyles;
     if(styleRuntime){
       blocks.forEach(block=>{
