@@ -1,3 +1,5 @@
+import {normalizeBlockStyleV1} from '../../lib/block-style-v1.js';
+
 let cachedToken=null;
 
 const SHEETS={
@@ -55,7 +57,7 @@ async function saveDraftPage(env,body){
     readSheetValues(env,SHEETS.blocks)
   ]);
   const pageHeaders=ensureHeaderMap(pageValues[0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at','brief_json','ai_status','ai_review_json']);
-  const blockHeaders=ensureHeaderMap(blockValues[0],['page_id','block_id','sort_order','type','variant','enabled','content_json','evidence_json','ai_policy_json','revision_version','created_at','updated_at','published_version']);
+  const blockHeaders=ensureHeaderMap(blockValues[0],['page_id','block_id','sort_order','type','variant','enabled','content_json','evidence_json','ai_policy_json','revision_version','created_at','updated_at','published_version','style_preset_id','style_overrides_json']);
 
   let pageRow=-1;
   let createdAt=now;
@@ -109,12 +111,12 @@ async function saveDraftPage(env,body){
     const blockCreatedAt=String(existing.row[blockHeaders.created_at]||now);
     const publishedVersion=String(existing.row[blockHeaders.published_version]||'');
     const row=blockRow(pageId,block,version,blockCreatedAt,now,publishedVersion);
-    await updateRange(env,`${SHEETS.blocks}!A${existing.rowNumber}:M${existing.rowNumber}`,[row]);
+    await updateRange(env,`${SHEETS.blocks}!A${existing.rowNumber}:O${existing.rowNumber}`,[row]);
     revisionRows.push(revisionRow(pageId,block,version,now,'draft save'));
     changedBlockCount+=1;
   }
 
-  if(rowsToAppend.length)await appendRange(env,`${SHEETS.blocks}!A:M`,rowsToAppend);
+  if(rowsToAppend.length)await appendRange(env,`${SHEETS.blocks}!A:O`,rowsToAppend);
 
   const obsoleteEntries=[...existingById.entries()]
     .filter(([blockId])=>!currentIds.has(blockId))
@@ -128,7 +130,7 @@ async function saveDraftPage(env,body){
       crypto.randomUUID(),pageId,entry.blockId,deletionVersion,'admin','block removed',
       JSON.stringify({...snapshot,enabled:false,revision:{version:deletionVersion,updatedAt:now,updatedBy:'admin'}}),now
     ]);
-    await clearRange(env,`${SHEETS.blocks}!A${entry.rowNumber}:M${entry.rowNumber}`);
+    await clearRange(env,`${SHEETS.blocks}!A${entry.rowNumber}:O${entry.rowNumber}`);
     changedBlockCount+=1;
   }
 
@@ -156,7 +158,9 @@ function hasBlockChanged(block,row,headers){
     enabled:String(row[headers.enabled]||'TRUE').toUpperCase()!=='FALSE',
     content:parseJsonCell(row[headers.content_json],{}),
     evidence:parseJsonCell(row[headers.evidence_json],[]),
-    aiPolicy:parseJsonCell(row[headers.ai_policy_json],{mode:'full'})
+    aiPolicy:parseJsonCell(row[headers.ai_policy_json],{mode:'full'}),
+    stylePresetId:String(row[headers.style_preset_id]||''),
+    styleOverrides:normalizeBlockStyleV1(parseJsonCell(row[headers.style_overrides_json],{}))
   };
   return existing.sortOrder!==block.sortOrder
     || existing.type!==block.type
@@ -164,14 +168,16 @@ function hasBlockChanged(block,row,headers){
     || existing.enabled!==block.enabled
     || stableJson(existing.content)!==stableJson(block.content)
     || stableJson(existing.evidence)!==stableJson(block.evidence)
-    || stableJson(existing.aiPolicy)!==stableJson(block.aiPolicy);
+    || stableJson(existing.aiPolicy)!==stableJson(block.aiPolicy)
+    || existing.stylePresetId!==block.stylePresetId
+    || stableJson(existing.styleOverrides)!==stableJson(block.styleOverrides);
 }
 
 function blockRow(pageId,block,version,createdAt,updatedAt,publishedVersion){
   return [
     pageId,block.id,block.sortOrder,block.type,block.variant,block.enabled?'TRUE':'FALSE',
     JSON.stringify(block.content),JSON.stringify(block.evidence),JSON.stringify(block.aiPolicy),
-    version,createdAt,updatedAt,publishedVersion
+    version,createdAt,updatedAt,publishedVersion,block.stylePresetId,JSON.stringify(block.styleOverrides)
   ];
 }
 
@@ -190,7 +196,9 @@ function rowToBlockSnapshot(row,headers){
     enabled:String(row[headers.enabled]||'TRUE').toUpperCase()!=='FALSE',
     content:parseJsonCell(row[headers.content_json],{}),
     evidence:parseJsonCell(row[headers.evidence_json],[]),
-    aiPolicy:parseJsonCell(row[headers.ai_policy_json],{mode:'full'})
+    aiPolicy:parseJsonCell(row[headers.ai_policy_json],{mode:'full'}),
+    stylePresetId:String(row[headers.style_preset_id]||''),
+    styleOverrides:normalizeBlockStyleV1(parseJsonCell(row[headers.style_overrides_json],{}))
   };
 }
 
@@ -203,9 +211,11 @@ function normalizeBlockForSave(input,index){
   const content=plainObject(block.content)?block.content:{};
   const evidence=Array.isArray(block.evidence)?block.evidence:[];
   const aiPolicy=plainObject(block.aiPolicy)?block.aiPolicy:{mode:'full'};
-  const jsonSize=stableJson({content,evidence,aiPolicy}).length;
+  const stylePresetId=cleanId(block.stylePresetId||'',180);
+  const styleOverrides=normalizeBlockStyleV1(plainObject(block.styleOverrides)?block.styleOverrides:{});
+  const jsonSize=stableJson({content,evidence,aiPolicy,styleOverrides}).length;
   if(jsonSize>40000)throw new Error(`블록 내용이 너무 큽니다: ${type}`);
-  return {id,type,variant,enabled:block.enabled!==false,sortOrder:index+1,content,evidence,aiPolicy};
+  return {id,type,variant,enabled:block.enabled!==false,sortOrder:index+1,content,evidence,aiPolicy,stylePresetId,styleOverrides};
 }
 
 function stableJson(value){return JSON.stringify(stableValue(value));}
