@@ -30,6 +30,18 @@
     return {response,data};
   }
 
+  async function checkSlugAvailability(draft){
+    const token=getToken();
+    const slug=String(draft.slug||'').trim();
+    if(!slug)throw new Error('URL slug를 입력하세요.');
+    const params=new URLSearchParams({slug,pageId:String(draft.pageId||'')});
+    const response=await fetch(`/api/editor/slug-check?${params.toString()}`,{credentials:'same-origin',headers:{Authorization:`Bearer ${token}`}});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||data?.ok===false)throw new Error(data?.message||`URL 중복 확인 실패 (${response.status})`);
+    if(!data.available)throw new Error('같은 URL slug를 사용하는 다른 페이지가 있습니다.');
+    return data;
+  }
+
   function toServerPayload(draft){
     return {page:{pageId:draft.pageId,slug:draft.slug||'',industryId:draft.industryId||'general',title:draft.pageTitle||'새 분야 가이드',theme:draft.theme||'light',seo:draft.seo||{},brief:draft.brief||{},aiStatus:draft.aiStatus||'not_requested',aiReview:draft.aiReview||{}},blocks:Array.isArray(draft.blocks)?draft.blocks:[]};
   }
@@ -37,6 +49,7 @@
   async function saveBeforePublish(){
     const draft=readDraft();
     if(!draft.pageId||!Array.isArray(draft.blocks))throw new Error('현재 초안을 확인하세요.');
+    await checkSlugAvailability(draft);
     const {response,data}=await requestApi('save-page',{body:toServerPayload(draft)});
     if(!response.ok||data?.ok===false)throw new Error(data?.message||'서버 초안을 저장하지 못했습니다.');
     draft.pageId=data.pageId||draft.pageId;
