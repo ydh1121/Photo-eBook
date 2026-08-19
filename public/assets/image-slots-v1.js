@@ -33,9 +33,9 @@
     'portfolio-food-store':{path:'/assets/images/generated/v1/portfolio/food-store.webp',fallbackKey:'food',ready:true,rev:'b007'},
     'portfolio-studio-process':{path:'/assets/images/generated/v1/portfolio/studio-process.webp',fallbackKey:'portfolio',ready:true,rev:'b007'},
 
-    'gear-product-sony-a7-iii':{path:'/assets/images/generated/v1/gear/sony-a7-iii.webp',ready:true,rev:'b009'},
-    'gear-product-tamron-28-75-g2':{path:'/assets/images/generated/v1/gear/tamron-28-75-g2.webp',ready:true,rev:'b009'},
-    'gear-product-sony-fe-85-f18':{path:'/assets/images/generated/v1/gear/sony-fe-85-f18.webp',ready:true,rev:'b009'},
+    'gear-product-sony-a7-iii':{path:'/assets/images/generated/v1/gear/sony-a7-iii.webp',ready:true,rev:'b010'},
+    'gear-product-tamron-28-75-g2':{path:'/assets/images/generated/v1/gear/tamron-28-75-g2.webp',ready:true,rev:'b010'},
+    'gear-product-sony-fe-85-f18':{path:'/assets/images/generated/v1/gear/sony-fe-85-f18.webp',ready:true,rev:'b010'},
 
     'iphone-lesson-setup':{path:'/assets/images/generated/v1/iphone/lessons/setup.webp',fallbackKey:'studio',ready:true,rev:'b009'},
     'iphone-lesson-focus':{path:'/assets/images/generated/v1/iphone/lessons/focus.webp',fallbackKey:'iphone',ready:true,rev:'b009'},
