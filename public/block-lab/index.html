@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/assets/styles/block-lab/lab.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/a11y.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/refinement-v2.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/block-lab/new-blocks-v2.css?v=1">
 </head>
 <body>
   <div class="block-lab" data-theme="light" data-preview="fluid">
@@ -15,7 +16,7 @@
       <div class="lab-topbar__inner">
         <div class="lab-brand">
           <strong>Platform Block Lab</strong>
-          <span id="labCount">17 blocks</span>
+          <span id="labCount">27 blocks</span>
         </div>
         <div class="lab-controls">
           <select class="lab-filter" id="labCategory" aria-label="블록 분류">
@@ -46,7 +47,7 @@
         <div class="lab-sidebar__intro">
           <small>Candidate Library V1</small>
           <h1>콘텐츠 블록을 한 화면에서 검토합니다</h1>
-          <p>현재 photography 페이지에서 추출한 편집 단위입니다. 실제 운영 화면은 아직 이 renderer로 교체하지 않았습니다.</p>
+          <p>현재 photography 페이지에서 추출한 블록과 여러 산업에 필요한 신규 후보를 함께 검토합니다. 실제 운영 화면은 아직 이 renderer로 교체하지 않았습니다.</p>
         </div>
         <nav class="lab-nav" id="labNav" aria-label="블록 목록"></nav>
       </aside>
@@ -58,7 +59,7 @@
           <p>각 specimen의 variant를 바꾸고 Light/Dark, 390·768·1180px 폭에서 비교할 수 있습니다. 아래 수치와 문장은 UI 검토용 샘플이며 실제 시장 정보가 아닙니다.</p>
           <div class="lab-intro__notes">
             <span>현재 production 영향 없음</span>
-            <span>17개 candidate family</span>
+            <span>27개 candidate family</span>
             <span>Block Editor용 데이터 계약 준비</span>
             <span>승인 전 신규 pack 사용 금지</span>
           </div>
@@ -71,7 +72,10 @@
 
   <script src="/assets/js/blocks/block-registry.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers.js?v=1"></script>
+  <script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-data.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-app.js?v=1"></script>
 </body>
 </html>
