@@ -27,10 +27,6 @@
 - `dotoricode/korean-humanizer`
 - `NomaDamas/k-skill` korean-humanizer
 
-완료 기준:
-- 디자인/인터랙션/에디토리얼 작업자가 각 레퍼런스의 역할과 한계를 Git만 읽고 이해할 수 있음
-- 외부 코드를 통째로 가져오지 않고 필요한 원리만 차용하는 원칙이 명시됨
-
 ## 02. Editorial Library
 
 - [x] 기존 `docs/spec-v1/20-korean-copywriting-skill.md`를 상위 Editorial Library와 연결
@@ -39,14 +35,6 @@
 - [x] heading / body / comparison / process / metric / CTA / source / SEO-GEO 규칙 분리
 - [x] AI 작성 허용 범위와 사실 검증 규칙 정의
 - [x] 산업 독립 규칙과 photography 특수 규칙 분리
-
-완료 메모:
-- `docs/library/editorial/README.md`
-- `01-voice-principles.md`
-- `02-block-copy-profiles.md`
-- `03-ai-writing-and-review.md`
-- `04-before-after-examples.md`
-- 운영 `COPY_GUIDE`에도 회수된 사용자 규칙을 먼저 반영함
 
 ## 03. UI Block Inventory + Block System V1
 
@@ -74,6 +62,11 @@
 - [x] candidate Block Registry + renderer 분리
 - [x] block status/editorial profile/type 메타 표시
 - [x] 신규 calculator interaction 샘플 동작
+- [x] block별 사용자 review control 추가
+- [x] review 상태 localStorage 저장
+- [x] review JSON export
+- [x] review 상태 필터/요약
+- [x] registry manifest/runtime health 표시
 - [ ] 승인 후 실제 production renderer로 승격/공유
 - [-] 배포 후 실제 화면 QA 및 사용자 디자인 검토
 
@@ -100,9 +93,6 @@
 - `docs/library/design-taste/PLATFORM-TASTES.md`
 - `public/assets/styles/block-lab/refinement-v2.css`
 
-완료 기준:
-- 사용자 검토 후 각 candidate를 `approved / redesign / merge / deprecated`로 결정 가능
-
 ## 06. 신규 범용 블록
 
 - [x] FAQ / accordion → `faq`
@@ -122,34 +112,60 @@
 - 신규 독립 type 10개 추가
 - 총 candidate 27개
 - `docs/library/blocks/V1-EXPANSION.md`
-- `block-renderers-extended.js`
-- `lab-data-extended.js`
-- `lab-interactions-extended.js`
-- `new-blocks-v2.css`
 
 ## 07. Approved Block Registry
 
-- [ ] 사용자 Block Lab 검토 결과 수집
-- [ ] block별 `approved / redesign / merge / deprecated` 결정
-- [ ] block id / type / schema / variants / status 최종 계약
-- [ ] approved/deprecated lifecycle
-- [ ] 분야 pack에서 승인 블록만 참조하도록 validation
-- [ ] Block Lab과 production renderer 동일 registry 사용
+- [x] runtime manifest 생성 — `public/data/block-registry/v1/manifest.js`
+- [x] manifest와 renderer type/variant health validation
+- [x] production 사용 가능 여부 검사 API 추가
+- [x] approval lifecycle 문서화 — `docs/library/blocks/APPROVAL-WORKFLOW.md`
+- [x] 사용자 Block Lab review 결과를 저장/내보낼 UI 구현
+- [-] 사용자 Block Lab 검토 결과 수집
+- [ ] block별 `approved / redesign / merge / deprecated` 최종 판정
+- [ ] approved block lifecycle 반영
+- [ ] 분야 pack publish validation에 Registry 연결
+- [ ] 승인 renderer를 production/admin canonical renderer로 승격
 
-Phase 07은 사용자 시각 검토 전 자동 승인하지 않는다.
+중요:
+- 사용자 시각 검토 전 자동 승인하지 않는다.
+- manifest의 27개 type은 현재 모두 `candidate`다.
 
 ## 08. 관리자 Block Editor
 
-- [ ] 산업 분야 생성/복제
-- [ ] block 추가/삭제/복제
-- [ ] drag-and-drop 순서 변경
-- [ ] inline text edit
-- [ ] 속성 inspector
-- [ ] 이미지 선택/교체
-- [ ] desktop/tablet/mobile preview
-- [ ] light/dark preview
+### Editor Lab — 구현됨
+- [x] production과 분리된 `/editor-lab/` route
+- [x] 27개 candidate library 표시
+- [x] block 추가
+- [x] drag-and-drop 순서 변경
+- [x] 위/아래 이동 대체 조작
+- [x] block 복제/삭제
+- [x] variant 변경
+- [x] content 문자열/숫자/배열/객체 편집 inspector
+- [x] desktop/tablet/mobile preview (1180/768/390)
+- [x] light/dark preview
+- [x] edit/preview mode
+- [x] localStorage draft
+- [x] undo/redo
+- [x] JSON import/export
+- [x] 같은 Block Registry renderer 사용
+
+### Production 관리자 연결 — 남음
+- [ ] 산업 분야 생성/복제 메타데이터 UI
+- [ ] block-specific friendly inspector schema 정제
+- [ ] 이미지 asset picker/Drive 연결
+- [ ] 관리자 인증
+- [ ] Google Sheets draft save/load
 - [ ] draft/published 분리
-- [ ] undo/version restore
+- [ ] server-side revision history
+- [ ] published page preview/publish action
+- [ ] approved block만 production picker에 노출
+
+저장 설계:
+- `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
+- V1 구조화 콘텐츠: Google Sheets
+- 이미지/파일/archive: Google Drive
+- renderer/schema/permanent rules: Git
+- `/editor-lab/` localStorage는 검증용 임시 draft만 담당
 
 ## 09. AI 콘텐츠 작성/검수
 
