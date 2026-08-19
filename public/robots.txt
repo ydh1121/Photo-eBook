@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /block-lab/
+Disallow: /editor-lab/
+Disallow: /api/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /block-lab/
+Disallow: /editor-lab/
+Disallow: /api/
