@@ -48,31 +48,54 @@
 
 ## 03. UI Block Inventory + Block System V1
 
-- [-] 현재 photography 페이지의 시각 패턴 전수 분해
-- [ ] 중복 블록 통합
-- [ ] 챕터에 묶인 UI를 독립 block 후보로 분리
-- [ ] block data schema 정의
-- [ ] variant / responsive / accessibility 계약 정의
-- [ ] block별 editorial profile 연결
-- [ ] block별 reference profile 연결
+- [x] 현재 photography 페이지의 시각 패턴 전수 분해
+- [x] 중복 블록 통합
+- [x] 챕터에 묶인 UI를 독립 block 후보로 분리
+- [x] block data schema 정의
+- [x] variant / responsive / accessibility 계약 정의
+- [x] block별 editorial profile 연결
+- [x] block별 reference profile 연결
+
+완료 메모:
+- `docs/library/blocks/V1-INVENTORY.md`
+- `docs/library/blocks/BLOCK-CONTRACT.md`
+- 편집 가능한 Content Block / 내부 Primitive / Platform Chrome를 분리
+- 현재 photography에서 17개 block family로 통합
 
 목표 초기 규모:
-- 기존 페이지에서 추출 약 17종
-- 신규 범용 블록 8~10종
+- 기존 페이지에서 추출 17종
+- 신규 범용 블록 8~10종 후보
 - V1 약 25종
 
 ## 04. Block Lab
 
-- [ ] production과 분리된 Block Lab route 생성
-- [ ] 모든 블록을 한 페이지에서 렌더
-- [ ] desktop/mobile preview
-- [ ] light/dark preview
-- [ ] variant 비교
-- [ ] 실제 production renderer 공유
-- [ ] draft/reviewing/approved/deprecated 상태 표시
+- [x] production과 분리된 `/block-lab/` route 생성
+- [x] 현재 17개 candidate block을 한 페이지에서 렌더
+- [x] Fit / 390 / 768 / 1180 preview
+- [x] light/dark preview
+- [x] block별 variant 비교
+- [x] candidate Block Registry + renderer 분리
+- [ ] 승인 후 실제 production renderer로 승격/공유
+- [x] block status/editorial profile/type 메타 표시
+- [-] 배포 후 실제 화면 QA 및 사용자 디자인 검토
+
+현재 코드:
+- `public/block-lab/index.html`
+- `public/assets/js/blocks/block-registry.js`
+- `public/assets/js/blocks/block-renderers.js`
+- `public/assets/js/block-lab/lab-data.js`
+- `public/assets/js/block-lab/lab-app.js`
+- `public/assets/styles/block-lab/lab.css`
+- `public/assets/styles/block-lab/a11y.css`
+
+중요:
+- Block Lab renderer는 아직 `candidate`다.
+- 기존 photography production renderer는 변경하지 않았다.
+- `/block-lab/`은 `noindex,nofollow,noarchive`다.
 
 완료 기준:
 - 사진 본문을 찾아다니지 않고 한 페이지에서 모든 UI를 검토할 수 있음
+- 사용자 실화면 검토를 거쳐 UI Refinement 대상으로 넘길 수 있음
 
 ## 05. UI Refinement
 
