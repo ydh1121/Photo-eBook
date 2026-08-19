@@ -14,11 +14,14 @@ on:
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/editor-lab/**'
+      - 'public/assets/js/ui-capabilities/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/js/qa-page/**'
       - 'public/assets/js/public-snapshot/**'
+      - 'public/assets/styles/blocks/**'
       - 'public/assets/styles/block-lab/**'
       - 'public/assets/styles/editor-lab/**'
+      - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/public-snapshot/**'
       - 'functions/api/editor/**'
@@ -42,11 +45,14 @@ on:
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/editor-lab/**'
+      - 'public/assets/js/ui-capabilities/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/js/qa-page/**'
       - 'public/assets/js/public-snapshot/**'
+      - 'public/assets/styles/blocks/**'
       - 'public/assets/styles/block-lab/**'
       - 'public/assets/styles/editor-lab/**'
+      - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/public-snapshot/**'
       - 'functions/api/editor/**'
@@ -85,7 +91,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/ui-capabilities public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           node --check scripts/check-block-registry-sync.mjs
           node --check scripts/check-block-variant-sync.mjs
           node --check scripts/check-ui-capability-sync.mjs
