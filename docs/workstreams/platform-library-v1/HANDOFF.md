@@ -11,84 +11,179 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 ## Current phase
 
-- Phase 07 — 27개 Block 사용자 시각 review/최종 판정 대기
-- Phase 08 — Editor Lab + Sheets DB + protected API + revision/media/publish UX 구현
-- Phase 09 — 첫 비사진 분야 `video-editor` 실제 draft와 공식 evidence 생성
-- Phase 10 — public snapshot runtime/API를 staging까지 구현, production route는 승인 전 미연결
+- Block Lab은 이제 **Block type → variant → style preset** 3단계로 검토/관리한다.
+- 페이지 공통 기능은 Content Block과 분리한 **UI Capability / preset** 체계로 관리한다.
+- `/ui-dashboard/`에서 상단 메뉴, 카드 rail, 필터칩, 하단 팝업, 다른 기기 연결 accordion, 읽기 진행선, floating action을 관리하는 scaffold가 구현됨.
+- Editor에는 `페이지 UI` 영역이 추가돼 capability on/off와 preset을 페이지별로 저장할 수 있음.
+- 다음 큰 작업은 **Photography Parity**: 현재 photography production의 고도화 UI를 advanced Block variant / Block style preset / shared primitive / UI capability preset으로 역추출하는 것.
 
 ## 절대 유지할 production safety
 
-- 기존 photography production renderer를 candidate renderer로 교체하지 않는다.
-- 기존 Safari navigation/runtime fix를 건드리지 않는다.
-- 27개 Block은 사용자 판정 전 자동 승인하지 않는다.
-- candidate block이 포함된 page의 production publish는 실패해야 한다.
-- `/block-lab/`, `/editor-lab/`, `/qa/`, `/staging/`은 검색 노출 제외.
+- photography production renderer를 candidate renderer로 교체하지 않는다.
+- Safari deferred-sticky/normal-flow fix를 건드리지 않는다.
+- Block/variant는 사용자 판정 전 자동 승인하지 않는다.
+- candidate를 포함한 production publish는 계속 차단한다.
+- labs/dashboard/qa/staging은 noindex + robots exclude.
 - `/api/editor/*`는 `ADMIN_EDITOR_TOKEN` 없으면 닫혀 있어야 한다.
-- 공개 read API `/api/public/snapshot`은 active publish snapshot만 반환하고 draft를 반환하지 않는다.
+- public snapshot API는 active snapshot만 반환하고 draft를 반환하지 않는다.
 
-## Block Registry / Lab
+## Block Lab current state
 
-Browser:
-- `public/data/block-registry/v1/manifest.js`
-- `public/assets/js/blocks/block-registry.js`
-- `public/assets/js/blocks/block-registry-health.js`
+Route: `/block-lab/`
 
-Server:
-- `functions/lib/block-registry-v1.js`
+### Block type review
+기존 유지:
+- undecided / approved / redesign / merge / deprecated
+- type-level memo
+- `BLOCK_REVIEWS`
 
-검사:
-- `scripts/check-block-registry-sync.mjs`
-- `.github/workflows/platform-library-checks.yml`
+### Variant review — 신규
+Files:
+- `public/data/block-registry/v1/variant-meta.js`
+- `public/assets/js/block-lab/lab-variant-review.js`
+- `public/assets/styles/block-lab/variant-review.css`
+- `functions/lib/block-variants-v1.js`
+- `functions/api/editor/variant-reviews.js`
 
-현재 27 type 전부 `candidate`.
+Sheet:
+- `BLOCK_VARIANT_REVIEWS`
 
-Block Lab:
-- `/block-lab/`
-- 27 candidate
-- category/variant/Light-Dark/Fit-390-768-1180
-- undecided/approved/redesign/merge/deprecated + memo
-- localStorage + JSON export
-- `BLOCK_REVIEWS` server sync 추가
-- `GET /api/editor/review-list`
-- UI: `서버 연결 / 검토 불러오기 / 검토 저장`
+동작:
+- variant별 독립 판정과 메모
+- 차이 유형: structure / visual / behavior / responsive
+- maturity: implemented / partial / placeholder
+- 모바일에서 구조가 수렴하는 variant 이유를 표시
+- Block Lab 서버 load/save가 type + variant review를 함께 동기화
 
-사용자의 실제 시각 판정이 아직 없다.
+주의:
+- 일부 variant는 의도적으로 `partial` 또는 `placeholder`로 표시됨.
+- all Block type server status는 여전히 candidate.
 
-## Editor Lab
+### Block Style preset — 신규
+Files:
+- `docs/library/blocks/STYLE-PRESET-CONTRACT.md`
+- `public/data/block-styles/v1/manifest.js`
+- `public/assets/js/block-lab/lab-style-presets.js`
+- `public/assets/styles/block-lab/style-presets.css`
+- `functions/lib/block-style-v1.js`
+- `functions/api/editor/block-style-presets.js`
 
-Route: `/editor-lab/`
+Sheet:
+- `BLOCK_STYLE_PRESETS`
 
-구현:
-- 27 block library/search
-- add/reorder/drag-drop/up-down/duplicate/delete
-- recursive inspector + 빠른 편집
-- AI policy/field lock/fact state
-- edit/preview, Light/Dark, 390/768/1180
-- undo/redo/localStorage/JSON import-export
-- industry ID/slug/new/duplicate
-- SEO metadata
-- AI brief/request/response safe import/review
-- server connect/list/save/load
-- media picker
-- block revision history/restore
-- slug conflict
-- publish-check/publish
-- publish snapshot history
-- snapshot full UI preview 390/768/1180
-- snapshot rollback to browser draft
-- Registry status filter `전체 / 승인만 / 후보만`
+허용 token:
+- density
+- surface
+- radius
+- border
+- shadow
+- accentMode
+- mediaRatio
+- edgeTreatment
 
-새 status filter:
-- `public/assets/js/editor-lab/library-status-filter.js`
-- `public/assets/styles/editor-lab/library-status-filter.css`
-- `publish-controls.js`가 extension으로 로드
+원칙:
+- raw CSS 저장 금지
+- 구조 변경은 Style preset이 아니라 variant
+- Block Lab에서 현재 style 조정 → 이름 저장 → 다시 불러오기 가능
+- Block Lab 서버 `검토 저장/불러오기`에 style preset도 포함
 
-## Sheets V1 DB
+Browser Block normalize는 `stylePresetId/styleOverrides`를 보존하도록 확장됨.
+`PAGE_BLOCKS`에는 `style_preset_id`, `style_overrides_json` 컬럼을 예약함.
 
-Spreadsheet:
-`1TgA_-C9rDPRvgxTnG5cPnWihwC48KZxod-sPeEoMWUc`
+중요 미완료:
+- `/api/editor/save-page`는 아직 A:M만 처리하므로 stylePresetId/styleOverrides 서버 round-trip을 열지 않음.
+- 이 두 필드는 다음 저장-contract 변경에서 A:O로 일괄 연결해야 함.
+- public renderer도 아직 style preset을 적용하지 않음.
 
-Tabs:
+## UI Capability Library — 신규
+Permanent docs:
+- `docs/library/ui-capabilities/README.md`
+- `CAPABILITY-CONTRACT.md`
+- `PHOTOGRAPHY-PARITY.md`
+
+Browser manifest:
+- `public/data/ui-capabilities/v1/manifest.js`
+
+Server registry:
+- `functions/lib/ui-capabilities-v1.js`
+
+현재 7 capability:
+1. top-chapter-navigation
+2. horizontal-card-rail
+3. filter-chip-rail
+4. collection-bottom-sheet
+5. device-handoff-accordion
+6. reading-progress
+7. floating-action
+
+사진 production owner 예시:
+- top nav state: `assets/js/navigation/chapter-navigation.js`
+- liquid selector: `assets/js/ui/liquid-controller.js`
+- device handoff accordion: `assets/js/collection/device-handoff.js`
+- Safari deferred sticky layer는 capability보다 상위 invariant
+
+특히:
+- FAQ accordion과 device-handoff accordion은 다른 기능으로 유지.
+- card rail은 mobile native scroll이 owner이고 desktop mouse drag만 보강.
+
+## UI Dashboard — 신규
+
+Route: `/ui-dashboard/`
+noindex + robots disallow.
+
+Files:
+- `public/ui-dashboard/index.html`
+- `public/assets/styles/ui-dashboard/dashboard.css`
+- `public/assets/js/ui-dashboard/dashboard.js`
+- `public/assets/styles/ui-dashboard/server.css`
+- `public/assets/js/ui-dashboard/server.js`
+
+기능:
+- capability별 live specimen
+- schema 기반 설정 control
+- system preset + user preset
+- user preset 이름 저장/불러오기/export
+- server connect/load/save
+
+Sheet/API:
+- `UI_PRESETS`
+- `/api/editor/ui-presets`
+
+현재 manifest에 photography-derived 기본 preset도 들어 있음.
+향후 실제 photography 값을 정확히 역추출해 교체/보강해야 함.
+
+## Page UI assignment — 신규
+
+Sheet:
+- `PAGE_UI_CONFIG`
+
+API:
+- `/api/editor/page-ui`
+
+Editor extension:
+- `public/assets/js/editor-lab/page-ui.js`
+- `public/assets/styles/editor-lab/page-ui.css`
+- `page-meta.js`가 manifest + page-ui extension을 동적으로 로드
+
+Editor 왼쪽 `페이지 UI`에서:
+- capability on/off
+- preset 선택
+- UI Dashboard 링크
+- 서버 불러오기/저장
+
+중요 미완료:
+- public publish snapshot이 PAGE_UI_CONFIG를 아직 포함하지 않음.
+- production runtime이 capability preset을 아직 실제 적용하지 않음.
+
+## Google Sheets additions
+
+새 tabs:
+- BLOCK_VARIANT_REVIEWS
+- BLOCK_STYLE_PRESETS
+- UI_PRESETS
+- PAGE_UI_CONFIG
+
+기존 tabs 유지:
 - PLATFORM_PAGES
 - PAGE_BLOCKS
 - BLOCK_REVISIONS
@@ -97,219 +192,95 @@ Tabs:
 - PUBLISH_SNAPSHOTS
 - PUBLISHED_BLOCKS
 
-Storage authority:
-- structured page/block/review → Sheets
-- master/files/archive → Drive
-- public asset/renderer/schema/permanent rules → Git + Cloudflare
-- localStorage → local draft fallback
+## Mobile QA fixes already made
 
-## First non-photography QA page
+1. `product-tool/list` image 없는 카드가 모바일에서 빈 media column 때문에 좁아지던 버그 수정.
+2. `/qa/video-editor/`에 `--lab-*` token mapping이 빠져 내부 구분선/roadmap line이 사라지던 버그 수정.
 
-Page:
-- pageId: `page_video_editor_qa_v1`
-- slug: `video-editor`
-- industry: `video-editor`
-- title: `영상편집으로 먹고살기`
-- status: draft
-- seo indexPolicy: noindex
-- aiStatus: needs_review
+사용자가 첫 수정은 실제 iPhone에서 정상화 확인함.
+두 번째 line fix는 배포 후 다시 확인 필요.
 
-실제 Sheets row 생성됨.
-PAGE_BLOCKS 13개:
-1. hero
-2. chapter-hero
-3. comparison-cards
-4. process
-5. checklist
-6. pros-cons
-7. product-tool
-8. offer-rail
-9. roadmap
-10. script-copy
-11. faq
-12. resources
-13. cta
+## First non-photo QA page
 
-Git seed:
-- `docs/workstreams/platform-library-v1/qa/video-editor-draft-v1.json`
+`page_video_editor_qa_v1`, slug `video-editor`, draft/noindex/needs_review.
+13 blocks가 실제 Sheets에 존재.
 
-주의:
-- seed v1 마지막 CTA에 legacy `primaryHref`가 남아 있음.
-- 실제 Sheet와 QA public fixture는 renderer 계약에 맞게 `primaryUrl` 사용.
-- 이후 seed v2/migration으로 정리 가능하나 현재 runtime blocker는 아님.
-
-## Video editor official evidence
-
-Evidence doc:
-- `docs/workstreams/platform-library-v1/qa/video-editor-evidence-v1.json`
-
-QA overlay:
-- `public/data/qa/video-editor-evidence-v1.js`
-
-현재 연결:
-- Adobe Premiere 공식 한국 페이지
-  - 2026-08-20 확인 당시 개인 Premiere: 연간 약정/월 청구 월 30,800원(부가세 포함)
-- Blackmagic Design DaVinci Resolve
-  - Resolve 21 무료 버전 제공 확인
-  - Studio 가격은 최근 공식 검색 결과가 538,800원/565,800원으로 엇갈려 확정값으로 잠그지 않음
-- 고용24
-  - 영상편집 NCS `08030406`
-  - 현재 과정 예시 확인
-  - 특정 기관 추천이 아니라 지역/기간/자비부담 비교 경로로 사용
-
-Sheet:
-- `ve_tools` revision 2 + evidence
-- `ve_resources` revision 2 + evidence
-- `BLOCK_REVISIONS`에 두 변경 이력 추가
-- page aiReview도 source-added 상태로 갱신
-
-아직 보완 필요:
-- 실제 편집 분야별 수요/단가
-- 계약/세금
-- 플랫폼 수수료/정책
-- 음원/폰트/소스별 라이선스
-
-## Full page QA
-
-Route:
+Routes:
 - `/qa/video-editor/`
-
-Files:
-- `public/qa/video-editor/index.html`
-- `public/data/qa/video-editor-draft-v1.js`
-- `public/data/qa/video-editor-evidence-v1.js`
-- `public/assets/js/qa-page/video-editor.js`
-- `public/assets/styles/qa-page/page.css`
-
-실제 candidate renderer로 13 block을 한 페이지 흐름으로 렌더.
-390/768/1180 + Light/Dark.
-noindex + robots `/qa/` disallow.
-
-## Public snapshot staging
-
-Shared runtime:
-- `public/assets/js/public-snapshot/runtime.js`
-
-Staging route:
 - `/staging/public-renderer/`
 
-Files:
-- `public/staging/public-renderer/index.html`
-- `public/assets/js/public-snapshot/staging.js`
-- `public/assets/styles/public-snapshot/runtime.css`
+공식 evidence:
+- Adobe Premiere
+- Blackmagic DaVinci Resolve
+- 고용24 영상편집 NCS/훈련
 
-Runtime 구현:
-- snapshot normalize/validation
-- approved-only gate가 기본
-- staging에서만 `allowCandidate:true`
-- title/description/robots
-- OG title/description/type/site/url/image
-- Twitter card/title/description/image
-- canonical 적용 함수
-- Article/WebPage JSON-LD
-
-Staging은 noindex이며 production URL에 연결하지 않음.
-
-## Public active snapshot read API
-
-Route:
-- `GET /api/public/snapshot?slug=<slug>`
-
-File:
-- `functions/api/public/snapshot.js`
-
-동작:
-- PUBLISH_SNAPSHOTS에서 `state=active`인 slug만 조회
-- 해당 PUBLISHED_BLOCKS만 반환
-- draft/PLATFORM_PAGES/PAGE_BLOCKS는 노출하지 않음
-- active가 없으면 404
-- public cache header 적용
-
-현재 active snapshot이 없으므로 `video-editor`는 공개 API에서 조회되면 안 됨.
-
-## Protected Editor API
-
-Canonical write:
-- `POST /api/editor/save-page`
-
-Exact read/support:
-- `/api/editor/assets`
-- `/api/editor/revisions`
-- `/api/editor/slug-check`
-- `/api/editor/snapshots`
-- `/api/editor/review-list`
-
-Catch-all:
-- health/pages/page/reviews/publish-check/publish
-
-보호:
-- same-origin
-- Bearer ADMIN_EDITOR_TOKEN
-- token missing → closed
-
-Google JWT grant type 유지:
-`urn:ietf:params:oauth:grant-type:jwt-bearer`
+추가 evidence 필요:
+- 시장수요/실제 단가
+- 계약/세금
+- 플랫폼 정책
+- 음원/폰트/소스 라이선스
 
 ## CI
 
 Workflow:
 - `.github/workflows/platform-library-checks.yml`
 
-검사 범위:
-- browser/server Registry sync
-- first industry QA seed validator
-- block-lab/editor-lab/qa-page/public-snapshot JS syntax
-- editor/public Functions syntax
+현재 검사:
+- browser/server Block type sync
+- browser/server Block variant sync
+- browser/server UI capability sync
+- video-editor QA seed
+- Block Lab / Editor / UI Dashboard / Functions syntax
 
-GitHub connector에서 실제 workflow run 성공 결과는 아직 확인하지 못했으므로 성공으로 추정하지 않는다.
+Scripts:
+- `scripts/check-block-registry-sync.mjs`
+- `scripts/check-block-variant-sync.mjs`
+- `scripts/check-ui-capability-sync.mjs`
+- `scripts/check-platform-qa-seed.mjs`
+
+최신 workflow run 성공 여부는 connector에서 아직 확인하지 못했으므로 성공으로 추정하지 않는다.
 
 ## Current checkpoints
 
-1. `/block-lab/` 사용자 시각 검토 및 27 block 최종 판정
-2. `/qa/video-editor/` 전체 페이지 흐름 검토
-3. `/staging/public-renderer/` 공개 형태 검토
-4. Cloudflare `ADMIN_EDITOR_TOKEN` 설정
-5. 실제 Pages PC/mobile browser QA
+사용자 확인 필요:
+1. `/block-lab/`의 variant별 review UI와 style preset controls
+2. `/ui-dashboard/` PC/mobile UI와 capability controls
+3. `/qa/video-editor/` line fix 및 전체 흐름
+4. `/staging/public-renderer/`
+5. Cloudflare `ADMIN_EDITOR_TOKEN` 설정 후 protected API live QA
 
-이 환경의 container는 `photo-ebook.pages.dev` DNS lookup에 실패했으므로 live route 정상 여부를 추정하지 않는다.
+## Exact next action
 
-## Next action
+새 세션은 다음 순서로 진행한다.
 
-자동 가능:
-1. video-editor 시장/계약/비용 evidence 추가 보완
-2. public route/404/sitemap 연결 전 route contract 마무리
-3. 광고 side rail용 desktop layout contract 설계
-4. QA seed v1 CTA legacy field를 v2에서 정리
+1. `main` 최신 commit 확인.
+2. Photography production의 UI owner를 하나씩 읽음.
+3. **Top chapter navigation부터 Photography Parity 추출 시작**:
+   - 현재 실제 CSS/JS 값 확인
+   - capability manifest의 `photo-topnav-blue-progress`를 실제 값으로 보정
+   - Block Lab/UI Dashboard specimen과 production의 차이 기록
+4. Horizontal rail → filter chips → bottom sheet → device handoff accordion 순서로 parity 진행.
+5. 그 다음 photography Content Block을 hero부터 1:1 비교해서 advanced variant/style preset으로 추출.
+6. 이후 `PAGE_BLOCKS` A:O style preset round-trip을 한 번에 연결.
+7. variant별 사용자 승인 결과를 바탕으로 publish gate를 `type + variant`로 전환.
 
-사용자 checkpoint 후:
-1. Block review를 server에 저장
-2. browser/server Registry final status 반영
-3. approved renderer canonical 승격
-4. Editor approved-only 운영 모드 전환
-5. video-editor AI/human review 완료
-6. publish snapshot 생성
-7. active snapshot public route 연결
-8. metadata/canonical/sitemap/404/CWV/ad rail QA
+## V1 completion target
 
-## V1 완료 목표
-
-1. Block 최종 승인/정제
-2. Editor 저장/AI/미디어/버전/발행 live QA
-3. 사진 외 산업 1개를 draft→AI→human review→publish→rollback 통과
-4. 산업별 public renderer/canonical route
-5. SEO metadata + JSON-LD + sitemap + real 404
-6. PC/mobile + Core Web Vitals QA
-7. PC side AdSense 영역을 넣어도 콘텐츠/내비게이션이 무너지지 않는 layout
-8. workstream QA 자료 Drive archive
-
-AdSense 승인/publisher ID는 외부 checkpoint로 별도 관리.
+- Block/variant/style preset 최종 승인
+- UI Capability/preset dashboard 실사용
+- Editor에서 Block + Page UI 구성/저장/복원
+- photography의 고도화 design asset을 공통 공식으로 안전하게 추출
+- 비사진 산업 1개 draft→AI→human review→publish→rollback
+- public renderer/canonical/SEO/sitemap/404
+- PC/mobile/CWV/ad side rail QA
+- workstream QA Drive archive
 
 ## Resume protocol
 
-1. AGENTS.md
-2. TASKS.md
-3. 이 HANDOFF.md
-4. main 최신 commit
-5. checkpoint/next action 확인
+1. `AGENTS.md`
+2. `TASKS.md`
+3. 이 `HANDOFF.md`
+4. `main` 최신 commit
+5. `Exact next action`과 실제 repo 상태 비교
 
 대화만 보고 상태를 추정하지 않는다.
