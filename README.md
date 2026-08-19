@@ -1,20 +1,42 @@
 # Photo-eBook
 
-모바일 우선 사진 수익화 로드맵 웹사이트입니다.
+현재 사진 분야를 첫 번째 content pack으로 사용하는 모바일 우선 `먹고살기` 가이드 웹사이트입니다.
 
 ## 현재 구조
 
 - `public/` — Cloudflare Pages 정적 프런트엔드
-- `public/assets/styles/` — 역할별 CSS 모듈
-- `public/assets/js/` — 역할별 브라우저 JS 모듈
-- `public/data/site-data/` — 최초 렌더용 bundled fallback 데이터 조각
+- `public/assets/styles/` — 분야와 무관한 역할별 CSS 모듈
+- `public/assets/js/` — 공통 브라우저 runtime
+- `public/content-packs/photography/` — 사진 분야 data/runtime/content pack
 - `public/assets/images/generated/v1/` — 승인된 운영 WebP 이미지
 - `functions/api/[[path]].js` — 본문, 질문함용 Cloudflare Pages Function
 - `functions/api/curated.js` — 외부 사진 글 큐레이션과 SEO 메타 파싱
-- `functions/api/discover.js`, `functions/api/videos.js` — 탐색/영상 API
-- Google Sheets API — 기존 Google Sheet를 직접 읽고 씁니다.
+- `functions/api/discover.js`, `functions/api/videos.js` — 사진 분야 탐색/영상 API
+- Google Sheets API — 현재 사진 콘텐츠와 질문 기록의 편집 source
 
 Apps Script는 사용하지 않습니다.
+
+### Content pack
+
+공통 UI와 분야별 내용을 분리합니다.
+
+```text
+public/
+  assets/
+    styles/                # 공통 UI
+    js/                    # 공통 runtime
+  content-packs/
+    photography/
+      pack.js              # pack id, route, cache/API contract
+      data/                # bundled fallback
+      runtime/             # 사진 전용 renderer/media/copy/image binding
+```
+
+현재 `photography` pack에 사진 챕터 renderer, 사진 글 큐레이션, 사진 실무 영상 검색 규칙, 사진 이미지 slot/binder, 사진 전용 compatibility layer가 들어 있습니다.
+
+새 분야는 `public/content-packs/<pack-id>/`를 추가하고 공통 navigation, 질문함, collection, Safari 대응, desktop/mobile UI를 재사용하는 방향으로 확장합니다.
+
+상세 계약은 `docs/spec-v1/21-content-pack-architecture.md`를 따릅니다.
 
 ### 프런트엔드 모듈 분류
 
@@ -31,22 +53,18 @@ CSS는 로드 순서를 유지한 채 아래 역할로 분리합니다.
 - `styles/safari/` — iOS/WebKit 전용 브라우저 chrome 대응
 - `styles/compat/` — 기존 데이터/표현과의 호환 계층
 
-JS는 아래 역할로 분리합니다.
+공통 JS는 아래 역할로 분리합니다.
 
-- `js/core/` — 데이터 API, 공통 helper, UI readiness
+- `js/core/` — content pack registry, 데이터 API, 공통 helper, UI readiness
 - `js/app/` — 앱 조립, boot 복구, postload lifecycle
-- `js/render/` — 챕터/콘텐츠 renderer
 - `js/navigation/` — 챕터 활성 상태와 이동
-- `js/content/` — 큐레이션/콘텐츠 탐색
-- `js/media/` — 이미지 슬롯, 미디어 보강, generated 자산
 - `js/collection/` — 내 모음, 선택, 기기 연결, modal shield
 - `js/questions/` — 질문 작성/저장/문맥 handoff
 - `js/ui/` — Liquid controller와 UI repair
 - `js/desktop/` — PC 전용 마우스 drag interaction
 - `js/safari/` — iOS Safari chrome/theme 보정
-- `js/compat/` — 기존 카피/상태 호환 계층
 
-과거 `style-1.css`, `script-24.js`처럼 번호만으로 역할을 알기 어려운 런타임 파일명은 제거했습니다. `index.html`과 postload loader는 위 semantic path만 사용합니다. CSS와 JS의 기존 실행/override 순서는 회귀 방지를 위해 유지합니다.
+사진에 종속된 renderer/content/media/copy 로직은 공통 JS가 아니라 `content-packs/photography/runtime/`에 둡니다.
 
 ## 자동 배포
 
@@ -68,10 +86,13 @@ Production 환경에 아래 두 값만 필요합니다.
 
 ## 데이터 흐름
 
-GitHub → Cloudflare Pages / Functions → Google Sheets API → Google Sheet
+현재 runtime:
 
-시트 내용을 수정하면 Git 배포 없이 다음 조회에서 바로 반영됩니다.
-프런트엔드 또는 Function 코드를 수정하면 GitHub push 후 Cloudflare가 자동 배포합니다.
+`Cloudflare Pages / Functions → Google Sheets API → Google Sheet`
+
+bundled fallback은 `public/content-packs/photography/data/`에 있습니다.
+
+장기적으로는 Google Sheets를 편집용 CMS로 두고, 공개 트래픽은 publish된 정적 snapshot 또는 Cloudflare edge cache에서 읽는 구조를 권장합니다.
 
 ## 질문함
 
