@@ -45,6 +45,20 @@ Platform Chrome는 산업 pack의 block 배열에 넣지 않는다.
 - `V1-INVENTORY.md` — photography에서 추출한 기존 17개 block family와 통합 판단
 - `V1-EXPANSION.md` — 여러 산업 확장을 위해 추가한 10개 candidate와 보류 판단
 - `BLOCK-CONTRACT.md` — 모든 block이 따를 데이터/상태/반응형/접근성 계약
+- `APPROVAL-WORKFLOW.md` — candidate를 검토하고 production-approved로 승격하는 절차
+
+## Canonical Registry
+
+runtime manifest:
+- `public/data/block-registry/v1/manifest.js`
+
+runtime validation:
+- `public/assets/js/blocks/block-registry.js`
+- `public/assets/js/blocks/block-registry-health.js`
+
+manifest와 renderer의 type/variant가 맞는지 Block Lab에서 확인한다.
+
+production validation은 manifest lifecycle이 `approved`인 type만 통과하도록 설계했다. 현재 27개는 사용자 시각 검토 전이므로 `candidate` 상태다.
 
 ## Block Lab
 
@@ -60,13 +74,45 @@ Platform Chrome는 산업 pack의 block 배열에 넣지 않는다.
 - `public/assets/js/block-lab/lab-data-extended.js`
 - `public/assets/js/block-lab/lab-interactions-extended.js`
 - `public/assets/js/block-lab/lab-app.js`
+- `public/assets/js/block-lab/lab-review.js`
 - `public/assets/styles/block-lab/`
 
 현재 Block Lab에는 **27개 candidate family**가 있다.
 
+각 block에서:
+- variant 확인
+- Light/Dark 확인
+- Fit/390/768/1180 확인
+- `승인 / 재설계 / 통합 / 폐기` 선택
+- 검토 메모 저장
+- review JSON 내보내기
+가 가능하다.
+
+검토 결과는 브라우저 localStorage에 임시 저장한다. 사용자가 내보낸 review 결과를 확인한 뒤 Git manifest lifecycle을 변경한다.
+
 현재 Block Lab renderer는 **candidate**다. 기존 photography production renderer는 아직 교체하지 않는다.
 
-Block Lab에서 가독성, 정보 구조, mobile/desktop, light/dark, variant를 검토하고 block이 `approved` 상태가 된 뒤 production과 관리자 preview의 canonical renderer로 승격한다.
+## Editor Lab
+
+편집 실험 route:
+- `/editor-lab/`
+- 검색 노출 제외
+- production 저장 API와 미연결
+
+현재 기능:
+- 27개 block 추가
+- drag-and-drop 및 위/아래 이동
+- 복제/삭제
+- variant 변경
+- content field 편집
+- Light/Dark
+- 390/768/1180 preview
+- 편집/미리보기 전환
+- undo/redo
+- JSON import/export
+- 브라우저 localStorage draft
+
+저장 구조와 향후 관리자 API는 `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`를 따른다.
 
 ## V1 구성
 
