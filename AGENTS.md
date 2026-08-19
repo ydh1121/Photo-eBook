@@ -1,5 +1,31 @@
 # Photo-eBook Repository Agent Rules
 
+## Restart-safe workstream protocol
+
+Long-running work must not depend on one ChatGPT conversation staying open.
+
+If an active workstream exists under `docs/workstreams/<workstream-id>/`, repository state is the source of truth for continuation.
+
+When starting or resuming work in a new chat/session:
+
+1. Read this `AGENTS.md` first.
+2. Locate the active workstream under `docs/workstreams/`.
+3. Read its `TASKS.md` and `HANDOFF.md` before changing code or documents.
+4. Confirm the current `main` commit and compare it with the commit/state described by the handoff.
+5. Resume from the task marked `[-] active` and the handoff `Next action`; do not infer progress from conversation memory alone.
+6. Read the final library/spec/runtime files named by the handoff before editing them.
+
+During a long-running workstream:
+
+- Keep `TASKS.md` as the canonical task/status tracker.
+- Keep `HANDOFF.md` short and current: phase, decisions, completed work, current blockers, and exact next action.
+- After each meaningful completed unit, update both files in the same work session.
+- If a session must end in the middle of a task, record the partial state, files changed, unresolved checks, and exact next command/action before stopping.
+- Never require the user to reconstruct previous chat context when repository state can carry it.
+- Final product rules, approved libraries, schemas, and operational specs remain in permanent Git paths such as `docs/library/`, `docs/spec-v1/`, and runtime code.
+- Temporary research notes, alternatives, QA logs, and completion checklists may live in the workstream folder while active.
+- When the workstream is fully usable and user-approved, archive the workstream folder and QA records to Google Drive, but keep the permanent product rules/specs/runtime in Git.
+
 ## Korean copy contract
 
 Any Korean UI copy, heading, body text, CTA, helper text, new content, or rewrite MUST read and apply `docs/spec-v1/20-korean-copywriting-skill.md` before editing.
