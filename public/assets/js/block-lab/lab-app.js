@@ -47,6 +47,10 @@
     </article>`;
   }
 
+  function bindEnhancements(){
+    if(typeof window.bindBlockLabEnhancements==='function')window.bindBlockLabEnhancements();
+  }
+
   function render(){
     specimens.innerHTML=blocks.map(specimenMarkup).join('')||'<div class="lab-empty">등록된 블록이 없습니다.</div>';
     nav.innerHTML=blocks.map((block,index)=>{
@@ -57,6 +61,7 @@
     applyFilter();
     bindSpecimenControls();
     bindCopyButtons();
+    bindEnhancements();
   }
 
   function applyFilter(){
@@ -82,6 +87,7 @@
         const canvas=select.closest('.lab-specimen')?.querySelector('.lab-specimen__canvas');
         if(canvas)canvas.innerHTML=registry.render({...block,variant:select.value},{lab:true});
         bindCopyButtons();
+        bindEnhancements();
       });
     });
   }
