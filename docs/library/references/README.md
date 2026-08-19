@@ -48,6 +48,13 @@
 
 ### Editorial / Writing
 - `editorial-writing/daleseo-korean-skills.md` — Korean humanizer, grammar checker, style consistency baseline
+- `editorial-writing/nomadamas-k-skill-korean-humanizer.md` — 의미/수치 보존, 과윤문 방지, 사용자 voice calibration baseline
+
+## 현재 회수 상태
+
+Git 문서와 운영 `COPY_GUIDE`에서 식별 가능한 외부 레퍼런스는 위 항목으로 정식 등록했다. 과거 대화에만 남아 있고 현재 Git/Sheet에서 이름이나 URL을 확인할 수 없는 UI 레퍼런스는 추측해서 등록하지 않는다.
+
+새 채팅이나 기존 작업을 진행하면서 과거 레퍼런스가 다시 확인되면 즉시 이 라이브러리에 같은 형식으로 추가한다. 따라서 과거 링크의 추가 회수는 Reference Library의 다음 단계 진행을 막는 blocker가 아니다.
 
 ## 신규 레퍼런스 등록
 
