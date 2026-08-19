@@ -11,54 +11,98 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 ## Current phase
 
-Phase 01 — Reference Library
+Phase 04 — Block Lab / 실제 화면 QA 대기
 
-현재까지 확인한 사항:
-- 공통 플랫폼과 photography content pack 분리는 완료되어 production에서 정상 동작하는 것을 사용자가 확인함.
-- 현재 photography 페이지의 UI를 향후 여러 산업에 재사용할 Block System으로 정제하려고 함.
-- UI Block Lab → Approved Block Registry → 관리자 Block Editor → AI 콘텐츠 작성/검수 순으로 진행하기로 함.
-- 최종 목표는 관리자가 산업 주제와 기본 블록 배치/방향만 정하고 AI가 세부 콘텐츠를 작성·검수하는 운영 구조임.
-- 진행 중 자료는 Git workstream에 저장하고, 실사용 완료 시 workstream 폴더를 Google Drive로 아카이브하기로 함.
-- 채팅방 길이 제한에 대비한 restart-safe workstream protocol을 루트 `AGENTS.md`에 추가함.
-- `TASKS.md`와 이 `HANDOFF.md`를 새 채팅방 재개의 canonical source로 고정함.
+완료된 단계:
+- Phase 01 Reference Library
+- Phase 02 Editorial Library
+- Phase 03 UI Block Inventory + Block Contract
 
-## Reference currently approved for library intake
+현재 상태:
+- photography production 페이지는 content pack 분리 후 정상 동작한다고 사용자가 확인함.
+- production photography renderer는 이번 workstream에서 아직 교체하지 않았음.
+- `/block-lab/`에 17개 candidate block family를 한 페이지로 구현함.
+- Block Lab은 검색 노출 제외 상태임.
+- Light/Dark와 Fit/390/768/1180 preview, category filter, block별 variant selector가 있음.
+- candidate registry와 renderer는 `public/assets/js/blocks/`에 분리함.
+- `/block-lab`과 `/block-lab/` exact 200 proxy를 SPA wildcard보다 앞에 두었음.
 
-`arknow91/liquid-taffy`
+## Permanent libraries created
 
-분류:
-- Interaction / Motion / Liquid Surface
+Reference:
+- `docs/library/references/README.md`
+- `interaction-motion/arknow91-liquid-taffy.md`
+- `editorial-writing/daleseo-korean-skills.md`
+- `editorial-writing/nomadamas-k-skill-korean-humanizer.md`
 
-확인한 특성:
-- anchored dropdown
-- morphing dropdown
-- speed dial
-- shared press/drag/stretch/snap-back gesture engine
-- spring choreography
-- visual goo layer와 실제 DOM hit target 분리
-- reduced-motion/accessibility 고려
-- MIT license
-- React 19 + GSAP + Vite reference implementation
+Editorial:
+- `docs/library/editorial/README.md`
+- `01-voice-principles.md`
+- `02-block-copy-profiles.md`
+- `03-ai-writing-and-review.md`
+- `04-before-after-examples.md`
 
-적용 방향:
-- 외부 구현 전체를 production dependency로 들여오지 않음
-- 동작 원리와 motion language를 참고해 현재 플랫폼 runtime에 맞게 필요한 부분만 재구현
-- 후보: block add FAB, 관리자 floating toolbar, quick action menu, context action
-- 긴 본문 카드/표/정적 콘텐츠에는 과도한 liquid motion을 사용하지 않음
+Blocks:
+- `docs/library/blocks/README.md`
+- `V1-INVENTORY.md`
+- `BLOCK-CONTRACT.md`
 
-## Existing editorial baseline
+## Block Lab code
 
-`docs/spec-v1/20-korean-copywriting-skill.md`
+- `public/block-lab/index.html`
+- `public/assets/js/blocks/block-registry.js`
+- `public/assets/js/blocks/block-renderers.js`
+- `public/assets/js/block-lab/lab-data.js`
+- `public/assets/js/block-lab/lab-app.js`
+- `public/assets/styles/block-lab/lab.css`
+- `public/assets/styles/block-lab/a11y.css`
 
-추후 Editorial Library로 확장해야 함.
-사용자가 이전 프로젝트 대화에서 기획자로서 직접 설명한 문장 작성 규칙과 실제 before/after 수정 사례를 회수해 산업 독립 규칙으로 정리할 예정.
+현재 17개 family:
+1. hero
+2. chapter-hero
+3. section-heading
+4. rich-text
+5. process/ranking
+6. metric-grid
+7. offer-rail
+8. notice
+9. comparison-cards
+10. checklist
+11. media-rail
+12. case-study-rail
+13. product-tool
+14. roadmap
+15. script-copy
+16. tutorial
+17. resources
+
+## Editorial decisions
+
+- 사용자 확정 문장/전후 예시가 최우선 authority.
+- 운영 `COPY_GUIDE`에 회수된 사용자 문장 규칙을 먼저 반영했고 Git Editorial Library와 연결함.
+- AI 문체 수정은 사실·수치·고유명사와 사용자 lock을 변경하지 않음.
+- block마다 `editorialProfile`을 사용함.
+
+## Reference decisions
+
+`arknow91/liquid-taffy`:
+- Interaction/Motion reference로 승인.
+- React/GSAP dependency를 그대로 production에 추가하지 않음.
+- 관리자 add-block FAB, quick action, floating toolbar 같은 작은 직접 조작 surface의 후보.
+- 긴 정보 카드나 표에 liquid motion을 남발하지 않음.
 
 ## Next action
 
-1. `docs/library/references/` 구조와 index 생성
-2. `arknow91/liquid-taffy` 정식 reference entry 생성
-3. 프로젝트의 다른 채팅/기존 문서에서 과거 외부 UI/GitHub reference를 회수해 같은 형식으로 등록
-4. Reference Library 완료 후 Editorial Library 단계로 이동
+1. Cloudflare 배포 후 `/block-lab/` 실제 접근 확인
+2. 사용자가 Block Lab을 PC/모바일에서 보고 가독성·구조·디자인을 검토
+3. 피드백을 block family별로 기록
+4. Phase 05 UI Refinement 진행
+5. 이후 부족한 범용 block을 Phase 06에서 추가
+
+중요:
+- 현재 candidate renderer를 photography production에 바로 적용하지 않는다.
+- user-approved block부터 정제/승격한다.
+- 라이브 UI를 이 세션에서 독립적으로 브라우저 검증하지 못했으므로 성공 여부를 추정해 완료 처리하지 않는다.
 
 ## Resume protocol
 
@@ -76,6 +120,6 @@ Phase 01 — Reference Library
 작업을 한 단위 완료할 때마다:
 - `TASKS.md` 상태 갱신
 - 이 파일의 `Current phase`, `Next action`, 중요 결정사항 갱신
-- 관련 최종 규칙은 workstream 폴더가 아닌 영구 `docs/library/` 또는 `docs/spec-v1/`에 반영
+- 최종 규칙은 영구 `docs/library/` 또는 `docs/spec-v1/`에 반영
 
 세션이 끝날 때 작업이 완결되지 않았더라도 중간 상태를 Git에 기록해 다음 세션이 추측 없이 이어갈 수 있게 한다.
