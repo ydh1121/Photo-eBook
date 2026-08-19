@@ -33,6 +33,35 @@
     };
   }
 
+  function manifestEntry(type){
+    const manifest=window.__PLATFORM_BLOCK_REGISTRY_MANIFEST;
+    if(!manifest||!Array.isArray(manifest.blocks))return null;
+    return manifest.blocks.find(item=>item.type===String(type||''))||null;
+  }
+
+  function validateUsage(input,{production=false}={}){
+    const block=normalizeBlock(input);
+    const errors=[];
+    const warnings=[];
+    const definition=definitions.get(block.type);
+    const manifest=manifestEntry(block.type);
+
+    if(!definition)errors.push(`Unknown block type: ${block.type}`);
+    if(!manifest)errors.push(`Block type is missing from manifest: ${block.type}`);
+
+    const variants=manifest?.variants||definition?.variants||[];
+    if(block.variant&&!variants.includes(block.variant))errors.push(`Unsupported variant for ${block.type}: ${block.variant}`);
+
+    if(production&&manifest?.status!=='approved'){
+      errors.push(`Block type is not approved for production: ${block.type}`);
+    }
+
+    if(!block.id)warnings.push('Block id is empty.');
+    if(block.enabled&&Object.keys(block.content||{}).length===0)warnings.push(`Block content is empty: ${block.type}`);
+
+    return {ok:errors.length===0,errors,warnings,block,manifest,definition};
+  }
+
   const registry={
     register(definition){
       if(!definition?.type||typeof definition.render!=='function'){
@@ -56,8 +85,25 @@
       return definitions.get(String(type||''))||null;
     },
 
+    getManifestEntry(type){
+      return manifestEntry(type);
+    },
+
     list(){
       return [...definitions.values()];
+    },
+
+    listApproved(){
+      const manifest=window.__PLATFORM_BLOCK_REGISTRY_MANIFEST;
+      if(!manifest?.blocks)return [];
+      return manifest.blocks.filter(item=>item.status==='approved');
+    },
+
+    validateUsage,
+
+    canUseInProduction(type,variant){
+      const input={id:'validation',type,variant:variant||manifestEntry(type)?.variants?.[0]||'default',content:{validation:true}};
+      return validateUsage(input,{production:true}).ok;
     },
 
     render(input,context={}){
