@@ -23,7 +23,7 @@
 
   const dialog=document.createElement('dialog');
   dialog.className='lab-review-server-dialog';
-  dialog.innerHTML=`<div class="lab-review-server-card"><div><small>BLOCK REVIEW</small><h2>검토 서버 연결</h2><p>블록 전체와 variant별 검토를 함께 불러오고 저장합니다. 관리자 토큰은 이 탭의 세션에만 보관합니다.</p></div><label>관리자 토큰<input id="labReviewAdminToken" type="password" autocomplete="off" spellcheck="false"></label><span id="labReviewConnectMessage" role="status"></span><div class="lab-review-server-actions"><button type="button" data-review-server-cancel>취소</button><button type="button" data-review-server-submit>연결</button></div></div>`;
+  dialog.innerHTML=`<div class="lab-review-server-card"><div><small>BLOCK REVIEW</small><h2>검토 서버 연결</h2><p>블록 전체, variant별 검토와 저장한 Block 스타일 preset을 함께 동기화합니다. 관리자 토큰은 이 탭의 세션에만 보관합니다.</p></div><label>관리자 토큰<input id="labReviewAdminToken" type="password" autocomplete="off" spellcheck="false"></label><span id="labReviewConnectMessage" role="status"></span><div class="lab-review-server-actions"><button type="button" data-review-server-cancel>취소</button><button type="button" data-review-server-submit>연결</button></div></div>`;
   document.body.appendChild(dialog);
 
   const connect=wrap.querySelector('#labReviewServerConnect');
@@ -57,12 +57,7 @@
     if(!token){message.textContent='관리자 토큰을 입력하세요.';return;}
     message.textContent='연결 확인 중';
     try{
-      await verifyToken(token);
-      setToken(token);
-      tokenInput.value='';
-      dialog.close();
-      syncButtons();
-      setStatus('서버 연결됨','ok');
+      await verifyToken(token);setToken(token);tokenInput.value='';dialog.close();syncButtons();setStatus('서버 연결됨','ok');
     }catch(error){message.textContent=error?.message||'연결하지 못했습니다.';}
   }
 
@@ -70,35 +65,28 @@
     const state=readLocal();
     return manifest.blocks.map(item=>{
       const review=state[item.type]&&typeof state[item.type]==='object'?state[item.type]:{};
-      return {
-        type:item.type,
-        decision:VALID.has(review.decision)?review.decision:'undecided',
-        note:String(review.note||''),
-        updatedAt:review.updatedAt||null
-      };
+      return {type:item.type,decision:VALID.has(review.decision)?review.decision:'undecided',note:String(review.note||''),updatedAt:review.updatedAt||null};
     });
   }
 
   async function loadReviews(){
     load.disabled=true;save.disabled=true;setStatus('검토 불러오는 중');
     try{
-      const [blockData,variantData]=await Promise.all([
+      const [blockData,variantData,styleData]=await Promise.all([
         request('/api/editor/review-list'),
-        request('/api/editor/variant-reviews')
+        request('/api/editor/variant-reviews'),
+        request('/api/editor/block-style-presets')
       ]);
       const current=readLocal();
       for(const item of Array.isArray(blockData.reviews)?blockData.reviews:[]){
         if(!manifest.blocks.some(block=>block.type===item.type))continue;
-        current[item.type]={
-          decision:VALID.has(item.decision)?item.decision:'undecided',
-          note:String(item.note||''),
-          updatedAt:item.updatedAt||null
-        };
+        current[item.type]={decision:VALID.has(item.decision)?item.decision:'undecided',note:String(item.note||''),updatedAt:item.updatedAt||null};
       }
       writeLocal(current);
       window.BlockLabVariantReview?.replaceFromServer?.(variantData.reviews||[]);
-      const total=Number(blockData.count||0)+Number(variantData.count||0);
-      setStatus(`검토 ${total}개 불러옴`,'ok');
+      window.BlockLabStylePresets?.replaceFromServer?.(styleData.presets||[]);
+      const total=Number(blockData.count||0)+Number(variantData.count||0)+Number(styleData.count||0);
+      setStatus(`검토·preset ${total}개 불러옴`,'ok');
       window.location.reload();
     }catch(error){setStatus(error?.message||'검토를 불러오지 못했습니다.','error');syncButtons();}
   }
@@ -108,12 +96,14 @@
     try{
       const reviews=localPayload();
       const variantReviews=window.BlockLabVariantReview?.exportPayload?.()||[];
-      const [blockData,variantData]=await Promise.all([
+      const stylePresets=window.BlockLabStylePresets?.exportPayload?.()||[];
+      const [blockData,variantData,styleData]=await Promise.all([
         request('/api/editor/reviews',{method:'POST',body:{reviewer:'platform-owner',reviews}}),
-        request('/api/editor/variant-reviews',{method:'POST',body:{reviewer:'platform-owner',reviews:variantReviews}})
+        request('/api/editor/variant-reviews',{method:'POST',body:{reviewer:'platform-owner',reviews:variantReviews}}),
+        request('/api/editor/block-style-presets',{method:'POST',body:{presets:stylePresets}})
       ]);
-      const total=Number(blockData.count||reviews.length)+Number(variantData.count||variantReviews.length);
-      setStatus(`검토 ${total}개 저장됨`,'ok');
+      const total=Number(blockData.count||reviews.length)+Number(variantData.count||variantReviews.length)+Number(styleData.count||stylePresets.length);
+      setStatus(`검토·preset ${total}개 저장됨`,'ok');
     }catch(error){setStatus(error?.message||'검토를 저장하지 못했습니다.','error');}
     finally{syncButtons();}
   }
@@ -123,17 +113,13 @@
       if(window.confirm('이 탭의 관리자 연결을 해제할까요?')){setToken('');syncButtons();setStatus('브라우저 저장');}
       return;
     }
-    message.textContent='';
-    dialog.showModal();
-    setTimeout(()=>tokenInput.focus(),0);
+    message.textContent='';dialog.showModal();setTimeout(()=>tokenInput.focus(),0);
   });
-  load.addEventListener('click',loadReviews);
-  save.addEventListener('click',saveReviews);
+  load.addEventListener('click',loadReviews);save.addEventListener('click',saveReviews);
   dialog.querySelector('[data-review-server-cancel]').addEventListener('click',()=>dialog.close());
   dialog.querySelector('[data-review-server-submit]').addEventListener('click',submitConnection);
   tokenInput.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();submitConnection();}});
   dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});
 
-  syncButtons();
-  if(getToken())setStatus('서버 연결됨','ok');
+  syncButtons();if(getToken())setStatus('서버 연결됨','ok');
 })();
