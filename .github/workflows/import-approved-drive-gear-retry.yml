@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download and verify approved Drive WebP assets
+      - name: Download and verify approved Drive WebP asset
         shell: bash
         run: |
           python - <<'PY'
@@ -25,9 +25,7 @@ jobs:
           import urllib.request
 
           files = [
-              ('1tjciwRi7gmT2qcgGaTgn-tt4JwuecLzn', 'public/assets/images/generated/v1/gear/sony-a7-iii.webp', 149916, '2fdc59292ad6a3463374744ebdc457216f9f712d7116471188904dddc1f41530'),
-              ('1-9fM4-TO1SGzS92WXmUsYM3wP96a3UBt', 'public/assets/images/generated/v1/gear/tamron-28-75-g2.webp', 75578, '3c88f1255f5ef543924288fb9c7b7753d9d1967b9c0cc5cebc534459d51bdbab'),
-              ('1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx', 'public/assets/images/generated/v1/gear/sony-fe-85-f18.webp', 131818, 'aaf2b432ceefd93795d80c3489d4f834c7235cdcd97ce4131ecac9d436493b3b'),
+              ('1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx', 'public/assets/images/generated/v1/gear/sony-fe-85-f18.webp', 148766, '85b9c2eeb83aaff41b9ba4996f529852529a0b5bee6cbf6b915272d78d49a8b9'),
           ]
 
           for file_id, target_path, expected_size, expected_sha in files:
@@ -48,7 +46,7 @@ jobs:
               print(target_path, len(data), digest)
           PY
 
-      - name: Commit verified production assets and clean temporary importers
+      - name: Commit verified production asset and clean temporary importers
         shell: bash
         run: |
           rm -rf image-upload-staging
@@ -58,5 +56,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'Apply approved gear product WebP assets'
+          git commit -m 'Center Sony FE 85mm product WebP'
           git push origin HEAD:main
