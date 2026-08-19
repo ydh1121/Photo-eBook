@@ -1,4 +1,5 @@
 import {normalizeBlockStyleV1} from '../../lib/block-style-v1.js';
+import {isKnownUiCapability,sanitizeUiConfigV1} from '../../lib/ui-capabilities-v1.js';
 
 let cachedToken=null;
 
@@ -14,9 +15,11 @@ export async function onRequest(context){
     const snapshotId=String(url.searchParams.get('snapshotId')||'').trim();
     if(!pageId)return json({ok:false,message:'pageId가 필요합니다.'},400);
 
-    const [snapshotValues,blockValues]=await Promise.all([
-      readSheetValues(env,'PUBLISH_SNAPSHOTS','A:K'),
-      readSheetValues(env,'PUBLISHED_BLOCKS','A:L')
+    const [snapshotValues,blockValues,styleValues,uiValues]=await Promise.all([
+      readSheetValues(env,'PUBLISH_SNAPSHOTS','A:L'),
+      readSheetValues(env,'PUBLISHED_BLOCKS','A:M'),
+      readSheetValues(env,'PUBLISHED_BLOCK_STYLES','A:F'),
+      readSheetValues(env,'PUBLISHED_UI_CONFIG','A:G')
     ]);
     const snapshots=valuesToObjects(snapshotValues)
       .filter(row=>String(row.page_id||'')===pageId)
@@ -41,33 +44,59 @@ export async function onRequest(context){
     const snapshot=snapshots.find(item=>item.snapshotId===snapshotId);
     if(!snapshot)return json({ok:false,message:'snapshot을 찾지 못했습니다.'},404);
 
-    const blocks=valuesToObjects(blockValues)
+    const styleByBlock=new Map(
+      valuesToObjects(styleValues)
+        .filter(row=>String(row.snapshot_id||'')===snapshotId&&String(row.page_id||'')===pageId&&String(row.block_id||''))
+        .map(row=>[String(row.block_id),{
+          stylePresetId:String(row.style_preset_id||''),
+          resolvedStyle:normalizeBlockStyleV1(parseJson(row.style_json,{})),
+          publishedAt:String(row.published_at||snapshot.publishedAt||'')
+        }])
+    );
+
+    const orderedRows=valuesToObjects(blockValues)
       .filter(row=>String(row.snapshot_id||'')===snapshotId&&String(row.page_id||'')===pageId)
-      .map(row=>({
+      .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
+
+    const blocks=orderedRows.map(row=>{
+      const styleSnapshot=styleByBlock.get(String(row.block_id||''));
+      return {
         id:String(row.block_id||''),
         type:String(row.type||''),
         variant:String(row.variant||'default'),
         enabled:true,
         content:parseJson(row.content_json,{}),
         evidence:parseJson(row.evidence_json,[]),
-        stylePresetId:String(row.style_preset_id||''),
-        styleOverrides:normalizeBlockStyleV1(parseJson(row.style_overrides_json,{})),
-        revision:{version:Number(row.revision_version||1),publishedAt:String(row.published_at||'')}
-      }))
-      .filter(block=>block.id&&block.type)
-      .sort((a,b)=>{
-        const ra=blockValues.findIndex(row=>String(row?.[2]||'')===a.id&&String(row?.[0]||'')===snapshotId);
-        const rb=blockValues.findIndex(row=>String(row?.[2]||'')===b.id&&String(row?.[0]||'')===snapshotId);
-        return ra-rb;
-      });
+        stylePresetId:styleSnapshot?.stylePresetId||String(row.style_preset_id||''),
+        styleOverrides:styleSnapshot?{}:normalizeBlockStyleV1(parseJson(row.style_overrides_json,{})),
+        resolvedStyle:styleSnapshot?.resolvedStyle||normalizeBlockStyleV1(parseJson(row.resolved_style_json,{})),
+        revision:{version:Number(row.revision_version||1),publishedAt:String(styleSnapshot?.publishedAt||row.published_at||snapshot.publishedAt||'')}
+      };
+    }).filter(block=>block.id&&block.type);
 
-    const orderedRows=valuesToObjects(blockValues)
-      .filter(row=>String(row.snapshot_id||'')===snapshotId&&String(row.page_id||'')===pageId)
-      .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));
-    const blockById=new Map(blocks.map(block=>[block.id,block]));
-    const orderedBlocks=orderedRows.map(row=>blockById.get(String(row.block_id||''))).filter(Boolean);
+    let uiCapabilities=valuesToObjects(uiValues)
+      .filter(row=>String(row.snapshot_id||'')===snapshotId&&String(row.page_id||'')===pageId&&isKnownUiCapability(row.capability_id))
+      .map(row=>({
+        capabilityId:String(row.capability_id||''),
+        enabled:String(row.enabled||'TRUE').toUpperCase()!=='FALSE',
+        presetId:String(row.preset_id||''),
+        config:sanitizeUiConfigV1(parseJson(row.config_json,{})),
+        publishedAt:String(row.published_at||snapshot.publishedAt||'')
+      }));
 
-    return json({ok:true,snapshot:{...snapshot,blocks:orderedBlocks}});
+    if(!uiCapabilities.length){
+      const sourceRow=valuesToObjects(snapshotValues).find(row=>String(row.snapshot_id||'')===snapshotId);
+      const legacy=parseJson(sourceRow?.resolved_ui_json,{});
+      if(Array.isArray(legacy?.items))uiCapabilities=legacy.items.filter(item=>isKnownUiCapability(item?.capabilityId)).map(item=>({
+        capabilityId:String(item.capabilityId||''),
+        enabled:item.enabled===true,
+        presetId:String(item.presetId||''),
+        config:sanitizeUiConfigV1(item.config||{}),
+        publishedAt:String(snapshot.publishedAt||'')
+      }));
+    }
+
+    return json({ok:true,snapshot:{...snapshot,uiCapabilities,blocks}});
   }catch(error){
     console.error(error);
     return json({ok:false,message:safeErrorMessage(error)},500);
