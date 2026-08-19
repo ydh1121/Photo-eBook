@@ -32,6 +32,27 @@
   mask-image:linear-gradient(90deg,transparent 0,#000 var(--ui-rail-left-runway,16px));
 }
 
+[data-ui-capability-reading-progress="true"]>.platform-reading-progress{
+  position:fixed;
+  z-index:80;
+  top:0;
+  left:0;
+  right:0;
+  height:var(--ui-progress-thickness,2px);
+  pointer-events:none;
+  opacity:var(--ui-progress-opacity,1);
+  background:transparent;
+}
+[data-ui-capability-reading-progress="true"]>.platform-reading-progress>i{
+  display:block;
+  width:100%;
+  height:100%;
+  background:var(--ui-progress-color,#4081ef);
+  transform:scaleX(var(--ui-reading-progress,0));
+  transform-origin:left center;
+  will-change:transform;
+}
+
 @media(min-width:1024px){
   [data-ui-capability-horizontal-card-rail="true"][data-ui-rail-desktop-drag="true"] .pb-rail{cursor:grab;user-select:none;-webkit-user-select:none}
   [data-ui-capability-horizontal-card-rail="true"][data-ui-rail-desktop-drag="true"] .pb-rail.is-ui-dragging{cursor:grabbing}
@@ -47,4 +68,5 @@
 
 @media(prefers-reduced-motion:reduce){
   [data-ui-capability-horizontal-card-rail="true"] .pb-rail{scroll-behavior:auto!important}
+  [data-ui-capability-reading-progress="true"]>.platform-reading-progress>i{will-change:auto}
 }
