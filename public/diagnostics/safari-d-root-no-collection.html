@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <script>
+    (function(){
+      const ua=navigator.userAgent||'';
+      const ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      if(ios&&/WebKit/i.test(ua))document.documentElement.classList.add('ios-webkit-chrome');
+      try{
+        const key='photoRoadmapThemeV1';
+        const choice=['light','dark','system'].includes(localStorage.getItem(key))?localStorage.getItem(key):'light';
+        const dark=choice==='dark'||(choice==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.themeChoice=choice;
+        document.documentElement.dataset.theme=dark?'dark':'light';
+        document.documentElement.style.colorScheme=dark?'dark':'light';
+      }catch{
+        document.documentElement.dataset.themeChoice='light';
+        document.documentElement.dataset.theme='light';
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="/assets/style-1.css?v=22">
+  <link rel="stylesheet" href="/assets/style-2.css?v=22">
+  <link rel="stylesheet" href="/assets/style-3.css?v=22">
+  <link rel="stylesheet" href="/assets/style-4.css?v=22">
+  <link rel="stylesheet" href="/assets/style-5.css?v=22">
+  <link rel="stylesheet" href="/assets/style-6.css?v=22">
+  <link rel="stylesheet" href="/assets/style-7.css?v=22">
+  <link rel="stylesheet" href="/assets/style-8.css?v=22">
+  <link rel="stylesheet" href="/assets/style-9.css?v=22">
+  <link rel="stylesheet" href="/assets/style-10.css?v=22">
+  <link rel="stylesheet" href="/assets/style-11.css?v=22">
+  <link rel="stylesheet" href="/assets/style-12.css?v=22">
+  <link rel="stylesheet" href="/assets/style-13.css?v=22">
+  <link rel="stylesheet" href="/assets/style-14.css?v=22">
+  <link rel="stylesheet" href="/assets/style-15.css?v=24">
+  <link rel="stylesheet" href="/assets/style-16.css?v=25">
+  <link rel="stylesheet" href="/assets/style-17.css?v=26">
+  <link rel="stylesheet" href="/assets/style-18.css?v=27">
+  <link rel="stylesheet" href="/assets/style-19.css?v=31">
+  <link rel="stylesheet" href="/assets/style-20.css?v=32">
+  <link rel="stylesheet" href="/assets/style-21.css?v=33">
+  <link rel="stylesheet" href="/assets/style-22.css?v=34">
+  <link rel="stylesheet" href="/assets/style-24.css?v=36">
+  <link rel="stylesheet" href="/assets/style-25.css?v=37">
+  <link rel="stylesheet" href="/assets/style-26.css?v=38">
+  <link rel="stylesheet" href="/assets/style-27.css?v=39">
+  <link rel="stylesheet" href="/assets/style-28.css?v=40">
+  <link rel="stylesheet" href="/assets/style-29.css?v=42">
+  <link rel="stylesheet" href="/assets/style-30.css?v=48">
+  <link rel="stylesheet" href="/assets/style-31.css?v=49">
+  <link rel="stylesheet" href="/assets/style-32.css?v=50">
+  <link rel="stylesheet" href="/assets/style-33.css?v=51">
+  <link rel="stylesheet" href="/assets/style-34.css?v=75">
+  <link rel="stylesheet" href="/assets/style-35.css?v=7">
+  <link rel="stylesheet" href="/assets/style-36.css?v=4">
+  <link rel="stylesheet" href="/assets/style-37.css?v=2">
+  <link rel="stylesheet" href="/assets/style-38.css?v=6">
+  <link rel="stylesheet" href="/assets/style-39.css?v=4">
+  <link rel="stylesheet" href="/assets/style-40.css?v=1">
+  <link rel="stylesheet" href="/assets/style-41.css?v=5">
+  <link rel="stylesheet" href="/assets/style-42.css?v=7">
+  <link rel="stylesheet" href="/assets/style-45.css?v=4">
+  <link rel="stylesheet" href="/assets/style-46.css?v=2">
+  <link rel="stylesheet" href="/assets/collection-selection-state.css?v=3">
+  <link rel="stylesheet" href="/assets/collection-modal-shield.css?v=1">
+  <link rel="stylesheet" href="/assets/nav-chapter-progress.css?v=7">
+  <style>
+    html[data-theme="light"],html[data-theme="light"] body{background:#fff!important;background-color:#fff!important}
+    html[data-theme="dark"],html[data-theme="dark"] body{background:#0d0f13!important;background-color:#0d0f13!important}
+    #collectionLayer{display:none!important}
+  </style>
+  <script src="/data/site-data-1.js?v=22" defer></script>
+  <script src="/data/site-data-2.js?v=22" defer></script>
+  <script src="/data/site-data-3.js?v=22" defer></script>
+  <script src="/data/site-data-4.js?v=22" defer></script>
+  <script src="/data/site-data-5.js?v=22" defer></script>
+  <script src="/data/site-data-6.js?v=22" defer></script>
+  <script src="/data/site-data-7.js?v=22" defer></script>
+  <script src="/data/site-data-8.js?v=22" defer></script>
+  <script src="/assets/script-1.js?v=22" defer></script>
+</head>
+<body>
+  <div id="boot" class="boot">
+    <div class="boot__hero"></div>
+    <div class="boot__lines">
+      <div class="boot__line big"></div>
+      <div class="boot__line mid"></div>
+      <div class="boot__line short"></div>
+      <div class="micro">사진 수익화 로드맵을 준비하는 중</div>
+    </div>
+  </div>
+  <main id="app" class="app" hidden></main>
+  <script src="/assets/generated/client-review.js?v=25" defer></script>
+  <script src="/assets/generated/product-studio.js?v=25" defer></script>
+  <script src="/assets/generated/retouch-workstation.js?v=25" defer></script>
+  <script src="/assets/script-2.js?v=22" defer></script>
+  <script src="/assets/script-3.js?v=22" defer></script>
+  <script src="/assets/script-liquid-core.js?v=1" defer></script>
+  <script src="/assets/script-4.js?v=22" defer></script>
+  <script src="/assets/script-6.js?v=22" defer></script>
+  <script src="/assets/script-gate.js?v=22" defer></script>
+  <script src="/assets/script-5.js?v=22" defer></script>
+  <script src="/assets/script-7.js?v=22" defer></script>
+  <script src="/assets/script-8.js?v=22" defer></script>
+  <script src="/assets/script-12.js?v=25" defer></script>
+  <script src="/assets/script-9.js?v=26" defer></script>
+  <script src="/assets/script-10.js?v=23" defer></script>
+  <script src="/assets/script-11.js?v=22" defer></script>
+  <script src="/assets/script-13.js?v=26" defer></script>
+  <script src="/assets/script-postload-v27.js?v=30" defer></script>
+  <script src="/assets/script-17.js?v=34" defer></script>
+  <script src="/assets/script-19.js?v=39" defer></script>
+  <script src="/assets/script-24.js?v=45" defer></script>
+  <script src="/assets/script-25.js?v=46" defer></script>
+  <script src="/assets/script-28.js?v=52" defer></script>
+  <script src="/assets/image-slots-v1.js?v=10" defer></script>
+  <script src="/assets/image-slot-binder-v1.js?v=5" defer></script>
+  <script src="/assets/script-safari-compact-prime.js?v=3" defer></script>
+  <script src="/assets/script-31.js?v=6" defer></script>
+  <script src="/assets/script-32.js?v=5" defer></script>
+  <script src="/assets/script-33.js?v=7" defer></script>
+  <script src="/assets/script-34.js?v=6" defer></script>
+  <script src="/assets/script-collection-modal-shield-v1.js?v=1" defer></script>
+  <script src="/assets/script-copy-contract-v1.js?v=2" defer></script>
+</body>
+</html>
