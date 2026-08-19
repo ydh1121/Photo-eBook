@@ -5,11 +5,48 @@
 ## 현재 구조
 
 - `public/` — Cloudflare Pages 정적 프런트엔드
+- `public/assets/styles/` — 역할별 CSS 모듈
+- `public/assets/js/` — 역할별 브라우저 JS 모듈
+- `public/data/site-data/` — 최초 렌더용 bundled fallback 데이터 조각
+- `public/assets/images/generated/v1/` — 승인된 운영 WebP 이미지
 - `functions/api/[[path]].js` — 본문, 질문함용 Cloudflare Pages Function
 - `functions/api/curated.js` — 외부 사진 글 큐레이션과 SEO 메타 파싱
+- `functions/api/discover.js`, `functions/api/videos.js` — 탐색/영상 API
 - Google Sheets API — 기존 Google Sheet를 직접 읽고 씁니다.
 
 Apps Script는 사용하지 않습니다.
+
+### 프런트엔드 모듈 분류
+
+CSS는 로드 순서를 유지한 채 아래 역할로 분리합니다.
+
+- `styles/core/` — 토큰, reset, 기본 레이아웃, 반응형 기반
+- `styles/components/` — 카드/장비 등 공통 컴포넌트
+- `styles/navigation/` — 상단 챕터 내비게이션과 진행도
+- `styles/collection/` — 내 모음, 선택 상태, 기기 연결
+- `styles/questions/` — 질문 workspace
+- `styles/ui/` — Liquid Glass, 테마/표면 보정
+- `styles/media/` — 이미지/미디어 표현
+- `styles/desktop/` — PC 전용 레이아웃과 레일
+- `styles/safari/` — iOS/WebKit 전용 브라우저 chrome 대응
+- `styles/compat/` — 기존 데이터/표현과의 호환 계층
+
+JS는 아래 역할로 분리합니다.
+
+- `js/core/` — 데이터 API, 공통 helper, UI readiness
+- `js/app/` — 앱 조립, boot 복구, postload lifecycle
+- `js/render/` — 챕터/콘텐츠 renderer
+- `js/navigation/` — 챕터 활성 상태와 이동
+- `js/content/` — 큐레이션/콘텐츠 탐색
+- `js/media/` — 이미지 슬롯, 미디어 보강, generated 자산
+- `js/collection/` — 내 모음, 선택, 기기 연결, modal shield
+- `js/questions/` — 질문 작성/저장/문맥 handoff
+- `js/ui/` — Liquid controller와 UI repair
+- `js/desktop/` — PC 전용 마우스 drag interaction
+- `js/safari/` — iOS Safari chrome/theme 보정
+- `js/compat/` — 기존 카피/상태 호환 계층
+
+과거 `style-1.css`, `script-24.js`처럼 번호만으로 역할을 알기 어려운 런타임 파일명은 제거했습니다. `index.html`과 postload loader는 위 semantic path만 사용합니다. CSS와 JS의 기존 실행/override 순서는 회귀 방지를 위해 유지합니다.
 
 ## 자동 배포
 
