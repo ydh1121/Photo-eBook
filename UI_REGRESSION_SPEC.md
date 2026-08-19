@@ -4,7 +4,7 @@
 
 ## 1. 상단 챕터 필터
 
-- `.nav-shell`은 라이트/다크 모두 **투명**이다. 상단 필터 레일 뒤에 별도의 대지색, 검정판, 반투명 패널을 추가하지 않는다.
+- `.nav-shell`은 라이트/다크 모두 시각적으로 **투명**이다. 상단 필터 레일 뒤에 별도의 대지색, 검정판, 반투명 패널을 추가하지 않는다.
 - 실제 유리 재질은 `.nav-scroll` 레일과 moving liquid indicator가 담당한다.
 - 상단 레일의 좌우 스크롤은 Safari/WebKit 네이티브 `overflow-x:auto`가 소유한다.
 - JS에서 `scrollLeft`, `scrollIntoView`, pointer/touch move 기반 커스텀 패닝으로 상단 레일을 강제 이동하지 않는다.
@@ -13,13 +13,18 @@
 - 첫 번째 필터로 복귀할 때 탄성 오버슈트가 왼쪽 경계에서 잘리지 않도록 현재 runway/padding을 유지한다.
 - PC에서는 필터 레일을 뷰포트 폭으로 늘리지 않는다. 실제 칩 묶음의 폭을 기준으로 한 유리 캡슐 하나가 화면 중앙에 놓여야 한다.
 
-## 2. 브라우저 하단 크롬 / 페이지 대지
+## 2. iPhone Safari 브라우저 크롬 / 페이지 대지
 
-- Safari 하단 주소 알약 뒤에 사이트가 만든 별도 색상판이 보이면 안 된다.
-- 이를 위해 `html`, `body`의 브라우저-facing 배경은 투명하게 유지한다.
-- 반대로 `#app`, `.app`, 실제 section까지 투명하게 만들면 안 된다. 앱 대지는 테마의 정상 색을 유지한다.
-- 다크 앱 대지 기준값은 `#0d0f13` 계열이며 Safari/WebKit의 순수 검정 바닥이 노출되면 회귀다.
+- 2026-08-19 iPhone 실기기 검증에서 승인된 해결책을 기준선으로 사용한다.
+- iOS WebKit에서 최초 접속 시 `html`, `body`는 실제 테마 canvas를 가진다. 라이트는 `#fff`, 다크는 `#0d0f13` 계열이다.
+- iOS Safari 최초 expanded 주소영역 상태에서는 `.nav-shell`을 `position:relative`로 시작한다. 최초부터 `sticky`를 강제하면 주소영역 뒤 solid extension이 재발할 수 있다.
+- Safari browser chrome이 compact된 것이 `visualViewport` 증가 또는 충분한 scroll로 확인되면 `<html>`에 `safari-nav-sticky-armed`를 추가하고 기존 `position:sticky; top:0` 동작으로 전환한다.
+- `#app`, `.app`, 실제 section은 정상 테마 대지를 유지한다. 다크 앱 대지 기준값은 `#0d0f13` 계열이며 순수 검정 바닥이 노출되면 회귀다.
+- 최초 주소영역 문제를 고치기 위해 collection/FAB/question popup을 숨기거나 삭제하지 않는다. 하단 UI는 원인 분리 결과 직접 원인이 아니었다.
+- 과거처럼 collection을 보이지 않게 열고 탭을 바꿨다가 닫는 Safari prime workaround를 다시 추가하지 않는다.
+- `top:5px` 같은 임의 edge offset으로 sticky를 유지하는 우회도 사용하지 않는다.
 - 하단 플로팅 버튼의 그림자는 safe-area 또는 브라우저 크롬에 의해 잘리면 안 된다.
+- Safari 전용 root/nav 규칙은 `ios-webkit-chrome` 범위 밖 브라우저의 geometry를 변경하면 안 된다.
 
 ## 3. Liquid Glass 필터 공통
 
@@ -64,8 +69,9 @@
 
 ## 8. 모바일 승인 기준선 — 시각 변경 금지
 
-- 2026-08-18 기준 현재 모바일 화면은 사용자 최종 확인을 통과한 **승인 기준선**이다.
-- 휴대폰 구간의 레이아웃, 간격, 글자 크기, 이미지 비율, 카드 크기, 챕터 순서, 상단 필터 위치, 내 모음 geometry, 질문 UI geometry, safe-area 처리는 명시적인 사용자 요청 없이는 변경하지 않는다.
+- 2026-08-18 기준 모바일 화면과 2026-08-19 승인된 iPhone Safari chrome 수정은 사용자 확인을 통과한 **승인 기준선**이다.
+- 휴대폰 구간의 레이아웃, 간격, 글자 크기, 이미지 비율, 카드 크기, 챕터 순서, 상단 필터 시각 위치, 내 모음 geometry, 질문 UI geometry, safe-area 처리는 명시적인 사용자 요청 없이는 변경하지 않는다.
+- iPhone Safari의 최초 nav `relative → compact 후 sticky` lifecycle은 geometry 버그 수정이므로 승인 기준에 포함한다.
 - PC 개선을 위한 시각 CSS는 원칙적으로 `@media (min-width:1024px)` 안에만 작성한다. 데스크톱 문제를 고친다는 이유로 기존 모바일 기본값을 바꾸지 않는다.
 - 모바일의 가로 레일은 지금 승인된 네이티브 터치/스와이프 동작을 그대로 유지한다. PC용 wheel 또는 mouse-drag 보강 로직은 모바일 pointer/touch 동작을 가로채면 안 된다.
 - 기능 오류를 고치기 위한 공통 JS 변경은 허용하지만, 그 변경으로 모바일의 위치·크기·여백·표면 디자인이 달라지면 회귀다.
@@ -85,7 +91,8 @@
 ## 변경 규칙
 
 1. 이미 통과한 항목은 요청 없이 재설계하지 않는다.
-2. 한 버그를 고칠 때 관련 없는 전역 `html/body/app/nav-shell` 스타일을 함께 변경하지 않는다.
+2. 한 버그를 고칠 때 관련 없는 전역 `html/body/app/nav-shell` 스타일을 함께 변경하지 않는다. 단, `ios-webkit-chrome`에 scope된 승인 Safari root/nav 규칙은 유지한다.
 3. 새 override를 추가하기 전에 기존 최종 override와 충돌 여부를 확인한다.
 4. 동일 기능의 상태/indicator/scroll owner는 하나만 둔다.
 5. 캐시 버전을 올릴 때 실제 `index.html` 로딩 경로도 함께 확인한다.
+6. runtime 파일을 이동/rename할 때 CSS/JS 로드 순서를 그대로 유지하고 동적 import/postload 경로까지 함께 검증한다.
