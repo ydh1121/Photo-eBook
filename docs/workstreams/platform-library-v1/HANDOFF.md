@@ -11,7 +11,7 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 ## Current phase
 
-Phase 05/06 완료 수준의 candidate 구현 → Phase 07 전 실제 화면 검토 대기
+Phase 07 사용자 Block review 수집 + Phase 08 Editor Lab prototype 구현 완료 수준
 
 완료된 단계:
 - Phase 01 Reference Library
@@ -20,20 +20,27 @@ Phase 05/06 완료 수준의 candidate 구현 → Phase 07 전 실제 화면 검
 - Phase 04 Block Lab 기본 구현
 - Phase 05 UI Refinement 코드 레벨 1차 정제
 - Phase 06 신규 범용 Block candidate 확장
+- Phase 07 registry/review infrastructure
+- Phase 08 local-only Editor Lab prototype
 
 현재 checkpoint:
 - `/block-lab/`에 총 27개 candidate block family가 있음.
-- 사용자 실제 화면 검토 전에는 candidate를 production-approved로 자동 승격하지 않음.
-- 다음 핵심 작업은 Block Lab 실화면 QA → block별 `approved / redesign / merge / deprecated` 결정임.
+- 각 block에 `미결정 / 승인 / 재설계 / 통합 / 폐기` 검토 선택과 메모 UI가 있음.
+- 검토는 localStorage에 저장되고 JSON으로 export 가능.
+- runtime manifest와 renderer health check가 있음.
+- production validation은 manifest status가 `approved`인 type만 통과하도록 구현했으나 현재 27개는 모두 candidate.
+- `/editor-lab/`에서 candidate block을 실제로 배치·편집할 수 있음.
+- Editor Lab은 localStorage draft만 사용하며 서버/Google Sheet write와 아직 연결하지 않음.
 
 ## Production safety
 
 - photography production 페이지는 content-pack 분리 후 정상 동작한다고 사용자가 확인함.
-- 기존 photography production renderer는 이번 Block Library 작업으로 교체하지 않았음.
-- Block Lab CSS/renderer는 별도 경로로 격리됨.
-- `/block-lab/`은 `noindex,nofollow,noarchive`.
-- `/block-lab`과 `/block-lab/` exact 200 proxy가 기존 SPA wildcard보다 앞에 있음.
+- 기존 photography production renderer는 Block Library/Editor Lab으로 교체하지 않았음.
+- Block Lab/Editor Lab CSS와 runtime은 별도 route로 격리됨.
+- `/block-lab/`, `/editor-lab/` 모두 `noindex,nofollow,noarchive`.
+- exact 200 proxy가 기존 SPA wildcard보다 앞에 있음.
 - 기존 Safari navigation/runtime 계약은 변경하지 않았음.
+- 관리자 인증이 없으므로 서버 write API는 추가하지 않았음.
 
 ## Permanent Reference Library
 
@@ -55,47 +62,13 @@ Index:
 - `NomaDamas/k-skill` korean-humanizer
 - `arknow91/liquid-taffy`
 
-분류:
-- `design-taste/`
-- `component-system/`
-- `interaction-motion/`
-- `editorial-writing/`
-- `discovery/`
-
-중요 결정:
-- 외부 repository는 원리/검토기준 reference이며 production dependency를 자동 추가하지 않음.
-- reverse-engineered Apple/iOS DESIGN.md는 공식 Apple specification으로 취급하지 않음.
-- KatFishNet은 한국어 LLM 문체 연구 evidence이며 detector 우회나 자동 판정 용도로 사용하지 않음.
-
 ## Project design taste
 
 영구 기준:
 - `docs/library/design-taste/PLATFORM-TASTES.md`
 
-핵심:
-- content보다 card/border/shadow/badge가 먼저 보이는 UI 거절
-- typography/whitespace로 hierarchy를 먼저 만들기
-- 읽는 UI는 정적으로, 직접 조작하는 UI만 움직이기
-- mobile-first
-- rail은 native horizontal overflow + 시작/끝/runway 명시
-- 외부 Apple/taste reference의 style/value를 그대로 복제하지 않기
-
 우선순위:
 `사용자 현재 피드백 → PLATFORM-TASTES → 프로젝트 spec → Approved Registry → external reference`
-
-## Editorial Library
-
-- `docs/library/editorial/README.md`
-- `01-voice-principles.md`
-- `02-block-copy-profiles.md`
-- `03-ai-writing-and-review.md`
-- `04-before-after-examples.md`
-
-결정:
-- 사용자 확정 문장/전후 예시가 최우선 authority.
-- AI 문체 수정은 사실·수치·고유명사와 user lock을 변경하지 않음.
-- block마다 `editorialProfile` 사용.
-- 운영 `COPY_GUIDE`에 회수된 사용자 규칙을 먼저 반영했고 photography copy spec과 연결함.
 
 ## Block Library
 
@@ -104,8 +77,14 @@ Index:
 - `V1-INVENTORY.md`
 - `V1-EXPANSION.md`
 - `BLOCK-CONTRACT.md`
+- `APPROVAL-WORKFLOW.md`
 
-기존 photography 17개:
+Registry:
+- `public/data/block-registry/v1/manifest.js`
+- `public/assets/js/blocks/block-registry.js`
+- `public/assets/js/blocks/block-registry-health.js`
+
+27개 candidate:
 1. hero
 2. chapter-hero
 3. section-heading
@@ -123,8 +102,6 @@ Index:
 15. script-copy
 16. tutorial
 17. resources
-
-신규 10개:
 18. faq
 19. pros-cons
 20. comparison-table
@@ -135,10 +112,6 @@ Index:
 25. calculator
 26. cta
 27. service-list
-
-별도 type을 만들지 않은 항목:
-- KPI/stat → `metric-grid`로 통합
-- service/business comparison → `service-list` + comparison 계열 조합
 
 보류:
 - location/map → provider/API/geocoding/privacy 계약 전까지 보류
@@ -152,59 +125,107 @@ Core:
 - `public/assets/js/blocks/block-registry.js`
 - `public/assets/js/blocks/block-renderers.js`
 - `public/assets/js/blocks/block-renderers-extended.js`
+- `public/assets/js/blocks/block-registry-health.js`
+- `public/data/block-registry/v1/manifest.js`
 
 Lab:
 - `public/assets/js/block-lab/lab-data.js`
 - `public/assets/js/block-lab/lab-data-extended.js`
 - `public/assets/js/block-lab/lab-interactions-extended.js`
 - `public/assets/js/block-lab/lab-app.js`
+- `public/assets/js/block-lab/lab-review.js`
 
 Styles:
 - `public/assets/styles/block-lab/lab.css`
 - `a11y.css`
 - `refinement-v2.css`
 - `new-blocks-v2.css`
+- `review-v1.css`
 
-Features:
+Review features:
 - category filter
+- review-decision filter
 - Light/Dark
 - Fit / 390 / 768 / 1180 preview
 - block variant selector
-- type/category/status/editorial profile metadata
-- script copy sample
-- calculator multiply/sum sample
+- review decision + memo
+- localStorage persistence
+- review JSON export
+- registry health count
 
-## Phase 05 first-pass refinement
+## Editor Lab
 
-Block-Lab-only refinement:
-- Korean keep-all + heading balance/readability
-- typography hierarchy and line height
-- fewer nested mini-cards/surfaces
-- process → separated sequence rows
-- metric → coherent data grid
-- checklist → unified checklist surface
-- roadmap → connected progression; mobile vertical timeline-like progression
-- script/source → flat rows before card decoration
-- media/case/product metadata subdued
-- horizontal rail start/end/shadow runway improved
-- mobile/desktop spacing first pass
+Route:
+- `/editor-lab/`
 
-Production photography CSS is not using this candidate refinement layer.
+Code:
+- `public/editor-lab/index.html`
+- `public/assets/js/editor-lab/editor-app.js`
+- `public/assets/styles/editor-lab/editor.css`
+
+Features:
+- 27개 block library
+- search
+- block add
+- drag-and-drop reorder
+- up/down reorder fallback
+- duplicate/delete
+- variant edit
+- recursive content inspector for strings/numbers/arrays/objects
+- Light/Dark
+- 390/768/1180
+- edit/preview
+- undo/redo
+- localStorage draft
+- JSON import/export
+- canonical Block Registry renderer 재사용
+
+중요:
+- Editor Lab은 production 관리자 페이지가 아님.
+- 인증/서버 저장 전까지 local-only prototype.
+- candidate도 실험용으로 추가 가능하지만 production publish validation은 candidate를 거부함.
+
+## Storage decision
+
+문서:
+- `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
+
+V1 방향:
+- 구조화 페이지/블록 데이터 → Google Sheets
+- 이미지/파일/workstream archive → Google Drive
+- renderer/schema/permanent rules → Git
+- localStorage → Editor Lab 검증용 draft만
+
+권장 future sheets:
+- `PLATFORM_PAGES`
+- `PAGE_BLOCKS`
+- `BLOCK_REVISIONS`
+- `BLOCK_REVIEWS`
+- `MEDIA_ASSETS`
+
+광고 기반 초기 운영/소수 관리자 조건에서는 별도 Supabase/D1을 먼저 추가하지 않음. 여러 관리자 동시 편집, 복잡한 권한/검색/대규모 revision이 필요해지면 migration 검토.
+
+## Current unresolved checks
+
+- 이 도구 세션의 container에서 `photo-ebook.pages.dev` DNS 조회가 실패해서 실제 live `/block-lab/`/`/editor-lab/` 브라우저 렌더 검증은 하지 못함.
+- 따라서 live success를 추정해 완료 처리하지 않음.
+- 사용자 실제 PC/모바일 검토가 필요함.
 
 ## Next action
 
-1. 배포된 `/block-lab/` 접근 및 script/CSS 로드 확인
-2. PC와 모바일에서 27개 block visual QA
-3. 사용자 피드백을 block별로 기록
-4. 각 block을 `approved / redesign / merge / deprecated`로 판정
-5. Phase 07 Approved Block Registry 계약 확정
-6. 승인된 renderer만 production/admin preview canonical renderer로 승격
-7. 그 다음 Phase 08 관리자 Block Editor 구현
+1. 배포된 `/block-lab/`에서 27개 block 검토 UI 확인
+2. 사용자가 주요 block을 `승인 / 재설계 / 통합 / 폐기`로 판정하고 필요 시 메모
+3. review JSON 또는 사용자 피드백을 Git canonical manifest에 반영
+4. approved lifecycle 확정 및 publish validation 연결
+5. `/editor-lab/` 실화면 QA
+6. block-specific inspector를 사용자 편집 관점에서 정제
+7. 관리자 인증 방식을 확정한 뒤 Google Sheets draft save/load API 연결
+8. draft/published + revision + publish 흐름 구현
 
 중요:
-- 사용자 시각 검토 전에 Phase 07 자동 승인 금지.
+- 사용자 시각 검토 전에 block 자동 승인 금지.
 - candidate renderer를 photography production에 바로 적용하지 않음.
-- 실제 라이브 접근/렌더 검증이 안 된 경우 성공했다고 추정하지 않음.
+- 인증 전에는 공개 admin write endpoint를 만들지 않음.
 
 ## Resume protocol
 
