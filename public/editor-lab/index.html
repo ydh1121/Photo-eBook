@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/assets/styles/editor-lab/ai-response.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/ai-review.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/publish-controls.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/editor-lab/media-picker.css?v=1">
 </head>
 <body>
   <div class="block-lab editor-lab" data-theme="light" data-preview="desktop" data-mode="edit">
@@ -80,9 +81,17 @@
       <aside class="editor-inspector" aria-label="블록 속성"><div class="editor-pane-head"><div><small>INSPECTOR</small><h2>블록 편집</h2></div></div><div id="editorInspector" class="editor-inspector-body"><p class="editor-empty">편집할 블록을 선택하세요.</p></div></aside>
     </div>
 
+    <dialog id="editorMediaDialog" class="editor-media-dialog">
+      <div class="editor-media-card-wrap">
+        <div class="editor-media-head"><div><small>MEDIA LIBRARY</small><h2>이미지 선택</h2><p>등록된 미디어와 현재 Block Lab 샘플에서 이미지를 선택합니다.</p></div><button type="button" id="editorMediaClose" class="editor-media-close">닫기</button></div>
+        <div class="editor-media-toolbar"><input id="editorMediaSearch" type="search" placeholder="이미지 검색" aria-label="이미지 검색"><span id="editorMediaStatus" class="editor-media-status"></span></div>
+        <div id="editorMediaList" class="editor-media-list"></div>
+      </div>
+    </dialog>
+
     <dialog id="editorConnectDialog" class="editor-connect-dialog"><div class="editor-connect-card"><div><small>ADMIN CONNECTION</small><h2>관리자 서버 연결</h2><p>배포 환경의 관리자 토큰을 입력하세요. 토큰은 이 탭의 세션에만 보관합니다.</p></div><label>관리자 토큰<input id="editorAdminToken" type="password" autocomplete="off" spellcheck="false"></label><p id="editorConnectMessage" class="editor-connect-message" role="status"></p><div class="editor-connect-actions"><button type="button" id="editorConnectCancel">취소</button><button type="button" id="editorConnectSubmit">연결</button></div></div></dialog>
   </div>
 
-  <script src="/assets/js/blocks/block-registry.js?v=2"></script><script src="/data/block-registry/v1/manifest.js?v=1"></script><script src="/assets/js/blocks/block-renderers.js?v=1"></script><script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-data.js?v=1"></script><script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script><script src="/assets/js/editor-lab/editor-app.js?v=2"></script><script src="/assets/js/editor-lab/page-meta.js?v=1"></script><script src="/assets/js/editor-lab/seo-meta.js?v=1"></script><script src="/assets/js/editor-lab/ai-brief.js?v=2"></script><script src="/assets/js/editor-lab/ai-response.js?v=1"></script><script src="/assets/js/editor-lab/ai-review.js?v=1"></script><script src="/assets/js/editor-lab/editor-server.js?v=3"></script><script src="/assets/js/editor-lab/publish-controls.js?v=1"></script>
+  <script src="/assets/js/blocks/block-registry.js?v=2"></script><script src="/data/block-registry/v1/manifest.js?v=1"></script><script src="/assets/js/blocks/block-renderers.js?v=1"></script><script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-data.js?v=1"></script><script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script><script src="/assets/js/editor-lab/editor-app.js?v=2"></script><script src="/assets/js/editor-lab/page-meta.js?v=1"></script><script src="/assets/js/editor-lab/seo-meta.js?v=1"></script><script src="/assets/js/editor-lab/ai-brief.js?v=2"></script><script src="/assets/js/editor-lab/ai-response.js?v=1"></script><script src="/assets/js/editor-lab/ai-review.js?v=1"></script><script src="/assets/js/editor-lab/editor-server.js?v=3"></script><script src="/assets/js/editor-lab/publish-controls.js?v=1"></script><script src="/assets/js/editor-lab/media-picker.js?v=1"></script>
 </body>
 </html>
