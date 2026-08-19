@@ -16,7 +16,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download and verify approved Drive WebP assets
+      - name: Download and verify approved WebP assets
         shell: bash
         run: |
           set -euo pipefail
@@ -24,51 +24,55 @@ jobs:
           import hashlib
           import json
           import pathlib
+          import urllib.parse
           import urllib.request
 
           manifest = json.loads(pathlib.Path('image-upload-staging/ready.json').read_text())
           report = {'ok': True, 'files': []}
 
           for item in manifest['files']:
-              file_id = item['drive_file_id']
-              urls = [
-                  f'https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t',
-                  f'https://drive.google.com/uc?export=download&id={file_id}',
-              ]
+              name = item['proxy_name']
+              url = 'https://photo-ebook.pages.dev/api/gear-asset?' + urllib.parse.urlencode({'name': name})
               data = None
               errors = []
-              for url in urls:
-                  try:
-                      req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                      with urllib.request.urlopen(req, timeout=60) as response:
-                          candidate = response.read()
-                      if len(candidate) == item['size'] and hashlib.sha256(candidate).hexdigest() == item['sha256']:
-                          data = candidate
-                          break
-                      errors.append(f'{url}: size={len(candidate)} sha256={hashlib.sha256(candidate).hexdigest()}')
-                  except Exception as exc:
-                      errors.append(f'{url}: {type(exc).__name__}: {exc}')
+              try:
+                  req = urllib.request.Request(url, headers={'User-Agent': 'Photo-eBook-Gear-Importer/1.0'})
+                  with urllib.request.urlopen(req, timeout=60) as response:
+                      candidate = response.read()
+                  got_size = len(candidate)
+                  got_sha = hashlib.sha256(candidate).hexdigest()
+                  if got_size == item['size'] and got_sha == item['sha256']:
+                      data = candidate
+                  else:
+                      errors.append(f'{url}: size={got_size} sha256={got_sha}')
+              except Exception as exc:
+                  errors.append(f'{url}: {type(exc).__name__}: {exc}')
 
-              entry = {'target': item['target'], 'expected_size': item['size'], 'expected_sha256': item['sha256']}
+              entry = {
+                  'target': item['target'],
+                  'expected_size': item['size'],
+                  'expected_sha256': item['sha256']
+              }
               if data is None:
                   entry['ok'] = False
                   entry['errors'] = errors
                   report['ok'] = False
+              elif not (data.startswith(b'RIFF') and data[8:12] == b'WEBP'):
+                  entry['ok'] = False
+                  entry['errors'] = ['downloaded bytes are not RIFF/WEBP']
+                  report['ok'] = False
               else:
-                  if not (data.startswith(b'RIFF') and data[8:12] == b'WEBP'):
-                      entry['ok'] = False
-                      entry['errors'] = ['downloaded bytes are not RIFF/WEBP']
-                      report['ok'] = False
-                  else:
-                      target = pathlib.Path(item['target'])
-                      target.parent.mkdir(parents=True, exist_ok=True)
-                      target.write_bytes(data)
-                      entry['ok'] = True
-                      entry['size'] = len(data)
-                      entry['sha256'] = hashlib.sha256(data).hexdigest()
+                  target = pathlib.Path(item['target'])
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(data)
+                  entry['ok'] = True
+                  entry['size'] = len(data)
+                  entry['sha256'] = hashlib.sha256(data).hexdigest()
               report['files'].append(entry)
 
-          pathlib.Path('/tmp/gear-import-result.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+          pathlib.Path('/tmp/gear-import-result.json').write_text(
+              json.dumps(report, indent=2), encoding='utf-8'
+          )
           print(json.dumps(report, indent=2))
           PY
 
@@ -80,8 +84,8 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
           if jq -e '.ok == true' /tmp/gear-import-result.json >/dev/null; then
-            rm -rf image-upload-staging .github/workflows/image-binary-import.yml
-            git add public/assets/images/generated/v1/gear image-upload-staging .github/workflows/image-binary-import.yml
+            rm -rf image-upload-staging .github/workflows/image-binary-import.yml functions/api/gear-asset.js
+            git add public/assets/images/generated/v1/gear image-upload-staging .github/workflows/image-binary-import.yml functions/api/gear-asset.js
             git commit -m 'Apply approved gear product WebP assets'
             git pull --rebase origin main
             git push origin HEAD:main
