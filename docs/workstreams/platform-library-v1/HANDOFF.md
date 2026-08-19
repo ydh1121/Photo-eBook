@@ -1,6 +1,6 @@
 # Platform Library V1 Handoff
 
-이 파일은 채팅방 길이 제한, 세션 종료, 다른 작업자/에이전트로의 전환이 발생해도 작업이 끊기지 않도록 현재 작업 상태를 고정한다.
+이 파일은 새 채팅/세션에서도 현재 작업을 추측 없이 이어가기 위한 canonical handoff다.
 
 ## Canonical status
 
@@ -11,118 +11,93 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 ## Current phase
 
-- Phase 07: 사용자 Block review 대기
-- Phase 08: Editor Lab + V1 Sheets DB + 보호된 draft/publish API 구현, live auth/visual QA 대기
-- Phase 09: AI content request/response/lock/review 왕복 계약과 Editor UI 구현
-- Phase 10: SEO metadata + publish snapshot + server validation 인프라 구현, public renderer는 승인 전 보류
+- Phase 07 — 27개 Block 사용자 시각 review 대기
+- Phase 08 — Editor Lab, Sheets DB, protected APIs, media/revision/save hardening 구현
+- Phase 09 — AI request/response/lock/review 왕복 구현; 실제 신규 산업 end-to-end QA 대기
+- Phase 10 — SEO metadata + snapshot publish infra 구현; public renderer는 Block 승인 전 미연결
 
-## Production safety
+## 절대 유지할 production safety
 
-- 기존 photography production renderer는 교체하지 않았다.
-- 기존 Safari navigation/runtime 계약은 건드리지 않았다.
-- `/block-lab/`, `/editor-lab/`은 별도 route이며 meta + `X-Robots-Tag` noindex 처리했다.
-- `/api/editor/*`는 기존 공개 `/api/rpc`와 분리했다.
-- `ADMIN_EDITOR_TOKEN`이 배포 환경에 없으면 editor API는 모두 401로 닫힌다.
-- Editor Lab의 관리자 토큰은 브라우저 `sessionStorage`에만 저장한다.
-- publish validator는 Git server Registry에서 `approved`인 block만 허용한다.
-- 현재 27개는 전부 candidate이므로 실제 publish는 차단되는 것이 정상이다.
+- 기존 photography production renderer를 이 workstream의 candidate renderer로 교체하지 않는다.
+- 기존 Safari navigation/runtime fix를 건드리지 않는다.
+- `/block-lab/`, `/editor-lab/`은 noindex 상태를 유지한다.
+- `/api/editor/*`는 기존 공개 `/api/rpc`와 분리한다.
+- `ADMIN_EDITOR_TOKEN`이 없으면 editor API는 닫혀 있어야 한다.
+- 27개 Block은 현재 모두 `candidate`; 사용자 검토 전 자동 승인 금지.
+- candidate block이 포함된 페이지의 production publish는 실패해야 한다.
 
 ## Reference / Editorial
 
 Reference index:
 - `docs/library/references/README.md`
 
-2026-08-19 사용자 제공 GitHub 링크 9개 모두 등록됨:
-- `emilkowalski/skills`
-- `Meliwat/awesome-ios-design-md`
-- `VoltAgent/awesome-design-md` Apple `DESIGN.md`
-- `Leonxlnx/taste-skill`
-- `tastesmd/TASTES.md`
-- GitHub `topics/ai-design`
-- `Shinwoo-Park/katfishnet`
-- `DaleSeo/korean-skills`
-- `dotoricode/korean-humanizer`
+사용자 제공 9개 GitHub 링크 + 기존 `liquid-taffy`, NomaDamas reference 모두 등록됨.
 
-기존 reference:
-- `NomaDamas/k-skill` korean-humanizer
-- `arknow91/liquid-taffy`
-
-Project design taste:
+Project design authority:
 - `docs/library/design-taste/PLATFORM-TASTES.md`
 
 Editorial:
 - `docs/library/editorial/`
-- photography 특수 계약: `docs/spec-v1/20-korean-copywriting-skill.md`
+- photography: `docs/spec-v1/20-korean-copywriting-skill.md`
 - Google Sheet `COPY_GUIDE`가 live copy rule source
 
-## Block Library / Registry
+## Block Registry
 
-문서:
-- `docs/library/blocks/README.md`
-- `V1-INVENTORY.md`
-- `V1-EXPANSION.md`
-- `BLOCK-CONTRACT.md`
-- `APPROVAL-WORKFLOW.md`
-
-Browser Registry:
+Browser:
 - `public/data/block-registry/v1/manifest.js`
 - `public/assets/js/blocks/block-registry.js`
 - `public/assets/js/blocks/block-registry-health.js`
 
-Server publish Registry:
+Server:
 - `functions/lib/block-registry-v1.js`
 
-현재 27개 type은 browser/server 모두 `candidate`다. 사용자 시각 검토 전에 자동 승인하지 않는다.
+Sync:
+- `scripts/check-block-registry-sync.mjs`
+- `.github/workflows/platform-library-checks.yml`
 
-보류:
-- location/map → provider/API/geocoding/privacy 계약 전까지 보류
+Approval 시 browser/server Registry를 같이 수정하고 sync script를 통과시켜야 한다.
+
+27 type 모두 현재 `candidate`.
 
 ## Block Lab
 
-Route:
-- `/block-lab/`
+Route: `/block-lab/`
 
-기능:
 - 27개 candidate
-- category filter
-- Light/Dark
-- Fit/390/768/1180
-- variant 비교
-- `미결정 / 승인 / 재설계 / 통합 / 폐기`
-- review memo
-- localStorage review persistence
-- review JSON export
-- registry health 표시
+- category / variant / Light-Dark / Fit-390-768-1180
+- review decision: undecided/approved/redesign/merge/deprecated
+- memo/localStorage/JSON export/filter/summary
+- Google Sheet `BLOCK_REVIEWS` 27개 `undecided` seed
 
-Google Sheet `BLOCK_REVIEWS`에는 27개 type을 `undecided`로 seed했다. 아직 사용자 판정은 반영하지 않았다.
+사용자의 실제 화면 판정이 아직 없다.
 
 ## Editor Lab
 
-Route:
-- `/editor-lab/`
+Route: `/editor-lab/`
 
-주요 기능:
-- 27개 block library/search
-- block add/reorder/duplicate/delete
-- drag-and-drop + up/down fallback
-- variant/content inspector
-- block AI policy / field locks / fact state
-- Light/Dark, 390/768/1180
+현재 구현:
+- 27 block library/search
+- add/reorder/drag-drop/up-down/duplicate/delete
+- recursive content inspector
+- block별 빠른 편집 profile — `inspector-friendly.js`
+- variant
+- AI policy/field lock/fact state
+- Light/Dark + 390/768/1180
 - edit/preview
 - undo/redo
+- localStorage draft
 - JSON import/export
-- localStorage browser draft
-- 산업 ID / URL slug
-- 새 페이지 / 페이지 복제
-- 선택적 서버 연결
-- 서버 초안 목록/저장/불러오기
-- SEO metadata editor
+- industry ID / slug / new/duplicate page
+- SEO metadata
 - AI brief/request export
 - AI response safe import
-- 최근 AI review 표시
-- 발행 검사 / 발행 action
+- recent AI review
+- optional server connect/save/load
+- media picker
+- revision history/restore to browser draft
+- publish-check/publish controls
 
-주요 파일:
+주요 runtime:
 - `public/editor-lab/index.html`
 - `public/assets/js/editor-lab/editor-app.js`
 - `page-meta.js`
@@ -132,32 +107,16 @@ Route:
 - `ai-review.js`
 - `editor-server.js`
 - `publish-controls.js`
+- `media-picker.js`
+- `revision-history.js`
+- `inspector-friendly.js`
 
-## AI Content Contract
+## V1 Sheets DB
 
-문서:
-- `docs/library/ai-content/README.md`
-- `AI-CONTENT-CONTRACT-V1.md`
-- `AI-CONTENT-RESPONSE-V1.md`
+Spreadsheet ID:
+`1TgA_-C9rDPRvgxTnG5cPnWihwC48KZxod-sPeEoMWUc`
 
-흐름:
-`rough layout → AI 작업 JSON → AI 작성/검토 → AI 결과 JSON → lock-aware import → needs_review → 사용자 검토 → 서버 draft`
-
-중요:
-- AI가 page/block identity, block type/order/variant/enabled, approval/publish status를 변경하지 않음
-- `locked` / `fact_check_only` content 자동 수정 금지
-- `wording_only`는 기존 구조를 유지하고 문자열만 수정
-- evidence 없는 `verified`를 importer가 거부
-- pageReview의 `blocker`는 publish 차단
-- AI 적용 후 `needs_review`; importer가 `approved`로 올리지 않음
-
-## V1 Sheets DB — 실제 생성/검증됨
-
-Spreadsheet:
-- `사진작가 수익화 로드맵 | 모바일 LANDING + DB`
-- ID `1TgA_-C9rDPRvgxTnG5cPnWihwC48KZxod-sPeEoMWUc`
-
-추가된 tabs:
+Tabs:
 - `PLATFORM_PAGES`
 - `PAGE_BLOCKS`
 - `BLOCK_REVISIONS`
@@ -166,128 +125,177 @@ Spreadsheet:
 - `PUBLISH_SNAPSHOTS`
 - `PUBLISHED_BLOCKS`
 
-`PLATFORM_PAGES` 현재 주요 컬럼:
-- page_id
-- slug
-- industry_id
-- title
-- status
-- theme
-- seo_json
-- created_at
-- updated_at
-- published_at
-- brief_json
-- ai_status
-- ai_review_json
+`PLATFORM_PAGES` A:M:
+`page_id, slug, industry_id, title, status, theme, seo_json, created_at, updated_at, published_at, brief_json, ai_status, ai_review_json`
 
-Storage decision:
-- 구조화 페이지/블록 → Google Sheets
-- 이미지/파일/archive → Google Drive
-- renderer/schema/permanent rules → Git
+Storage authority:
+- structured page/block → Sheets
+- master/files/archive → Drive
+- public static asset/renderer/schema/permanent rules → Git + Cloudflare
 - localStorage → local/offline draft fallback
 
-문서:
+Permanent doc:
 - `docs/library/admin-editor/EDITOR-AND-STORAGE-V1.md`
 
-## Protected Editor API
+## Existing Drive image pipeline
 
-파일:
+기존 폴더를 재사용한다.
+- `Photo-eBook Image Pipeline V1`
+- Generated PNG
+- Generated WebP
+
+Drive를 public CDN처럼 쓰지 않는다.
+`MEDIA_ASSETS.public_url`은 실제 Editor/public renderer가 읽을 수 있는 배포 URL이어야 한다.
+
+현재 `MEDIA_ASSETS`에는 photography repo sample 8개가 seed돼 있고 Editor media picker에서 사용할 수 있다.
+
+## Protected Editor APIs
+
+Catch-all:
 - `functions/api/editor/[[path]].js`
 
-Endpoints:
-- `GET /api/editor/health`
-- `GET /api/editor/pages`
-- `GET /api/editor/page?id=...`
-- `POST /api/editor/page`
-- `POST /api/editor/reviews`
-- `POST /api/editor/publish-check`
-- `POST /api/editor/publish`
+Exact routes:
+- `POST /api/editor/save-page` — change-aware draft save
+- `GET|POST /api/editor/assets`
+- `GET /api/editor/revisions`
+
+Catch-all routes:
+- `GET /health`
+- `GET /pages`
+- `GET /page?id=...`
+- `POST /reviews`
+- `POST /publish-check`
+- `POST /publish`
 
 보호:
-- same-origin 확인
+- same-origin
 - Bearer `ADMIN_EDITOR_TOKEN`
-- token 미설정 시 closed
+- no token → closed
+- Editor token은 sessionStorage only
 
-Draft persistence:
-- page status를 draft로 저장
-- block type allowlist 검증
-- block revision 기록
-- 기존 block update → 신규 append → 삭제 block 마지막 clear
-- AI brief/status/review 저장
-- 빈 slug를 page id로 임의 보정하지 않음
+### change-aware save
 
-Publish:
-- disabled block 제외
-- approved Registry 확인
-- SEO title/description 검사
-- AI `needs_review` / blocker 검사
-- stale fact 차단
-- `PUBLISHED_BLOCKS` 저장 후 `PUBLISH_SNAPSHOTS` active row 생성
-- 이전 active snapshot은 그 뒤 `superseded`
-- publish snapshot은 draft와 별도 보존
+`/api/editor/save-page`가 Editor와 publish pre-save의 canonical write path다.
 
-OAuth 주의:
-- Google service-account token의 grant type은 반드시 `urn:ietf:params:oauth:grant-type:jwt-bearer`
-- 중간 구현 중 한 번 오타가 생겼다가 즉시 수정했고 현재 파일은 올바른 문자열을 사용함
+- page metadata는 draft로 저장
+- new block → version 1 + revision
+- existing changed block → version +1 + row update + revision
+- unchanged block → row update/revision 생략
+- stable JSON으로 content/evidence/AI policy 비교
+- removed block → 삭제 snapshot revision 후 마지막 clear
+- 기존 데이터 전체 선삭제 금지
 
-## SEO/GEO + Publishing
+기존 catch-all `POST /page`는 호환용 legacy 경로이며 Editor UI에서는 사용하지 않는다.
+
+Google OAuth grant type은 반드시:
+`urn:ietf:params:oauth:grant-type:jwt-bearer`
+
+## Revision history
+
+- server: `functions/api/editor/revisions.js`
+- UI: `revision-history.js`
+- 과거 block snapshot을 browser draft로 먼저 불러온다.
+- 서버는 사용자가 다시 저장하기 전까지 변경하지 않는다.
+
+## Media picker
+
+- server metadata API: `functions/api/editor/assets.js`
+- UI: `media-picker.js`
+- MEDIA_ASSETS + Block Lab repo sample merge
+- image/avatar 및 SEO ogImage 선택 지원
+- imageAlt가 비어 있으면 asset alt를 보조 입력
+
+아직 웹 관리자에서 신규 파일을 Drive에 업로드하고 Git/public asset으로 승격하는 자동 파이프라인은 연결하지 않았다.
+
+## AI Content
+
+문서:
+- `docs/library/ai-content/README.md`
+- `AI-CONTENT-CONTRACT-V1.md`
+- `AI-CONTENT-RESPONSE-V1.md`
+
+흐름:
+`rough layout → AI request JSON → AI 작성/검토 → response JSON → lock-aware import → needs_review → 사용자 검토 → server draft`
+
+중요:
+- AI가 page/block identity, block type/order/variant/enabled, approval/publish status를 변경하지 않음
+- `locked`/`fact_check_only` 자동 content 수정 금지
+- `wording_only`는 문자열만 변경하고 구조 보존
+- evidence 없는 verified 거부
+- pageReview blocker는 publish 차단
+
+## SEO/GEO + Publish
 
 문서:
 - `docs/library/publishing/PUBLISH-SEO-GEO-V1.md`
 
-구현됨:
-- `seo_json` editor
-- title / description / Article|WebPage / OG image / site / author / index policy / reviewedAt
-- publish snapshot tables
-- server publish validation
+구현:
+- seo_json Editor
+- source/evidence snapshot
+- `PUBLISH_SNAPSHOTS`, `PUBLISHED_BLOCKS`
+- publish-check/publish server validation
+- approved Registry only
+- disabled block 제외
+- AI needs_review/blocker/stale fact 차단
 - `public/robots.txt`
 - labs/API crawler 제외
-- public route에서 `OAI-SearchBot`을 별도로 차단하지 않음
 
-아직 안 함:
-- 승인 block 기반 public snapshot renderer
-- 신규 산업 canonical route 확정
-- public metadata/JSON-LD renderer
+아직 미연결:
+- approved snapshot public renderer
+- canonical 산업 route
+- public title/meta/canonical/OG/Twitter
+- JSON-LD
 - sitemap
-- public 404 처리
-- 광고 rail
+- real 404
+- 광고 side rail
 
-기존 photography `/`는 이 단계에서 변경하지 않는다.
+기존 photography `/`는 그대로 둔다.
 
-## Current blockers / unresolved checks
+## CI / validation
 
-1. Cloudflare Pages/Functions 배포 환경에 `ADMIN_EDITOR_TOKEN` secret을 아직 설정하지 못했다. 현재 도구에는 Cloudflare 환경변수를 설정할 connector가 없다.
-2. 따라서 `/api/editor/*`의 live authenticated save/load/publish-check는 아직 검증하지 못했다.
-3. 현재 도구 세션에서는 실제 Pages browser/device visual QA를 완료하지 못했다.
-4. 27개 block은 사용자 실제 화면 판정 전이므로 candidate 상태를 유지한다.
+Workflow:
+- `.github/workflows/platform-library-checks.yml`
+
+검사:
+- browser/server Registry sync
+- block/editor/Functions JS `node --check`
+
+현재 connector의 combined status에는 status가 반환되지 않아 CI 성공 여부를 이 세션에서 확인하지 못했다. live success로 추정하지 않는다.
+
+## Current blockers
+
+1. 사용자의 `/block-lab/` 실제 시각 검토/최종 Block 판정
+2. Cloudflare `ADMIN_EDITOR_TOKEN` secret 설정
+3. 실제 `/editor-lab/` authenticated save/load/revision/media/publish-check QA
+4. 실제 PC/mobile browser visual QA
 
 ## Next action
 
-비차단 작업:
-1. `MEDIA_ASSETS` 기반 이미지 asset picker 설계/구현
-2. revision history 조회/복원 UI
-3. block-specific friendly inspector 2차 정제
-4. Registry browser/server sync 검사 도구 추가
+자동으로 더 진행 가능한 것:
+1. slug 중복/URL 충돌 검사
+2. published snapshot history/preview UI
+3. page-level rollback UX
+4. approval 이후 production picker 필터 준비
+5. public snapshot renderer를 production에 연결하지 않은 staging 형태로 설계
 
-사용자/환경 입력이 필요한 checkpoint:
-1. `/block-lab/` 실제 검토 후 block 판정
-2. Cloudflare에 `ADMIN_EDITOR_TOKEN` 설정
-3. `/editor-lab/` 서버 연결 후 save/load/publish-check QA
+사용자/환경 checkpoint:
+1. `/block-lab/` 검토
+2. Cloudflare secret 설정
+3. `/editor-lab/` 실사용 QA
 
 승인 후:
-- browser manifest + server Registry status 갱신
-- approved renderer를 canonical로 승격
-- public snapshot renderer와 canonical route 연결
-- sitemap/JSON-LD/404/광고 rail 구현 및 QA
+- browser/server Registry status 반영
+- approved renderer canonical 승격
+- public renderer/canonical route
+- metadata/JSON-LD/sitemap/404
+- 광고 side rail + CWV QA
 
 ## Resume protocol
 
-새 채팅방에서는 다음 순서로 재개한다.
 1. `AGENTS.md`
-2. `docs/workstreams/platform-library-v1/TASKS.md`
+2. `TASKS.md`
 3. 이 `HANDOFF.md`
 4. `main` 최신 commit
-5. active task와 Next action 일치 확인
+5. active/checkpoint 일치 확인
 
-의미 있는 작업 단위가 끝날 때마다 TASKS/HANDOFF를 함께 갱신한다.
+대화만 보고 상태를 추정하지 않는다.
