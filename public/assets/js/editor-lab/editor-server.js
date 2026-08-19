@@ -37,11 +37,11 @@
   function writeDraft(value){localStorage.setItem(DRAFT_KEY,JSON.stringify(value));}
 
   function toServerPayload(draft){
-    return {page:{pageId:draft.pageId,slug:draft.slug||'',industryId:draft.industryId||'general',title:draft.pageTitle||'새 분야 가이드',theme:draft.theme||'light',seo:draft.seo||{},brief:draft.brief||{},aiStatus:draft.aiStatus||'not_requested'},blocks:draft.blocks||[]};
+    return {page:{pageId:draft.pageId,slug:draft.slug||'',industryId:draft.industryId||'general',title:draft.pageTitle||'새 분야 가이드',theme:draft.theme||'light',seo:draft.seo||{},brief:draft.brief||{},aiStatus:draft.aiStatus||'not_requested',aiReview:draft.aiReview||{}},blocks:draft.blocks||[]};
   }
 
   function fromServerPage(page,current={}){
-    return {...current,schema:'platform-editor-lab/v1',pageId:page.pageId,slug:page.slug||'',industryId:page.industryId||'general',pageTitle:page.title||'새 분야 가이드',theme:page.theme==='system'?'light':(page.theme||'light'),seo:page.seo||{},brief:page.brief||{},aiStatus:page.aiStatus||'not_requested',preview:current.preview||'desktop',mode:'edit',blocks:Array.isArray(page.blocks)?page.blocks:[],serverUpdatedAt:page.updatedAt||null,updatedAt:new Date().toISOString()};
+    return {...current,schema:'platform-editor-lab/v1',pageId:page.pageId,slug:page.slug||'',industryId:page.industryId||'general',pageTitle:page.title||'새 분야 가이드',theme:page.theme==='system'?'light':(page.theme||'light'),seo:page.seo||{},brief:page.brief||{},aiStatus:page.aiStatus||'not_requested',aiReview:page.aiReview||{},preview:current.preview||'desktop',mode:'edit',blocks:Array.isArray(page.blocks)?page.blocks:[],serverUpdatedAt:page.updatedAt||null,updatedAt:new Date().toISOString()};
   }
 
   async function refreshPages(){
