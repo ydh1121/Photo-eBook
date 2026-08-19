@@ -27,7 +27,7 @@
     setJsonLd(snapshot,canonical,description);
   }
 
-  function render(payload,{root,statusNode,allowCandidate=false,canonicalBase=location.origin}={}){
+  function render(payload,{root,statusNode,allowCandidate=false,trustedPublished=false,canonicalBase=location.origin}={}){
     const snapshot=payload?.snapshot||{};
     const blocks=Array.isArray(payload?.blocks)?payload.blocks:[];
     const uiCapabilities=Array.isArray(payload?.uiCapabilities)?payload.uiCapabilities:[];
@@ -36,7 +36,8 @@
     const errors=[];
     const rendered=[];
     blocks.forEach((block,index)=>{
-      const validation=registry.validateUsage?.(block,{production:!allowCandidate});
+      const productionCheck=!allowCandidate&&!trustedPublished;
+      const validation=registry.validateUsage?.(block,{production:productionCheck});
       if(validation&&!validation.ok){errors.push(...validation.errors.map(message=>`#${index+1} ${message}`));return;}
       const html=registry.render(block,{publicSnapshot:true,snapshot,uiCapabilities});
       rendered.push(`<div class="public-snapshot-block" data-public-block="${escapeHtml(block.id)}" data-block-style-host="true">${html}</div>`);
@@ -60,9 +61,11 @@
     applyMetadata(snapshot,{canonicalBase});
     window.__PUBLIC_SNAPSHOT_UI_CAPABILITIES=uiCapabilities;
     document.documentElement.dataset.publicSnapshotV2='true';
+    if(trustedPublished)document.documentElement.dataset.publicSnapshotTrust='publish-gated';
+    else delete document.documentElement.dataset.publicSnapshotTrust;
     if(statusNode)statusNode.textContent=`v${snapshot.version||'—'} · ${blocks.length} blocks`;
-    document.dispatchEvent(new CustomEvent('platform:public-snapshot-rendered',{detail:{snapshot,blocks,uiCapabilities}}));
-    return {ok:true,errors:[],snapshot,blocks,uiCapabilities};
+    document.dispatchEvent(new CustomEvent('platform:public-snapshot-rendered',{detail:{snapshot,blocks,uiCapabilities,trustedPublished}}));
+    return {ok:true,errors:[],snapshot,blocks,uiCapabilities,trustedPublished};
   }
 
   async function fetchAndRender(slug,options={}){
@@ -71,7 +74,7 @@
     const response=await fetch(`/api/public/snapshot-v2?slug=${encodeURIComponent(value)}`,{credentials:'same-origin'});
     const data=await response.json().catch(()=>({}));
     if(!response.ok||data?.ok===false)throw new Error(data?.message||`공개 snapshot을 불러오지 못했습니다. (${response.status})`);
-    return render(data,options);
+    return render(data,{...options,trustedPublished:true});
   }
 
   function setMeta(name,content){
