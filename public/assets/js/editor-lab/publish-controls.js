@@ -107,25 +107,26 @@
     finally{setBusy(false);}
   }
 
-  function loadSnapshotHistoryModule(){
-    if(!document.querySelector('link[data-editor-snapshot-history]')){
-      const link=document.createElement('link');
-      link.rel='stylesheet';
-      link.href='/assets/styles/editor-lab/snapshot-history.css?v=2';
-      link.dataset.editorSnapshotHistory='true';
-      document.head.appendChild(link);
-    }
-    if(!document.querySelector('script[data-editor-snapshot-history]')){
-      const script=document.createElement('script');
-      script.src='/assets/js/editor-lab/snapshot-history.js?v=2';
-      script.dataset.editorSnapshotHistory='true';
-      document.body.appendChild(script);
-    }
+  function loadStyleOnce(href,key){
+    if(document.querySelector(`link[data-editor-extension="${key}"]`))return;
+    const link=document.createElement('link');
+    link.rel='stylesheet';link.href=href;link.dataset.editorExtension=key;document.head.appendChild(link);
+  }
+  function loadScriptOnce(src,key){
+    if(document.querySelector(`script[data-editor-extension="${key}"]`))return;
+    const script=document.createElement('script');
+    script.src=src;script.dataset.editorExtension=key;document.body.appendChild(script);
+  }
+  function loadEditorExtensions(){
+    loadStyleOnce('/assets/styles/editor-lab/snapshot-history.css?v=2','snapshot-history-style');
+    loadScriptOnce('/assets/js/editor-lab/snapshot-history.js?v=2','snapshot-history-script');
+    loadStyleOnce('/assets/styles/editor-lab/library-status-filter.css?v=1','library-status-style');
+    loadScriptOnce('/assets/js/editor-lab/library-status-filter.js?v=1','library-status-script');
   }
 
   checkButton.addEventListener('click',runCheck);
   publishButton.addEventListener('click',publish);
   publishButton.disabled=true;
   setStatus(getToken()?'서버 저장 후 발행 검사를 실행하세요.':'서버 연결 후 사용할 수 있습니다.');
-  loadSnapshotHistoryModule();
+  loadEditorExtensions();
 })();
