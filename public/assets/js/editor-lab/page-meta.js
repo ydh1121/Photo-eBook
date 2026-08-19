@@ -81,19 +81,31 @@
   });
 
   function ensureStyle(href){
-    if([...document.styleSheets].some(sheet=>String(sheet.href||'').includes(href)))return;
+    if([...document.querySelectorAll('link[rel="stylesheet"]')].some(link=>String(link.href||'').includes(href.split('?')[0])))return;
     const link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.appendChild(link);
   }
-  function loadScript(src){return new Promise((resolve,reject)=>{const existing=[...document.scripts].find(script=>String(script.src||'').includes(src));if(existing){if(window.__PLATFORM_UI_CAPABILITY_MANIFEST||src.includes('page-ui.js'))return resolve();}const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.body.appendChild(script);});}
-  async function installPageUi(){
+  function loadScript(src,ready){
+    return new Promise((resolve,reject)=>{
+      if(typeof ready==='function'&&ready())return resolve();
+      const base=src.split('?')[0];
+      const existing=[...document.scripts].find(script=>String(script.src||'').includes(base));
+      if(existing){existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',reject,{once:true});setTimeout(()=>{if(!ready||ready())resolve();},0);return;}
+      const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.body.appendChild(script);
+    });
+  }
+  async function installExtensions(){
     ensureStyle('/assets/styles/editor-lab/page-ui.css?v=1');
+    ensureStyle('/assets/styles/blocks/style-runtime.css?v=1');
+    ensureStyle('/assets/styles/editor-lab/block-style.css?v=1');
     try{
-      if(!window.__PLATFORM_UI_CAPABILITY_MANIFEST)await loadScript('/data/ui-capabilities/v1/manifest.js?v=1');
-      await loadScript('/assets/js/editor-lab/page-ui.js?v=1');
-    }catch(error){console.error('page-ui extension load failed',error);}
+      await loadScript('/data/ui-capabilities/v1/manifest.js?v=2',()=>Boolean(window.__PLATFORM_UI_CAPABILITY_MANIFEST));
+      await loadScript('/assets/js/editor-lab/page-ui.js?v=1',()=>Boolean(document.querySelector('.editor-page-ui')));
+      await loadScript('/assets/js/blocks/block-style-runtime.js?v=1',()=>Boolean(window.PlatformBlockStyles));
+      await loadScript('/assets/js/editor-lab/block-style.js?v=1',()=>Boolean(document.querySelector('.editor-block-style')));
+    }catch(error){console.error('Editor extension load failed',error);}
   }
 
   sync();
   checkSlug();
-  installPageUi();
+  installExtensions();
 })();
