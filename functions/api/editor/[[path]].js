@@ -101,7 +101,7 @@ async function getPage(env,pageId){
     .sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0))
     .map(rowToBlock);
   return {ok:true,page:{
-    pageId:String(row.page_id),slug:String(row.slug||''),industryId:String(row.industry_id||''),title:String(row.title||''),status:String(row.status||'draft'),theme:String(row.theme||'light'),seo:parseJsonCell(row.seo_json,{}),brief:parseJsonCell(row.brief_json,{}),aiStatus:String(row.ai_status||'not_requested'),createdAt:String(row.created_at||''),updatedAt:String(row.updated_at||''),publishedAt:String(row.published_at||''),blocks
+    pageId:String(row.page_id),slug:String(row.slug||''),industryId:String(row.industry_id||''),title:String(row.title||''),status:String(row.status||'draft'),theme:String(row.theme||'light'),seo:parseJsonCell(row.seo_json,{}),brief:parseJsonCell(row.brief_json,{}),aiStatus:String(row.ai_status||'not_requested'),aiReview:parseJsonCell(row.ai_review_json,{}),createdAt:String(row.created_at||''),updatedAt:String(row.updated_at||''),publishedAt:String(row.published_at||''),blocks
   }};
 }
 
@@ -115,19 +115,21 @@ async function saveDraftPage(env,body){
   const theme=['light','dark','system'].includes(page.theme)?page.theme:'light';
   const seo=page.seo&&typeof page.seo==='object'&&!Array.isArray(page.seo)?page.seo:{};
   const brief=page.brief&&typeof page.brief==='object'&&!Array.isArray(page.brief)?page.brief:{};
+  const aiReview=page.aiReview&&typeof page.aiReview==='object'&&!Array.isArray(page.aiReview)?page.aiReview:{};
   const aiStatus=AI_STATUSES.has(page.aiStatus)?page.aiStatus:(Object.keys(brief).length?'brief_ready':'not_requested');
   const now=koreaTime();
 
   if(!title)throw new Error('페이지 제목을 확인해 주세요.');
   if(blocks.length>300)throw new Error('한 페이지의 블록 수가 너무 많습니다.');
   if(JSON.stringify(brief).length>30000)throw new Error('페이지 brief가 너무 큽니다.');
+  if(JSON.stringify(aiReview).length>50000)throw new Error('AI 검토 결과가 너무 큽니다.');
 
   const normalizedBlocks=blocks.map((block,index)=>normalizeBlockForSave(block,index));
   const uniqueBlockIds=new Set(normalizedBlocks.map(block=>block.id));
   if(uniqueBlockIds.size!==normalizedBlocks.length)throw new Error('같은 block id가 중복돼 있습니다.');
 
   const [pageValues,blockValues]=await Promise.all([readSheetValues(env,SHEETS.pages),readSheetValues(env,SHEETS.blocks)]);
-  const pageHeaders=ensureHeaderMap(pageValues[0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at','brief_json','ai_status']);
+  const pageHeaders=ensureHeaderMap(pageValues[0],['page_id','slug','industry_id','title','status','theme','seo_json','created_at','updated_at','published_at','brief_json','ai_status','ai_review_json']);
   const blockHeaders=ensureHeaderMap(blockValues[0],['page_id','block_id','sort_order','type','variant','enabled','content_json','evidence_json','ai_policy_json','revision_version','created_at','updated_at','published_version']);
 
   let pageRow=-1;
@@ -142,9 +144,9 @@ async function saveDraftPage(env,body){
     }
   }
 
-  const pageRecord=[[pageId,slug,industryId,title,'draft',theme,JSON.stringify(seo),createdAt,now,publishedAt,JSON.stringify(brief),aiStatus]];
-  if(pageRow>0)await updateRange(env,`${SHEETS.pages}!A${pageRow}:L${pageRow}`,pageRecord);
-  else await appendRange(env,`${SHEETS.pages}!A:L`,pageRecord);
+  const pageRecord=[[pageId,slug,industryId,title,'draft',theme,JSON.stringify(seo),createdAt,now,publishedAt,JSON.stringify(brief),aiStatus,JSON.stringify(aiReview)]];
+  if(pageRow>0)await updateRange(env,`${SHEETS.pages}!A${pageRow}:M${pageRow}`,pageRecord);
+  else await appendRange(env,`${SHEETS.pages}!A:M`,pageRecord);
 
   const existingById=new Map();
   for(let i=1;i<blockValues.length;i++){
@@ -270,7 +272,7 @@ async function clearRange(env,range){
 }
 
 async function getAccessToken(env){
-  const now=Math.floor(Date.now()/1000);if(cachedToken?.token&&cachedToken.expiresAt-60>now)return cachedToken.token;const account=parseServiceAccount(env);if(!account?.client_email||!account?.private_key)throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON Secret을 확인해 주세요.');const tokenUri=account.token_uri||'https://oauth2.googleapis.com/token';const header=base64UrlJson({alg:'RS256',typ:'JWT'});const claims=base64UrlJson({iss:account.client_email,scope:'https://www.googleapis.com/auth/spreadsheets',aud:tokenUri,exp:now+3600,iat:now});const signingInput=`${header}.${claims}`;const key=await crypto.subtle.importKey('pkcs8',pemToArrayBuffer(account.private_key),{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);const signature=await crypto.subtle.sign({name:'RSASSA-PKCS1-v1_5'},key,new TextEncoder().encode(signingInput));const assertion=`${signingInput}.${base64UrlBytes(new Uint8Array(signature))}`;const response=await fetch(tokenUri,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'urn:ietf:params:oauth:grant-type:jwt-bearer',assertion})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.access_token)throw new Error(data?.error_description||data?.error||`Google 인증 실패 (${response.status})`);cachedToken={token:data.access_token,expiresAt:now+Number(data.expires_in||3600)};return cachedToken.token;
+  const now=Math.floor(Date.now()/1000);if(cachedToken?.token&&cachedToken.expiresAt-60>now)return cachedToken.token;const account=parseServiceAccount(env);if(!account?.client_email||!account?.private_key)throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON Secret을 확인해 주세요.');const tokenUri=account.token_uri||'https://oauth2.googleapis.com/token';const header=base64UrlJson({alg:'RS256',typ:'JWT'});const claims=base64UrlJson({iss:account.client_email,scope:'https://www.googleapis.com/auth/spreadsheets',aud:tokenUri,exp:now+3600,iat:now});const signingInput=`${header}.${claims}`;const key=await crypto.subtle.importKey('pkcs8',pemToArrayBuffer(account.private_key),{name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);const signature=await crypto.subtle.sign({name:'RSASSA-PKCS1-v1_5'},key,new TextEncoder().encode(signingInput));const assertion=`${signingInput}.${base64UrlBytes(new Uint8Array(signature))}`;const response=await fetch(tokenUri,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'urn:ietf:params:oauth2:grant-type:jwt-bearer',assertion})});const data=await response.json().catch(()=>({}));if(!response.ok||!data.access_token)throw new Error(data?.error_description||data?.error||`Google 인증 실패 (${response.status})`);cachedToken={token:data.access_token,expiresAt:now+Number(data.expires_in||3600)};return cachedToken.token;
 }
 
 function parseServiceAccount(env){const raw=env.GOOGLE_SERVICE_ACCOUNT_JSON||env.GOOGLE_SERVICE_ACCOUNT_JS||'';if(!raw)return null;try{return typeof raw==='string'?JSON.parse(raw):raw;}catch{throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON 값이 올바른 JSON 형식이 아닙니다.');}}
