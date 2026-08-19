@@ -4,6 +4,21 @@
 
 ## 2026-08-20 latest additions
 
+### V1 completion target
+
+Platform Library V1의 완료선은 Editor Lab 기능 구현 자체가 아니다.
+
+완료 조건:
+1. Block Lab에서 사용할 block을 실제 화면 기준으로 최종 판정하고 browser/server Registry에 반영
+2. 배포 환경에서 Editor 인증, 저장, 불러오기, media, revision, AI review, publish-check, publish, rollback을 실제 QA
+3. photography 외 신규 산업 페이지 1개를 `초안 → AI 작성 → 사용자 검수 → 발행 → snapshot preview → rollback draft → 재발행`까지 end-to-end 통과
+4. approved block 기반 public snapshot renderer와 산업별 canonical URL 연결
+5. public title/meta/canonical/OG/Twitter/JSON-LD/sitemap/real 404 적용
+6. PC/mobile 실제 화면과 Core Web Vitals 검수
+7. PC 좌우 광고 side rail을 넣어도 본문/가로 rail/모바일 구조가 무너지지 않는 ad-ready 상태 확인
+
+AdSense 계정 승인, publisher ID처럼 외부 계정에 의존하는 값은 별도 external checkpoint로 남길 수 있다.
+
 ### Change-aware save
 
 Canonical Editor write endpoint:
@@ -54,6 +69,14 @@ Editor:
 - `public/assets/styles/editor-lab/snapshot-history.css`
 
 발행 기록을 version별로 조회하고, 과거 snapshot을 서버에 즉시 덮어쓰지 않고 browser draft로 복원한다. 복원 후 `aiStatus=needs_review`로 두고 다시 검토/저장/발행해야 한다.
+
+추가 보완:
+- 발행 기록의 각 version에 `미리보기`와 `초안으로 복원` 동작을 분리
+- snapshot을 390 / 768 / 1180 폭으로 visual preview
+- preview는 같은 Block Registry renderer를 사용
+- preview 자체는 서버 draft나 active snapshot을 변경하지 않음
+- `publish-controls.js`가 snapshot history CSS/JS를 로드하도록 연결
+- `COPY_GUIDE`에 관리자 미리보기/복원 문구 기준 추가
 
 ### CI
 
