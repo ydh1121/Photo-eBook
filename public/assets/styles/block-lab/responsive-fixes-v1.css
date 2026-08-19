@@ -1,0 +1,48 @@
+/* Shared responsive corrections for candidate Block renderer surfaces. */
+
+.pb-product-card__body {
+  min-width: 0;
+}
+
+/*
+ * product-tool/list historically reserved a media column even when the item
+ * had no image. That left text trapped in the second column on mobile.
+ */
+.pb-product-list .pb-product-card:not(:has(.pb-product-card__media)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pb-product-card h4,
+.pb-product-card .pb-price {
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.pb-product-card p,
+.pb-product-card .pb-source-line {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 720px) {
+  .pb-product-list .pb-product-card {
+    grid-template-columns: minmax(88px, 28%) minmax(0, 1fr);
+  }
+
+  .pb-product-list .pb-product-card:not(:has(.pb-product-card__media)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pb-product-list .pb-product-card:not(:has(.pb-product-card__media)) .pb-product-card__body {
+    padding: 20px 18px;
+  }
+
+  .pb-product-card h4 {
+    max-width: 100%;
+  }
+
+  .pb-product-card .pb-price {
+    max-width: 100%;
+    line-height: 1.08;
+  }
+}
