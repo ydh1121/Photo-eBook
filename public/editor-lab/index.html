@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/assets/styles/block-lab/new-blocks-v2.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/editor.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/server.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/editor-lab/page-meta.css?v=1">
 </head>
 <body>
   <div class="block-lab editor-lab" data-theme="light" data-preview="desktop" data-mode="edit">
@@ -55,6 +56,18 @@
           <div><small>BLOCK LIBRARY</small><h1>블록 추가</h1></div>
           <span id="editorLibraryCount">27</span>
         </div>
+        <section class="editor-page-meta" aria-labelledby="editorPageMetaTitle">
+          <div class="editor-page-meta__head">
+            <strong id="editorPageMetaTitle">페이지 설정</strong>
+            <span id="editorPageIdLabel"></span>
+          </div>
+          <label>산업 ID<input id="editorIndustryId" type="text" value="general" placeholder="photography"></label>
+          <label>URL slug<input id="editorSlug" type="text" placeholder="photography"></label>
+          <div class="editor-page-meta__actions">
+            <button type="button" id="editorNewPage">새 페이지</button>
+            <button type="button" id="editorDuplicatePage">페이지 복제</button>
+          </div>
+        </section>
         <input id="editorLibrarySearch" class="editor-search" type="search" placeholder="블록 검색" aria-label="블록 검색">
         <div id="editorLibraryList" class="editor-library-list"></div>
       </aside>
@@ -104,6 +117,7 @@
   <script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script>
   <script src="/assets/js/editor-lab/editor-app.js?v=1"></script>
+  <script src="/assets/js/editor-lab/page-meta.js?v=1"></script>
   <script src="/assets/js/editor-lab/editor-server.js?v=1"></script>
 </body>
 </html>
