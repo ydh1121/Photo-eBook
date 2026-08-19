@@ -123,7 +123,8 @@ async function saveDraftPage(env,body){
   const page=body?.page&&typeof body.page==='object'?body.page:{};
   const blocks=Array.isArray(body?.blocks)?body.blocks:[];
   const pageId=cleanId(page.pageId||crypto.randomUUID(),160);
-  const slug=cleanSlug(page.slug||pageId);
+  const rawSlug=String(page.slug||'').trim();
+  const slug=rawSlug?cleanSlug(rawSlug):'';
   const industryId=cleanId(page.industryId||'general',120);
   const title=String(page.title||'새 분야 가이드').trim().slice(0,300);
   const theme=['light','dark','system'].includes(page.theme)?page.theme:'light';
@@ -254,7 +255,7 @@ function validateForPublish(page){
   const errors=[];
   const warnings=[];
   const seo=page.seo&&typeof page.seo==='object'?page.seo:{};
-  const blocks=Array.isArray(page.blocks)?page.blocks:[];
+  const blocks=(Array.isArray(page.blocks)?page.blocks:[]).filter(block=>block.enabled!==false);
 
   if(!page.pageId)errors.push('page id가 없습니다.');
   if(!String(page.slug||'').trim())errors.push('URL slug가 없습니다.');
@@ -262,6 +263,10 @@ function validateForPublish(page){
   if(!String(seo.title||'').trim())errors.push('SEO 제목이 없습니다.');
   if(!String(seo.description||'').trim())errors.push('SEO 설명이 없습니다.');
   if(!blocks.length)errors.push('공개할 블록이 없습니다.');
+
+  if(page.aiStatus==='drafting')errors.push('AI 작성이 진행 중인 페이지입니다.');
+  if(page.aiStatus==='needs_review')errors.push('AI 적용 결과에 대한 사용자 검토가 필요합니다.');
+  if(page.aiStatus==='brief_ready')warnings.push('AI 작성 기준이 준비됐지만 AI 작업은 완료되지 않았습니다.');
 
   const ids=new Set();
   const duplicateIds=new Set();
@@ -321,13 +326,14 @@ async function publishPage(env,pageId){
 
   const snapshotId=crypto.randomUUID();
   const now=koreaTime();
-  const snapshotRow=[[snapshotId,id,version,page.slug,page.industryId,page.title,page.theme,JSON.stringify(page.seo||{}),page.updatedAt||'',now,'active']];
-  await appendRange(env,`${SHEETS.snapshots}!A:K`,snapshotRow);
-
-  const publishedRows=page.blocks.map((block,index)=>[
+  const enabledBlocks=page.blocks.filter(block=>block.enabled!==false);
+  const publishedRows=enabledBlocks.map((block,index)=>[
     snapshotId,id,block.id,index+1,block.type,block.variant,JSON.stringify(block.content||{}),JSON.stringify(block.evidence||[]),Number(block?.revision?.version||1),now
   ]);
+
   if(publishedRows.length)await appendRange(env,`${SHEETS.publishedBlocks}!A:J`,publishedRows);
+  const snapshotRow=[[snapshotId,id,version,page.slug,page.industryId,page.title,page.theme,JSON.stringify(page.seo||{}),page.updatedAt||'',now,'active']];
+  await appendRange(env,`${SHEETS.snapshots}!A:K`,snapshotRow);
 
   for(const rowNumber of previousActiveRows)await updateRange(env,`${SHEETS.snapshots}!K${rowNumber}:K${rowNumber}`,[['superseded']]);
 
@@ -335,7 +341,7 @@ async function publishPage(env,pageId){
   for(let i=1;i<pageValues.length;i++)if(String(pageValues[i][pageHeaders.page_id]||'')===id){pageRow=i+1;break;}
   if(pageRow>0){
     const existing=pageValues[pageRow-1];
-    const row=[[id,page.slug,page.industryId,page.title,'published',page.theme,JSON.stringify(page.seo||{}),String(existing[pageHeaders.created_at]||now),String(existing[pageHeaders.updated_at]||now),now,JSON.stringify(page.brief||{}),page.aiStatus||'needs_review',JSON.stringify(page.aiReview||{})]];
+    const row=[[id,page.slug,page.industryId,page.title,'published',page.theme,JSON.stringify(page.seo||{}),String(existing[pageHeaders.created_at]||now),String(existing[pageHeaders.updated_at]||now),now,JSON.stringify(page.brief||{}),page.aiStatus||'not_requested',JSON.stringify(page.aiReview||{})]];
     await updateRange(env,`${SHEETS.pages}!A${pageRow}:M${pageRow}`,row);
   }
 
@@ -356,7 +362,7 @@ function rowToBlock(row){
 
 function parseJsonCell(value,fallback){try{return value?JSON.parse(String(value)):fallback;}catch{return fallback;}}
 function cleanId(value,max){return String(value||'').trim().replace(/[^a-zA-Z0-9_.:-]/g,'-').slice(0,max);}
-function cleanSlug(value){return String(value||'').trim().toLowerCase().replace(/[^a-z0-9가-힣-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,160)||'page';}
+function cleanSlug(value){return String(value||'').trim().toLowerCase().replace(/[^a-z0-9가-힣-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,160);}
 
 function ensureHeaderMap(headers,expected){
   const source=Array.isArray(headers)?headers.map(v=>String(v||'').trim()):[];
