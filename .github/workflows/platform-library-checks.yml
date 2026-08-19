@@ -1,0 +1,47 @@
+name: Platform Library Checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/data/block-registry/**'
+      - 'public/assets/js/blocks/**'
+      - 'public/assets/js/block-lab/**'
+      - 'public/assets/js/editor-lab/**'
+      - 'functions/api/editor/**'
+      - 'functions/lib/block-registry-v1.js'
+      - 'scripts/check-block-registry-sync.mjs'
+      - '.github/workflows/platform-library-checks.yml'
+  pull_request:
+    paths:
+      - 'public/data/block-registry/**'
+      - 'public/assets/js/blocks/**'
+      - 'public/assets/js/block-lab/**'
+      - 'public/assets/js/editor-lab/**'
+      - 'functions/api/editor/**'
+      - 'functions/lib/block-registry-v1.js'
+      - 'scripts/check-block-registry-sync.mjs'
+      - '.github/workflows/platform-library-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check browser/server Registry sync
+        run: node scripts/check-block-registry-sync.mjs
+      - name: Check editor and block JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            node --check "$file"
+          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab functions/api/editor functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          node --check scripts/check-block-registry-sync.mjs
