@@ -65,6 +65,7 @@ function renderPublicPage(payload,canonical){
   };
   const payloadJson=escapeJsonForHtml(payload);
   const jsonLdText=escapeJsonForHtml(jsonLd);
+  const staticFallback=renderStaticSnapshot(payload);
 
   return `<!doctype html>
 <html lang="ko" data-public-snapshot-route="true">
@@ -94,11 +95,11 @@ function renderPublicPage(payload,canonical){
   <link rel="stylesheet" href="/assets/styles/block-lab/responsive-fixes-v1.css?v=1">
   <link rel="stylesheet" href="/assets/styles/blocks/style-runtime.css?v=1">
   <link rel="stylesheet" href="/assets/styles/ui-capabilities/runtime.css?v=1">
-  <link rel="stylesheet" href="/assets/styles/public-snapshot/runtime.css?v=2">
+  <link rel="stylesheet" href="/assets/styles/public-snapshot/runtime.css?v=3">
 </head>
 <body>
   <div class="public-snapshot-shell" data-theme="${theme}">
-    <div id="publicSnapshotRoot"><div class="public-snapshot-loading">페이지를 불러오는 중입니다.</div></div>
+    <div id="publicSnapshotRoot">${staticFallback}</div>
   </div>
   <script src="/assets/js/blocks/block-registry.js?v=2"></script>
   <script src="/data/block-registry/v1/manifest.js?v=2"></script>
@@ -121,12 +122,92 @@ function renderPublicPage(payload,canonical){
         if(!result.ok)throw new Error('public render validation failed');
       }catch(error){
         console.error(error);
-        if(root)root.innerHTML='<section class="public-snapshot-error"><strong>페이지를 표시하지 못했습니다.</strong><p>잠시 후 다시 시도해 주세요.</p></section>';
       }
     })();
   </script>
 </body>
 </html>`;
+}
+
+function renderStaticSnapshot(payload){
+  const snapshot=payload?.snapshot||{};
+  const blocks=Array.isArray(payload?.blocks)?payload.blocks.filter(block=>block&&block.enabled!==false):[];
+  const hasHero=blocks.some(block=>block.type==='hero');
+  const pageTitle=!hasHero&&snapshot.title?`<header class="public-static-page-head"><h1>${escapeHtml(snapshot.title)}</h1></header>`:'';
+  return `<main class="public-static-flow" data-static-snapshot="true">${pageTitle}${blocks.map(renderStaticBlock).join('')}</main>`;
+}
+
+function renderStaticBlock(block){
+  const content=block?.content&&typeof block.content==='object'?block.content:{};
+  const eyebrow=firstText(content.eyebrow,content.label,content.index);
+  const title=firstText(content.title,content.name,content.quote);
+  const description=firstText(content.description,content.note);
+  const headingTag=block.type==='hero'?'h1':'h2';
+  const items=Array.isArray(content.items)?content.items:[];
+  const paragraphs=Array.isArray(content.paragraphs)?content.paragraphs:[];
+  const facts=Array.isArray(content.facts)?content.facts:[];
+  const pros=Array.isArray(content.pros)?content.pros:[];
+  const cons=Array.isArray(content.cons)?content.cons:[];
+  const type=escapeHtml(block?.type||'content');
+
+  let body='';
+  if(paragraphs.length)body+=`<div class="public-static-prose">${paragraphs.map(value=>`<p>${escapeHtml(textValue(value))}</p>`).join('')}</div>`;
+  if(facts.length)body+=`<dl class="public-static-facts">${facts.map(item=>`<div><dt>${escapeHtml(firstText(item?.label,'정보'))}</dt><dd><strong>${escapeHtml(firstText(item?.value,''))}</strong>${item?.note?`<span>${escapeHtml(textValue(item.note))}</span>`:''}</dd></div>`).join('')}</dl>`;
+  if(items.length)body+=renderStaticItems(items,block.type);
+  if(pros.length||cons.length)body+=`<div class="public-static-split">${pros.length?`<section><h3>${escapeHtml(firstText(content.proLabel,'장점'))}</h3><ul>${pros.map(item=>`<li>${escapeHtml(textValue(item))}</li>`).join('')}</ul></section>`:''}${cons.length?`<section><h3>${escapeHtml(firstText(content.conLabel,'확인할 점'))}</h3><ul>${cons.map(item=>`<li>${escapeHtml(textValue(item))}</li>`).join('')}</ul></section>`:''}</div>`;
+
+  const primaryUrl=safeHref(content.primaryUrl||content.actionUrl||'');
+  const primaryLabel=firstText(content.primaryLabel,content.actionLabel,content.action);
+  if(primaryUrl&&primaryLabel)body+=`<p class="public-static-action"><a href="${escapeHtml(primaryUrl)}">${escapeHtml(primaryLabel)}</a></p>`;
+
+  return `<section class="public-static-block" data-static-type="${type}">${eyebrow?`<div class="public-static-eyebrow">${escapeHtml(eyebrow)}</div>`:''}${title?`<${headingTag}>${escapeHtml(title)}</${headingTag}>`:''}${description?`<p class="public-static-description">${escapeHtml(description)}</p>`:''}${body}</section>`;
+}
+
+function renderStaticItems(items,type){
+  if(type==='faq'){
+    return `<div class="public-static-faq">${items.map(item=>`<details><summary>${escapeHtml(firstText(item?.question,item?.title,'질문'))}</summary>${item?.answer?`<p>${escapeHtml(textValue(item.answer))}</p>`:''}</details>`).join('')}</div>`;
+  }
+  if(type==='resources'){
+    return `<ul class="public-static-resources">${items.map(item=>{
+      const href=safeHref(item?.url||'');
+      const title=firstText(item?.title,item?.publisher,'자료');
+      const publisher=firstText(item?.publisher,'');
+      const supports=firstText(item?.supports,item?.description,'');
+      return `<li>${href?`<a href="${escapeHtml(href)}">${escapeHtml(title)}</a>`:`<strong>${escapeHtml(title)}</strong>`}${publisher&&publisher!==title?`<span>${escapeHtml(publisher)}</span>`:''}${supports?`<p>${escapeHtml(supports)}</p>`:''}</li>`;
+    }).join('')}</ul>`;
+  }
+  return `<div class="public-static-items">${items.map((item,index)=>renderStaticItem(item,index)).join('')}</div>`;
+}
+
+function renderStaticItem(item,index){
+  if(item===null||item===undefined)return '';
+  if(typeof item!=='object')return `<article><strong>${escapeHtml(textValue(item))}</strong></article>`;
+  const label=firstText(item.label,item.kind,item.channel,item.period,item.step);
+  const title=firstText(item.title,item.question,item.name,`항목 ${index+1}`);
+  const description=firstText(item.description,item.answer,item.action,item.message,item.note);
+  const price=firstText(item.price,item.value,item.outcome);
+  const values=item.values&&typeof item.values==='object'&&!Array.isArray(item.values)?Object.entries(item.values):[];
+  const tags=Array.isArray(item.tags)?item.tags:[];
+  return `<article>${label?`<small>${escapeHtml(label)}</small>`:''}<h3>${escapeHtml(title)}</h3>${price?`<strong class="public-static-value">${escapeHtml(price)}</strong>`:''}${description?`<p>${escapeHtml(description)}</p>`:''}${values.length?`<dl>${values.map(([key,value])=>`<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(textValue(value))}</dd></div>`).join('')}</dl>`:''}${tags.length?`<p class="public-static-tags">${tags.map(tag=>`<span>${escapeHtml(textValue(tag))}</span>`).join('')}</p>`:''}</article>`;
+}
+
+function textValue(value){
+  if(value===null||value===undefined)return '';
+  if(typeof value==='string'||typeof value==='number'||typeof value==='boolean')return String(value);
+  if(Array.isArray(value))return value.map(textValue).filter(Boolean).join(', ');
+  if(typeof value==='object')return firstText(value.title,value.label,value.value,value.name,'');
+  return '';
+}
+
+function firstText(...values){
+  for(const value of values){const text=textValue(value).trim();if(text)return text;}
+  return '';
+}
+
+function safeHref(value){
+  const text=String(value||'').trim();
+  if(/^https?:\/\//i.test(text)||(/^\//.test(text)&&!/^\/\//.test(text)))return text;
+  return '';
 }
 
 function notFoundResponse(request){
@@ -135,7 +216,7 @@ function notFoundResponse(request){
 }
 
 function renderErrorPage(title,description){
-  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><title>${escapeHtml(title)}</title><link rel="stylesheet" href="/assets/styles/public-snapshot/runtime.css?v=2"></head><body><div class="public-snapshot-shell" data-theme="light"><div id="publicSnapshotRoot"><section class="public-snapshot-error"><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></section></div></div></body></html>`;
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><title>${escapeHtml(title)}</title><link rel="stylesheet" href="/assets/styles/public-snapshot/runtime.css?v=3"></head><body><div class="public-snapshot-shell" data-theme="light"><div id="publicSnapshotRoot"><section class="public-snapshot-error"><strong>${escapeHtml(title)}</strong><p>${escapeHtml(description)}</p></section></div></div></body></html>`;
 }
 
 function securityHeaders(extra={}){
