@@ -11,6 +11,8 @@ on:
       - 'functions/api/editor/**'
       - 'functions/lib/block-registry-v1.js'
       - 'scripts/check-block-registry-sync.mjs'
+      - 'scripts/check-platform-qa-seed.mjs'
+      - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
   pull_request:
     paths:
@@ -21,6 +23,8 @@ on:
       - 'functions/api/editor/**'
       - 'functions/lib/block-registry-v1.js'
       - 'scripts/check-block-registry-sync.mjs'
+      - 'scripts/check-platform-qa-seed.mjs'
+      - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
 
 permissions:
@@ -37,6 +41,8 @@ jobs:
           node-version: '22'
       - name: Check browser/server Registry sync
         run: node scripts/check-block-registry-sync.mjs
+      - name: Check first non-photography QA page seed
+        run: node scripts/check-platform-qa-seed.mjs
       - name: Check editor and block JavaScript syntax
         shell: bash
         run: |
@@ -45,3 +51,4 @@ jobs:
             node --check "$file"
           done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab functions/api/editor functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           node --check scripts/check-block-registry-sync.mjs
+          node --check scripts/check-platform-qa-seed.mjs
