@@ -1,5 +1,6 @@
 (function(){
   const STORAGE_KEY='platformEditorLabDraftV1';
+  const TOKEN_KEY='platformEditorAdminToken';
   const industryInput=document.querySelector('#editorIndustryId');
   const slugInput=document.querySelector('#editorSlug');
   const idLabel=document.querySelector('#editorPageIdLabel');
@@ -7,8 +8,14 @@
   const duplicateButton=document.querySelector('#editorDuplicatePage');
   if(!industryInput||!slugInput||!idLabel)return;
 
+  const slugStatus=document.createElement('span');
+  slugStatus.className='editor-slug-status';
+  slugStatus.setAttribute('role','status');
+  slugInput.insertAdjacentElement('afterend',slugStatus);
+
   function readDraft(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')||{};}catch{return {};}}
   function writeDraft(draft){draft.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(draft));}
+  function getToken(){try{return sessionStorage.getItem(TOKEN_KEY)||'';}catch{return '';}}
   function uid(type='page'){return `${type}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;}
   function normalizeId(value){return String(value||'').trim().toLowerCase().replace(/[^a-z0-9가-힣_.:-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,120)||'general';}
   function normalizeSlug(value){return String(value||'').trim().toLowerCase().replace(/[^a-z0-9가-힣-]+/g,'-').replace(/^-+|-+$/g,'').slice(0,160);}
@@ -19,6 +26,28 @@
     slugInput.value=draft.slug||'';
     idLabel.textContent=draft.pageId||'';
     idLabel.title=draft.pageId||'';
+  }
+
+  function setSlugStatus(text,kind='idle'){
+    slugStatus.textContent=text;
+    slugStatus.dataset.status=kind;
+  }
+
+  async function checkSlug(){
+    const draft=readDraft();
+    const slug=normalizeSlug(draft.slug||slugInput.value);
+    if(!slug){setSlugStatus('URL slug를 입력하세요.','warning');return null;}
+    const token=getToken();
+    if(!token){setSlugStatus('서버 연결 후 중복 여부를 확인합니다.');return null;}
+    setSlugStatus('중복 확인 중');
+    try{
+      const params=new URLSearchParams({slug,pageId:String(draft.pageId||'')});
+      const response=await fetch(`/api/editor/slug-check?${params.toString()}`,{credentials:'same-origin',headers:{Authorization:`Bearer ${token}`}});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||data?.ok===false)throw new Error(data?.message||`확인 실패 (${response.status})`);
+      setSlugStatus(data.available?'사용할 수 있는 URL입니다.':'이미 다른 페이지에서 사용 중입니다.',data.available?'ok':'error');
+      return data;
+    }catch(error){setSlugStatus(error?.message||'중복 여부를 확인하지 못했습니다.','error');return null;}
   }
 
   function persistAndReload(patch){
@@ -45,10 +74,12 @@
     draft.slug='';
     draft.aiStatus=draft.brief&&Object.keys(draft.brief).length?'brief_ready':'not_requested';
     draft.serverUpdatedAt=null;
+    draft.publishedSnapshot=null;
     draft.blocks=draft.blocks.map(block=>({...block,revision:{version:1,updatedAt:new Date().toISOString(),updatedBy:'editor-lab-copy'}}));
     writeDraft(draft);
     window.location.reload();
   });
 
   sync();
+  checkSlug();
 })();
