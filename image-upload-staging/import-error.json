@@ -1,0 +1,35 @@
+{
+  "ok": false,
+  "files": [
+    {
+      "target": "public/assets/images/generated/v1/gear/sony-a7-iii.webp",
+      "expected_size": 163022,
+      "expected_sha256": "11c1b7df2187506c795fe33ecd2ee47fd01ebcc0d2a3381ac6d3b437f5b29854",
+      "ok": false,
+      "errors": [
+        "https://drive.usercontent.google.com/download?id=1tjciwRi7gmT2qcgGaTgn-tt4JwuecLzn&export=download&confirm=t: size=929039 sha256=e43a41748a7034225bab6f386d6edde387d6038ce944cc2050da77543ccab472",
+        "https://drive.google.com/uc?export=download&id=1tjciwRi7gmT2qcgGaTgn-tt4JwuecLzn: size=928901 sha256=0960cd1953807d2a464fb97ed165fa5ff7b5db4b11dca5698da64e5f79dc4348"
+      ]
+    },
+    {
+      "target": "public/assets/images/generated/v1/gear/tamron-28-75-g2.webp",
+      "expected_size": 89800,
+      "expected_sha256": "4f53344ccf8f625eede1051c0ea0419d0e1c17d4f6ff6e62f846dc180369e192",
+      "ok": false,
+      "errors": [
+        "https://drive.usercontent.google.com/download?id=1-9fM4-TO1SGzS92WXmUsYM3wP96a3UBt&export=download&confirm=t: size=928869 sha256=dd617cdec2caf7ed8eb0965d8b548d6b58113ab340b58c5838d5bd1b75b0a8c1",
+        "https://drive.google.com/uc?export=download&id=1-9fM4-TO1SGzS92WXmUsYM3wP96a3UBt: size=928704 sha256=a9c559092482d0d53f4294c3144075007f520397bddd9250a1f38b7562d5b53d"
+      ]
+    },
+    {
+      "target": "public/assets/images/generated/v1/gear/sony-fe-85-f18.webp",
+      "expected_size": 124136,
+      "expected_sha256": "476d8a2e4a1de3eb90a9be718d6d2c004fe9eb38a44033d4af3821a32a94a760",
+      "ok": false,
+      "errors": [
+        "https://drive.usercontent.google.com/download?id=1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx&export=download&confirm=t: size=928969 sha256=af99b1f9a8312e01706a31e83210fe8ff8bfdf549d8ac21a053a442acf696402",
+        "https://drive.google.com/uc?export=download&id=1znMegDMAJyB0UH_DaFvtpGoEbdG9xVKx: size=930024 sha256=4cc13142c164a3eafe0d9940bd9818eb0aa71d56feceee508f306ce73efdc28d"
+      ]
+    }
+  ]
+}
