@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Platform UI Dashboard</title>
+  <link rel="stylesheet" href="/assets/styles/ui-dashboard/dashboard.css?v=1">
+</head>
+<body>
+  <div class="ui-dashboard">
+    <header class="ui-dashboard__top">
+      <div class="ui-dashboard__top-inner">
+        <div class="ui-dashboard__brand"><strong>Platform UI Dashboard</strong><span>페이지 공통 UI / 검색 노출 제외</span></div>
+        <div class="ui-dashboard__top-actions"><button type="button" id="uiPresetExport">preset 내보내기</button></div>
+      </div>
+    </header>
+
+    <div class="ui-dashboard__layout">
+      <aside class="ui-pane ui-pane--left">
+        <div class="ui-pane-head"><small>PAGE UI</small><h1>UI 기능</h1></div>
+        <div id="uiCapabilityList" class="ui-capability-list"></div>
+      </aside>
+
+      <main class="ui-pane ui-workspace" id="uiWorkspace"></main>
+
+      <aside class="ui-pane ui-pane--right">
+        <div class="ui-pane-head"><small>PRESETS</small><h2>저장된 설정</h2></div>
+        <section class="ui-preset-create">
+          <label>preset 이름<input id="uiPresetName" type="text" placeholder="사진 상단 메뉴 · 파란 진행선"></label>
+          <div class="ui-preset-actions"><button type="button" id="uiPresetSave">현재 설정 저장</button></div>
+        </section>
+        <div id="uiPresetList" class="ui-preset-list"></div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="/data/ui-capabilities/v1/manifest.js?v=1"></script>
+  <script src="/assets/js/ui-dashboard/dashboard.js?v=1"></script>
+</body>
+</html>
