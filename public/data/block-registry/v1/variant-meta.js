@@ -1,15 +1,17 @@
 (function(){
   window.__PLATFORM_BLOCK_VARIANT_META={
-    version:1,
+    version:2,
     kinds:['structure','visual','behavior','responsive'],
     maturity:['implemented','partial','placeholder'],
     blocks:{
       hero:{
         'image-metrics':{kind:'structure',maturity:'implemented',summary:'이미지 위에 설명과 핵심 지표를 함께 표시'},
+        'immersive-metrics':{kind:'structure',maturity:'implemented',summary:'큰 배경 이미지와 하단 내러티브, 2열 핵심 지표를 결합한 몰입형'},
         minimal:{kind:'structure',maturity:'implemented',summary:'핵심 지표를 빼고 제목과 설명만 강조'}
       },
       'chapter-hero':{
-        image:{kind:'structure',maturity:'implemented',summary:'큰 이미지와 설명을 함께 배치'},
+        image:{kind:'structure',maturity:'implemented',summary:'큰 이미지와 설명을 분리된 영역에 함께 배치'},
+        'image-overlay':{kind:'structure',maturity:'implemented',summary:'한 장의 큰 이미지 위에 index·제목·설명을 겹쳐 표시'},
         compact:{kind:'responsive',maturity:'implemented',summary:'이미지를 생략한 짧은 전환형'}
       },
       'section-heading':{
@@ -39,8 +41,9 @@
       },
       'comparison-cards':{
         generic:{kind:'structure',maturity:'implemented',summary:'일반 비교 카드'},
-        scored:{kind:'visual',maturity:'partial',summary:'점수·평가형 후보. 현재 차이가 제한적'},
-        market:{kind:'visual',maturity:'partial',summary:'시장 비교형 후보. photography parity에서 고도화 예정'}
+        scored:{kind:'visual',maturity:'partial',summary:'순위와 평가 지표를 강조하는 비교형. photography 교육 카드 기준으로 추가 정제 필요'},
+        market:{kind:'visual',maturity:'partial',summary:'기존 시장 비교형 후보. visual-metrics와 역할 중복 여부를 검토'},
+        'visual-metrics':{kind:'structure',maturity:'implemented',summary:'이미지·순위·2~3개 핵심 지표·보조 메타를 같은 순서로 읽는 비주얼 비교형'}
       },
       checklist:{
         numbered:{kind:'visual',maturity:'implemented',summary:'번호형 점검 목록'},
@@ -62,6 +65,7 @@
       },
       roadmap:{
         phases:{kind:'structure',maturity:'implemented',summary:'연결된 단계형 진행 구조'},
+        'metric-cards':{kind:'structure',maturity:'implemented',summary:'기간별 대표 수치와 보조 지표를 독립 카드로 빠르게 비교'},
         compact:{kind:'visual',maturity:'partial',summary:'압축형 후보. 추가 차별화 필요'}
       },
       'script-copy':{
