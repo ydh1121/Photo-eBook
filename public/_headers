@@ -26,6 +26,22 @@
   Cache-Control: no-store, no-cache, must-revalidate
   X-Robots-Tag: noindex, nofollow, noarchive
 
+/ui-dashboard
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/ui-dashboard/*
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/qa/*
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/staging/*
+  Cache-Control: no-store, no-cache, must-revalidate
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /api/editor/*
   Cache-Control: no-store
   X-Robots-Tag: noindex, nofollow, noarchive
