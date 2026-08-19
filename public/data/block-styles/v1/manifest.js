@@ -1,0 +1,45 @@
+(function(){
+  window.__PLATFORM_BLOCK_STYLE_MANIFEST={
+    version:1,
+    controls:[
+      {id:'density',label:'정보 밀도',type:'enum',default:'standard',options:['airy','standard','compact']},
+      {id:'surface',label:'표면',type:'enum',default:'card',options:['plain','grouped','card']},
+      {id:'radius',label:'모서리',type:'enum',default:'medium',options:['none','small','medium','large']},
+      {id:'border',label:'경계선',type:'enum',default:'subtle',options:['none','subtle','strong']},
+      {id:'shadow',label:'그림자',type:'enum',default:'none',options:['none','soft','raised']},
+      {id:'accentMode',label:'강조 방식',type:'enum',default:'accent',options:['neutral','accent','semantic']},
+      {id:'mediaRatio',label:'미디어 비율',type:'enum',default:'auto',options:['auto','16:10','16:9','4:3','1:1']},
+      {id:'edgeTreatment',label:'가장자리',type:'enum',default:'none',options:['none','runway','fade']}
+    ],
+    applicability:{
+      hero:['density','radius','border','shadow','accentMode','mediaRatio'],
+      'chapter-hero':['density','surface','radius','border','shadow','accentMode','mediaRatio'],
+      'section-heading':['density','surface','accentMode'],
+      'rich-text':['density','surface','radius','border','accentMode'],
+      process:['density','surface','radius','border','accentMode'],
+      'metric-grid':['density','surface','radius','border','shadow','accentMode'],
+      'offer-rail':['density','surface','radius','border','shadow','accentMode','edgeTreatment'],
+      notice:['density','surface','radius','border','accentMode'],
+      'comparison-cards':['density','surface','radius','border','shadow','accentMode','mediaRatio','edgeTreatment'],
+      checklist:['density','surface','radius','border','accentMode'],
+      'media-rail':['density','surface','radius','border','shadow','accentMode','mediaRatio','edgeTreatment'],
+      'case-study-rail':['density','surface','radius','border','shadow','accentMode','mediaRatio','edgeTreatment'],
+      'product-tool':['density','surface','radius','border','shadow','accentMode','mediaRatio','edgeTreatment'],
+      roadmap:['density','surface','radius','border','accentMode'],
+      'script-copy':['density','surface','radius','border','accentMode'],
+      tutorial:['density','surface','radius','border','shadow','accentMode','mediaRatio','edgeTreatment'],
+      resources:['density','surface','radius','border','shadow','accentMode','mediaRatio','edgeTreatment'],
+      faq:['density','surface','radius','border','accentMode'],
+      'pros-cons':['density','surface','radius','border','accentMode'],
+      'comparison-table':['density','surface','radius','border','accentMode'],
+      timeline:['density','surface','accentMode'],
+      'image-copy-split':['density','surface','radius','border','shadow','accentMode','mediaRatio'],
+      gallery:['density','surface','radius','border','shadow','mediaRatio','edgeTreatment'],
+      'quote-expert':['density','surface','radius','border','accentMode'],
+      calculator:['density','surface','radius','border','accentMode'],
+      cta:['density','surface','radius','border','shadow','accentMode'],
+      'service-list':['density','surface','radius','border','accentMode']
+    },
+    builtIns:[]
+  };
+})();
