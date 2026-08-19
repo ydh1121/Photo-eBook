@@ -67,9 +67,13 @@
     setBusy(true);setStatus('서버 저장 중');
     try{
       const draft=readDraft();
-      const data=await requestApi('page',{method:'POST',body:toServerPayload(draft)});
-      draft.pageId=data.pageId||draft.pageId;draft.slug=data.slug||draft.slug||'';draft.aiStatus=data.aiStatus||draft.aiStatus||'not_requested';draft.serverUpdatedAt=data.updatedAt||new Date().toISOString();writeDraft(draft);
-      await refreshPages();pagesSelect.value=draft.pageId;loadButton.disabled=false;setStatus(`서버 저장됨 · ${data.blockCount}개 블록`,'connected');
+      const data=await requestApi('save-page',{method:'POST',body:toServerPayload(draft)});
+      draft.pageId=data.pageId||draft.pageId;draft.slug=data.slug??draft.slug??'';draft.aiStatus=data.aiStatus||draft.aiStatus||'not_requested';draft.serverUpdatedAt=data.updatedAt||new Date().toISOString();writeDraft(draft);
+      await refreshPages();pagesSelect.value=draft.pageId;loadButton.disabled=false;
+      const changed=Number(data.changedBlockCount||0);
+      const removed=Number(data.removedBlockCount||0);
+      const detail=changed?`변경 ${changed}개${removed?` · 삭제 ${removed}개`:''}`:'블록 변경 없음';
+      setStatus(`서버 저장됨 · ${detail}`,'connected');
     }catch(error){setStatus(error.message||'서버 저장 실패','error');}
     finally{setBusy(false);}
   }
