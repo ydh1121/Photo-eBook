@@ -43,7 +43,7 @@
     const source=findDraft();
     if(!source)throw new Error('영상편집 QA draft 전역 데이터를 찾지 못했습니다.');
     const payload=normalizeDraft(source);
-    const result=runtime.render(payload,{root,statusNode:status,allowCandidate:true});
+    const result=runtime.render(payload,{root,statusNode:status,allowCandidate:true,showStatus:true});
     if(result.ok){
       const note=document.querySelector('#publicSnapshotV2Note');
       if(note)note.textContent=`resolvedStyle ${payload.blocks.filter(block=>block.resolvedStyle&&Object.keys(block.resolvedStyle).length).length}개 · UI context ${payload.uiCapabilities.length}개`;
