@@ -1,7 +1,6 @@
 /* V1 semantic image-slot binder.
-   v4 keeps generated contextual slots for editorial imagery, but the gear
-   comparison deliberately uses verified real product photographs instead of
-   AI-generated product lookalikes. */
+   v5 binds the approved reference-preserved gear assets from local production
+   WebP paths, while keeping all other contextual image slots unchanged. */
 (function(){
   if(window.__photoImageSlotBinderV1Installed)return;
   window.__photoImageSlotBinderV1Installed=true;
@@ -60,19 +59,6 @@
     return true;
   }
 
-  function applyRealProduct(img,sourceId,url){
-    if(!img||!url)return false;
-    if(sameAsset(img,url))return false;
-    const previous=(img.dataset.photoImageFallback||img.getAttribute('src')||'').trim();
-    img.dataset.photoImageSlot=sourceId;
-    img.dataset.photoImageSource='wikimedia-commons';
-    if(previous)img.dataset.photoImageFallback=previous;
-    img.dataset.photoImageTarget=url;
-    bindErrorFallback(img);
-    img.setAttribute('src',url);
-    return true;
-  }
-
   function chapterHeroes(root=document){
     const ids=['intro','market','education','skills','portfolio','gear','plan','scripts','iphone','sources'];
     ids.forEach(id=>apply($(`#${id} .chapter-hero__card img`,root),`chapter-${id}`));
@@ -118,28 +104,17 @@
     });
   }
 
-  /* Product-comparison cards intentionally use real, licensed photographs.
-     Do not route these three cards through generated image slots. */
-  const GEAR_SOURCES={
-    'Sony A7 III':{
-      id:'gear-real-sony-a7-iii',
-      url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Sony_A_7_iii_full_frame_mirrorless_camera.jpg?width=1200'
-    },
-    'Tamron 28-75mm F2.8 G2':{
-      id:'gear-real-tamron-28-75-g2',
-      url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Tamron_28-75mm_F_2.8_Di_III_VXD_G2_(Model_A063)_(51622511368).jpg?width=1200'
-    },
-    'Sony FE 85mm F1.8':{
-      id:'gear-real-sony-fe-85-f18',
-      url:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Sony_SEL85F18_1.jpg?width=1200'
-    }
+  const GEAR_SLOTS={
+    'Sony A7 III':'gear-product-sony-a7-iii',
+    'Tamron 28-75mm F2.8 G2':'gear-product-tamron-28-75-g2',
+    'Sony FE 85mm F1.8':'gear-product-sony-fe-85-f18'
   };
 
   function gear(root=document){
     $$('#gear .product-card',root).forEach(card=>{
       const title=$('h3',card)?.textContent?.trim()||'';
-      const source=GEAR_SOURCES[title];
-      if(source)applyRealProduct($('.product-card__image img',card),source.id,source.url);
+      const slot=GEAR_SLOTS[title];
+      if(slot)apply($('.product-card__image img',card),slot);
     });
   }
 
