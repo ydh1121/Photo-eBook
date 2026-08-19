@@ -1,6 +1,6 @@
 const $=(sel,root=document)=>root.querySelector(sel);
 const $$=(sel,root=document)=>[...root.querySelectorAll(sel)];
-const esc=(v='')=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[s]));
+const esc=(v='')=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[s]));
 const attr=esc;
 const reduceMotion=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const by=(rows,key,value)=>(rows||[]).filter(r=>String(r[key]||'')===String(value));
