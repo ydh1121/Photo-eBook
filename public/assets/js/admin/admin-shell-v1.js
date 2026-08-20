@@ -6,7 +6,7 @@
   const query=new URLSearchParams(location.search);
   const isLibrary=path.startsWith('/ui-dashboard')&&query.get('view')==='library';
   const items=[
-    {id:'builder',label:'페이지 구성',href:'/ui-dashboard/'},
+    {id:'builder',label:'화면 구성',href:'/ui-dashboard/'},
     {id:'library',label:'UI 라이브러리',href:'/ui-dashboard/?view=library'},
     {id:'blocks',label:'블록 관리',href:'/block-lab/'},
     {id:'editor',label:'페이지 에디터',href:'/editor-lab/'},
@@ -48,12 +48,25 @@
     if(list&&search)search.insertAdjacentElement('afterend',list);
   }
 
+  function bindUtilityMenus(){
+    const menus=[...document.querySelectorAll('.admin-utility-menu')];
+    const closeOthers=except=>menus.forEach(menu=>{if(menu!==except)menu.open=false;});
+    menus.forEach(menu=>{
+      menu.querySelector(':scope > summary')?.addEventListener('click',()=>queueMicrotask(()=>{if(menu.open)closeOthers(menu);}));
+      menu.addEventListener('click',event=>{if(event.target.closest('.admin-utility-menu__panel button,.admin-utility-menu__panel label'))queueMicrotask(()=>{menu.open=false;});});
+    });
+    document.addEventListener('pointerdown',event=>{if(!event.target.closest('.admin-utility-menu'))closeOthers(null);});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape')closeOthers(null);});
+  }
+
   function simplifyLocalUi(id){
     if(id==='blocks'){
+      document.title='플랫폼 관리 · 블록 관리';
       const title=document.querySelector('.lab-brand strong');if(title)title.textContent='블록 관리';
       const intro=document.querySelector('.lab-sidebar__intro h1');if(intro)intro.textContent='블록과 변형을 검토합니다';
     }
     if(id==='editor'){
+      document.title='플랫폼 관리 · 페이지 에디터';
       const title=document.querySelector('.editor-brand strong');if(title)title.textContent='페이지 에디터';
       const actions=document.querySelector('.editor-top-actions');
       if(actions&&!actions.querySelector('.admin-utility-menu')){
@@ -66,8 +79,10 @@
       simplifyEditorLibrary();
     }
     if(id==='qa'){
+      document.title='플랫폼 관리 · QA';
       const title=document.querySelector('.qa-toolbar__label strong');if(title)title.textContent='QA 미리보기';
     }
+    bindUtilityMenus();
   }
 
   function mount(){
