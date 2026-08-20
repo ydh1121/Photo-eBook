@@ -13,83 +13,86 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 ## Current architecture
 
-콘텐츠/UI 관리는 다음 계층으로 분리돼 있다.
+콘텐츠/UI 관리는 다음 계층으로 분리한다.
 
 1. Content Block type
-2. Block variant — 구조/표현/동작/반응형 차이
-3. Block Style preset — 같은 구조 안에서 제한된 디자인 공식
-4. UI Capability — 상단 메뉴, filter, rail, bottom sheet 같은 페이지 공통 기능
+2. Block variant
+3. Block Style preset
+4. UI Capability
 5. UI Capability preset
 6. Shared Primitive
 7. Industry/content-pack specific logic
 
 raw CSS를 preset 데이터로 저장하지 않는다.
 
-## UI Dashboard — current checkpoint
+## Photography parity — current source-of-truth rule
+
+2026-08-20 사용자 피드백으로 parity 기준을 강화했다.
+
+photography-extracted UI preset은 **실제 photography production과 100% source parity**를 기준으로 판정한다.
+
+금지:
+- photography UI를 비슷하게 다시 그린 mockup을 원본 parity라고 부르기
+- 공통화 과정에서 달라진 specimen을 photography 원본으로 승인하기
+- photography production과 generic experiment를 같은 미리보기 의미로 섞기
+
+Permanent contract:
+- `docs/library/ui-capabilities/PHOTOGRAPHY-PARITY.md`
+
+Long-term migration:
+`photography production owner → approved shared primitive/capability 추출 → photography와 신규 산업이 같은 shared source 사용`
+
+초기에는 production owner를 유지한다. shared-source 승격과 photography consumer 전환은 사용자 승인 + 회귀 QA 이후에만 한다.
+
+## UI Dashboard — exact production parity mode
 
 Route: `/ui-dashboard/`
 Status: noindex / review surface.
 
-2026-08-20 사용자 피드백을 반영해 Dashboard를 정적 모형에서 **실시간 조작형 specimen**으로 개편했다.
+Dashboard에는 두 preview 기준이 있다.
 
-Visible UI contract:
-- enum/status/source/category의 내부 영문 value를 그대로 노출하지 않는다.
-- 내부 저장/API value는 기존 영문 identifier를 유지한다.
-- 사용자 화면에서는 의미 중심의 한국어 레이블을 사용한다.
-- 설정은 저장하기 전에도 값을 바꾸는 즉시 specimen에 반영된다.
-- `기본값으로 되돌리기`와 현재 상태 요약을 제공한다.
-- 구현 파일 경로는 기본 화면에서 숨기고 details 안에서만 확인한다.
+### 1. 사진 페이지 원본
 
-Current interactive specimens:
-1. 상단 고정 메뉴
-   - preview 내부 실제 스크롤
-   - chapter chip 클릭 → 해당 section 이동
-   - scroll에 따른 active chip/진행 표시 변화
-   - 고정 방식: 스크롤 후 고정 / 항상 고정 / 고정 안 함
-   - 메뉴칩: Material 플랫 / iOS 플랫 / iOS 리퀴드 표면 비교
-   - 사용 off 상태 시 specimen 비활성 표시
-2. 가로 카드 rail
-   - 모바일/native horizontal scroll
-   - PC mouse drag on/off
-   - drag threshold + click suppression
-   - 왼쪽 shadow runway / right fade / end padding / scrollbar 상태 실제 반영
-3. 범용 필터칩
-   - 직접 chip 선택
-   - family / blur / opacity / response / overshoot 즉시 반영
-4. 하단 팝업
-   - 열기/닫기/backdrop
-   - tabs/search/filter/bulk selection/theme/handoff surface 직접 조작
-   - blur/saturation/size/radius 즉시 반영
-5. 다른 기기 연결 아코디언
-   - open/close
-   - code copy / connect 상태
-   - response speed 반영
-6. 읽기 진행선
-   - specimen 내부 문서를 직접 스크롤하면 progress가 실제로 변화
-7. 플로팅 액션
-   - FAB click → action menu open/close
-   - flat/glass/liquid family + motion 반영
+기본값.
+
+- same-origin `/photography/`를 iframe으로 실제 로드
+- production DOM/CSS/JavaScript를 그대로 사용
+- 원본과 다르면 Dashboard approximation 문제가 아니라 parity bug로 취급
+- iframe 안에서 실제 scroll/click/drag/popup/accordion 동작 가능
+- 확인 폭: 현재 폭 / 모바일 390 / PC 1180
+- `원본 페이지에서 보기`로 전체 production도 즉시 열 수 있음
+
+자동 focus:
+- top-chapter-navigation → actual `.nav-shell`
+- horizontal-card-rail → actual `.desktop-rail-window` / `.scroll-row`
+- collection-bottom-sheet → actual `#collectionFab` → `#collectionSheet`
+- filter-chip-rail → actual collection video tab/filter state
+- device-handoff-accordion → actual settings → `#collectionDeviceLink` / `.collection-device-accordion`
+- reading-progress → actual page scroll + chapter/read progress
+- floating-action → actual `#collectionFab`
+
+원본 filter는 사용자의 실제 저장 데이터에 분류값이 없으면 표시되지 않을 수 있다. 이것도 production state 그대로다.
+
+Safari 주소창 축소와 연동되는 deferred-sticky처럼 top-level browser chrome에 의존하는 동작은 iframe과 환경이 다르므로 실제 `/photography/` 전체 화면에서 최종 QA한다.
 
 Relevant files:
+- `public/assets/js/ui-dashboard/production-parity-v1.js`
+- `public/assets/styles/ui-dashboard/production-parity-v1.css`
 - `public/ui-dashboard/index.html`
-- `public/assets/js/ui-dashboard/dashboard.js`
-- `public/assets/js/ui-dashboard/live-preview-patch-v3.js`
-- `public/assets/js/ui-dashboard/server.js`
-- `public/assets/js/ui-dashboard/preset-lifecycle.js`
-- `public/assets/styles/ui-dashboard/dashboard.css`
-- `public/assets/styles/ui-dashboard/parity-v2.css`
-- `public/assets/styles/ui-dashboard/live-preview-v3.css`
-- `public/assets/styles/ui-dashboard/live-preview-nav-v3.css`
 
-COPY_GUIDE additions:
-- `UI 대시보드 실시간 미리보기`
-- `UI 설정 한글 표시`
+### 2. 범용 실험
 
-Important: Dashboard changes only preview/preset state. It does not directly mutate photography production UI.
+- 기존 interactive specimen을 유지
+- 설정 변경 즉시 preview 반영
+- 한글 상태명만 사용자 화면에 노출
+- 내부 API/storage enum은 영문 ID 유지
+- photography 원본과 동일하다고 주장하지 않음
+- 공통 capability로 확장할 configurable version을 검토하는 용도
+
+사진 원본 mode에서는 실험 controls를 잠금 표시한다. 설정을 바꾸려면 `범용 실험`으로 전환한다.
 
 ## UI Capability inventory
 
-Current 7 capabilities:
 1. top-chapter-navigation
 2. horizontal-card-rail
 3. filter-chip-rail
@@ -105,26 +108,24 @@ Storage/API:
 - `/api/editor/page-ui`
 - immutable publish: `PUBLISHED_UI_CONFIG`
 
-Built-in photography/system UI preset 8개는 live Sheet에서 모두 `draft` 상태다. 자동 승인하지 않는다.
+Built-in photography/system UI preset 8개는 live Sheet에서 모두 `draft`. 자동 승인 금지.
 
-Public runtime status:
-- `horizontal-card-rail`: generic public surface 실제 적용 완료
-- `reading-progress`: generic public surface 실제 적용 완료
+Public runtime:
+- horizontal-card-rail generic surface 적용 완료
+- reading-progress generic surface 적용 완료
 - top chapter nav / bottom sheet / filter 등은 generic surface/data contract가 승인되기 전 production public runtime에 임의 생성하지 않는다.
 
 ## Block Lab / approval state
 
 Route: `/block-lab/`
-Status: candidate lab / noindex.
+Status: candidate / noindex.
 
 - 27 Block type
 - type review + memo
 - variant review + memo
-- difference taxonomy: structure / visual / behavior / responsive
-- maturity: implemented / partial / placeholder
-- constrained Block Style preset editor
-- style preset lifecycle: draft / approved / redesign / deprecated
-- server sync: BLOCK_REVIEWS + BLOCK_VARIANT_REVIEWS + BLOCK_STYLE_PRESETS
+- difference taxonomy
+- constrained Block Style preset
+- style lifecycle + server sync
 
 Photography advanced variants:
 - `hero / immersive-metrics`
@@ -134,8 +135,8 @@ Photography advanced variants:
 
 Live Sheet approval checkpoint:
 - `BLOCK_VARIANT_REVIEWS`: review row 0개
-- photography Block Style presets 12개: 전부 `draft`
-- UI presets 8개: 전부 `draft`
+- photography Block Style presets 12개: 전부 draft
+- UI presets 8개: 전부 draft
 
 따라서 사용자 review 전 production publish는 계속 차단한다.
 
@@ -152,19 +153,12 @@ Immutable storage:
 - `PUBLISHED_BLOCK_STYLES`
 - `PUBLISHED_UI_CONFIG`
 
-Public source/runtime:
-- `functions/lib/public-snapshot-v2.js`
-- `/api/public/snapshot-v2?slug=...`
-- `public/assets/js/public-snapshot/runtime-v2.js`
-- staging: `/staging/snapshot-v2.html`
-
-Canonical routes:
+Public:
 - active Snapshot V2 only `/:slug/`
 - draft/unknown slug real 404
 - active + indexable dynamic sitemap
 - `/` and `/photography/` keep legacy photography renderer
-- server-rendered visible semantic fallback + client enhancement
-- no hidden duplicate SEO body
+- server visible semantic fallback + client enhancement
 
 ## First non-photography QA
 
@@ -173,77 +167,75 @@ slug: `video-editor`
 state: draft / noindex / needs_review
 13 Sheet blocks.
 
-Routes:
+Review routes:
 - `/qa/video-editor/`
 - `/staging/public-renderer/`
 - `/staging/snapshot-v2.html`
 
-Evidence completed:
-- Adobe Premiere
-- Blackmagic DaVinci Resolve
-- 고용24 영상편집 훈련
-- 크몽 개별 공개 등록가 예시
-- KOCCA 표준계약서
-- 국세청 인적용역/종합소득세
-- 한국저작권위원회 음원·폰트 이용허락
-- 크몽 판매 이용약관
-
-가격은 평균/실거래가가 아니라 확인일 기준 개별 공개 등록가 예시로만 사용한다.
+Evidence for Adobe/Blackmagic/고용24/크몽/KOCCA/국세청/한국저작권위원회/크몽 약관 already connected. 가격은 평균/실거래가가 아니라 확인일 기준 개별 공개 등록가 예시로만 사용한다.
 
 ## Editor / auth
 
-Editor supports page/block editing, SEO, AI brief/result/review, media, revisions, snapshot preview/rollback, Page UI preset assignment, Block Style preset assignment.
+Editor supports Block/Page UI/style/SEO/AI/media/revisions/snapshot preview/rollback.
 
 Protected APIs require same-origin + Bearer `ADMIN_EDITOR_TOKEN`.
 Token 미설정 시 closed.
 
 Cloudflare live authenticated QA는 아직 token secret 설정이 필요하다.
 
+## COPY_GUIDE additions
+
+Live Sheet에 다음 규칙이 추가됐다.
+- UI Dashboard 실시간 미리보기
+- UI 설정 한글 표시
+- 사진 원본 parity
+- UI Dashboard 비교 모드
+
 ## Validation state
 
-Workflow: `.github/workflows/platform-library-checks.yml`
-
-UI Dashboard JS/CSS paths are already in workflow trigger/syntax scope.
-
-Known limitation:
-- current execution container cannot resolve `github.com`, so local clone + `node --check` could not run.
-- GitHub combined status returns no workflow contexts for the latest commit, so do not infer CI success.
-- live Pages render should be user/device QA before approving presets.
+- UI Dashboard JS/CSS는 workflow trigger/syntax 범위에 포함됨
+- current execution container는 GitHub DNS 문제로 local clone/node check를 실행하지 못함
+- GitHub combined status가 workflow context를 노출하지 않아 Actions success를 추정하지 않음
+- same-origin framing은 current `X-Frame-Options: SAMEORIGIN`과 맞음
+- `/photography/ → /index.html` 정적 rewrite 유지
 
 ## Production safety invariants
 
-- photography production renderer를 candidate renderer로 교체하지 않는다.
-- Safari deferred sticky safety fix를 건드리지 않는다.
+- photography production renderer를 candidate로 교체하지 않는다.
+- photography parity baseline을 mockup으로 대체하지 않는다.
+- Safari deferred sticky fix를 건드리지 않는다.
 - mobile native horizontal scroll owner 유지.
-- 사용자 review 전 Block/variant/style/UI preset 자동 승인 금지.
+- 사용자 review 전 자동 승인 금지.
 - labs/dashboard/QA/staging noindex.
-- public snapshot API/canonical route는 active snapshot만 반환.
-- UI Dashboard는 production state를 직접 변경하지 않고 preview + preset review/save만 한다.
+- UI Dashboard는 production state를 직접 변경하지 않는다.
+- photography 원본 mode는 read/interact reference이며 generic experiment와 분리한다.
 
 ## Exact next action
 
-1. user opens `/ui-dashboard/` and verifies live manipulation on mobile/PC.
-2. fix visual/interaction issues found in Dashboard specimen.
-3. continue `/block-lab/` and `/qa/video-editor/` review.
-4. save user decisions as approved/redesign/deprecated; do not auto-approve.
-5. enable approved-only production Editor mode after approvals exist.
-6. set Cloudflare `ADMIN_EDITOR_TOKEN` and run authenticated Editor→publish→canonical→rollback QA.
-7. live canonical/404/sitemap + PC/mobile/CWV/ad side rail QA.
-8. archive workstream QA to Drive after V1 approval.
+1. `/ui-dashboard/`에서 각 capability의 `사진 페이지 원본` mode를 mobile/PC로 실제 확인.
+2. 원본 mode에서 자동 focus가 빗나가거나 actual production interaction이 보이지 않는 capability를 수정.
+3. 같은 capability의 `범용 실험`을 원본과 비교하고, 공통화할 설정만 남김.
+4. `/block-lab/` + `/qa/video-editor/` review.
+5. user decision을 approved/redesign/deprecated로 저장. 자동 승인 금지.
+6. 승인 후 shared source 추출 순서를 정하고 production Editor approved-only mode 활성화.
+7. `ADMIN_EDITOR_TOKEN` 설정 후 Editor→publish→canonical→rollback live QA.
+8. PC/mobile/CWV/ad side rail QA.
+9. V1 승인 후 workstream QA Drive archive.
 
 ## Current review URLs
 
-- `/ui-dashboard/` — page UI live manipulation + preset review
-- `/block-lab/` — Block/variant/style preset review
-- `/qa/video-editor/` — non-photo page flow/content review
-- `/staging/snapshot-v2.html` — public Snapshot V2 appearance
+- `/ui-dashboard/` — `사진 페이지 원본` + `범용 실험`
+- `/block-lab/` — Block/variant/style preset
+- `/qa/video-editor/` — 비사진 전체 흐름
+- `/staging/snapshot-v2.html` — public Snapshot V2
 
 ## V1 completion target
 
 - Block/variant/style preset final approval
 - UI Capability/preset dashboard real use
-- Editor Block + Page UI compose/save/restore
-- photography advanced design safely extracted into reusable formulas
+- photography parity exact-source baseline
+- approved shared-source migration path
+- Editor compose/save/restore
 - one non-photo industry draft→AI→human review→publish→rollback
 - public renderer/canonical/SEO/sitemap/404
 - PC/mobile/CWV/ad side rail QA
