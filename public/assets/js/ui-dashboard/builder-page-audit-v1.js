@@ -20,11 +20,44 @@
     wrap.querySelectorAll('[data-audit-theme]').forEach(button=>button.addEventListener('click',()=>{theme=button.dataset.auditTheme;try{localStorage.setItem(THEME_KEY,theme);}catch{}renderTheme();postTheme();}));
   }
 
+  function normalizeScrollOwners(doc,app){
+    [doc.documentElement,doc.body].filter(Boolean).forEach(node=>{
+      node.style.setProperty('overflow-x','clip','important');
+      node.style.setProperty('overflow-y','visible','important');
+    });
+    if(app){
+      app.hidden=false;
+      app.style.removeProperty('display');
+      app.style.setProperty('overflow','visible','important');
+      app.style.setProperty('transform','none','important');
+    }
+  }
+
+  function installStickyAudit(doc,win,shell){
+    if(!shell||win.__platformStickyAuditBound)return;
+    win.__platformStickyAuditBound=true;
+    const update=()=>{
+      const style=win.getComputedStyle(shell);
+      doc.documentElement.dataset.builderStickyComputed=style.position;
+      if((win.scrollY||0)>shell.offsetTop+4){
+        const top=shell.getBoundingClientRect().top;
+        doc.documentElement.dataset.builderStickyState=Math.abs(top)<=2?'stuck':'drift';
+        doc.documentElement.dataset.builderStickyTop=top.toFixed(2);
+      }else{
+        doc.documentElement.dataset.builderStickyState='before';
+        delete doc.documentElement.dataset.builderStickyTop;
+      }
+    };
+    win.addEventListener('scroll',()=>requestAnimationFrame(update),{passive:true});
+    win.addEventListener('resize',()=>requestAnimationFrame(update),{passive:true});
+    requestAnimationFrame(update);
+  }
+
   function repairFrame(){
     const doc=frame.contentDocument,win=frame.contentWindow;if(!doc||!win)return;
     postTheme();
-    const app=doc.querySelector('#app');if(app){app.hidden=false;app.style.removeProperty('display');app.style.setProperty('overflow','visible','important');}
-    doc.body?.style.setProperty('overflow-x','clip','important');
+    const app=doc.querySelector('#app');
+    normalizeScrollOwners(doc,app);
 
     const runtime=doc.querySelector('#platform-builder-runtime-style');
     if(runtime){
@@ -51,6 +84,7 @@
         shell.style.setProperty('z-index','100','important');
         shell.style.setProperty('transform','none','important');
       }
+      installStickyAudit(doc,win,shell);
     }
     const placeholder=doc.querySelector('.nav-placeholder');
     if(placeholder){placeholder.classList.remove('platform-builder-block','is-builder-drop-target','is-builder-dragging');placeholder.draggable=false;placeholder.removeAttribute('draggable');placeholder.querySelector(':scope > .platform-builder-block-handle')?.remove();}
