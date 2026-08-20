@@ -1,6 +1,6 @@
 (function(){
   window.__PLATFORM_BLOCK_REGISTRY_MANIFEST={
-    version:2,
+    version:3,
     generatedAt:'2026-08-20',
     decisions:['undecided','approved','redesign','merge','deprecated'],
     blocks:[
@@ -30,7 +30,8 @@
       {type:'quote-expert',label:'Quote / Expert',category:'content',variants:['quote','comment'],editorialProfile:'quote-expert',status:'candidate'},
       {type:'calculator',label:'Calculator / Simulation',category:'action',variants:['multiply','sum'],editorialProfile:'calculator',status:'candidate'},
       {type:'cta',label:'CTA',category:'action',variants:['band','minimal'],editorialProfile:'cta',status:'candidate'},
-      {type:'service-list',label:'Service / Business List',category:'resource',variants:['rows','compact'],editorialProfile:'comparison',status:'candidate'}
+      {type:'service-list',label:'Service / Business List',category:'resource',variants:['rows','compact'],editorialProfile:'comparison',status:'candidate'},
+      {type:'advertisement',label:'Advertisement',category:'monetization',variants:['inline-banner','native-card','desktop-side-rail','sticky-bottom'],editorialProfile:'advertisement',status:'candidate'}
     ]
   };
 })();

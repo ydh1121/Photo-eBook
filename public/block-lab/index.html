@@ -21,9 +21,10 @@
   <div class="block-lab" data-theme="light" data-preview="fluid">
     <header class="lab-topbar">
       <div class="lab-topbar__inner">
-        <div class="lab-brand"><strong>Platform Block Lab</strong><span id="labCount">27 blocks</span></div>
+        <div class="lab-brand"><strong>Platform Block Lab</strong><span id="labCount">28 blocks</span></div>
         <div class="lab-controls">
-          <select class="lab-filter" id="labCategory" aria-label="블록 분류"><option value="all">전체 블록</option><option value="foundation">기본</option><option value="content">콘텐츠</option><option value="data">비교·데이터</option><option value="media">미디어</option><option value="action">실행</option><option value="resource">자료</option></select>
+          <a href="/ui-dashboard/" style="display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:0 9px;border:1px solid rgba(20,28,45,.10);border-radius:9px;background:#fff;color:#3f4650;text-decoration:none;font-size:9px;font-weight:760">플랫폼 빌더</a>
+          <select class="lab-filter" id="labCategory" aria-label="블록 분류"><option value="all">전체 블록</option><option value="foundation">기본</option><option value="content">콘텐츠</option><option value="data">비교·데이터</option><option value="media">미디어</option><option value="action">실행</option><option value="resource">자료</option><option value="monetization">광고</option></select>
           <div class="lab-segment" aria-label="테마 미리보기"><button type="button" data-theme-value="light" aria-pressed="true">Light</button><button type="button" data-theme-value="dark" aria-pressed="false">Dark</button></div>
           <div class="lab-segment" aria-label="화면 너비 미리보기"><button type="button" data-preview-value="fluid" aria-pressed="true">Fit</button><button type="button" data-preview-value="mobile" aria-pressed="false">390</button><button type="button" data-preview-value="tablet" aria-pressed="false">768</button><button type="button" data-preview-value="desktop" aria-pressed="false">1180</button></div>
         </div>
@@ -31,22 +32,22 @@
     </header>
 
     <div class="lab-layout">
-      <aside class="lab-sidebar"><div class="lab-sidebar__intro"><small>Candidate Library V1</small><h1>콘텐츠 블록을 한 화면에서 검토합니다</h1><p>블록 전체, variant, 그리고 같은 variant 안의 디자인 preset을 구분해서 관리합니다. 사진 페이지에서 구조적으로 재사용할 수 있는 고도화 UI도 advanced variant로 함께 비교합니다.</p></div><nav class="lab-nav" id="labNav" aria-label="블록 목록"></nav></aside>
-      <main class="lab-main"><section class="lab-intro"><span class="lab-intro__tag">UI 검토용 / 검색 노출 제외</span><h2>산업이 달라도 재사용할 수 있는 기본 UI를 정제합니다</h2><p>블록 전체 판정과 variant별 판정을 분리했습니다. variant마다 승인, 재설계, 통합, 폐기 상태와 메모를 남기고, 같은 variant의 디자인 설정은 제한된 공식 안에서 preset으로 저장합니다.</p><div class="lab-intro__notes"><span>현재 production 영향 없음</span><span>27개 candidate family</span><span>Photography advanced variant 포함</span><span>Block 스타일 preset 저장</span></div></section><section class="lab-specimens" id="labSpecimens" aria-live="polite"></section></main>
+      <aside class="lab-sidebar"><div class="lab-sidebar__intro"><small>Candidate Library V1</small><h1>콘텐츠 블록을 한 화면에서 검토합니다</h1><p>블록 전체, variant, 그리고 같은 variant 안의 디자인 preset을 구분해서 관리합니다. 사진 페이지에서 구조적으로 재사용할 수 있는 UI와 광고 블록도 함께 검토합니다.</p></div><nav class="lab-nav" id="labNav" aria-label="블록 목록"></nav></aside>
+      <main class="lab-main"><section class="lab-intro"><span class="lab-intro__tag">UI 검토용 / 검색 노출 제외</span><h2>산업이 달라도 재사용할 수 있는 기본 UI를 정제합니다</h2><p>블록 전체 판정과 variant별 판정을 분리했습니다. variant마다 승인, 재설계, 통합, 폐기 상태와 메모를 남기고, 같은 variant의 디자인 설정은 제한된 공식 안에서 preset으로 저장합니다.</p><div class="lab-intro__notes"><span>현재 production 영향 없음</span><span>28개 candidate family</span><span>광고 블록 포함</span><span>Block 스타일 preset 저장</span></div></section><section class="lab-specimens" id="labSpecimens" aria-live="polite"></section></main>
     </div>
   </div>
 
   <script src="/assets/js/blocks/block-registry.js?v=2"></script>
-  <script src="/data/block-registry/v1/manifest.js?v=2"></script>
-  <script src="/data/block-registry/v1/variant-meta.js?v=2"></script>
+  <script src="/data/block-registry/v1/manifest.js?v=3"></script>
+  <script src="/data/block-registry/v1/variant-meta.js?v=3"></script>
   <script src="/data/block-styles/v1/manifest.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers-parity.js?v=1"></script>
-  <script src="/assets/js/blocks/block-registry-health.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-data.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script>
-  <script src="/assets/js/block-lab/lab-parity-data.js?v=1"></script>
+  <script src="/assets/js/block-lab/lab-parity-data.js?v=2"></script>
+  <script src="/assets/js/blocks/block-registry-health.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script>
   <script src="/assets/js/block-lab/lab-app.js?v=2"></script>
   <script src="/assets/js/block-lab/lab-review.js?v=1"></script>

@@ -25,17 +25,10 @@ export const BLOCK_REGISTRY_V1=Object.freeze({
   'quote-expert':'candidate',
   calculator:'candidate',
   cta:'candidate',
-  'service-list':'candidate'
+  'service-list':'candidate',
+  advertisement:'candidate'
 });
 
-export function blockStatus(type){
-  return BLOCK_REGISTRY_V1[String(type||'')]||'unknown';
-}
-
-export function isKnownBlockType(type){
-  return Object.prototype.hasOwnProperty.call(BLOCK_REGISTRY_V1,String(type||''));
-}
-
-export function isApprovedBlockType(type){
-  return blockStatus(type)==='approved';
-}
+export function blockStatus(type){return BLOCK_REGISTRY_V1[String(type||'')]||'unknown';}
+export function isKnownBlockType(type){return Object.prototype.hasOwnProperty.call(BLOCK_REGISTRY_V1,String(type||''));}
+export function isApprovedBlockType(type){return blockStatus(type)==='approved';}
