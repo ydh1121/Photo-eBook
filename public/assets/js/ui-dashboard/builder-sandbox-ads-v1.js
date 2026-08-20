@@ -35,7 +35,7 @@
     const node=slot(side),frameWin=win();if(!node||!frameWin)return;
     const cfg=config(side),zone=activeContentZone();
     node.dataset.adZoneActive='false';
-    if(!zone)return;
+    if(!cfg.enabled||!zone)return;
 
     const rect=zone.rect;
     const width=Math.max(90,Number(cfg.width)||120);
@@ -113,7 +113,7 @@
     const panel=document.createElement('section');
     panel.className='builder-inspector builder-ad-inspector is-active';
     panel.dataset.adInspector=side;
-    panel.innerHTML=`<header class="builder-inspector__head"><div><small>광고 영역</small><strong>${sideLabel(side)} 광고</strong></div><button type="button" data-close-ad-inspector aria-label="닫기">×</button></header><div class="builder-inspector__body"><div class="builder-inspector__actual"><span>배치<b>본문 ${sideLabel(side)} 여백</b></span><span>노출<b>본문 구간만</b></span></div><section class="builder-control-group"><strong>표시</strong><div class="builder-control-grid"><label class="builder-control builder-control--boolean"><span>사용</span><input type="checkbox" data-ad-control="enabled" ${cfg.enabled?'checked':''}></label><label class="builder-control builder-control--boolean"><span>스크롤 따라가기</span><input type="checkbox" data-ad-control="follow" ${cfg.follow?'checked':''}></label></div></section><section class="builder-control-group"><strong>크기와 위치</strong><div class="builder-control-grid">${control('폭','width',cfg.width,{min:90,max:220,step:2})}${control('높이','height',cfg.height,{min:180,max:700,step:10})}${control('상단 기준','top',cfg.top,{min:86,max:320,step:2})}${control('본문 간격','gap',cfg.gap,{min:8,max:48,step:1})}</div></section><section class="builder-inspector__memo"><p>히어로와 챕터 이미지에서는 숨고, 본문 여백이 충분한 PC 화면에서만 표시됩니다.</p></section></div><footer class="builder-inspector__foot"><button type="button" data-ad-reset>초기값</button><button type="button" data-primary data-ad-enable>${cfg.enabled?'사용 중':'광고 켜기'}</button></footer>`;
+    panel.innerHTML=`<header class="builder-inspector__head"><div><small>광고 영역</small><strong>${sideLabel(side)} 광고</strong></div><button type="button" data-close-ad-inspector aria-label="닫기">×</button></header><div class="builder-inspector__body"><div class="builder-inspector__actual"><span>배치<b>본문 ${sideLabel(side)} 여백</b></span><span>노출<b>본문 구간만</b></span></div><section class="builder-control-group"><strong>표시</strong><div class="builder-control-grid"><label class="builder-control builder-control--boolean"><span>사용</span><input type="checkbox" data-ad-control="enabled" ${cfg.enabled?'checked':''}></label><label class="builder-control builder-control--boolean"><span>스크롤 따라가기</span><input type="checkbox" data-ad-control="follow" ${cfg.follow?'checked':''}></label></div></section><section class="builder-control-group"><strong>크기와 위치</strong><div class="builder-control-grid">${control('폭','width',cfg.width,{min:90,max:220,step:2})}${control('높이','height',cfg.height,{min:180,max:700,step:10})}${control('상단 기준','top',cfg.top,{min:86,max:320,step:2})}${control('본문 간격','gap',cfg.gap,{min:8,max:48,step:1})}</div></section><section class="builder-inspector__memo"><p>설정만 열어보는 것으로 광고가 켜지지 않습니다. 히어로와 챕터 이미지에서는 숨고, 본문 여백이 충분한 PC 화면에서만 표시됩니다.</p></section></div><footer class="builder-inspector__foot"><button type="button" data-ad-reset>초기값</button><button type="button" data-primary data-ad-enable>${cfg.enabled?'광고 끄기':'광고 켜기'}</button></footer>`;
     panel.style.left=side==='left'?'16px':'auto';panel.style.right=side==='right'?'16px':'auto';panel.style.top='118px';
     panelLayer.appendChild(panel);panels.set(side,panel);installDrag(panel,side);bindPanel(panel,side);focus(side);
   }
@@ -125,7 +125,7 @@
     panel.querySelectorAll('[data-ad-control]').forEach(input=>input.addEventListener('input',()=>{
       const key=input.dataset.adControl;const next=config(side);next[key]=input.type==='checkbox'?input.checked:Number(input.value);save(side,next);apply(side);
       const small=input.closest('.builder-control')?.querySelector('small');if(small&&input.type!=='checkbox')small.textContent=`${input.value}px`;
-      const enable=panel.querySelector('[data-ad-enable]');if(enable)enable.textContent=next.enabled?'사용 중':'광고 켜기';
+      const enable=panel.querySelector('[data-ad-enable]');if(enable)enable.textContent=next.enabled?'광고 끄기':'광고 켜기';
     }));
     panel.addEventListener('pointerdown',()=>focus(side));
   }
@@ -140,10 +140,9 @@
   function focus(side){panels.forEach((panel,key)=>{panel.classList.toggle('is-active',key===side);panel.style.zIndex=key===side?'45':'30';});}
   function closePanel(side){panels.get(side)?.remove();panels.delete(side);}
   function refreshPanel(side){const old=panels.get(side);if(!old)return;const rect=old.getBoundingClientRect();old.remove();panels.delete(side);openPanel(side);const next=panels.get(side);if(next){next.style.left=`${rect.left}px`;next.style.top=`${rect.top}px`;next.style.right='auto';}}
-  function enableAndOpen(side){const next=config(side);next.enabled=true;save(side,next);apply(side);openPanel(side);}
 
-  leftButton?.addEventListener('click',()=>enableAndOpen('left'));
-  rightButton?.addEventListener('click',()=>enableAndOpen('right'));
+  leftButton?.addEventListener('click',()=>openPanel('left'));
+  rightButton?.addEventListener('click',()=>openPanel('right'));
   frame.addEventListener('load',()=>[40,350,900].forEach(delay=>setTimeout(bindFrame,delay)));
   setInterval(bindFrame,1600);
 })();
