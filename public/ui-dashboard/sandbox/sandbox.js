@@ -14,21 +14,37 @@
   const accordion=$('#sandboxDeviceAccordion');
   const deviceLink=$('#collectionDeviceLink');
   let lockedY=0;
+  let closeTimer=0;
+
+  function lockScroll(){
+    lockedY=window.scrollY||0;
+    document.documentElement.classList.add('collection-open');
+    document.body.classList.add('collection-open');
+    document.body.style.top=`-${lockedY}px`;
+  }
+
+  function unlockScroll(){
+    document.documentElement.classList.remove('collection-open');
+    document.body.classList.remove('collection-open');
+    document.body.style.top='';
+    window.scrollTo(0,lockedY);
+  }
 
   function openCollection(){
     if(!sheet||!backdrop)return;
-    lockedY=window.scrollY||0;
+    clearTimeout(closeTimer);
+    lockScroll();
     backdrop.hidden=false;
     sheet.hidden=false;
-    requestAnimationFrame(()=>sheet.classList.add('is-open'));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>sheet.classList.add('is-open')));
   }
 
   function closeCollection(){
     if(!sheet||!backdrop)return;
     sheet.classList.remove('is-open');
-    sheet.hidden=true;
     backdrop.hidden=true;
-    if(Math.abs((window.scrollY||0)-lockedY)>2)window.scrollTo(0,lockedY);
+    clearTimeout(closeTimer);
+    closeTimer=setTimeout(()=>{sheet.hidden=true;unlockScroll();},210);
   }
 
   fab?.addEventListener('click',openCollection);
