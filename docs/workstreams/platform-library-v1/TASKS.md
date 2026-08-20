@@ -10,6 +10,7 @@
 - [x] Block별 editorial profile
 - [x] AI 사실/수치/사용자 문장 보존 계약
 - [x] canonical route loading/404 copy를 COPY_GUIDE에 추가
+- [x] UI Dashboard 실시간 미리보기/한글 상태 표시 규칙을 COPY_GUIDE에 추가
 - [ ] 이후 발견되는 reference 지속 등록
 
 ## 02. Block System
@@ -81,7 +82,6 @@ Photography production renderer 자체는 변경하지 않는다.
 - [x] UI Capability contract
 - [x] 7 capability manifest
 - [x] `/ui-dashboard/` noindex
-- [x] live specimen + schema controls
 - [x] custom preset save/load/export
 - [x] `UI_PRESETS` server sync
 - [x] built-in photography/system UI preset Sheet seed
@@ -91,11 +91,23 @@ Photography production renderer 자체는 변경하지 않는다.
 - [x] publish snapshot에 immutable resolved UI config 저장
 - [x] public runtime: horizontal-card-rail 실제 적용
 - [x] public runtime: reading-progress 실제 적용
-- [-] generic surface가 필요한 capability의 실제 적용 확대
+- [x] Dashboard 설정 변경 즉시 specimen 반영
+- [x] Dashboard 7개 capability 직접 조작형 preview
+  - 상단 메뉴 내부 스크롤/칩 이동/진행 표시
+  - 가로 rail 터치 스크롤/PC drag/링크 클릭 억제
+  - 필터칩 실제 선택
+  - 하단 팝업 열기/닫기/탭/검색/필터/선택
+  - device handoff 아코디언/복사/연결 상태
+  - 읽기 진행선 실제 내부 스크롤 연동
+  - floating action 메뉴 열기/선택
+- [x] Dashboard 드롭다운/상태/source/category 한글 표시
+- [x] Dashboard 기본값 복원 + 현재 상태 요약
+- [-] 사용자 실제 UI Dashboard 조작 검토
+- [-] generic surface가 필요한 capability의 public runtime 적용 확대
 - [ ] capability 자체 approved/deprecated lifecycle UI
 - [ ] shared primitive/token 관리 탭
 
-상단 chapter nav, bottom sheet, filter 등은 실제 generic surface/data contract가 준비되기 전 임의 생성하지 않는다. Safari deferred sticky safety를 우선한다.
+상단 chapter nav, bottom sheet, filter 등은 실제 generic surface/data contract가 준비되기 전 production public runtime에 임의 생성하지 않는다. Safari deferred sticky safety를 우선한다.
 
 Current capabilities:
 1. top-chapter-navigation
@@ -154,6 +166,11 @@ Current capabilities:
 - [x] approved UI preset lifecycle
 - [ ] user review 결과를 canonical approved variant 상태로 확정
 
+현재 live Sheet 확인값:
+- `BLOCK_VARIANT_REVIEWS`: 승인 행 0개
+- photography Block Style preset 12개: 전부 draft
+- UI preset 8개: 전부 draft
+
 ## 09. First non-photo QA — video editor
 - [x] `page_video_editor_qa_v1`
 - [x] 13 Sheet blocks / draft / noindex / needs_review
@@ -207,7 +224,9 @@ Current capabilities:
 - [x] video-editor effective evidence overlay validator
 - [x] Block Lab/Editor/UI runtime/UI Dashboard/Public Snapshot/root Functions syntax 범위
 - [x] canonical route/_routes/_redirects/404 변경 시 workflow trigger
-- [!] GitHub connector가 push workflow run/check-run을 노출하지 않아 최신 성공 여부를 직접 확인하지 못함
+- [x] UI Dashboard JS/CSS 경로는 workflow trigger/syntax 범위에 포함
+- [!] 현재 실행 환경 DNS 문제로 local clone/Node 검증 실패
+- [!] GitHub connector combined status에 workflow context가 노출되지 않아 최신 Actions 성공 여부 직접 확인 불가
 
 Production invariants:
 - photography production renderer를 candidate로 교체하지 않음
@@ -220,16 +239,18 @@ Production invariants:
 - canonical dynamic route는 active snapshot만 반환
 - active snapshot만 public runtime 신뢰 대상으로 취급
 - `/video-editor/`는 현재 draft이므로 active snapshot이 생기기 전 공개되지 않아야 함
+- UI Dashboard는 production UI를 직접 변경하지 않고 preset 검토/저장만 수행
 
 ## Exact next action
-1. [-] 사용자 `/block-lab/` + `/ui-dashboard/` + `/qa/video-editor/` review 결과 수집
-2. [ ] review 결과에 따라 variant/style/UI preset을 server `approved` 또는 redesign/deprecated로 저장
-3. [ ] approved-only production Editor 최종 모드
-4. [ ] `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→canonical→rollback live QA
-5. [ ] 실제 Cloudflare canonical/404/sitemap smoke test
-6. [ ] generic surface가 준비된 UI Capability runtime 적용 확대
-7. [ ] PC/mobile/CWV + 광고 side rail QA
-8. [ ] workstream QA Drive archive
+1. [-] 사용자 `/ui-dashboard/` 실시간 조작형 preview 검토
+2. [-] 사용자 `/block-lab/` + `/qa/video-editor/` review 결과 수집
+3. [ ] review 결과에 따라 variant/style/UI preset을 server `approved` 또는 redesign/deprecated로 저장
+4. [ ] approved-only production Editor 최종 모드
+5. [ ] `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→canonical→rollback live QA
+6. [ ] 실제 Cloudflare canonical/404/sitemap smoke test
+7. [ ] 승인된 generic surface 기준 UI Capability public runtime 적용 확대
+8. [ ] PC/mobile/CWV + 광고 side rail QA
+9. [ ] workstream QA Drive archive
 
 ## V1 완료 목표
 1. Block/variant/style preset 최종 승인
