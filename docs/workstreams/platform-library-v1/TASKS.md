@@ -28,12 +28,15 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] 공통 관리자 셸 추가
 [x] 모든 주요 관리 화면에서 직접 상호 이동 가능한 전역 메뉴 추가
 [x] 현재 화면 active state 표시
+[x] 전역 이동과 로컬 작업 도구 분리
 [x] Block Lab의 별도 `플랫폼 빌더` 복귀 링크 제거 방향 적용
-[x] Page Editor의 undo/redo/export/import를 `더보기`로 묶음
-[x] Block Lab / Page Editor / QA 공통 surface override 추가
-[x] Block Lab의 랜딩페이지형 큰 intro 축소
+[x] Block Lab 상단/intro/sidebar 밀도 축소
+[x] Page Editor undo/redo/export/import를 `더보기`로 묶음
+[x] Page Editor `페이지·발행 설정`을 접힌 고급 설정으로 통합
+[x] Page Editor block 검색/목록을 기본 작업 흐름 앞으로 이동
 [x] Page Editor 상단바/좌우 패널/캔버스 chrome 밀도 축소
 [x] QA 상단 chrome 통일
+[x] management shell bootstrap asset stale-cache 방지 header 추가
 [-] 실제 branch preview에서 각 화면 navigation / sticky offset QA
 [-] 900px 이하 responsive 관리 셸 QA
 
@@ -49,14 +52,15 @@ Status: noindex / production state non-mutating
 [x] PC 다중 inspector / mobile bottom dock 유지
 [x] block drag/drop + local layout draft 유지
 [x] inline advertisement candidate 유지
-[x] 상단 전역 메뉴와 로컬 작업 도구 분리
-[x] 페이지 구성 상단 동작을 `편집 / 블록 추가 / 광고 / 저장 / 더보기` 중심으로 단순화
-[x] 좌/우 광고 세부 버튼을 `광고` 메뉴 안으로 이동
-[x] 초기화는 `더보기`로 이동
+[x] 기존 builder 자체 global nav 제거
+[x] 공통 관리자 셸 + 로컬 toolbar 1줄 구조로 단순화
+[x] toolbar를 `편집 / 블록 추가 / 광고 / 저장 / 더보기` 중심으로 축소
+[x] 본문/좌/우 광고를 `광고` 메뉴로 통합
+[x] 초기화 + 서버 연결/설정 동기화를 `더보기`로 이동
 [x] 페이지 편집과 UI 라이브러리 동시 chrome 노출 방지
-[x] UI library `[hidden]` 강제 처리 추가
-[x] 더미 chapter navigation의 outer `nav-glass` visual 중첩 제거
-[-] 실제 preview에서 더미 nav가 single-surface로 보이는지 QA
+[x] UI library `[hidden]` 강제 처리
+[x] 더미 chapter navigation outer `nav-glass` visual 중첩 제거
+[-] 실제 preview에서 더미 nav single-surface QA
 
 ## Side advertisement placement
 
@@ -83,7 +87,7 @@ Status: noindex / production state non-mutating
 
 [x] 기존 block add/reorder/drag 유지
 [x] SEO / AI / media / revisions / snapshot 기반 기능 유지
-[x] UX consolidation에서 기능 삭제 없이 chrome만 단순화
+[x] UX consolidation에서 기능 삭제 없이 고급 설정을 접어 기본 작업을 단순화
 [ ] `ADMIN_EDITOR_TOKEN` production secret 설정
 [ ] authenticated publish / rollback live QA
 
@@ -101,8 +105,9 @@ Status: noindex / production state non-mutating
 
 1. `feat/admin-ux-shell-v1` Cloudflare preview를 확인한다.
 2. 페이지 구성 → UI 라이브러리 → 블록 관리 → 페이지 에디터 → QA를 순서대로 이동하고 브라우저 뒤로가기 없이 모두 왕복되는지 확인한다.
-3. 페이지 구성에서 상단 chrome이 전역 메뉴 + 최소 로컬 툴바만 보이는지 확인한다.
-4. 더미 nav의 이중 캡슐이 제거됐는지 확인한다.
-5. hero / chapter hero 구간에서 좌우 광고가 숨고 본문 구간에서만 나타나는지 확인한다.
-6. 1440 / 1536 / 1920 PC 폭과 900px 이하에서 관리 셸과 툴바를 검수한다.
-7. 발견되는 visual regression만 수정하고 production renderer에는 손대지 않는다.
+3. 페이지 구성에서 공통 메뉴 + 로컬 toolbar 1줄만 보이는지 확인한다.
+4. 페이지 에디터에서 블록 목록이 바로 보이고 페이지·발행 설정은 접혀 있는지 확인한다.
+5. 더미 nav의 이중 캡슐이 제거됐는지 확인한다.
+6. hero / chapter hero 구간에서 좌우 광고가 숨고 본문 구간에서만 나타나는지 확인한다.
+7. 1440 / 1536 / 1920 PC 폭과 900px 이하에서 관리 셸과 툴바를 검수한다.
+8. 발견되는 visual regression만 수정하고 production renderer에는 손대지 않는다.
