@@ -42,20 +42,13 @@
       <div class="builder-library-filters" id="builderLibraryFilters" role="group" aria-label="UI 종류"></div>
     </section>
 
-    <main class="builder-stage">
-      <div class="builder-canvas-shell" id="builderCanvasShell">
-        <iframe id="builderFrame" class="builder-frame" title="실제 페이지 편집 화면" src="/photography/?ui-dashboard-builder=1"></iframe>
-        <div class="builder-frame-status" id="builderFrameStatus">실제 페이지를 불러오는 중</div>
-      </div>
-    </main>
-
+    <main class="builder-stage"><div class="builder-canvas-shell" id="builderCanvasShell"><iframe id="builderFrame" class="builder-frame" title="실제 페이지 편집 화면" src="/photography/?ui-dashboard-builder=1"></iframe><div class="builder-frame-status" id="builderFrameStatus">실제 페이지를 불러오는 중</div></div></main>
     <div class="builder-panel-layer" id="builderPanelLayer" aria-live="polite"></div>
     <div class="builder-mobile-dock" id="builderMobileDock" hidden></div>
 
     <aside class="builder-block-palette" id="builderBlockPalette" aria-hidden="true">
       <header><div><small>페이지 조립</small><strong>블록 추가</strong></div><button type="button" data-close-block-palette aria-label="닫기">×</button></header>
-      <div class="builder-block-filter" id="builderBlockFilter"></div>
-      <div class="builder-block-list" id="builderBlockList"></div>
+      <div class="builder-block-filter" id="builderBlockFilter"></div><div class="builder-block-list" id="builderBlockList"></div>
       <p class="builder-palette-note">승인 전 블록은 조립 화면에서만 시험합니다. 실제 공개 페이지에는 자동 반영하지 않습니다.</p>
     </aside>
   </div>
@@ -63,6 +56,7 @@
   <script src="/data/ui-capabilities/v1/manifest.js?v=3"></script>
   <script src="/data/block-registry/v1/manifest.js?v=3"></script>
   <script src="/assets/js/ui-dashboard/builder-v1.js?v=1"></script>
+  <script src="/assets/js/ui-dashboard/builder-boundaries-v1.js?v=1"></script>
   <script src="/assets/js/ui-dashboard/server.js?v=2"></script>
 </body>
 </html>
