@@ -37,9 +37,10 @@
     const script=document.createElement('script');script.src=src;script.defer=true;script.setAttribute(attribute,'true');document.head.appendChild(script);
   }
 
-  function ensureCss(){
+  function ensureCss(id){
     appendStyle('/assets/styles/admin/admin-shell-v1.css?v=2','data-admin-shell-style');
     if(!path.startsWith('/ui-dashboard'))appendStyle('/assets/styles/admin/admin-surface-v1.css?v=2','data-admin-surface-style');
+    if(id==='blocks'||id==='editor')appendStyle('/assets/styles/admin/admin-preview-theme-v1.css?v=1','data-admin-preview-theme-style');
   }
 
   function simplifyEditorLibrary(){
@@ -100,9 +101,9 @@
   }
 
   function mount(){
-    ensureCss();
     if(document.querySelector('.platform-admin-shell'))return;
     const id=currentId();
+    ensureCss(id);
     document.documentElement.dataset.adminShell='true';
     const shell=document.createElement('aside');
     shell.className='platform-admin-shell';
