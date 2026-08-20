@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>플랫폼 관리 · 페이지 구성</title>
+  <title>플랫폼 관리 · 화면 구성</title>
   <link rel="stylesheet" href="/assets/styles/admin/admin-shell-v1.css?v=1" data-admin-shell-style>
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-v1.css?v=2">
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-sandbox-v1.css?v=1">
@@ -13,10 +13,10 @@
 </head>
 <body>
   <div class="ui-dashboard builder-shell" data-builder-view="page">
-    <section class="builder-toolbar" aria-label="페이지 구성 도구">
+    <section class="builder-toolbar" aria-label="화면 구성 도구">
       <div class="builder-toolbar__group">
-        <label class="builder-page-select">캔버스
-          <select id="builderPageSelect"><option value="/ui-dashboard/sandbox/">범용 더미 페이지</option></select>
+        <label class="builder-page-select">더미 화면
+          <select id="builderPageSelect"><option value="/ui-dashboard/sandbox/">기본 더미</option></select>
         </label>
         <button type="button" id="builderEditToggle" class="builder-toggle" aria-pressed="true">편집 중</button>
         <button type="button" id="builderOpenBlockPalette" class="builder-primary-action">블록 추가</button>
@@ -30,7 +30,7 @@
         </details>
       </div>
       <div class="builder-toolbar__group builder-toolbar__group--right">
-        <button type="button" id="builderSaveLayout" class="builder-primary-action">저장</button>
+        <button type="button" id="builderSaveLayout" class="builder-primary-action">초안 저장</button>
         <details class="builder-action-menu builder-action-menu--end">
           <summary>더보기</summary>
           <div class="builder-action-menu__panel">
@@ -57,7 +57,7 @@
     <div class="builder-mobile-dock" id="builderMobileDock" hidden></div>
 
     <aside class="builder-block-palette" id="builderBlockPalette" aria-hidden="true">
-      <header><div><small>페이지 구성</small><strong>블록 추가</strong></div><button type="button" data-close-block-palette aria-label="닫기">×</button></header>
+      <header><div><small>화면 구성</small><strong>블록 추가</strong></div><button type="button" data-close-block-palette aria-label="닫기">×</button></header>
       <div class="builder-block-filter" id="builderBlockFilter"></div>
       <div class="builder-block-list" id="builderBlockList"></div>
       <p class="builder-palette-note">검토 중인 블록은 이 더미 화면에서만 시험합니다. 공개 페이지에는 자동 반영하지 않습니다.</p>
@@ -68,9 +68,9 @@
   <script src="/data/ui-capabilities/v1/manifest.js?v=3"></script>
   <script src="/data/block-registry/v1/manifest.js?v=3"></script>
   <script src="/assets/js/ui-dashboard/builder-v1.js?v=1"></script>
-  <script src="/assets/js/ui-dashboard/builder-ux-patch-v2.js?v=1"></script>
+  <script src="/assets/js/ui-dashboard/builder-ux-patch-v2.js?v=2"></script>
   <script src="/assets/js/ui-dashboard/builder-boundaries-v1.js?v=1"></script>
-  <script src="/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=2"></script>
+  <script src="/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=3"></script>
   <script src="/assets/js/ui-dashboard/server.js?v=2"></script>
 </body>
 </html>
