@@ -9,14 +9,14 @@
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-v1.css?v=2">
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-sandbox-v1.css?v=1">
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-simplified-v2.css?v=3">
-  <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-library-v3.css?v=3">
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/server.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-audit-v1.css?v=1">
 </head>
 <body>
   <div class="ui-dashboard builder-shell" data-builder-view="page">
     <section class="builder-toolbar" aria-label="화면 구성 도구">
       <div class="builder-toolbar__title"><strong>화면 구성</strong><span>기본 더미</span></div>
-      <select id="builderPageSelect" hidden aria-hidden="true"><option value="/ui-dashboard/sandbox/?v=7">기본 더미</option></select>
+      <select id="builderPageSelect" hidden aria-hidden="true"><option value="/ui-dashboard/sandbox/?v=11">기본 더미</option></select>
       <div class="builder-toolbar__group">
         <button type="button" id="builderEditToggle" class="builder-toggle" aria-pressed="true">편집 중</button>
         <button type="button" id="builderOpenBlockPalette" class="builder-primary-action">블록 추가</button>
@@ -42,13 +42,13 @@
     </section>
 
     <section class="builder-library-tools" id="builderLibraryTools" hidden>
-      <div class="builder-library-intro"><strong>UI 라이브러리</strong><span>한 번에 하나의 UI만 공개 페이지 runtime으로 확인합니다.</span></div>
+      <div class="builder-library-intro"><strong>UI 라이브러리</strong><span>한 번에 하나의 UI만 원본 스타일로 확인합니다.</span></div>
       <div class="builder-library-filters" id="builderLibraryFilters" role="group" aria-label="UI 종류"></div>
     </section>
 
     <main class="builder-stage">
       <div class="builder-canvas-shell" id="builderCanvasShell">
-        <iframe id="builderFrame" class="builder-frame" title="더미 페이지 편집 화면" src="/ui-dashboard/sandbox/?v=7"></iframe>
+        <iframe id="builderFrame" class="builder-frame" title="더미 페이지 편집 화면" src="/ui-dashboard/sandbox/?v=11"></iframe>
         <div class="builder-frame-status" id="builderFrameStatus">더미 캔버스를 준비하는 중</div>
       </div>
     </main>
@@ -67,13 +67,22 @@
   <script src="/assets/js/admin/admin-shell-v1.js?v=2"></script>
   <script src="/data/ui-capabilities/v1/manifest.js?v=3"></script>
   <script src="/data/block-registry/v1/manifest.js?v=3"></script>
-  <script src="/assets/js/ui-dashboard/builder-v1.js?v=1"></script>
-  <script src="/assets/js/ui-dashboard/builder-live-bridge-v4.js?v=3"></script>
-  <script src="/assets/js/ui-dashboard/builder-library-v3.js?v=3"></script>
-  <script src="/assets/js/ui-dashboard/builder-production-parity-v1.js?v=2"></script>
-  <script src="/assets/js/ui-dashboard/builder-ux-patch-v3.js?v=3"></script>
-  <script src="/assets/js/ui-dashboard/builder-boundaries-v1.js?v=1"></script>
-  <script src="/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=4"></script>
+  <script>
+    (function(){
+      const library=new URLSearchParams(location.search).get('view')==='library';
+      const sources=library
+        ?['/assets/js/ui-dashboard/builder-library-audit-v1.js?v=1']
+        :[
+          '/assets/js/ui-dashboard/builder-v1.js?v=1',
+          '/assets/js/ui-dashboard/builder-production-parity-v1.js?v=2',
+          '/assets/js/ui-dashboard/builder-ux-patch-v3.js?v=3',
+          '/assets/js/ui-dashboard/builder-boundaries-v1.js?v=1',
+          '/assets/js/ui-dashboard/builder-page-audit-v1.js?v=1',
+          '/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=4'
+        ];
+      document.write(sources.map(src=>'<script src="'+src+'"><\\/script>').join(''));
+    })();
+  </script>
   <script src="/assets/js/ui-dashboard/server.js?v=2"></script>
 </body>
 </html>
