@@ -5,7 +5,7 @@
 
   function escapeHtml(value=''){
     return String(value??'').replace(/[&<>"']/g,char=>({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'
     }[char]));
   }
 
@@ -131,4 +131,14 @@
   };
 
   window.PlatformBlockRegistry=registry;
+
+  const adminPath=/^\/(?:block-lab|editor-lab|qa\/|staging\/)/.test(location.pathname);
+  if(adminPath&&!document.querySelector('script[data-admin-shell-loader]')){
+    const style=document.createElement('link');
+    style.rel='stylesheet';style.href='/assets/styles/admin/admin-shell-v1.css?v=1';style.dataset.adminShellStyle='true';
+    document.head.appendChild(style);
+    const script=document.createElement('script');
+    script.src='/assets/js/admin/admin-shell-v1.js?v=1';script.defer=true;script.dataset.adminShellLoader='true';
+    document.head.appendChild(script);
+  }
 })();
