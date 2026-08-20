@@ -31,7 +31,7 @@
   }
 
   function switchMarkup(id,mode){
-    return `<section class="ui-parity-switch" data-ui-parity-switch>
+    return `<section class="ui-parity-switch" data-ui-parity-switch data-mode="${esc(mode)}" data-capability="${esc(id)}">
       <div class="ui-parity-switch__copy">
         <small>비교 기준</small>
         <strong>${mode==='production'?'사진 페이지 원본':'범용 실험'}</strong>
@@ -47,7 +47,7 @@
 
   function productionMarkup(id){
     const width=getWidth();
-    return `<section class="ui-production-parity" data-ui-production-parity data-frame-width="${esc(width)}">
+    return `<section class="ui-production-parity" data-ui-production-parity data-capability="${esc(id)}" data-frame-width="${esc(width)}">
       <header class="ui-production-parity__head">
         <div><small>실제 production</small><strong>사진 페이지 원본</strong><p>이 영역 안에서 스크롤, 클릭, 드래그, 팝업 열기 같은 동작을 직접 확인할 수 있습니다.</p></div>
         <div class="ui-production-parity__width" role="group" aria-label="원본 페이지 확인 폭">
@@ -78,7 +78,7 @@
     }
   }
 
-  function prepareCollection(doc,win,tab){
+  function prepareCollection(doc,tab){
     const fab=doc.querySelector('#collectionFab');
     if(!fab)return false;
     if(doc.querySelector('#collectionSheet')?.hidden!==false)click(fab);
@@ -101,7 +101,7 @@
       switch(id){
         case 'top-chapter-navigation':{
           const node=doc.querySelector('.nav-shell');
-          if(node){win.scrollTo({top:0,left:0,behavior:'auto'});ready=true;}
+          if(node){win.scrollTo({top:0,left:0,behavior:'auto'});ready=true;message='사진 페이지의 실제 상단 메뉴입니다. iframe 안을 스크롤하거나 메뉴칩을 눌러보세요.';}
           break;
         }
         case 'horizontal-card-rail':{
@@ -111,20 +111,19 @@
           break;
         }
         case 'collection-bottom-sheet':{
-          if(prepareCollection(doc,win,'all')){
+          if(prepareCollection(doc,'all')){
             const sheet=doc.querySelector('#collectionSheet');
             ready=Boolean(sheet&&!sheet.hidden);
-            if(ready)message='사진 페이지의 실제 내 모음 하단 팝업입니다.';
+            if(ready)message='사진 페이지의 실제 내 모음 하단 팝업입니다. 탭과 검색, 닫기 동작을 직접 확인하세요.';
           }
           break;
         }
         case 'filter-chip-rail':{
-          if(prepareCollection(doc,win,'video')){
+          if(prepareCollection(doc,'video')){
             const filters=doc.querySelector('#collectionFilters');
             const sheet=doc.querySelector('#collectionSheet');
             ready=Boolean(sheet&&!sheet.hidden);
             if(filters&&!filters.hidden&&filters.children.length){
-              scrollToNode(filters,win);
               message='사진 페이지의 실제 필터칩입니다. 칩을 직접 눌러보세요.';
             }else if(ready){
               message='실제 내 모음을 열었습니다. 현재 저장 항목에 분류값이 없으면 원본 필터칩은 표시되지 않습니다.';
@@ -133,13 +132,13 @@
           break;
         }
         case 'device-handoff-accordion':{
-          if(prepareCollection(doc,win,'settings')){
+          if(prepareCollection(doc,'settings')){
             const link=doc.querySelector('#collectionDeviceLink');
             if(link){
               if(link.getAttribute('aria-expanded')!=='true')click(link);
               const accordion=doc.querySelector('.collection-device-accordion')||link;
-              ready=scrollToNode(accordion,win);
-              if(ready)message='사진 페이지의 실제 다른 기기 연결 아코디언입니다. 복사와 열기/닫기 동작도 원본 코드가 처리합니다.';
+              ready=Boolean(accordion);
+              if(ready)message='사진 페이지의 실제 다른 기기 연결 아코디언입니다. 복사와 열기/닫기도 production 코드가 처리합니다.';
             }
           }
           break;
@@ -174,7 +173,17 @@
     }
   }
 
+  function replaceProduction(host,id){
+    const parent=host?.parentElement;
+    if(!parent)return;
+    host.outerHTML=productionMarkup(id);
+    const next=parent.querySelector(`[data-ui-production-parity][data-capability="${CSS.escape(id)}"]`);
+    if(next)bindProduction(next,id);
+  }
+
   function bindProduction(host,id){
+    if(!host||host.dataset.bound==='true')return;
+    host.dataset.bound='true';
     const frame=host.querySelector('[data-ui-parity-frame]');
     if(!frame)return;
     const token=++frameToken;
@@ -184,28 +193,40 @@
     },{once:true});
     host.querySelectorAll('[data-ui-parity-width]').forEach(button=>button.addEventListener('click',()=>{
       setWidth(button.dataset.uiParityWidth||'current');
-      renderProduction(host,id);
+      replaceProduction(host,id);
     }));
   }
 
-  function renderProduction(host,id){
-    const old=host.querySelector('[data-ui-production-parity]');
-    if(old)old.outerHTML=productionMarkup(id);
-    else host.insertAdjacentHTML('beforeend',productionMarkup(id));
-    bindProduction(host,id);
+  function bindSwitch(card,capability){
+    card.querySelectorAll('[data-ui-parity-mode]').forEach(button=>{
+      if(button.dataset.bound==='true')return;
+      button.dataset.bound='true';
+      button.addEventListener('click',()=>{
+        const next=button.dataset.uiParityMode==='experiment'?'experiment':'production';
+        setMode(capability.id,next);
+        schedule(true);
+      });
+    });
   }
 
   function applyMode(card,capability,mode){
     const stage=card.querySelector('.ui-preview-stage');
     const controls=card.querySelector('.ui-controls');
-    const switcher=card.querySelector('[data-ui-parity-switch]');
+    let switcher=card.querySelector('[data-ui-parity-switch]');
     let production=card.querySelector('[data-ui-production-parity]');
-    if(switcher)switcher.outerHTML=switchMarkup(capability.id,mode);
+
+    if(!switcher||switcher.dataset.mode!==mode||switcher.dataset.capability!==capability.id){
+      if(switcher)switcher.outerHTML=switchMarkup(capability.id,mode);
+      else card.querySelector('.ui-card__head')?.insertAdjacentHTML('afterend',switchMarkup(capability.id,mode));
+      switcher=card.querySelector('[data-ui-parity-switch]');
+    }
+    bindSwitch(card,capability);
 
     if(mode==='production'){
       if(stage)stage.hidden=true;
       if(controls){controls.classList.add('is-reference-locked');controls.setAttribute('aria-disabled','true');}
-      if(!production){
+      if(!production||production.dataset.capability!==capability.id){
+        if(production)production.remove();
         const anchor=card.querySelector('.ui-preview-stage')||card.querySelector('.ui-controls');
         anchor?.insertAdjacentHTML('beforebegin',productionMarkup(capability.id));
         production=card.querySelector('[data-ui-production-parity]');
@@ -216,17 +237,6 @@
       if(controls){controls.classList.remove('is-reference-locked');controls.removeAttribute('aria-disabled');}
       if(production)production.hidden=true;
     }
-
-    card.querySelectorAll('[data-ui-parity-mode]').forEach(button=>button.addEventListener('click',()=>{
-      const next=button.dataset.uiParityMode==='experiment'?'experiment':'production';
-      setMode(capability.id,next);
-      schedule(true);
-    }));
-    card.querySelectorAll('[data-ui-parity-width]').forEach(button=>button.addEventListener('click',()=>{
-      setWidth(button.dataset.uiParityWidth||'current');
-      const host=card.querySelector('[data-ui-production-parity]');
-      if(host)renderProduction(host,capability.id);
-    }));
   }
 
   function enhance(){
@@ -234,11 +244,6 @@
     const capability=currentCapability();
     const card=workspace.querySelector('.ui-card');
     if(!capability||!card||!hasPhotographySource(capability))return;
-    let switcher=card.querySelector('[data-ui-parity-switch]');
-    if(!switcher){
-      const head=card.querySelector('.ui-card__head');
-      head?.insertAdjacentHTML('afterend',switchMarkup(capability.id,getMode(capability.id)));
-    }
     applyMode(card,capability,getMode(capability.id));
   }
 
