@@ -25,9 +25,7 @@
   function esc(value=''){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));}
 
   function hasPhotographySource(capability){
-    if(!capability||!PHOTO_IDS.has(capability.id))return false;
-    if(capability.source==='photography-extracted')return true;
-    return (capability.presets||[]).some(item=>item.source==='photography-extracted');
+    return Boolean(capability&&PHOTO_IDS.has(capability.id));
   }
 
   function switchMarkup(id,mode){
@@ -35,7 +33,7 @@
       <div class="ui-parity-switch__copy">
         <small>비교 기준</small>
         <strong>${mode==='production'?'사진 페이지 원본':'범용 실험'}</strong>
-        <p>${mode==='production'?'실제 사진 페이지의 DOM, CSS, JavaScript를 그대로 불러옵니다. 원본과 다르면 버그입니다.':'공통 UI로 확장하기 위한 실험 화면입니다. 아래 설정을 바꾸면 즉시 반영됩니다.'}</p>
+        <p>${mode==='production'?'실제 사진 페이지 화면과 동작을 그대로 불러옵니다. 원본과 다르면 버그입니다.':'다른 분야에서도 쓸 수 있도록 조정하는 실험 화면입니다. 아래 설정을 바꾸면 즉시 반영됩니다.'}</p>
       </div>
       <div class="ui-parity-switch__actions" role="group" aria-label="미리보기 기준 선택">
         <button type="button" data-ui-parity-mode="production" aria-pressed="${mode==='production'?'true':'false'}">사진 페이지 원본</button>
@@ -49,7 +47,7 @@
     const width=getWidth();
     return `<section class="ui-production-parity" data-ui-production-parity data-capability="${esc(id)}" data-frame-width="${esc(width)}">
       <header class="ui-production-parity__head">
-        <div><small>실제 production</small><strong>사진 페이지 원본</strong><p>이 영역 안에서 스크롤, 클릭, 드래그, 팝업 열기 같은 동작을 직접 확인할 수 있습니다.</p></div>
+        <div><small>실제 운영 화면</small><strong>사진 페이지 원본</strong><p>이 영역 안에서 스크롤, 클릭, 드래그, 팝업 열기 같은 동작을 직접 확인할 수 있습니다.</p></div>
         <div class="ui-production-parity__width" role="group" aria-label="원본 페이지 확인 폭">
           <button type="button" data-ui-parity-width="current" aria-pressed="${width==='current'?'true':'false'}">현재 폭</button>
           <button type="button" data-ui-parity-width="390" aria-pressed="${width==='390'?'true':'false'}">모바일 390</button>
@@ -101,13 +99,13 @@
       switch(id){
         case 'top-chapter-navigation':{
           const node=doc.querySelector('.nav-shell');
-          if(node){win.scrollTo({top:0,left:0,behavior:'auto'});ready=true;message='사진 페이지의 실제 상단 메뉴입니다. iframe 안을 스크롤하거나 메뉴칩을 눌러보세요.';}
+          if(node){win.scrollTo({top:0,left:0,behavior:'auto'});ready=true;message='사진 페이지의 실제 상단 메뉴입니다. 안쪽 화면을 스크롤하거나 메뉴칩을 눌러보세요.';}
           break;
         }
         case 'horizontal-card-rail':{
           const node=doc.querySelector('.desktop-rail-window')||doc.querySelector('.scroll-row')||doc.querySelector('.skills-infinite-row');
           ready=scrollToNode(node,win);
-          if(ready)message='사진 페이지의 실제 가로 카드 rail입니다. 이 안에서 직접 밀거나 끌어보세요.';
+          if(ready)message='사진 페이지의 실제 가로 카드 스크롤입니다. 안쪽 화면에서 직접 밀거나 끌어보세요.';
           break;
         }
         case 'collection-bottom-sheet':{
@@ -138,7 +136,7 @@
               if(link.getAttribute('aria-expanded')!=='true')click(link);
               const accordion=doc.querySelector('.collection-device-accordion')||link;
               ready=Boolean(accordion);
-              if(ready)message='사진 페이지의 실제 다른 기기 연결 아코디언입니다. 복사와 열기/닫기도 production 코드가 처리합니다.';
+              if(ready)message='사진 페이지의 실제 다른 기기 연결 아코디언입니다. 원본과 같은 열기, 복사, 연결 동작을 확인할 수 있습니다.';
             }
           }
           break;
@@ -147,7 +145,7 @@
           const max=Math.max(0,(doc.scrollingElement?.scrollHeight||doc.documentElement.scrollHeight)-win.innerHeight);
           if(max>0)win.scrollTo({top:Math.round(max*.28),left:0,behavior:'auto'});
           ready=Boolean(doc.querySelector('.nav-chapter-progress')||doc.querySelector('.read-progress'));
-          if(ready)message='사진 페이지의 실제 진행 표시입니다. iframe 안에서 위아래로 스크롤해보세요.';
+          if(ready)message='사진 페이지의 실제 진행 표시입니다. 안쪽 화면에서 위아래로 스크롤해보세요.';
           break;
         }
         case 'floating-action':{
@@ -156,7 +154,7 @@
           if(ready){
             const max=Math.max(0,(doc.scrollingElement?.scrollHeight||doc.documentElement.scrollHeight)-win.innerHeight);
             win.scrollTo({top:Math.round(max*.22),left:0,behavior:'auto'});
-            message='사진 페이지의 실제 플로팅 내 모음 버튼입니다. 직접 눌러 팝업을 열어보세요.';
+            message='사진 페이지의 실제 플로팅 내 모음 버튼입니다. 직접 눌러 하단 팝업을 열어보세요.';
           }
           break;
         }
@@ -168,7 +166,7 @@
     retry();
 
     function retry(){
-      if(attempt>=12){setStatus(host,'원본 UI를 자동으로 찾지 못했습니다. iframe 안을 직접 스크롤하거나 원본 페이지에서 확인해 주세요.','warn');return;}
+      if(attempt>=12){setStatus(host,'원본 UI를 자동으로 찾지 못했습니다. 안쪽 화면을 직접 스크롤하거나 원본 페이지에서 확인해 주세요.','warn');return;}
       setTimeout(()=>focusProductionFrame(frame,id,host,token,attempt+1),attempt<4?250:500);
     }
   }
