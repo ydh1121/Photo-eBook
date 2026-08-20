@@ -3,149 +3,106 @@
 Workstream: `platform-library-v1`
 Status: `active`
 Production branch: `main`
-Current implementation branch: `feat/visual-builder-dashboard`
+Current implementation branch: `feat/admin-ux-shell-v1`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## Architecture
 
-[x] Content Block type / Block variant / Block Style preset 분리
-[x] UI Capability / UI Capability preset 분리
-[x] Shared Primitive / industry-specific logic 분리 원칙
-[x] raw CSS를 preset data로 저장하지 않는 원칙
-[x] photography production을 parity reference source로 유지
-[x] Visual Builder는 production page가 아니라 전용 dummy canvas를 사용
-[x] dummy canvas는 production API / Google Sheet 사용자 데이터와 분리
+[x] Content Block / variant / style preset 분리
+[x] UI Capability / preset 분리
+[x] photography production은 parity reference로만 유지
+[x] Visual Builder는 `/ui-dashboard/sandbox/` 더미 캔버스만 사용
+[x] sandbox는 production API / Google Sheet 사용자 데이터와 분리
+[x] 관리 화면 공통 UX 계약 추가: `docs/library/admin-ui/ADMIN-SHELL.md`
 
-Permanent Visual Builder contract:
-- `docs/library/ui-capabilities/VISUAL-BUILDER.md`
-- `docs/library/ui-capabilities/PHOTOGRAPHY-PARITY.md`
+## Management UX consolidation
 
-## Block Registry / Block Lab
+대상:
+- `/ui-dashboard/` 페이지 구성
+- `/ui-dashboard/?view=library` UI 라이브러리
+- `/block-lab/` 블록 관리
+- `/editor-lab/` 페이지 에디터
+- `/qa/video-editor/` QA
 
-[x] 27개 기존 Block type registry
-[x] advertisement candidate 추가 → 총 28개
-[x] advertisement variants: inline-banner / native-card / desktop-side-rail / sticky-bottom
-[x] Block Lab type review + memo
-[x] variant review + memo + difference taxonomy
-[x] constrained Block Style preset + lifecycle/server sync
-[x] photography advanced variants: hero/immersive-metrics, chapter-hero/image-overlay, comparison-cards/visual-metrics, roadmap/metric-cards
-[-] 사용자 실제 디자인 검토
-[ ] advertisement 4 variant 디자인 검토
-[ ] 승인/재설계/통합/폐기 결정 저장
-[ ] approved block/primitive만 production/shared source 승격
-
-Live approval checkpoint:
-- BLOCK_VARIANT_REVIEWS: 사용자 승인 전 자동 승인 금지
-- photography Block Style preset: draft 유지
-- advertisement: candidate 유지
+[x] 공통 관리자 셸 추가
+[x] 모든 주요 관리 화면에서 직접 상호 이동 가능한 전역 메뉴 추가
+[x] 현재 화면 active state 표시
+[x] Block Lab의 별도 `플랫폼 빌더` 복귀 링크 제거 방향 적용
+[x] Page Editor의 undo/redo/export/import를 `더보기`로 묶음
+[x] Block Lab / Page Editor / QA 공통 surface override 추가
+[x] Block Lab의 랜딩페이지형 큰 intro 축소
+[x] Page Editor 상단바/좌우 패널/캔버스 chrome 밀도 축소
+[x] QA 상단 chrome 통일
+[-] 실제 branch preview에서 각 화면 navigation / sticky offset QA
+[-] 900px 이하 responsive 관리 셸 QA
 
 ## Visual Builder / UI Dashboard
 
 Route: `/ui-dashboard/`
 Dummy canvas: `/ui-dashboard/sandbox/`
-Status: noindex / review surface / production state non-mutating
+Status: noindex / production state non-mutating
 
-[x] 기존 specimen 중심 3-pane dashboard 제거 방향 적용
-[x] production `/photography/` iframe 사용 제거
-[x] static dummy page를 full live canvas로 사용
-[x] dummy page에 실제 공통 CSS/class owner 사용
-[x] 7 UI capability를 dummy DOM의 production-equivalent selector에서 탐지
-[x] PC hover gear → floating inspector
-[x] 여러 inspector 동시 open
-[x] floating inspector drag 이동 + explicit close
-[x] 설정 변경을 dummy iframe DOM에 override로 즉시 반영
-[x] 모바일 tap inspector + bottom dock 구조
-[x] dummy page block drag/drop composer
-[x] 현재 조립 순서 browser draft 저장
-[x] advertisement inline sandbox 삽입
-[x] PC 좌측/우측 여백 floating advertisement slot 추가
-[x] 좌우 floating ad 개별 on/off, width, height, top, gap, scroll-follow 설정
-[x] Block Registry 기반 block palette
-[x] 통합 관리 메뉴: 페이지 편집 / UI 라이브러리 / Block Lab / Page Editor / QA
-[x] bare-surface UI library: dummy live source clone + capability category filter
-[x] capability별 수정 요청 메모 local 저장
-[x] 관리자 연결 시 수정 요청을 기존 `UI_PRESETS.notes`로 Sheet 저장
-[-] 실제 배포 preview에서 dummy canvas load/interaction QA
-[-] PC floating ad가 1440px급 화면에서 본문을 침범하지 않는지 QA
-[-] 모바일 tap/dock/native scroll 충돌 QA
-[-] filter/sheet/device handoff hidden-state capability gear QA
-[ ] approved Block Lab renderer를 builder palette 실제 block renderer로 연결
-[ ] generic UI capability public runtime expansion은 사용자 승인 뒤 진행
+[x] production `/photography/` iframe 제거
+[x] static dummy page 사용
+[x] 7 UI capability 탐지 및 inspector 유지
+[x] PC 다중 inspector / mobile bottom dock 유지
+[x] block drag/drop + local layout draft 유지
+[x] inline advertisement candidate 유지
+[x] 상단 전역 메뉴와 로컬 작업 도구 분리
+[x] 페이지 구성 상단 동작을 `편집 / 블록 추가 / 광고 / 저장 / 더보기` 중심으로 단순화
+[x] 좌/우 광고 세부 버튼을 `광고` 메뉴 안으로 이동
+[x] 초기화는 `더보기`로 이동
+[x] 페이지 편집과 UI 라이브러리 동시 chrome 노출 방지
+[x] UI library `[hidden]` 강제 처리 추가
+[x] 더미 chapter navigation의 outer `nav-glass` visual 중첩 제거
+[-] 실제 preview에서 더미 nav가 single-surface로 보이는지 QA
 
-Current UI Capability inventory:
-1. top-chapter-navigation
-2. horizontal-card-rail
-3. filter-chip-rail
-4. collection-bottom-sheet
-5. device-handoff-accordion
-6. reading-progress
-7. floating-action
+## Side advertisement placement
 
-Safety:
-- Visual Builder에서 production `/photography/` 로드 금지
-- photography renderer 교체 금지
-- production API/Sheet user data를 sandbox에서 읽지 않음
-- mobile native horizontal scroll owner 유지
-- Safari deferred sticky safety 유지
-- Dashboard/Builder에서 production state 직접 변경 금지
-- 사용자 승인 전 UI preset 자동 승인 금지
+[x] 고정 `50% + 590px` 위치 가정 제거
+[x] 현재 보이는 `.chapter .section .content` 실제 rect 기준 좌우 위치 계산
+[x] hero / chapter hero 구간에서는 광고 숨김
+[x] 본문 구간에 최소 표시 높이가 없으면 광고 숨김
+[x] 좌/우 여백이 광고 폭 + gap보다 작으면 해당 광고 숨김
+[x] 1360px 미만에서는 side ad 숨김
+[x] scroll-follow on/off 유지
+[-] 1440 / 1536 / 1600 / 1920 데스크톱 QA
+[-] chapter 경계에서 광고가 이미지 영역에 겹치지 않는지 QA
 
-## Photography parity
+## Block Registry / Block Lab
 
-[x] photography-extracted UI는 actual production source parity로 판정
-[x] actual source selectors/owners 추출
-[x] filter-chip은 actual `.collection-filter`가 기준이며 segmented tab mock과 분리
-[x] production page를 builder source로 쓰지 않고 code/source parity reference로 유지
-[-] dummy canvas의 7 capability가 production class/CSS contract를 올바르게 반영하는지 사용자 확인
-[-] Safari browser chrome 의존 deferred-sticky는 실제 `/photography/` full page 최종 QA
-[ ] 승인된 shared primitive source로 photography consumer migration
+[x] 28 block family 유지 (advertisement 포함)
+[x] advertisement variants 유지
+[-] 사용자 실제 디자인 검토
+[ ] advertisement 4 variant 최종 디자인 검토
+[ ] 사용자 결정만 approved/redesign/deprecated 저장
+[ ] approved block/primitive production 승격
 
 ## Page Editor / publish
 
-[x] Editor block add/reorder/drag
-[x] Page UI/style/SEO/AI/media/revisions/snapshot preview/rollback 기반 기능
-[x] Snapshot V2 immutable publish data
-[x] active Snapshot V2 canonical route + 404/sitemap 구조
-[-] approved-only production Editor mode는 사용자 approval 이후
+[x] 기존 block add/reorder/drag 유지
+[x] SEO / AI / media / revisions / snapshot 기반 기능 유지
+[x] UX consolidation에서 기능 삭제 없이 chrome만 단순화
 [ ] `ADMIN_EDITOR_TOKEN` production secret 설정
-[ ] authenticated Editor → publish → canonical → rollback live QA
-[ ] Cloudflare canonical/404/sitemap smoke test
+[ ] authenticated publish / rollback live QA
 
-## First non-photography QA
+## Safety
 
-Page: `page_video_editor_qa_v1`
-Slug: `video-editor`
-State: draft / noindex / needs_review
-
-Routes:
-- `/qa/video-editor/`
-- `/staging/public-renderer/`
-- `/staging/snapshot-v2.html`
-
-[-] 사용자 content/design review
-[ ] production publish 승인
-
-## Final QA / V1 exit
-
-[ ] Visual Builder PC/mobile live review
-[ ] Block/variant/style preset final user decisions
-[ ] UI Capability/preset final user decisions
-[ ] advertisement placement/responsive policy approval
-[ ] one non-photo draft → AI → human review → publish → rollback
-[ ] PC/mobile/CWV regression
-[ ] PC 좌우 floating ad + side rail QA
-[ ] workstream QA Drive archive
+- Visual Builder에서 production `/photography/` 로드 금지
+- sandbox에서 production user data 읽기 금지
+- photography renderer 자동 교체 금지
+- mobile native horizontal scroll owner 유지
+- Safari deferred sticky safety 유지
+- 사용자 승인 전 preset/block 자동 승인 금지
+- management / QA / staging noindex 유지
 
 ## Exact next action
 
-1. branch preview의 `/ui-dashboard/`가 `/ui-dashboard/sandbox/`만 iframe으로 불러오는지 확인한다.
-2. Network에서 sandbox가 production API/Google Sheet 사용자 데이터를 읽지 않는지 확인한다.
-3. PC에서 상단 메뉴, 가로 rail, filter, bottom sheet, device handoff, progress, FAB gear와 다중 inspector를 검수한다.
-4. PC 좌측/우측 floating ad를 각각 켜고 width/height/top/gap/follow를 검수한다.
-5. 모바일에서 tap inspector, bottom dock, native horizontal scroll 충돌을 검수한다.
-6. dummy page block drag/drop 단위를 확인한다.
-7. Block Lab에서 advertisement 4 variant를 정제한다.
-8. 사용자 결정만 approved/redesign/deprecated로 저장한다. 자동 승인하지 않는다.
-9. approved Block Lab source를 Visual Builder palette 실제 renderer에 연결한다.
-10. `UI_PRESETS.notes`의 수정 요청을 GPT가 읽어 source 변경으로 반영하는 workflow를 검증한다.
+1. `feat/admin-ux-shell-v1` Cloudflare preview를 확인한다.
+2. 페이지 구성 → UI 라이브러리 → 블록 관리 → 페이지 에디터 → QA를 순서대로 이동하고 브라우저 뒤로가기 없이 모두 왕복되는지 확인한다.
+3. 페이지 구성에서 상단 chrome이 전역 메뉴 + 최소 로컬 툴바만 보이는지 확인한다.
+4. 더미 nav의 이중 캡슐이 제거됐는지 확인한다.
+5. hero / chapter hero 구간에서 좌우 광고가 숨고 본문 구간에서만 나타나는지 확인한다.
+6. 1440 / 1536 / 1920 PC 폭과 900px 이하에서 관리 셸과 툴바를 검수한다.
+7. 발견되는 visual regression만 수정하고 production renderer에는 손대지 않는다.
