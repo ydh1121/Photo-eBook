@@ -6,6 +6,7 @@
   const STORAGE_KEY='platformUiCapabilityPresetsV1';
   const STATUS_OPTIONS=['draft','approved','redesign','deprecated'];
   const STATUS_LABELS={draft:'미결정',approved:'승인',redesign:'재설계',deprecated:'폐기'};
+  const SOURCE_LABELS={'photography-extracted':'사진 페이지에서 추출',platform:'플랫폼 공통',system:'플랫폼 기본',user:'직접 저장',server:'서버 저장'};
   let scheduled=false;
 
   function readLocal(){try{const value=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');return Array.isArray(value)?value:[];}catch{return [];}}
@@ -13,6 +14,7 @@
   function currentCapabilityId(){return document.querySelector('[data-capability-id][aria-pressed="true"]')?.dataset.capabilityId||'';}
   function builtinById(capabilityId,id){const capability=(manifest.capabilities||[]).find(item=>item.id===capabilityId);return (capability?.presets||[]).find(item=>item.id===id)||null;}
   function localById(capabilityId,id){return readLocal().find(item=>item?.capabilityId===capabilityId&&item?.id===id)||null;}
+  function sourceLabel(value){return SOURCE_LABELS[value]||'저장된 설정';}
 
   function upsertStatus(capabilityId,id,status){
     if(!STATUS_OPTIONS.includes(status))return;
@@ -56,9 +58,9 @@
       if(!effective)return;
       const status=STATUS_OPTIONS.includes(effective.status)?effective.status:'draft';
       const meta=card.querySelector('span');
-      if(meta)meta.textContent=`${effective.source||'user'} · ${STATUS_LABELS[status]||status}`;
+      if(meta)meta.textContent=`${sourceLabel(effective.source)} · ${STATUS_LABELS[status]||status}`;
 
-      let control=card.querySelector('[data-ui-preset-status]');
+      let control=card.querySelector('[data-ui-preset-status]')?.closest('.ui-preset-status');
       if(!control){
         control=document.createElement('label');
         control.className='ui-preset-status';
@@ -72,7 +74,7 @@
         select.addEventListener('change',()=>{
           upsertStatus(capabilityId,id,select.value);
           const updated=localById(capabilityId,id)||builtinById(capabilityId,id);
-          if(meta)meta.textContent=`${updated?.source||'user'} · ${STATUS_LABELS[select.value]||select.value}`;
+          if(meta)meta.textContent=`${sourceLabel(updated?.source)} · ${STATUS_LABELS[select.value]||select.value}`;
         });
       }
     });
