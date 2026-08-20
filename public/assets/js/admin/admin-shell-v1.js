@@ -32,6 +32,10 @@
     if(document.querySelector(`link[${attribute}]`))return;
     const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.setAttribute(attribute,'true');document.head.appendChild(link);
   }
+  function appendScript(src,attribute){
+    if(document.querySelector(`script[${attribute}]`))return;
+    const script=document.createElement('script');script.src=src;script.defer=true;script.setAttribute(attribute,'true');document.head.appendChild(script);
+  }
 
   function ensureCss(){
     appendStyle('/assets/styles/admin/admin-shell-v1.css?v=2','data-admin-shell-style');
@@ -105,6 +109,7 @@
     shell.innerHTML=`<div class="platform-admin-shell__brand"><a href="/ui-dashboard/"><span class="platform-admin-shell__mark">P</span><span><strong>플랫폼 관리</strong><small>디자인·콘텐츠 도구</small></span></a></div><nav class="platform-admin-shell__nav" aria-label="관리 화면">${items.map(item=>`<a href="${item.href}" title="${item.label}" ${item.id===id?'aria-current="page"':''}><span class="platform-admin-shell__icon">${icons[item.id]}</span><span class="platform-admin-shell__copy"><strong>${item.label}</strong><small>${item.hint}</small></span></a>`).join('')}</nav><div class="platform-admin-shell__end"><a href="/" target="_blank" rel="noopener"><span>공개 페이지</span><b aria-hidden="true">↗</b></a><small>관리 화면은 검색 노출 제외</small></div>`;
     document.body.prepend(shell);
     simplifyLocalUi(id);
+    if(id==='blocks'||id==='editor')appendScript('/assets/js/admin/admin-surface-v1.js?v=1','data-admin-surface-script');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
