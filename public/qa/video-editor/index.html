@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>영상편집 QA Preview</title>
+  <title>플랫폼 관리 · QA</title>
+  <link rel="stylesheet" href="/assets/styles/admin/admin-shell-v1.css?v=2" data-admin-shell-style>
   <link rel="stylesheet" href="/assets/styles/block-lab/lab.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/a11y.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/refinement-v2.css?v=1">
@@ -12,16 +13,18 @@
   <link rel="stylesheet" href="/assets/styles/block-lab/photography-parity-v1.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/responsive-fixes-v1.css?v=1">
   <link rel="stylesheet" href="/assets/styles/qa-page/page.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/admin/admin-surface-v1.css?v=2" data-admin-surface-style>
 </head>
 <body>
   <div class="qa-page" data-theme="light" data-preview="desktop">
-    <header class="qa-toolbar"><div class="qa-toolbar__inner"><div class="qa-toolbar__label"><strong>Video Editor QA</strong><span>UI 검토용 / 검색 노출 제외</span></div><div class="qa-segment" aria-label="화면 폭"><button type="button" data-qa-preview="mobile" aria-pressed="false">390</button><button type="button" data-qa-preview="tablet" aria-pressed="false">768</button><button type="button" data-qa-preview="desktop" aria-pressed="true">1180</button></div><div class="qa-segment" aria-label="테마"><button type="button" data-qa-theme="light" aria-pressed="true">Light</button><button type="button" data-qa-theme="dark" aria-pressed="false">Dark</button></div></div></header>
+    <header class="qa-toolbar"><div class="qa-toolbar__inner"><div class="qa-toolbar__label"><strong>QA 미리보기</strong><span>실제 발행 전 화면 확인</span></div><div class="qa-segment" aria-label="화면 폭"><button type="button" data-qa-preview="mobile" aria-pressed="false">390</button><button type="button" data-qa-preview="tablet" aria-pressed="false">768</button><button type="button" data-qa-preview="desktop" aria-pressed="true">1180</button></div><div class="qa-segment" aria-label="테마"><button type="button" data-qa-theme="light" aria-pressed="true">밝게</button><button type="button" data-qa-theme="dark" aria-pressed="false">어둡게</button></div></div></header>
     <div class="qa-stage"><div id="qaCanvas" class="qa-canvas"></div></div>
-    <footer class="qa-footer">candidate renderer와 QA draft를 연결한 검토 화면입니다. production 공개 페이지가 아닙니다.</footer>
+    <footer class="qa-footer">검토용 화면입니다. 공개 페이지에는 자동 반영되지 않습니다.</footer>
   </div>
 
+  <script src="/assets/js/admin/admin-shell-v1.js?v=2" data-admin-shell-loader></script>
   <script src="/assets/js/blocks/block-registry.js?v=2"></script>
-  <script src="/data/block-registry/v1/manifest.js?v=2"></script>
+  <script src="/data/block-registry/v1/manifest.js?v=3"></script>
   <script src="/assets/js/blocks/block-renderers.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script>
   <script src="/assets/js/blocks/block-renderers-parity.js?v=1"></script>
