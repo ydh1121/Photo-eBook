@@ -11,7 +11,7 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 [x] Content Block / variant / style preset 분리
 [x] UI Capability / preset 분리
-[x] photography production은 parity reference로만 유지
+[x] photography production은 parity reference로 유지
 [x] Visual Builder는 `/ui-dashboard/sandbox/` 더미 캔버스만 사용
 [x] sandbox는 production API / Google Sheet 사용자 데이터와 분리
 [x] 관리 화면 공통 UX 계약: `docs/library/admin-ui/ADMIN-SHELL.md`
@@ -26,20 +26,24 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 - `/qa/video-editor/` QA
 
 [x] 공통 관리자 셸 추가
-[x] 모든 주요 관리 화면에서 직접 상호 이동 가능한 전역 메뉴 추가
+[x] 데스크톱 전역 이동을 고정 좌측 사이드바로 통합
+[x] 태블릿에서는 compact icon rail, 모바일에서는 상단 horizontal nav로 전환
+[x] 모든 주요 관리 화면에서 브라우저 뒤로가기 없이 상호 이동
 [x] 현재 화면 active state 표시
-[x] 전역 이동과 로컬 작업 도구 분리
 [x] 관리 메뉴 용어를 `화면 구성 / UI 라이브러리 / 블록 관리 / 페이지 에디터 / QA`로 정리
-[x] 공통/로컬 `더보기` 메뉴는 외부 클릭·Esc·실행 뒤 닫힘
-[x] Block Lab 상단/intro/sidebar 밀도 축소
-[x] Page Editor undo/redo/export/import를 `더보기`로 묶음
-[x] Page Editor `페이지·발행 설정`을 접힌 고급 설정으로 통합
+[x] 전역 이동과 로컬 작업 도구 분리
+[x] Block Lab 소개형 hero 제거, 목록 + 검토 대상 중심으로 재구성
+[x] Block Lab 미리보기를 설정 패널보다 먼저 읽히도록 순서 변경
+[x] Block Lab 서버 기능은 `동기화`, 테마/화면폭은 `보기`로 그룹화
+[x] Page Editor undo/redo/export/import를 `더보기`로 그룹화
+[x] Page Editor 서버 초안 기능을 `초안` 메뉴로 그룹화
+[x] Page Editor `페이지 설정`을 접힌 고급 설정으로 통합
 [x] Page Editor block 검색/목록을 기본 작업 흐름 앞으로 이동
-[x] Page Editor 상단바/좌우 패널/캔버스 chrome 밀도 축소
-[x] QA 상단 chrome 통일
+[x] QA 관리 chrome은 항상 중립 테마 유지
+[x] QA dark/light는 preview canvas에만 적용
+[x] Block Lab/Page Editor dark/light도 관리 chrome이 아니라 preview canvas에만 적용
 [x] management assets no-store 처리
-[-] 실제 branch preview에서 각 화면 navigation / sticky offset QA
-[-] 900px 이하 responsive 관리 셸 QA
+[-] 실제 브라우저에서 desktop/tablet/mobile responsive QA
 
 ## Visual Builder / UI Dashboard
 
@@ -53,16 +57,24 @@ Status: noindex / production state non-mutating
 [x] PC 다중 inspector / mobile bottom dock 유지
 [x] block drag/drop + local layout draft 유지
 [x] inline advertisement candidate 유지
-[x] 기존 builder 자체 global nav 제거
-[x] 공통 관리자 셸 + 로컬 toolbar 1줄 구조로 단순화
+[x] 공통 관리자 셸 + 로컬 toolbar 한 줄 구조로 단순화
 [x] toolbar를 `편집 / 블록 추가 / 광고 / 초안 저장 / 더보기` 중심으로 축소
-[x] 본문/좌/우 광고를 `광고` 메뉴로 통합
-[x] 초기화 + 서버 연결/설정 동기화를 `더보기`로 이동
-[x] 페이지 편집과 UI 라이브러리 동시 chrome 노출 방지
-[x] UI library `[hidden]` 강제 처리
-[x] 더미 chapter navigation outer `nav-glass` visual 중첩 제거
-[x] 동적으로 추가되는 본문 광고 카피도 더미 전용 표현으로 보정
-[-] 실제 preview에서 더미 nav single-surface QA
+[x] UI library에서는 page editing toolbar 숨김
+[x] builder stage가 viewport를 소유하고 iframe 내부만 스크롤하도록 중첩 스크롤 축소
+[x] UI library bare-floor 간격/폭 보정
+
+## Production UI parity in editor
+
+원칙: 편집 기능 때문에 production UI의 geometry나 paint가 달라지면 안 된다.
+
+[x] 실제 production nav DOM 구조를 유지
+[x] sandbox nav에 production 최종 `desktop/nav-corrections.css`를 그대로 재적용
+[x] builder의 generic `position:relative!important`가 sticky/fixed UI를 덮어쓰는 문제 보정
+[x] 원래 `position:static`인 요소에만 builder anchor를 부여
+[x] `.nav-shell` sticky, `.collection-fab` fixed, sheet/overlay 고유 positioning을 보존
+[x] 편집 outline/gear는 실제 UI geometry를 변경하지 않는 보조 chrome으로 제한
+[-] actual production `/photography/`와 sandbox nav 픽셀 비교 QA
+[-] production CSS 변경 시 sandbox parity drift 점검 자동화 검토
 
 ## Side advertisement placement
 
@@ -91,7 +103,7 @@ Status: noindex / production state non-mutating
 
 [x] 기존 block add/reorder/drag 유지
 [x] SEO / AI / media / revisions / snapshot 기반 기능 유지
-[x] UX consolidation에서 기능 삭제 없이 고급 설정을 접어 기본 작업을 단순화
+[x] 기능 삭제 없이 작업 빈도에 따라 chrome 재배치
 [ ] `ADMIN_EDITOR_TOKEN` production secret 설정
 [ ] authenticated publish / rollback live QA
 
@@ -100,6 +112,7 @@ Status: noindex / production state non-mutating
 - Visual Builder에서 production `/photography/` 로드 금지
 - sandbox에서 production user data 읽기 금지
 - photography renderer 자동 교체 금지
+- 편집 chrome이 production UI의 position/size/flow를 변경하지 않음
 - mobile native horizontal scroll owner 유지
 - Safari deferred sticky safety 유지
 - 사용자 승인 전 preset/block 자동 승인 금지
@@ -107,11 +120,11 @@ Status: noindex / production state non-mutating
 
 ## Exact next action
 
-1. `feat/admin-ux-shell-v1` Cloudflare preview를 확인한다.
-2. 화면 구성 → UI 라이브러리 → 블록 관리 → 페이지 에디터 → QA를 순서대로 이동하고 브라우저 뒤로가기 없이 모두 왕복되는지 확인한다.
-3. 화면 구성에서 공통 메뉴 + 로컬 toolbar 1줄만 보이는지 확인한다.
-4. 페이지 에디터에서 블록 목록이 바로 보이고 페이지·발행 설정은 접혀 있는지 확인한다.
-5. 더미 nav의 이중 캡슐이 제거됐는지 확인한다.
-6. side ad 설정을 열어도 자동으로 켜지지 않는지, 켠 뒤에도 hero/chapter hero에서는 숨는지 확인한다.
-7. 1440 / 1536 / 1920 PC 폭과 900px 이하에서 관리 셸과 툴바를 검수한다.
-8. 발견되는 visual regression만 수정하고 production renderer에는 손대지 않는다.
+1. `feat/admin-ux-shell-v1`을 실제 브라우저에서 확인한다.
+2. 좌측 공통 메뉴에서 화면 구성 → UI 라이브러리 → 블록 관리 → 페이지 에디터 → QA를 왕복한다.
+3. 화면 구성에서 더미 nav가 실제 production nav와 동일한 geometry/paint/sticky 동작인지 비교한다.
+4. 편집 모드 ON/OFF 전환으로 nav/FAB/sheet 위치가 변하지 않는지 확인한다.
+5. Block Lab에서 미리보기 → 판정 → variant → style 순서가 자연스러운지 확인한다.
+6. Page Editor에서 블록 추가가 첫 작업으로 읽히고 secondary actions가 메뉴 안에 있는지 확인한다.
+7. QA와 Block Lab/Page Editor에서 dark mode가 preview에만 적용되는지 확인한다.
+8. 1440 / 1536 / 1920 PC, 900px 전후, 모바일에서 검수한다.
