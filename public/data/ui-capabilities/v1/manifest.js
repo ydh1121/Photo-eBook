@@ -22,19 +22,19 @@
           {id:'progressOpacityEnd',label:'진행 표시 끝 농도',type:'range',default:16,min:0,max:60,step:1,group:'advanced'},
           {id:'mobileChipGap',label:'모바일 칩 간격',type:'range',default:6,min:2,max:18,step:1,group:'advanced'},
           {id:'desktopChipGap',label:'PC 칩 간격',type:'range',default:9,min:2,max:20,step:1,group:'advanced'},
-          {id:'railInset',label:'rail 안쪽 여백',type:'range',default:5.5,min:2,max:20,step:.5,group:'advanced'},
+          {id:'railInset',label:'메뉴 안쪽 여백',type:'range',default:5.5,min:2,max:20,step:.5,group:'advanced'},
           {id:'response',label:'이동 반응',type:'enum',default:'standard',options:['calm','standard','lively'],group:'motion'},
           {id:'overshoot',label:'튕김',type:'enum',default:'high',options:['none','low','medium','high'],group:'motion'},
           {id:'durationScale',label:'이동 시간 배율',type:'range',default:1.1,min:.6,max:1.5,step:.05,group:'motion'},
           {id:'safariSafety',label:'Safari 안전 동작',type:'boolean',default:true,locked:true,group:'safety'}
         ],
         presets:[
-          {id:'photo-topnav-blue-progress',name:'사진 상단 메뉴 · Liquid + 진행 wash',source:'photography-extracted',status:'draft',config:{enabled:true,stickyMode:'deferred-sticky',chipFamily:'ios-liquid',accentColor:'#437ce7',progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef',progressOpacityStart:24,progressOpacityEnd:16,mobileChipGap:6,desktopChipGap:9,railInset:5.5,response:'standard',overshoot:'high',durationScale:1.1,safariSafety:true}}
+          {id:'photo-topnav-blue-progress',name:'사진 상단 메뉴 · 리퀴드 + 진행 배경',source:'photography-extracted',status:'draft',config:{enabled:true,stickyMode:'deferred-sticky',chipFamily:'ios-liquid',accentColor:'#437ce7',progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef',progressOpacityStart:24,progressOpacityEnd:16,mobileChipGap:6,desktopChipGap:9,railInset:5.5,response:'standard',overshoot:'high',durationScale:1.1,safariSafety:true}}
         ]
       },
       {
         id:'horizontal-card-rail',
-        label:'가로 카드 rail',
+        label:'가로 카드 스크롤',
         category:'content-motion',
         status:'candidate',
         source:'photography-extracted',
@@ -44,17 +44,17 @@
           {id:'desktopDrag',label:'PC 마우스 드래그',type:'boolean',default:true,group:'input'},
           {id:'leftShadowGuard',label:'왼쪽 카드 그림자 보호',type:'boolean',default:true,group:'left-edge'},
           {id:'leftPaintRunway',label:'왼쪽 그림자 여백',type:'range',default:16,min:0,max:64,step:1,group:'left-edge'},
-          {id:'leftFade',label:'왼쪽 fade',type:'boolean',default:false,group:'left-edge'},
-          {id:'rightFade',label:'오른쪽 fade',type:'boolean',default:true,group:'right-edge'},
-          {id:'rightFadeMode',label:'오른쪽 fade 방식',type:'enum',default:'alpha-mask',options:['alpha-mask'],locked:true,group:'right-edge'},
-          {id:'rightFadeWidth',label:'오른쪽 fade 너비',type:'range',default:112,min:0,max:180,step:2,group:'right-edge'},
+          {id:'leftFade',label:'왼쪽 페이드',type:'boolean',default:false,group:'left-edge'},
+          {id:'rightFade',label:'오른쪽 페이드',type:'boolean',default:true,group:'right-edge'},
+          {id:'rightFadeMode',label:'오른쪽 페이드 방식',type:'enum',default:'alpha-mask',options:['alpha-mask'],locked:true,group:'right-edge'},
+          {id:'rightFadeWidth',label:'오른쪽 페이드 너비',type:'range',default:112,min:0,max:180,step:2,group:'right-edge'},
           {id:'rightContentPadding',label:'오른쪽 끝 여백',type:'range',default:122,min:0,max:180,step:2,group:'right-edge'},
           {id:'scrollbar',label:'스크롤바',type:'enum',default:'hidden',options:['hidden','auto'],group:'visibility'},
           {id:'dragThreshold',label:'드래그 시작 거리',type:'range',default:5,min:2,max:16,step:1,unit:'px',group:'advanced'},
           {id:'clickSuppressMs',label:'드래그 후 클릭 억제',type:'range',default:220,min:0,max:500,step:10,unit:'ms',group:'advanced'}
         ],
         presets:[
-          {id:'photo-rail-balanced-fade',name:'사진 카드 rail · 그림자 보호 + 오른쪽 fade',source:'photography-extracted',status:'draft',config:{nativeTouch:true,desktopDrag:true,leftShadowGuard:true,leftPaintRunway:16,leftFade:false,rightFade:true,rightFadeMode:'alpha-mask',rightFadeWidth:112,rightContentPadding:122,scrollbar:'hidden',dragThreshold:5,clickSuppressMs:220}}
+          {id:'photo-rail-balanced-fade',name:'사진 카드 스크롤 · 그림자 보호 + 오른쪽 페이드',source:'photography-extracted',status:'draft',config:{nativeTouch:true,desktopDrag:true,leftShadowGuard:true,leftPaintRunway:16,leftFade:false,rightFade:true,rightFadeMode:'alpha-mask',rightFadeWidth:112,rightContentPadding:122,scrollbar:'hidden',dragThreshold:5,clickSuppressMs:220}}
         ]
       },
       {
@@ -75,9 +75,9 @@
           {id:'runway',label:'좌우 여백',type:'range',default:0,min:0,max:40,step:2}
         ],
         presets:[
-          {id:'photo-collection-filter-flat',name:'사진 하단 필터 · iOS Flat',source:'photography-extracted',status:'draft',config:{family:'ios-flat',accentColor:'#202226',surfaceOpacity:100,blur:0,response:'calm',overshoot:'none',gap:7,runway:0}},
-          {id:'ios-liquid-standard',name:'iOS Liquid 필터 · 기본 spring',source:'system',status:'draft',config:{family:'ios-liquid',accentColor:'#315fc9',surfaceOpacity:78,blur:18,response:'standard',overshoot:'medium',gap:8,runway:14}},
-          {id:'material-flat-neutral',name:'Material Flat 필터 · 중립형',source:'system',status:'draft',config:{family:'material-flat',accentColor:'#315fc9',surfaceOpacity:100,blur:0,response:'calm',overshoot:'none',gap:8,runway:14}}
+          {id:'photo-collection-filter-flat',name:'사진 하단 필터 · iOS 플랫',source:'photography-extracted',status:'draft',config:{family:'ios-flat',accentColor:'#202226',surfaceOpacity:100,blur:0,response:'calm',overshoot:'none',gap:7,runway:0}},
+          {id:'ios-liquid-standard',name:'iOS 리퀴드 필터 · 기본 탄성',source:'system',status:'draft',config:{family:'ios-liquid',accentColor:'#315fc9',surfaceOpacity:78,blur:18,response:'standard',overshoot:'medium',gap:8,runway:14}},
+          {id:'material-flat-neutral',name:'Material 플랫 필터 · 중립형',source:'system',status:'draft',config:{family:'material-flat',accentColor:'#315fc9',surfaceOpacity:100,blur:0,response:'calm',overshoot:'none',gap:8,runway:14}}
         ]
       },
       {
@@ -124,7 +124,7 @@
           {id:'statusMessage',label:'상태 문구',type:'boolean',default:true}
         ],
         presets:[
-          {id:'photo-device-handoff',name:'사진 다른 기기 연결 · measured accordion',source:'photography-extracted',status:'draft',config:{enabled:true,heightMode:'measured',response:'standard',copyAction:true,connectAction:true,statusMessage:true}}
+          {id:'photo-device-handoff',name:'사진 다른 기기 연결 · 자동 높이 아코디언',source:'photography-extracted',status:'draft',config:{enabled:true,heightMode:'measured',response:'standard',copyAction:true,connectAction:true,statusMessage:true}}
         ]
       },
       {
@@ -149,8 +149,8 @@
         label:'플로팅 액션',
         category:'action',
         status:'candidate',
-        source:'platform',
-        owners:[],
+        source:'photography-extracted',
+        owners:['assets/js/collection/collection-hub.js','assets/styles/collection/hub.css'],
         controls:[
           {id:'family',label:'표현',type:'enum',default:'glass',options:['flat','glass','liquid']},
           {id:'accentColor',label:'강조 색상',type:'color',default:'#315fc9'},
