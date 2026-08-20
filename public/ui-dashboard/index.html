@@ -67,22 +67,7 @@
   <script src="/assets/js/admin/admin-shell-v1.js?v=2"></script>
   <script src="/data/ui-capabilities/v1/manifest.js?v=3"></script>
   <script src="/data/block-registry/v1/manifest.js?v=3"></script>
-  <script>
-    (function(){
-      const library=new URLSearchParams(location.search).get('view')==='library';
-      const sources=library
-        ?['/assets/js/ui-dashboard/builder-library-audit-v1.js?v=1']
-        :[
-          '/assets/js/ui-dashboard/builder-v1.js?v=1',
-          '/assets/js/ui-dashboard/builder-production-parity-v1.js?v=2',
-          '/assets/js/ui-dashboard/builder-ux-patch-v3.js?v=3',
-          '/assets/js/ui-dashboard/builder-boundaries-v1.js?v=1',
-          '/assets/js/ui-dashboard/builder-page-audit-v1.js?v=1',
-          '/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=4'
-        ];
-      document.write(sources.map(src=>'<script src="'+src+'"><\\/script>').join(''));
-    })();
-  </script>
+  <script src="/assets/js/ui-dashboard/builder-entry-audit-v1.js?v=1"></script>
   <script src="/assets/js/ui-dashboard/server.js?v=2"></script>
 </body>
 </html>
