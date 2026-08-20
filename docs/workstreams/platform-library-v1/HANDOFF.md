@@ -25,171 +25,71 @@ Tracker: `docs/workstreams/platform-library-v1/TASKS.md`
 
 raw CSS를 preset 데이터로 저장하지 않는다.
 
-## Snapshot V2 publish architecture
-
-Canonical publish implementation:
-- `functions/lib/publish-v2.js`
-- `functions/api/editor/publish-check.js`
-- `functions/api/editor/publish.js`
-
-Snapshot storage:
-- `PUBLISH_SNAPSHOTS`
-- `PUBLISHED_BLOCKS`
-- `PUBLISHED_BLOCK_STYLES`
-- `PUBLISHED_UI_CONFIG`
-
-Public source/runtime:
-- shared loader: `functions/lib/public-snapshot-v2.js`
-- API: `/api/public/snapshot-v2?slug=...`
-- client runtime: `public/assets/js/public-snapshot/runtime-v2.js`
-- generic public interactions: `public/assets/js/public-snapshot/interactions.js`
-- staging: `/staging/snapshot-v2.html`
-
-발행 시점의 Block style과 Page UI config를 resolved 값으로 고정한다. 나중에 preset 원본이 바뀌어도 과거 snapshot 디자인이 변하지 않는다.
-
-Public API와 canonical route는 active snapshot만 읽는다. API에서 받은 active snapshot은 서버 publish gate를 이미 통과한 immutable 결과로 취급하며 browser에서는 구조 유효성만 다시 확인한다. 직접 주입하는 staging candidate는 `allowCandidate` 경로를 사용한다.
-
-## Publish approval gate
-
-자동 승인은 금지한다.
-
-현재 gate:
-- known Block type + variant
-- `BLOCK_VARIANT_REVIEWS`의 저장된 `type::variant` 판정을 우선 사용
-- 저장된 판정이 없으면 static candidate registry fallback
-- variant decision이 `approved`여야 통과
-- 선택한 Block Style preset은 현재 type+variant와 일치하고 `approved`여야 통과
-- enabled Page UI는 preset 필수 + capability 일치 + `approved`
-- AI fact state / evidence 조건 유지
-- SEO / slug / active slug conflict 검사 유지
-
-Block Lab에서 사용자가 variant를 `승인`하고 서버 저장하면 publish gate가 해당 Sheet 판정을 실제로 읽는다.
-
-## Canonical public routes
-
-새 산업 public route:
-- `functions/[slug].js`
-- active Snapshot V2가 존재하는 `/:slug/`만 200
-- active snapshot이 없는 draft/unknown slug는 실제 404
-- slash 없는 active slug는 `/:slug/`로 308
-- GET/HEAD만 허용
-
-Legacy photography:
-- `/`는 기존 photography renderer 유지
-- `/photography/`도 `public/_redirects`를 통해 기존 `/index.html` renderer 유지
-- `/photography`와 `/photography/*`는 `public/_routes.json`에서 Functions 호출 제외
-- photography production renderer와 Safari deferred sticky fix는 변경하지 않음
-
-Search/AI rendering:
-- canonical Function이 title/description/canonical/robots/OG/Twitter/JSON-LD를 서버 HTML에 먼저 출력
-- 같은 immutable snapshot에서 semantic text fallback도 서버 렌더
-- fallback에는 block 제목/설명/items/facts/FAQ/resources/공식 링크 등이 실제 visible HTML로 들어감
-- JS 가능 시 같은 payload를 `runtime-v2.js`가 advanced block UI로 교체
-- 숨겨진 duplicate SEO content는 만들지 않음
-
-Files:
-- `functions/[slug].js`
-- `functions/lib/public-snapshot-v2.js`
-- `functions/sitemap.xml.js`
-- `public/404.html`
-- `public/_routes.json`
-- `public/_redirects`
-- `public/_headers`
-- `public/assets/styles/public-snapshot/runtime.css`
-
-Sitemap:
-- `/sitemap.xml`
-- active snapshot만 대상
-- `seo.indexPolicy=noindex` 제외
-- `/` + active/indexable `/:slug/`
-- lastmod는 sourceUpdatedAt/publishedAt 사용
-
-404:
-- 기존 `/* → /index.html 200` SPA fallback 제거
-- dynamic slug missing/draft는 404
-- 정적 `public/404.html`도 존재
-
-Internal review routes:
-- Block Lab / Editor Lab / UI Dashboard / QA / staging은 noindex/no-store header 강화
-- `_routes.json`으로 static surfaces를 Functions invocation에서 제외
-
-## Block Lab
-
-Route: `/block-lab/`
-Status: candidate lab / noindex.
-
-현재:
-- 27 Block type
-- type 단위 review + memo
-- variant 단위 review + memo
-- variant 차이 유형: structure / visual / behavior / responsive
-- maturity: implemented / partial / placeholder
-- constrained Block Style preset editor
-- style preset local/server save/load
-- Block Style preset lifecycle: `draft / approved / redesign / deprecated`
-- server sync: BLOCK_REVIEWS + BLOCK_VARIANT_REVIEWS + BLOCK_STYLE_PRESETS
-
-Photography built-in Style preset 12개가 `BLOCK_STYLE_PRESETS`에 seed돼 있으며 모두 자동 승인하지 않고 `draft`에서 시작한다.
-
-## Photography advanced Block parity
-
-Permanent classification:
-- `docs/library/blocks/photography/PARITY-V1.md`
-
-새 candidate advanced variants:
-- `hero / immersive-metrics`
-- `chapter-hero / image-overlay`
-- `comparison-cards / visual-metrics`
-- `roadmap / metric-cards`
-
-Files:
-- `public/data/block-registry/v1/manifest.js` v2
-- `public/data/block-registry/v1/variant-meta.js` v2
-- `functions/lib/block-variants-v1.js`
-- `public/assets/js/blocks/block-renderers-parity.js`
-- `public/assets/styles/block-lab/photography-parity-v1.css`
-- `public/assets/js/block-lab/lab-parity-data.js`
-
-Photography production renderer 자체는 변경하지 않는다.
-
-## Block Style preset
-
-Contract:
-- `docs/library/blocks/STYLE-PRESET-CONTRACT.md`
-
-Tokens:
-- density
-- surface
-- radius
-- border
-- shadow
-- accentMode
-- mediaRatio
-- edgeTreatment
-
-Draft storage:
-- `BLOCK_STYLE_PRESETS`
-- `PAGE_BLOCKS` N/O: `style_preset_id`, `style_overrides_json`
-
-Immutable publish storage:
-- `PUBLISHED_BLOCK_STYLES`
-
-Shared runtime:
-- `public/assets/js/blocks/block-style-runtime.js`
-- `public/assets/styles/blocks/style-runtime.css`
-
-Editor:
-- current type + variant에 맞는 preset만 표시
-- 선택값 draft/server round-trip
-- Canvas immediate preview
-- snapshot preview/rollback에서도 resolved style 보존
-
-## UI Capability / Design Dashboard
+## UI Dashboard — current checkpoint
 
 Route: `/ui-dashboard/`
-Status: noindex.
+Status: noindex / review surface.
 
-Current 7 capability:
+2026-08-20 사용자 피드백을 반영해 Dashboard를 정적 모형에서 **실시간 조작형 specimen**으로 개편했다.
+
+Visible UI contract:
+- enum/status/source/category의 내부 영문 value를 그대로 노출하지 않는다.
+- 내부 저장/API value는 기존 영문 identifier를 유지한다.
+- 사용자 화면에서는 의미 중심의 한국어 레이블을 사용한다.
+- 설정은 저장하기 전에도 값을 바꾸는 즉시 specimen에 반영된다.
+- `기본값으로 되돌리기`와 현재 상태 요약을 제공한다.
+- 구현 파일 경로는 기본 화면에서 숨기고 details 안에서만 확인한다.
+
+Current interactive specimens:
+1. 상단 고정 메뉴
+   - preview 내부 실제 스크롤
+   - chapter chip 클릭 → 해당 section 이동
+   - scroll에 따른 active chip/진행 표시 변화
+   - 고정 방식: 스크롤 후 고정 / 항상 고정 / 고정 안 함
+   - 메뉴칩: Material 플랫 / iOS 플랫 / iOS 리퀴드 표면 비교
+   - 사용 off 상태 시 specimen 비활성 표시
+2. 가로 카드 rail
+   - 모바일/native horizontal scroll
+   - PC mouse drag on/off
+   - drag threshold + click suppression
+   - 왼쪽 shadow runway / right fade / end padding / scrollbar 상태 실제 반영
+3. 범용 필터칩
+   - 직접 chip 선택
+   - family / blur / opacity / response / overshoot 즉시 반영
+4. 하단 팝업
+   - 열기/닫기/backdrop
+   - tabs/search/filter/bulk selection/theme/handoff surface 직접 조작
+   - blur/saturation/size/radius 즉시 반영
+5. 다른 기기 연결 아코디언
+   - open/close
+   - code copy / connect 상태
+   - response speed 반영
+6. 읽기 진행선
+   - specimen 내부 문서를 직접 스크롤하면 progress가 실제로 변화
+7. 플로팅 액션
+   - FAB click → action menu open/close
+   - flat/glass/liquid family + motion 반영
+
+Relevant files:
+- `public/ui-dashboard/index.html`
+- `public/assets/js/ui-dashboard/dashboard.js`
+- `public/assets/js/ui-dashboard/live-preview-patch-v3.js`
+- `public/assets/js/ui-dashboard/server.js`
+- `public/assets/js/ui-dashboard/preset-lifecycle.js`
+- `public/assets/styles/ui-dashboard/dashboard.css`
+- `public/assets/styles/ui-dashboard/parity-v2.css`
+- `public/assets/styles/ui-dashboard/live-preview-v3.css`
+- `public/assets/styles/ui-dashboard/live-preview-nav-v3.css`
+
+COPY_GUIDE additions:
+- `UI 대시보드 실시간 미리보기`
+- `UI 설정 한글 표시`
+
+Important: Dashboard changes only preview/preset state. It does not directly mutate photography production UI.
+
+## UI Capability inventory
+
+Current 7 capabilities:
 1. top-chapter-navigation
 2. horizontal-card-rail
 3. filter-chip-rail
@@ -205,174 +105,146 @@ Storage/API:
 - `/api/editor/page-ui`
 - immutable publish: `PUBLISHED_UI_CONFIG`
 
-Built-in photography/system UI preset 8개가 Sheet에 seed돼 있고 모두 `draft`에서 시작한다.
+Built-in photography/system UI preset 8개는 live Sheet에서 모두 `draft` 상태다. 자동 승인하지 않는다.
 
-Dashboard:
-- custom preset save/load/export
-- preset lifecycle: `draft / approved / redesign / deprecated`
-- server sync
+Public runtime status:
+- `horizontal-card-rail`: generic public surface 실제 적용 완료
+- `reading-progress`: generic public surface 실제 적용 완료
+- top chapter nav / bottom sheet / filter 등은 generic surface/data contract가 승인되기 전 production public runtime에 임의 생성하지 않는다.
 
-Public runtime:
-- `public/assets/js/ui-capabilities/runtime.js`
-- `public/assets/styles/ui-capabilities/runtime.css`
-- Snapshot V2가 resolved capability context를 전달
-- `horizontal-card-rail`: 실제 generic surface 적용 완료
-  - left runway/right padding/fade
-  - hidden/auto scrollbar
-  - PC mouse drag + click suppression
-  - mobile native horizontal scroll owner 유지
-- `reading-progress`: 실제 generic surface 적용 완료
-  - color/thickness/opacity
-  - scroll/resize progress
-  - reduced-motion safety
-- top chapter nav / bottom sheet / filter 등은 실제 generic surface와 data contract가 준비되기 전 임의 생성하지 않는다.
+## Block Lab / approval state
 
-## Editor / DB
+Route: `/block-lab/`
+Status: candidate lab / noindex.
 
-Editor supports:
-- page/block editing
-- server draft save/load
-- SEO
-- AI brief/response/review
-- revisions
-- publish history
-- snapshot preview/rollback
-- Page UI preset assignment
-- Block Style preset assignment
+- 27 Block type
+- type review + memo
+- variant review + memo
+- difference taxonomy: structure / visual / behavior / responsive
+- maturity: implemented / partial / placeholder
+- constrained Block Style preset editor
+- style preset lifecycle: draft / approved / redesign / deprecated
+- server sync: BLOCK_REVIEWS + BLOCK_VARIANT_REVIEWS + BLOCK_STYLE_PRESETS
 
-Protected APIs require same-origin + Bearer `ADMIN_EDITOR_TOKEN`.
-Token 미설정 시 closed.
+Photography advanced variants:
+- `hero / immersive-metrics`
+- `chapter-hero / image-overlay`
+- `comparison-cards / visual-metrics`
+- `roadmap / metric-cards`
 
-Cloudflare live authenticated QA는 아직 token secret 설정이 필요하다.
+Live Sheet approval checkpoint:
+- `BLOCK_VARIANT_REVIEWS`: review row 0개
+- photography Block Style presets 12개: 전부 `draft`
+- UI presets 8개: 전부 `draft`
 
-## First non-photography QA — video editor
+따라서 사용자 review 전 production publish는 계속 차단한다.
+
+## Snapshot V2 / public route
+
+Canonical publish:
+- `functions/lib/publish-v2.js`
+- `functions/api/editor/publish-check.js`
+- `functions/api/editor/publish.js`
+
+Immutable storage:
+- `PUBLISH_SNAPSHOTS`
+- `PUBLISHED_BLOCKS`
+- `PUBLISHED_BLOCK_STYLES`
+- `PUBLISHED_UI_CONFIG`
+
+Public source/runtime:
+- `functions/lib/public-snapshot-v2.js`
+- `/api/public/snapshot-v2?slug=...`
+- `public/assets/js/public-snapshot/runtime-v2.js`
+- staging: `/staging/snapshot-v2.html`
+
+Canonical routes:
+- active Snapshot V2 only `/:slug/`
+- draft/unknown slug real 404
+- active + indexable dynamic sitemap
+- `/` and `/photography/` keep legacy photography renderer
+- server-rendered visible semantic fallback + client enhancement
+- no hidden duplicate SEO body
+
+## First non-photography QA
 
 Page: `page_video_editor_qa_v1`
 slug: `video-editor`
 state: draft / noindex / needs_review
-13 blocks in Sheets.
+13 Sheet blocks.
 
 Routes:
 - `/qa/video-editor/`
 - `/staging/public-renderer/`
 - `/staging/snapshot-v2.html`
 
-Current evidence scope:
-- Adobe Premiere official plan/function evidence
-- Blackmagic DaVinci Resolve official evidence
-- 고용24 영상편집 훈련 evidence
-- 크몽 개별 공개 판매 등록가 예시
-- 한국콘텐츠진흥원 방송영상 표준계약서 reference
-- 국세청 인적용역/종합소득세 reference
-- 한국저작권위원회 음원·폰트 이용허락 reference
-- 크몽 판매 이용약관 reference
+Evidence completed:
+- Adobe Premiere
+- Blackmagic DaVinci Resolve
+- 고용24 영상편집 훈련
+- 크몽 개별 공개 등록가 예시
+- KOCCA 표준계약서
+- 국세청 인적용역/종합소득세
+- 한국저작권위원회 음원·폰트 이용허락
+- 크몽 판매 이용약관
 
-Important pricing rule:
-- 현재 가격은 확인일 기준 `개별 공개 등록가 예시`다.
-- 평균 단가, 실제 거래가, 시장 평균으로 표현하지 않는다.
-- 시장 수요 규모는 현재 정량 근거가 없어 수치로 주장하지 않는다.
+가격은 평균/실거래가가 아니라 확인일 기준 개별 공개 등록가 예시로만 사용한다.
 
-Sheet source was updated first, then browser QA overlay matched.
-Verified effective blocks:
-- `ve_market_compare`
-- `ve_process`
-- `ve_tools`
-- `ve_offer`
-- `ve_faq`
-- `ve_resources`
+## Editor / auth
 
-`ve_hero`는 외부 사실 주장이 아니므로 `factState:not_required`.
+Editor supports page/block editing, SEO, AI brief/result/review, media, revisions, snapshot preview/rollback, Page UI preset assignment, Block Style preset assignment.
 
-`PLATFORM_PAGES.ai_review_json`도 갱신돼 남은 blocker를 사용자 content/design review + approval로 정확히 표시한다.
+Protected APIs require same-origin + Bearer `ADMIN_EDITOR_TOKEN`.
+Token 미설정 시 closed.
 
-Browser evidence overlay:
-- `public/data/qa/video-editor-evidence-v1.js`
+Cloudflare live authenticated QA는 아직 token secret 설정이 필요하다.
 
-CI validator:
-- `scripts/check-platform-qa-seed.mjs`
-- canonical JSON seed뿐 아니라 browser draft + evidence overlay를 VM에서 실제 실행
-- verified block은 evidence publisher/url/checkedAt가 없으면 실패
-- effective block IDs/count도 canonical seed와 비교
-
-## COPY_GUIDE additions
-
-Live `COPY_GUIDE`에 추가됨:
-- `public_route_status`
-  - public route/404에서 Snapshot/version 같은 개발 상태 문구 금지
-  - 짧은 상태 + 다음 행동만 표시
-- `public_route_loading`
-  - loading/failure는 현재 상태와 다음 행동만 짧게 표시
-
-## CI
+## Validation state
 
 Workflow: `.github/workflows/platform-library-checks.yml`
 
-Checks:
-- Block type browser/server sync
-- Block variant browser/server sync
-- UI Capability browser/server sync
-- video-editor canonical seed + effective evidence overlay
-- Block Lab / Editor / UI runtime / UI Dashboard / Public Snapshot / Functions syntax
-- root `functions/*.js`도 syntax 범위
-- `_routes.json`, `_redirects`, `404.html` 변경이 workflow trigger
+UI Dashboard JS/CSS paths are already in workflow trigger/syntax scope.
 
-Known CI limitation:
-- GitHub connector가 push workflow run/check-run을 현재 노출하지 않는다.
-- combined status도 status context가 없어 latest success를 성공으로 추정하지 않는다.
-- local clone 시 container DNS 문제로 full local run은 수행하지 못했다.
-
-## Live deployment verification
-
-아직 실제 Cloudflare 응답 smoke test를 성공적으로 읽지 못했다.
-Web tool이 `photo-ebook.pages.dev` 직접 open을 정상 fetch하지 못했다.
-따라서 아래를 배포 성공으로 간주하지 않는다:
-- canonical dynamic slug response
-- 404 response status
-- sitemap response
-- `_routes.json` runtime behavior
-
-코드/Sheet 상태만 확인된 상태다.
+Known limitation:
+- current execution container cannot resolve `github.com`, so local clone + `node --check` could not run.
+- GitHub combined status returns no workflow contexts for the latest commit, so do not infer CI success.
+- live Pages render should be user/device QA before approving presets.
 
 ## Production safety invariants
 
 - photography production renderer를 candidate renderer로 교체하지 않는다.
-- Safari deferred sticky fix 건드리지 않는다.
+- Safari deferred sticky safety fix를 건드리지 않는다.
 - mobile native horizontal scroll owner 유지.
 - 사용자 review 전 Block/variant/style/UI preset 자동 승인 금지.
-- candidate production publish 차단.
 - labs/dashboard/QA/staging noindex.
-- public snapshot API는 active snapshot만 반환하고 draft 반환 금지.
-- canonical `/:slug/`도 active snapshot만 반환.
-- active API snapshot만 browser trusted-published 경로 사용.
-- `/video-editor/`는 현재 draft이므로 active snapshot 생성 전 공개되면 안 된다.
+- public snapshot API/canonical route는 active snapshot만 반환.
+- UI Dashboard는 production state를 직접 변경하지 않고 preview + preset review/save만 한다.
 
 ## Exact next action
 
-1. current `main` 확인.
-2. 사용자 `/block-lab/` + `/ui-dashboard/` + `/qa/video-editor/` review 결과를 받는다.
-3. review 결과에 따라 variant/style/UI preset을 server `approved` 또는 redesign/deprecated로 저장한다.
-4. approval 이후 production Editor approved-only 최종 모드를 켠다.
-5. `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→canonical→rollback live QA.
-6. 실제 Cloudflare canonical/404/sitemap smoke test.
-7. generic surface가 준비된 UI Capability runtime 적용 확대.
-8. PC/mobile/CWV + 광고 side rail QA.
-9. workstream QA Drive archive.
+1. user opens `/ui-dashboard/` and verifies live manipulation on mobile/PC.
+2. fix visual/interaction issues found in Dashboard specimen.
+3. continue `/block-lab/` and `/qa/video-editor/` review.
+4. save user decisions as approved/redesign/deprecated; do not auto-approve.
+5. enable approved-only production Editor mode after approvals exist.
+6. set Cloudflare `ADMIN_EDITOR_TOKEN` and run authenticated Editor→publish→canonical→rollback QA.
+7. live canonical/404/sitemap + PC/mobile/CWV/ad side rail QA.
+8. archive workstream QA to Drive after V1 approval.
 
-## Current user checkpoints
+## Current review URLs
 
-- `/block-lab/`: type/variant/style preset 실제 디자인 검토
-- `/ui-dashboard/`: Page UI capability/preset 검토
-- `/qa/video-editor/`: 비사진 분야 전체 흐름/문구/근거 검토
-- `/staging/snapshot-v2.html`: immutable style/UI + public runtime 검토
-- Cloudflare `ADMIN_EDITOR_TOKEN` 설정 후 protected live QA
+- `/ui-dashboard/` — page UI live manipulation + preset review
+- `/block-lab/` — Block/variant/style preset review
+- `/qa/video-editor/` — non-photo page flow/content review
+- `/staging/snapshot-v2.html` — public Snapshot V2 appearance
 
 ## V1 completion target
 
-- Block/variant/style preset 최종 승인
-- UI Capability/preset dashboard 실사용
-- Editor에서 Block + Page UI 구성/저장/복원
-- photography 고도화 design asset을 공통 공식으로 안전하게 추출
-- 비사진 산업 1개 draft→AI→human review→publish→rollback
+- Block/variant/style preset final approval
+- UI Capability/preset dashboard real use
+- Editor Block + Page UI compose/save/restore
+- photography advanced design safely extracted into reusable formulas
+- one non-photo industry draft→AI→human review→publish→rollback
 - public renderer/canonical/SEO/sitemap/404
 - PC/mobile/CWV/ad side rail QA
 - workstream QA Drive archive
