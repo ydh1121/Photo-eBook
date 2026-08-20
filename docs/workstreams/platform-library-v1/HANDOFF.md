@@ -1,167 +1,119 @@
 # Platform Library V1 Handoff
 
 Updated: 2026-08-20 KST
-Active branch: `feat/visual-builder-dashboard`
-Base main at branch creation: `dbed99e92d0583a8a1782ea77a0f5d2a0767597a`
+Active branch: `feat/admin-ux-shell-v1`
+Base main: `95e7d41811424b19b0f587adf4d1d9ad6ee6448c`
 
 ## Resume order
 
 1. `AGENTS.md`
 2. `docs/workstreams/platform-library-v1/TASKS.md`
 3. this file
-4. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
-5. current branch HEAD
+4. `docs/library/admin-ui/ADMIN-SHELL.md`
+5. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
+6. current branch HEAD
 
-Do not resume this workstream from conversation memory alone.
+## Current direction
 
-## Current architecture decision
+관리 화면을 각각의 실험 페이지가 아니라 하나의 관리 제품처럼 통합한다.
 
-`/ui-dashboard/` is a Visual Builder, but it must not use the live `/photography/` page as its editing canvas.
-
-Canonical editing surface:
-- `/ui-dashboard/sandbox/`
-- static dummy content only
-- no production API / Google Sheet user-data dependency
-- same common UI class names and production CSS owners wherever possible
-
-Photography production remains the parity/reference source in code and final QA. It is not the builder iframe source.
-
-PC inspector:
-- hover capability → gear
-- gear → independent floating inspector
-- multiple inspectors can stay open
-- panel header drag
-- explicit close only
-
-Mobile inspector:
-- edit mode + tap capability
-- bottom inspector
-- open inspector state stays in bottom dock
-- preserve native horizontal scroll
-
-Top management shell:
-- Visual Builder
-- UI Library
-- Block Lab
-- Page Editor
+공통 전역 메뉴:
+- 페이지 구성
+- UI 라이브러리
+- 블록 관리
+- 페이지 에디터
 - QA
 
-## Dummy canvas
+브라우저 뒤로가기는 주요 이동 수단이 아니다. 각 화면에서 위 메뉴로 바로 이동한다.
 
-Current dummy page contains:
-- hero / content sections with static copy
-- actual nav class structure: `.nav-shell`, `.nav-scroll`, `.nav-chip`
-- actual horizontal rail class: `.scroll-row`
-- collection FAB: `#collectionFab`, `.collection-fab`
-- bottom sheet: `#collectionSheet`, `.collection-sheet`
-- category chips: `#collectionFilters`, `.collection-filters`, `.collection-filter`
-- device handoff accordion: `.collection-device-accordion`, `#collectionDeviceLink`
-- reading progress owner created by actual `chapter-navigation.js`
+전역 메뉴와 각 도구의 로컬 작업 버튼은 분리한다.
 
-The sandbox loads actual common CSS modules and actual navigation / desktop rail JS where safe. Collection state itself is dummy-only and uses a sandbox interaction file so it never calls production data APIs.
+## Implemented in this branch
 
-## UI Library
+### Shared admin shell
 
-UI Library clones capability DOM from the dummy page after it has been rendered with production-equivalent class/CSS owners. Clones are placed on a bare white floor without showcase cards or tables.
+New:
+- `public/assets/styles/admin/admin-shell-v1.css`
+- `public/assets/styles/admin/admin-surface-v1.css`
+- `public/assets/js/admin/admin-shell-v1.js`
 
-Photography parity is checked by source owner/selector comparison and final production QA, not by embedding the production page in the builder.
+`block-registry.js`가 Block Lab / Editor Lab / QA 계열에서 공통 셸을 bootstrap한다.
 
-## Block composition
+Page Editor에서 낮은 빈도의 undo / redo / export / import는 `더보기`로 묶는다. Block Lab의 기존 별도 builder 복귀 링크는 공통 셸이 대신한다.
 
-The sandbox `#app` is the only page composition surface used by Visual Builder. Meaningful dummy page blocks can be reordered with drag/drop and saved as a browser-local builder draft.
+### Visual Builder simplification
 
-Block Registry palette remains available. Candidate blocks may be tested but never auto-publish or auto-approve.
+New:
+- `public/assets/styles/ui-dashboard/builder-simplified-v2.css`
+- `public/assets/js/ui-dashboard/builder-ux-patch-v2.js`
 
-## Advertisement
+`/ui-dashboard/`:
+- 기존 중복 global nav 제거
+- 로컬 header는 현재 작업명 + server state만 유지
+- toolbar는 편집 상태 / 블록 추가 / 광고 / 저장 / 더보기 중심
+- 본문/좌/우 광고 버튼은 하나의 `광고` 메뉴 안으로 이동
+- 더미 초기화는 `더보기` 안으로 이동
+- UI Library mode에서는 page toolbar를 숨김
+- library tools `[hidden]` 강제 처리
 
-`advertisement` remains a candidate block family.
+### Dummy top navigation
 
-Variants:
-- inline-banner
-- native-card
-- desktop-side-rail
-- sticky-bottom
+`sandbox.css`에서 desktop `.nav-glass`는 structural wrapper만 남기고 visual surface를 제거했다. PC `nav-scroll` rail만 보이도록 해서 white outer capsule + inner rail 이중 표현을 제거한다.
 
-Current builder supports:
-- inline body advertisement insertion
-- dedicated PC left floating advertisement slot
-- dedicated PC right floating advertisement slot
+### Side ads
 
-Left/right floating slots live in the outer page margins and are independent. Each has local controls for:
-- enabled
-- width
-- height
-- top offset
-- content gap
-- follow scroll on/off
+`builder-sandbox-ads-v1.js`는 더 이상 `50% + 590px` 위치를 가정하지 않는다.
 
-Disabled side slots remain faintly visible in edit mode so their reserved area can be reviewed. When edit mode is off, disabled slots are hidden. The side slots do not connect to an ad network.
+현재 visible `.chapter .section .content`의 실제 rect를 사용한다.
 
-## UI change notes
+- hero / chapter hero에서는 hidden
+- 본문 content가 viewport에 들어올 때만 eligible
+- 좌/우 실제 여백이 광고 폭 + gap을 수용할 때만 visible
+- 1360px 미만 hidden
+- chapter content가 끝나기 직전 hidden
+- follow on: viewport-following
+- follow off: 해당 content 시작점에 absolute placement
 
-Each UI inspector has a `수정 요청 메모` field.
+이 구조의 목적은 광고가 히어로나 chapter image 위에 올라가는 문제를 없애는 것이다.
 
-Local draft is stored immediately. With the existing admin server connection, the note is stored in `UI_PRESETS.notes` with current capability config.
+## Files changed / added
 
-GPT workflow expectation:
-1. read open/draft UI preset notes from Sheet,
-2. inspect the shared source owner and current implementation,
-3. apply requested source change,
-4. update QA/handoff,
-5. never treat the note itself as approval.
+- `public/ui-dashboard/index.html`
+- `public/ui-dashboard/sandbox/sandbox.css`
+- `public/assets/js/ui-dashboard/builder-sandbox-ads-v1.js`
+- `public/assets/js/ui-dashboard/builder-ux-patch-v2.js`
+- `public/assets/styles/ui-dashboard/builder-simplified-v2.css`
+- `public/assets/js/admin/admin-shell-v1.js`
+- `public/assets/styles/admin/admin-shell-v1.css`
+- `public/assets/styles/admin/admin-surface-v1.css`
+- `public/assets/js/blocks/block-registry.js`
+- `docs/library/admin-ui/ADMIN-SHELL.md`
+- workstream TASKS / HANDOFF
 
-## Actual photography reference targets
+## Safety
 
-- top nav: `.nav-shell`, `.nav-scroll`, `.nav-chip`
-- horizontal rails: `.desktop-rail-window`, `.scroll-row`
-- filter chips: `.collection-filters`, `#collectionFilters`, `.collection-filter`
-- bottom sheet: `#collectionSheet`, `.collection-sheet`
-- device handoff: `.collection-device-accordion`, `#collectionDeviceLink`
-- progress: `.nav-chapter-progress`, `.read-progress`
-- FAB: `#collectionFab`, `.collection-fab`
+- `/ui-dashboard/` iframe remains `/ui-dashboard/sandbox/` only.
+- production `/photography/` is not the builder canvas.
+- production user data/API are not introduced into sandbox.
+- photography renderer is untouched.
+- block/UI presets remain candidate/draft unless user explicitly approves.
 
-The filter chip reference is the small independent `.collection-filter` pill, not the upper `.collection-tabs` segmented control.
+## QA still required
 
-## Safety contracts
+No GitHub status checks are attached to the current branch commits. Cloudflare branch preview URL has not yet been confirmed from connector status.
 
-- do not use live `/photography/` as Visual Builder canvas
-- do not load production user data into sandbox
-- do not replace photography renderer with candidate/shared renderer before approval + regression QA
-- do not mutate production state from Visual Builder
-- preserve mobile native horizontal scroll owner
-- preserve Safari deferred sticky safety
-- no automatic preset/block/variant approval
-- labs/dashboard/QA/staging remain noindex
-
-## Work completed in current branch
-
-- Visual Builder shell for `/ui-dashboard/`
-- isolated `/ui-dashboard/sandbox/` dummy page
-- actual common CSS/class-based dummy UI surface
-- production iframe removed from builder route
-- capability gear/inspector mapping on dummy DOM
-- multiple draggable PC inspector windows
-- mobile bottom inspector/dock model
-- live capability override application
-- dummy block reorder sandbox
-- Block Registry palette
-- inline advertisement sandbox insertion
-- left/right PC floating advertisement slots and controls
-- bare-surface UI library mode
-- integrated admin navigation
-- UI change memo → existing `UI_PRESETS.notes` flow
-- advertisement registry candidate and Block Lab sample
+Actual browser QA must cover:
+1. common shell appears on all five management modes,
+2. every management mode can move directly to every other mode,
+3. sticky offsets do not overlap local toolbars,
+4. Page Editor `더보기` preserves all moved button behavior,
+5. Visual Builder page mode does not show UI Library filter strip,
+6. UI Library mode does not show page editing toolbar,
+7. dummy desktop nav shows one surface only,
+8. side ads remain absent on hero/chapter hero and appear only beside body content,
+9. 1440 / 1536 / 1920 desktop widths,
+10. <=900px and mobile management navigation.
 
 ## Exact next action
 
-Run the branch in an actual Cloudflare preview and validate:
-1. `/ui-dashboard/` iframe source is only `/ui-dashboard/sandbox/`,
-2. sandbox Network activity does not hit production data APIs,
-3. all seven capability targets are found,
-4. PC multi-inspector drag/live editing,
-5. PC left/right floating ads at common desktop widths,
-6. mobile tap/dock/native-scroll behavior,
-7. dummy page block boundary quality,
-8. advertisement variants in Block Lab.
-
-After user review, record only explicit decisions as approved/redesign/deprecated and connect approved Block Lab renderers to the Visual Builder palette.
+Confirm the Cloudflare preview for `feat/admin-ux-shell-v1`, run the QA list above, then fix only observed regressions. Do not merge to `main` until the user reviews the branch result or explicitly asks to merge.
