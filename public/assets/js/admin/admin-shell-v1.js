@@ -60,6 +60,8 @@
   }
 
   function simplifyLocalUi(id){
+    if(id==='builder')document.title='플랫폼 관리 · 화면 구성';
+    if(id==='library')document.title='플랫폼 관리 · UI 라이브러리';
     if(id==='blocks'){
       document.title='플랫폼 관리 · 블록 관리';
       const title=document.querySelector('.lab-brand strong');if(title)title.textContent='블록 관리';
