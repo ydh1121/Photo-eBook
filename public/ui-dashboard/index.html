@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>플랫폼 관리 · 화면 구성</title>
-  <link rel="stylesheet" href="/assets/styles/admin/admin-shell-v1.css?v=1" data-admin-shell-style>
+  <link rel="stylesheet" href="/assets/styles/admin/admin-shell-v1.css?v=2" data-admin-shell-style>
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-v1.css?v=2">
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-sandbox-v1.css?v=1">
-  <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-simplified-v2.css?v=2">
+  <link rel="stylesheet" href="/assets/styles/ui-dashboard/builder-simplified-v2.css?v=3">
   <link rel="stylesheet" href="/assets/styles/ui-dashboard/server.css?v=1">
 </head>
 <body>
   <div class="ui-dashboard builder-shell" data-builder-view="page">
     <section class="builder-toolbar" aria-label="화면 구성 도구">
+      <div class="builder-toolbar__title"><strong>화면 구성</strong><span>기본 더미</span></div>
+      <select id="builderPageSelect" hidden aria-hidden="true"><option value="/ui-dashboard/sandbox/">기본 더미</option></select>
       <div class="builder-toolbar__group">
-        <label class="builder-page-select">더미 화면
-          <select id="builderPageSelect"><option value="/ui-dashboard/sandbox/">기본 더미</option></select>
-        </label>
         <button type="button" id="builderEditToggle" class="builder-toggle" aria-pressed="true">편집 중</button>
         <button type="button" id="builderOpenBlockPalette" class="builder-primary-action">블록 추가</button>
         <details class="builder-action-menu">
@@ -42,7 +41,7 @@
     </section>
 
     <section class="builder-library-tools" id="builderLibraryTools" hidden>
-      <div class="builder-library-intro"><strong>UI 라이브러리</strong><span>공통 UI를 더미 문맥에서 분리해 비교합니다.</span></div>
+      <div class="builder-library-intro"><strong>UI 라이브러리</strong><span>실제 페이지에서 재사용하는 UI만 분리해 확인합니다.</span></div>
       <div class="builder-library-filters" id="builderLibraryFilters" role="group" aria-label="UI 종류"></div>
     </section>
 
@@ -60,15 +59,15 @@
       <header><div><small>화면 구성</small><strong>블록 추가</strong></div><button type="button" data-close-block-palette aria-label="닫기">×</button></header>
       <div class="builder-block-filter" id="builderBlockFilter"></div>
       <div class="builder-block-list" id="builderBlockList"></div>
-      <p class="builder-palette-note">검토 중인 블록은 이 더미 화면에서만 시험합니다. 공개 페이지에는 자동 반영하지 않습니다.</p>
+      <p class="builder-palette-note">이곳에서 추가한 블록은 더미 화면에만 저장됩니다.</p>
     </aside>
   </div>
 
-  <script src="/assets/js/admin/admin-shell-v1.js?v=1"></script>
+  <script src="/assets/js/admin/admin-shell-v1.js?v=2"></script>
   <script src="/data/ui-capabilities/v1/manifest.js?v=3"></script>
   <script src="/data/block-registry/v1/manifest.js?v=3"></script>
   <script src="/assets/js/ui-dashboard/builder-v1.js?v=1"></script>
-  <script src="/assets/js/ui-dashboard/builder-ux-patch-v2.js?v=2"></script>
+  <script src="/assets/js/ui-dashboard/builder-ux-patch-v2.js?v=3"></script>
   <script src="/assets/js/ui-dashboard/builder-boundaries-v1.js?v=1"></script>
   <script src="/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=3"></script>
   <script src="/assets/js/ui-dashboard/server.js?v=2"></script>
