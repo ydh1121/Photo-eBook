@@ -31,6 +31,23 @@
     if(!path.startsWith('/ui-dashboard'))appendStyle('/assets/styles/admin/admin-surface-v1.css?v=1','data-admin-surface-style');
   }
 
+  function simplifyEditorLibrary(){
+    const library=document.querySelector('.editor-library');
+    if(!library||library.querySelector('.admin-editor-settings'))return;
+    const head=library.querySelector('.editor-pane-head');
+    const search=library.querySelector('#editorLibrarySearch');
+    const list=library.querySelector('#editorLibraryList');
+    const settings=[library.querySelector('.editor-page-meta'),library.querySelector('.editor-seo'),library.querySelector('.editor-ai-brief'),library.querySelector('.editor-publish')].filter(Boolean);
+    const details=document.createElement('details');
+    details.className='admin-editor-settings';
+    details.innerHTML='<summary><span>페이지·발행 설정</span><small>SEO · AI · 발행</small></summary><div class="admin-editor-settings__body"></div>';
+    const body=details.querySelector('.admin-editor-settings__body');
+    settings.forEach(node=>body.appendChild(node));
+    if(head)head.insertAdjacentElement('afterend',details);else library.prepend(details);
+    if(search)details.insertAdjacentElement('afterend',search);
+    if(list&&search)search.insertAdjacentElement('afterend',list);
+  }
+
   function simplifyLocalUi(id){
     if(id==='blocks'){
       const title=document.querySelector('.lab-brand strong');if(title)title.textContent='블록 관리';
@@ -46,6 +63,7 @@
         ['#editorUndo','#editorRedo','#editorExport','.editor-import'].forEach(selector=>{const node=actions.querySelector(selector);if(node)panel.appendChild(node);});
         actions.appendChild(details);
       }
+      simplifyEditorLibrary();
     }
     if(id==='qa'){
       const title=document.querySelector('.qa-toolbar__label strong');if(title)title.textContent='QA 미리보기';
