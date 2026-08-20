@@ -2,35 +2,67 @@
 <html lang="ko" data-theme="light">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>플랫폼 빌더 더미 캔버스</title>
+  <script src="/ui-dashboard/sandbox/storage-isolation-v2.js?v=1"></script>
   <link rel="stylesheet" href="/assets/styles/core/tokens.css?v=1">
   <link rel="stylesheet" href="/assets/styles/core/base-layout.css?v=1">
   <link rel="stylesheet" href="/assets/styles/core/base-components.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/navigation/legacy-top-controls.css?v=1">
   <link rel="stylesheet" href="/assets/styles/components/cards.css?v=1">
   <link rel="stylesheet" href="/assets/styles/components/card-tuning.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/components/gear-cards.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/core/responsive-accessibility.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/navigation/safari-curated-base.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/compat/korean-punctuation.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/safari/sticky-backdrop-guard.css?v=1">
   <link rel="stylesheet" href="/assets/styles/navigation/mobile-nav-curated.css?v=1">
-  <link rel="stylesheet" href="/assets/styles/navigation/chapter-progress.css?v=1">
-  <link rel="stylesheet" href="/assets/styles/ui/progress-theme.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/navigation/nav-question-drawer.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/navigation/sticky-performance.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/safari/browser-surface.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/media/process-skill-media.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/media/discovery-sentinel.css?v=1">
   <link rel="stylesheet" href="/assets/styles/collection/hub.css?v=1">
   <link rel="stylesheet" href="/assets/styles/collection/horizontal-rails.css?v=1">
-  <link rel="stylesheet" href="/assets/styles/collection/device-handoff-layout.css?v=1">
-  <link rel="stylesheet" href="/assets/styles/collection/device-accordion.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui/liquid-question-foundation.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui/progress-theme.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui/dark-question-swipe.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui/liquid-flat-canonical.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui/liquid-skin.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui/rail-dark-repairs.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/collection/question-search-repairs.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/questions/workspace-controls.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/questions/workspace-stability.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/safari/native-rail-root.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/navigation/native-pan-fab-clearance.css?v=1">
   <link rel="stylesheet" href="/assets/styles/ui/pill-hierarchy.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/questions/top-runway-glass.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/questions/workspace-final.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/safari/first-paint-fallback.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/ui/light-contrast-badges.css?v=1">
   <link rel="stylesheet" href="/assets/styles/desktop/layout-hit-targets.css?v=1">
   <link rel="stylesheet" href="/assets/styles/desktop/nav-rails.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/desktop/nav-corrections.css?v=1">
   <link rel="stylesheet" href="/assets/styles/desktop/rail-fade.css?v=1">
-  <link rel="stylesheet" href="/ui-dashboard/sandbox/sandbox.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/collection/device-handoff-layout.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/collection/device-accordion.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/collection/device-accordion-state.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/collection/device-accordion-fallback.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/collection/selection-state.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/collection/modal-shield.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/navigation/chapter-progress.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/safari/deferred-sticky-chrome.css?v=1">
+  <link rel="stylesheet" href="/ui-dashboard/sandbox/sandbox.css?v=2">
 </head>
 <body>
   <aside id="sandboxAdLeft" class="sandbox-side-ad sandbox-side-ad--left" data-builder-ad-slot="left" data-builder-ad-variant="desktop-side-rail" data-ad-enabled="false" aria-label="좌측 플로팅 광고 자리">
     <button class="sandbox-side-ad__settings" type="button" data-ad-slot-settings="left">광고 설정</button>
-    <div class="sandbox-side-ad__inner"><small>AD</small><strong>좌측 플로팅 배너</strong><span>PC 여백에서 스크롤을 따라가는 자리</span></div>
+    <div class="sandbox-side-ad__inner"><small>AD</small><strong>좌측 플로팅 배너</strong><span>콘텐츠 바깥 여백에 유지되는 광고 자리</span></div>
   </aside>
   <aside id="sandboxAdRight" class="sandbox-side-ad sandbox-side-ad--right" data-builder-ad-slot="right" data-builder-ad-variant="desktop-side-rail" data-ad-enabled="false" aria-label="우측 플로팅 광고 자리">
     <button class="sandbox-side-ad__settings" type="button" data-ad-slot-settings="right">광고 설정</button>
-    <div class="sandbox-side-ad__inner"><small>AD</small><strong>우측 플로팅 배너</strong><span>PC 여백에서 스크롤을 따라가는 자리</span></div>
+    <div class="sandbox-side-ad__inner"><small>AD</small><strong>우측 플로팅 배너</strong><span>콘텐츠 바깥 여백에 유지되는 광고 자리</span></div>
   </aside>
 
   <main id="app" class="app sandbox-app">
@@ -39,23 +71,22 @@
       <div class="hero__body">
         <div class="hero__eyebrow">플랫폼 더미 페이지</div>
         <h1>실제 UI를 더미 콘텐츠 위에서 조립합니다.</h1>
-        <p>운영 데이터와 연결하지 않고, 현재 플랫폼에서 쓰는 UI 클래스와 스타일을 그대로 불러와 레이아웃과 상호작용을 확인합니다.</p>
+        <p>운영 데이터는 사용하지 않고, 공개 페이지와 동일한 UI 스타일과 런타임으로 레이아웃과 상호작용을 확인합니다.</p>
         <div class="hero__facts">
           <div class="hero__fact"><span>콘텐츠</span><strong>더미 데이터</strong></div>
-          <div class="hero__fact"><span>UI 소스</span><strong>공통 운영 CSS</strong></div>
+          <div class="hero__fact"><span>UI 소스</span><strong>공개 페이지와 동일</strong></div>
           <div class="hero__fact"><span>저장</span><strong>빌더 초안</strong></div>
           <div class="hero__fact"><span>공개 반영</span><strong>자동 반영 없음</strong></div>
         </div>
       </div>
     </header>
 
-    <div class="nav-placeholder" aria-hidden="true"></div>
-    <div class="nav-shell">
-      <nav class="nav-scroll" aria-label="더미 챕터">
-        <button class="nav-chip is-active" type="button" data-target="dummy-intro">시작</button>
-        <button class="nav-chip" type="button" data-target="dummy-rail">가로 카드</button>
-        <button class="nav-chip" type="button" data-target="dummy-content">본문</button>
-        <button class="nav-chip" type="button" data-target="dummy-actions">상호작용</button>
+    <div class="nav-placeholder" aria-hidden="true"></div><div class="nav-shell">
+      <nav class="nav-scroll" aria-label="챕터">
+        <button class="nav-chip is-active" data-target="dummy-intro">시작</button>
+        <button class="nav-chip" data-target="dummy-rail">가로 카드</button>
+        <button class="nav-chip" data-target="dummy-content">본문</button>
+        <button class="nav-chip" data-target="dummy-actions">상호작용</button>
       </nav>
       <div class="read-progress"><div class="read-progress__bar"></div></div>
     </div>
@@ -63,26 +94,26 @@
     <section id="dummy-intro" class="chapter" data-chapter="dummy-intro" data-sandbox-block="intro">
       <div class="chapter-hero"><div class="wide"><div class="chapter-hero__card">
         <img src="/assets/images/generated/v1/portfolio/professional-profile.webp?v=b007" alt="더미 프로필 촬영">
-        <div class="chapter-hero__copy"><div class="index">01 / 시작</div><h2>UI를 실제 문맥에서 확인합니다.</h2><p>각 모듈을 전시 카드 안에 넣지 않고, 실제 페이지 흐름에 놓아 여백과 반응형 배치를 함께 확인합니다.</p></div>
+        <div class="chapter-hero__copy"><div class="index">01 / 시작</div><h2>UI를 실제 문맥에서 확인합니다.</h2><p>모듈을 실제 페이지 흐름에 놓아 여백과 반응형 배치를 함께 확인합니다.</p></div>
       </div></div></div>
       <div class="section"><div class="content">
-        <div class="section-heading"><div class="eyebrow">더미 본문</div><h2>콘텐츠 길이와 주변 요소가 달라져도 UI가 자연스러운지 봅니다.</h2><p>이 텍스트는 운영 콘텐츠가 아닙니다. 문장 길이, 제목 줄바꿈, 섹션 간격을 검증하기 위한 샘플입니다.</p></div>
-        <article class="guide-block"><h3>일반 본문 예시</h3><div class="guide-block__body"><p>모듈의 크기만 따로 보는 대신 위아래 콘텐츠와 맞닿았을 때의 밀도와 시선을 확인합니다.</p><p>PC와 모바일 모두 같은 더미 구조를 사용하므로 개발자 도구로 별도 화면을 조립하지 않아도 됩니다.</p></div></article>
+        <div class="section-heading"><div class="eyebrow">더미 본문</div><h2>콘텐츠 길이와 주변 요소가 달라져도 UI가 자연스러운지 봅니다.</h2><p>문장 길이, 제목 줄바꿈, 섹션 간격을 검증하기 위한 샘플입니다.</p></div>
+        <article class="guide-block"><h3>일반 본문 예시</h3><div class="guide-block__body"><p>모듈의 크기만 따로 보는 대신 위아래 콘텐츠와 맞닿았을 때의 밀도와 시선을 확인합니다.</p><p>PC와 모바일 모두 같은 더미 구조를 사용합니다.</p></div></article>
       </div></div>
     </section>
 
     <section id="dummy-rail" class="chapter" data-chapter="dummy-rail" data-sandbox-block="rail">
       <div class="chapter-hero"><div class="wide"><div class="chapter-hero__card">
         <img src="/assets/images/generated/v1/portfolio/product-brand.webp?v=b007" alt="더미 제품 촬영">
-        <div class="chapter-hero__copy"><div class="index">02 / 가로 카드</div><h2>가로 레일은 실제 페이지 폭에서 확인합니다.</h2><p>좌우 시작점, 그림자 잘림, 마우스 드래그, 모바일 네이티브 스크롤을 같은 자리에서 검토합니다.</p></div>
+        <div class="chapter-hero__copy"><div class="index">02 / 가로 카드</div><h2>가로 레일은 실제 페이지 폭에서 확인합니다.</h2><p>시작점, 그림자, 마우스 드래그, 모바일 스크롤을 같은 자리에서 검토합니다.</p></div>
       </div></div></div>
       <div class="section grouped"><div class="wide">
-        <div class="content section-heading"><div class="eyebrow">가로 콘텐츠</div><h2>다른 길이의 카드가 연속될 때의 흐름</h2><p>카드 폭과 오른쪽 여백이 실제 레이아웃에서 답답하지 않은지 확인합니다.</p></div>
+        <div class="content section-heading"><div class="eyebrow">가로 콘텐츠</div><h2>다른 길이의 카드가 연속될 때의 흐름</h2><p>카드 폭과 양쪽 끝 여백을 실제 레이아웃에서 확인합니다.</p></div>
         <div class="scroll-row">
-          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/product-brand.webp?v=b007" alt="제품 촬영"></div><div class="market-card__body"><div class="market-rank">SAMPLE 01</div><h3>제품 촬영</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">실제 카드 주변 간격을 확인합니다.</div></div></article>
-          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/professional-profile.webp?v=b007" alt="인물 촬영"></div><div class="market-card__body"><div class="market-rank">SAMPLE 02</div><h3>인물 촬영</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">링크 선택 없이 마우스로 레일을 끌어봅니다.</div></div></article>
-          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/food-store.webp?v=b007" alt="음식 촬영"></div><div class="market-card__body"><div class="market-rank">SAMPLE 03</div><h3>음식 촬영</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">마지막 카드 뒤 여유 공간까지 확인합니다.</div></div></article>
-          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/studio-process.webp?v=b007" alt="작업 과정"></div><div class="market-card__body"><div class="market-rank">SAMPLE 04</div><h3>작업 과정</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">PC와 모바일의 끝 여백을 비교합니다.</div></div></article>
+          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/product-brand.webp?v=b007" alt="제품 촬영"></div><div class="market-card__body"><div class="market-rank">SAMPLE 01</div><h3>제품 촬영</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">첫 카드 주변 간격을 확인합니다.</div></div></article>
+          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/professional-profile.webp?v=b007" alt="인물 촬영"></div><div class="market-card__body"><div class="market-rank">SAMPLE 02</div><h3>인물 촬영</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">마우스로 레일을 끌어봅니다.</div></div></article>
+          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/food-store.webp?v=b007" alt="음식 촬영"></div><div class="market-card__body"><div class="market-rank">SAMPLE 03</div><h3>음식 촬영</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">마지막 카드 뒤 여백을 확인합니다.</div></div></article>
+          <article class="market-card sandbox-market-card"><div class="market-card__image"><img src="/assets/images/generated/v1/portfolio/studio-process.webp?v=b007" alt="작업 과정"></div><div class="market-card__body"><div class="market-rank">SAMPLE 04</div><h3>작업 과정</h3><div class="market-card__prices"><div class="market-card__price"><span>형식</span><b>가로 카드</b></div><div class="market-card__price"><span>상태</span><b>더미</b></div></div><div class="market-card__customer">PC와 모바일 끝 여백을 비교합니다.</div></div></article>
         </div>
       </div></div>
     </section>
@@ -90,12 +121,12 @@
     <section id="dummy-content" class="chapter" data-chapter="dummy-content" data-sandbox-block="content">
       <div class="chapter-hero"><div class="wide"><div class="chapter-hero__card">
         <img src="/assets/images/generated/v1/skills/tether-shooting.webp?v=b009" alt="더미 작업 화면">
-        <div class="chapter-hero__copy"><div class="index">03 / 본문</div><h2>블록 사이에 광고를 넣어봅니다.</h2><p>본문 광고는 선택한 블록 다음에 삽입되고, 좌우 플로팅 광고는 PC 여백에서 독립적으로 켜고 조절합니다.</p></div>
+        <div class="chapter-hero__copy"><div class="index">03 / 본문</div><h2>블록 사이에 광고를 넣어봅니다.</h2><p>본문 광고와 좌우 광고를 실제 페이지 여백 안에서 함께 확인합니다.</p></div>
       </div></div></div>
       <div class="section"><div class="content sandbox-copy-stack">
         <div class="section-heading"><div class="eyebrow">콘텐츠 블록</div><h2>블록 순서를 바꿔도 읽는 흐름이 유지되는지 확인합니다.</h2></div>
-        <article class="guide-block"><h3>첫 번째 본문</h3><div class="guide-block__body"><p>이 블록을 드래그한 뒤 다른 챕터와의 간격, 상단 메뉴 이동, 광고 위치 변화를 함께 확인할 수 있습니다.</p></div></article>
-        <article class="guide-block"><h3>두 번째 본문</h3><div class="guide-block__body"><p>실제 사이트의 콘텐츠를 옮기는 것이 아니라 이 더미 DOM의 순서만 빌더 초안에 저장합니다.</p></div></article>
+        <article class="guide-block"><h3>첫 번째 본문</h3><div class="guide-block__body"><p>이 블록을 드래그한 뒤 다른 챕터와의 간격, 상단 메뉴, 광고 위치 변화를 함께 확인합니다.</p></div></article>
+        <article class="guide-block"><h3>두 번째 본문</h3><div class="guide-block__body"><p>공개 사이트 콘텐츠를 옮기는 것이 아니라 이 더미 DOM 순서만 초안에 저장합니다.</p></div></article>
         <div class="metric-grid sandbox-metrics"><div class="metric-card"><span>검토 항목</span><b>여백</b></div><div class="metric-card"><span>검토 항목</span><b>반응형</b></div><div class="metric-card"><span>검토 항목</span><b>광고</b></div></div>
       </div></div>
     </section>
@@ -103,55 +134,27 @@
     <section id="dummy-actions" class="chapter" data-chapter="dummy-actions" data-sandbox-block="actions">
       <div class="chapter-hero"><div class="wide"><div class="chapter-hero__card">
         <img src="/assets/images/generated/v1/portfolio/studio-process.webp?v=b007" alt="더미 UI 상호작용">
-        <div class="chapter-hero__copy"><div class="index">04 / 상호작용</div><h2>필터와 바텀시트도 실제 클래스 그대로 확인합니다.</h2><p>오른쪽 아래 모음 버튼을 열면 탭, 필터칩, 기기 연결 아코디언을 한 번에 조절할 수 있습니다.</p></div>
+        <div class="chapter-hero__copy"><div class="index">04 / 상호작용</div><h2>내 모음도 공개 페이지와 같은 UI로 확인합니다.</h2><p>모음 버튼, 탭, 필터, 목록, 다른 기기 연결까지 production runtime을 그대로 사용합니다.</p></div>
       </div></div></div>
       <div class="section"><div class="content">
-        <div class="section-heading"><div class="eyebrow">상호작용</div><h2>모음 패널을 열어 세부 UI를 확인하세요.</h2><p>데이터는 모두 정적 샘플이며 검색, 저장, 기기 연결은 외부 서버와 통신하지 않습니다.</p></div>
-        <button type="button" class="collection-section-link" id="sandboxOpenCollection"><b>3</b>개의 더미 항목 보기</button>
+        <div class="section-heading"><div class="eyebrow">상호작용</div><h2>내 모음을 열어 실제 구성과 동작을 확인하세요.</h2><p>표시 데이터만 iframe 내부에서 격리된 더미 값입니다.</p></div>
+        <button type="button" class="collection-section-link" id="sandboxOpenCollection"><b>4</b>개의 더미 항목 보기</button>
       </div></div>
     </section>
   </main>
 
-  <button id="collectionFab" class="collection-fab" type="button" aria-label="더미 모음 열기"><span aria-hidden="true">＋</span><span class="collection-fab__count">3</span></button>
-  <div id="collectionBackdrop" class="collection-backdrop" hidden></div>
-  <section id="collectionSheet" class="collection-sheet" hidden aria-label="더미 모음">
-    <div class="collection-handle-wrap"><div class="collection-handle"></div></div>
-    <div class="collection-head"><div><small>더미 데이터</small><h2>내 모음</h2></div><button id="collectionClose" class="collection-close" type="button" aria-label="닫기">×</button></div>
-    <div class="collection-tabs" role="tablist" aria-label="더미 모음 분류">
-      <button class="collection-tab is-active" type="button" data-sandbox-tab="all">전체</button>
-      <button class="collection-tab" type="button" data-sandbox-tab="video">영상</button>
-      <button class="collection-tab" type="button" data-sandbox-tab="article">읽을거리</button>
-      <button class="collection-tab" type="button" data-sandbox-tab="settings">설정</button>
-    </div>
-    <div class="collection-tools" id="sandboxCollectionTools">
-      <label class="collection-search"><span aria-hidden="true">⌕</span><input type="search" placeholder="더미 모음 검색" aria-label="더미 모음 검색"></label>
-      <div id="collectionFilters" class="collection-filters">
-        <button class="collection-filter is-active" type="button">전체</button>
-        <button class="collection-filter" type="button">제품</button>
-        <button class="collection-filter" type="button">인물</button>
-        <button class="collection-filter" type="button">음식</button>
-      </div>
-    </div>
-    <div class="collection-body">
-      <div class="collection-list" id="sandboxCollectionList">
-        <article class="collection-item"><div class="collection-item__thumb"><img src="/assets/images/generated/v1/portfolio/product-brand.webp?v=b007" alt="제품 샘플"></div><div class="collection-item__main"><span class="collection-item__type">제품</span><strong>더미 제품 촬영 항목</strong><p>레이아웃 검증을 위한 샘플 설명</p><small>샘플 데이터</small></div><button class="collection-item__remove" type="button" aria-label="삭제">×</button></article>
-        <article class="collection-item"><div class="collection-item__thumb"><img src="/assets/images/generated/v1/portfolio/professional-profile.webp?v=b007" alt="인물 샘플"></div><div class="collection-item__main"><span class="collection-item__type">인물</span><strong>더미 인물 촬영 항목</strong><p>줄바꿈과 카드 높이를 확인합니다.</p><small>샘플 데이터</small></div><button class="collection-item__remove" type="button" aria-label="삭제">×</button></article>
-        <article class="collection-item"><div class="collection-item__thumb"><img src="/assets/images/generated/v1/portfolio/food-store.webp?v=b007" alt="음식 샘플"></div><div class="collection-item__main"><span class="collection-item__type">음식</span><strong>더미 음식 촬영 항목</strong><p>실제 사용자 저장 정보와 무관합니다.</p><small>샘플 데이터</small></div><button class="collection-item__remove" type="button" aria-label="삭제">×</button></article>
-      </div>
-      <div id="sandboxSettings" class="collection-settings" hidden>
-        <div class="collection-settings__summary"><strong>3</strong><span>더미 항목</span><div>영상 <b>1</b></div><div>글 <b>2</b></div><div>질문 <b>0</b></div></div>
-        <div class="collection-device-accordion" id="sandboxDeviceAccordion">
-          <button id="collectionDeviceLink" class="collection-setting-row" type="button" data-device-safe-v2="true" aria-expanded="false"><span><strong>다른 기기 연결</strong><small>더미 코드로 아코디언 움직임만 확인합니다.</small></span><b class="collection-device-chevron">›</b></button>
-          <div class="collection-device-panel-v2" hidden><div class="collection-device-panel__current"><div class="collection-device-panel__current-copy"><small>현재 더미 기기</small><code>dummy-device-7F3A</code></div></div><div class="collection-setting-note">외부 서버와 연결되지 않습니다.</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <script src="/assets/js/core/render-helpers.js?v=1"></script>
-  <script src="/assets/js/navigation/chapter-navigation.js?v=1"></script>
   <script src="/assets/js/ui/liquid-controller.js?v=1"></script>
+  <script src="/assets/js/navigation/chapter-navigation.js?v=1"></script>
+  <script src="/assets/js/collection/collection-hub.js?v=1"></script>
+  <script src="/assets/js/collection/bulk-selection.js?v=1"></script>
+  <script src="/assets/js/ui/breeze-repair.js?v=1"></script>
+  <script src="/assets/js/safari/deferred-sticky-nav.js?v=1"></script>
   <script src="/assets/js/desktop/rail-drag.js?v=1"></script>
-  <script src="/ui-dashboard/sandbox/sandbox.js?v=1"></script>
+  <script src="/assets/js/collection/device-handoff-compat.js?v=1"></script>
+  <script src="/assets/js/collection/device-handoff.js?v=1"></script>
+  <script src="/assets/js/collection/modal-shield.js?v=1"></script>
+  <script src="/ui-dashboard/sandbox/capability-runtime-v2.js?v=1"></script>
+  <script src="/ui-dashboard/sandbox/sandbox.js?v=2"></script>
 </body>
 </html>
