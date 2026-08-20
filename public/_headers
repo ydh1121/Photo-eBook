@@ -42,6 +42,15 @@
   Cache-Control: no-store, no-cache, must-revalidate
   X-Robots-Tag: noindex, nofollow, noarchive
 
+/assets/js/blocks/block-registry.js
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/assets/js/admin/*
+  Cache-Control: no-store, no-cache, must-revalidate
+
+/assets/styles/admin/*
+  Cache-Control: no-store, no-cache, must-revalidate
+
 /api/editor/*
   Cache-Control: no-store
   X-Robots-Tag: noindex, nofollow, noarchive
