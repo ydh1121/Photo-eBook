@@ -21,14 +21,14 @@
     return'';
   }
 
-  function appendStyle(href,key){
-    if(document.querySelector(`link[data-${key}]`))return;
-    const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset[key]='true';document.head.appendChild(link);
+  function appendStyle(href,attribute){
+    if(document.querySelector(`link[${attribute}]`))return;
+    const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.setAttribute(attribute,'true');document.head.appendChild(link);
   }
 
   function ensureCss(){
-    appendStyle('/assets/styles/admin/admin-shell-v1.css?v=1','adminShellStyle');
-    if(!path.startsWith('/ui-dashboard'))appendStyle('/assets/styles/admin/admin-surface-v1.css?v=1','adminSurfaceStyle');
+    appendStyle('/assets/styles/admin/admin-shell-v1.css?v=1','data-admin-shell-style');
+    if(!path.startsWith('/ui-dashboard'))appendStyle('/assets/styles/admin/admin-surface-v1.css?v=1','data-admin-surface-style');
   }
 
   function simplifyLocalUi(id){
