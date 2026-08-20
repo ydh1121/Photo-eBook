@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>Platform Block Editor Lab</title>
+  <title>플랫폼 관리 · 페이지 에디터</title>
+  <link rel="stylesheet" href="/assets/styles/admin/admin-shell-v1.css?v=2" data-admin-shell-style>
   <link rel="stylesheet" href="/assets/styles/block-lab/lab.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/a11y.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/refinement-v2.css?v=1">
@@ -23,65 +24,33 @@
   <link rel="stylesheet" href="/assets/styles/editor-lab/media-picker.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/revision-history.css?v=1">
   <link rel="stylesheet" href="/assets/styles/editor-lab/inspector-friendly.css?v=1">
+  <link rel="stylesheet" href="/assets/styles/admin/admin-surface-v1.css?v=2" data-admin-surface-style>
 </head>
 <body>
   <div class="block-lab editor-lab" data-theme="light" data-preview="desktop" data-mode="edit">
     <header class="editor-topbar">
-      <div class="editor-brand"><strong>Block Editor Lab</strong><span id="editorServerStatus">브라우저 초안</span></div>
+      <div class="editor-brand"><strong>페이지 에디터</strong><span id="editorServerStatus">브라우저 초안</span></div>
       <input id="editorPageTitle" class="editor-page-title" type="text" value="새 분야 가이드" aria-label="페이지 이름">
       <div class="editor-top-actions">
         <div class="editor-server-controls" aria-label="서버 초안"><button type="button" id="editorServerConnect">서버 연결</button><select id="editorServerPages" aria-label="서버 초안 목록" disabled><option value="">서버 초안</option></select><button type="button" id="editorServerLoad" disabled>불러오기</button><button type="button" id="editorServerSave" disabled>서버 저장</button></div>
         <button type="button" id="editorUndo">실행 취소</button><button type="button" id="editorRedo">다시 실행</button>
         <div class="editor-segment" aria-label="편집 모드"><button type="button" data-editor-mode="edit" aria-pressed="true">편집</button><button type="button" data-editor-mode="preview" aria-pressed="false">미리보기</button></div>
         <div class="editor-segment" aria-label="화면 폭"><button type="button" data-editor-preview="mobile" aria-pressed="false">390</button><button type="button" data-editor-preview="tablet" aria-pressed="false">768</button><button type="button" data-editor-preview="desktop" aria-pressed="true">1180</button></div>
-        <div class="editor-segment" aria-label="테마"><button type="button" data-editor-theme="light" aria-pressed="true">Light</button><button type="button" data-editor-theme="dark" aria-pressed="false">Dark</button></div>
+        <div class="editor-segment" aria-label="테마"><button type="button" data-editor-theme="light" aria-pressed="true">밝게</button><button type="button" data-editor-theme="dark" aria-pressed="false">어둡게</button></div>
         <button type="button" id="editorExport">내보내기</button><label class="editor-import">가져오기<input id="editorImport" type="file" accept="application/json,.json"></label>
       </div>
     </header>
 
     <div class="editor-shell">
       <aside class="editor-library" aria-label="블록 라이브러리">
-        <div class="editor-pane-head"><div><small>BLOCK LIBRARY</small><h1>블록 추가</h1></div><span id="editorLibraryCount">27</span></div>
+        <div class="editor-pane-head"><div><small>BLOCK LIBRARY</small><h1>블록 추가</h1></div><span id="editorLibraryCount">28</span></div>
         <section class="editor-page-meta" aria-labelledby="editorPageMetaTitle"><div class="editor-page-meta__head"><strong id="editorPageMetaTitle">페이지 설정</strong><span id="editorPageIdLabel"></span></div><label>산업 ID<input id="editorIndustryId" type="text" value="general" placeholder="photography"></label><label>URL slug<input id="editorSlug" type="text" placeholder="photography"></label><div class="editor-page-meta__actions"><button type="button" id="editorNewPage">새 페이지</button><button type="button" id="editorDuplicatePage">페이지 복제</button></div></section>
-        <details class="editor-seo" id="editorSeo">
-          <summary><span><small>SEARCH</small><strong>SEO / 검색 정보</strong></span><span id="editorSeoStatus">입력 필요</span></summary>
-          <div class="editor-seo__body">
-            <label>SEO 제목<input id="editorSeoTitle" type="text" maxlength="300" placeholder="검색 결과에 표시할 고유 제목"></label>
-            <label>설명<textarea id="editorSeoDescription" rows="3" maxlength="1000" placeholder="페이지 내용을 실제로 요약합니다."></textarea></label>
-            <div class="editor-seo__grid"><label>페이지 유형<select id="editorSeoSchemaType"><option value="Article">Article</option><option value="WebPage">WebPage</option></select></label><label>검색 노출<select id="editorSeoIndexPolicy"><option value="index">공개 시 index</option><option value="noindex">공개해도 noindex</option></select></label></div>
-            <label>대표 이미지 URL<input id="editorSeoOgImage" type="url" placeholder="https://..."></label>
-            <div class="editor-seo__grid"><label>사이트 이름<input id="editorSeoSiteName" type="text" value="먹고살기"></label><label>작성/검토자<input id="editorSeoAuthorName" type="text"></label></div>
-            <label>내용 확인일<input id="editorSeoReviewedAt" type="date"></label>
-            <div class="editor-seo__actions"><button type="button" id="editorSeoUsePageTitle">페이지 제목 가져오기</button><button type="button" id="editorSeoSave">검색 정보 저장</button></div>
-          </div>
-        </details>
-        <details class="editor-ai-brief" id="editorAiBrief">
-          <summary><span><small>AI CONTENT</small><strong>AI 작성 기준</strong></span><span id="editorAiStatusLabel">미요청</span></summary>
-          <div class="editor-ai-brief__body">
-            <label>구체적인 주제<input id="editorBriefTopic" type="text" placeholder="예: 초보 영상 편집 프리랜서"></label>
-            <label>대상 독자<textarea id="editorBriefAudience" rows="2" placeholder="누구를 위한 페이지인지 적습니다."></textarea></label>
-            <label>이 페이지의 목표<textarea id="editorBriefGoal" rows="2" placeholder="읽은 뒤 무엇을 판단하거나 실행할 수 있어야 하는지 적습니다."></textarea></label>
-            <label>추가 상황<textarea id="editorBriefContext" rows="2" placeholder="지역, 사업 방식, 운영 조건처럼 필요한 배경을 적습니다."></textarea></label>
-            <label>반드시 다룰 내용<textarea id="editorBriefMustCover" rows="4" placeholder="한 줄에 하나씩 적습니다."></textarea></label>
-            <label>제외할 내용<textarea id="editorBriefAvoid" rows="3" placeholder="한 줄에 하나씩 적습니다."></textarea></label>
-            <label>분야별 문체 참고<textarea id="editorBriefTone" rows="2" placeholder="공통 문체 외에 필요한 점만 적습니다."></textarea></label>
-            <label>자료 우선순위<textarea id="editorBriefSources" rows="2" placeholder="공식 기관, 통계 원문처럼 우선할 자료를 한 줄에 하나씩 적습니다."></textarea></label>
-            <div class="editor-ai-brief__grid"><label>자료 조사<select id="editorBriefResearch"><option value="current_sources_required">최신 자료 필요</option><option value="stable_sources_only">안정된 자료 중심</option><option value="no_external_research">외부 조사 없음</option></select></label><label>사실 민감도<select id="editorBriefSensitivity"><option value="normal">일반</option><option value="high">높음</option></select></label></div>
-            <label>AI 작업 상태<select id="editorAiStatus"><option value="not_requested">미요청</option><option value="brief_ready">기준 준비됨</option><option value="drafting">작성 중</option><option value="needs_review">검토 필요</option><option value="approved">승인됨</option></select></label>
-            <div class="editor-ai-brief__actions"><button type="button" id="editorBriefExport">AI 작업 JSON</button><button type="button" id="editorBriefSave">작성 기준 저장</button></div>
-            <div class="editor-ai-result"><label>AI 결과 적용<input id="editorAiResultImport" type="file" accept="application/json,.json"></label><span id="editorAiResultStatus" class="editor-ai-result-status" role="status"></span></div>
-            <div id="editorAiReviewPanel" class="editor-ai-review" hidden></div>
-          </div>
-        </details>
-        <section class="editor-publish" aria-labelledby="editorPublishTitle">
-          <div class="editor-publish__head"><span><small>PUBLISH</small><strong id="editorPublishTitle">발행 준비</strong></span></div>
-          <div class="editor-publish__actions"><button type="button" id="editorPublishCheck">발행 검사</button><button type="button" id="editorPublishNow" disabled>발행</button></div>
-          <span id="editorPublishStatus" class="editor-publish-status" role="status"></span>
-          <div id="editorPublishResults" class="editor-publish-results" hidden></div>
-        </section>
+        <details class="editor-seo" id="editorSeo"><summary><span><small>SEARCH</small><strong>SEO / 검색 정보</strong></span><span id="editorSeoStatus">입력 필요</span></summary><div class="editor-seo__body"><label>SEO 제목<input id="editorSeoTitle" type="text" maxlength="300" placeholder="검색 결과에 표시할 고유 제목"></label><label>설명<textarea id="editorSeoDescription" rows="3" maxlength="1000" placeholder="페이지 내용을 실제로 요약합니다."></textarea></label><div class="editor-seo__grid"><label>페이지 유형<select id="editorSeoSchemaType"><option value="Article">Article</option><option value="WebPage">WebPage</option></select></label><label>검색 노출<select id="editorSeoIndexPolicy"><option value="index">공개 시 index</option><option value="noindex">공개해도 noindex</option></select></label></div><label>대표 이미지 URL<input id="editorSeoOgImage" type="url" placeholder="https://..."></label><div class="editor-seo__grid"><label>사이트 이름<input id="editorSeoSiteName" type="text" value="먹고살기"></label><label>작성/검토자<input id="editorSeoAuthorName" type="text"></label></div><label>내용 확인일<input id="editorSeoReviewedAt" type="date"></label><div class="editor-seo__actions"><button type="button" id="editorSeoUsePageTitle">페이지 제목 가져오기</button><button type="button" id="editorSeoSave">검색 정보 저장</button></div></div></details>
+        <details class="editor-ai-brief" id="editorAiBrief"><summary><span><small>AI CONTENT</small><strong>AI 작성 기준</strong></span><span id="editorAiStatusLabel">미요청</span></summary><div class="editor-ai-brief__body"><label>구체적인 주제<input id="editorBriefTopic" type="text" placeholder="예: 초보 영상 편집 프리랜서"></label><label>대상 독자<textarea id="editorBriefAudience" rows="2" placeholder="누구를 위한 페이지인지 적습니다."></textarea></label><label>이 페이지의 목표<textarea id="editorBriefGoal" rows="2" placeholder="읽은 뒤 무엇을 판단하거나 실행할 수 있어야 하는지 적습니다."></textarea></label><label>추가 상황<textarea id="editorBriefContext" rows="2" placeholder="지역, 사업 방식, 운영 조건처럼 필요한 배경을 적습니다."></textarea></label><label>반드시 다룰 내용<textarea id="editorBriefMustCover" rows="4" placeholder="한 줄에 하나씩 적습니다."></textarea></label><label>제외할 내용<textarea id="editorBriefAvoid" rows="3" placeholder="한 줄에 하나씩 적습니다."></textarea></label><label>분야별 문체 참고<textarea id="editorBriefTone" rows="2" placeholder="공통 문체 외에 필요한 점만 적습니다."></textarea></label><label>자료 우선순위<textarea id="editorBriefSources" rows="2" placeholder="공식 기관, 통계 원문처럼 우선할 자료를 한 줄에 하나씩 적습니다."></textarea></label><div class="editor-ai-brief__grid"><label>자료 조사<select id="editorBriefResearch"><option value="current_sources_required">최신 자료 필요</option><option value="stable_sources_only">안정된 자료 중심</option><option value="no_external_research">외부 조사 없음</option></select></label><label>사실 민감도<select id="editorBriefSensitivity"><option value="normal">일반</option><option value="high">높음</option></select></label></div><label>AI 작업 상태<select id="editorAiStatus"><option value="not_requested">미요청</option><option value="brief_ready">기준 준비됨</option><option value="drafting">작성 중</option><option value="needs_review">검토 필요</option><option value="approved">승인됨</option></select></label><div class="editor-ai-brief__actions"><button type="button" id="editorBriefExport">AI 작업 JSON</button><button type="button" id="editorBriefSave">작성 기준 저장</button></div><div class="editor-ai-result"><label>AI 결과 적용<input id="editorAiResultImport" type="file" accept="application/json,.json"></label><span id="editorAiResultStatus" class="editor-ai-result-status" role="status"></span></div><div id="editorAiReviewPanel" class="editor-ai-review" hidden></div></div></details>
+        <section class="editor-publish" aria-labelledby="editorPublishTitle"><div class="editor-publish__head"><span><small>PUBLISH</small><strong id="editorPublishTitle">발행 준비</strong></span></div><div class="editor-publish__actions"><button type="button" id="editorPublishCheck">발행 검사</button><button type="button" id="editorPublishNow" disabled>발행</button></div><span id="editorPublishStatus" class="editor-publish-status" role="status"></span><div id="editorPublishResults" class="editor-publish-results" hidden></div></section>
         <input id="editorLibrarySearch" class="editor-search" type="search" placeholder="블록 검색" aria-label="블록 검색"><div id="editorLibraryList" class="editor-library-list"></div>
       </aside>
-      <main class="editor-workspace"><div class="editor-workspace-head"><div><small>PAGE CANVAS</small><strong id="editorBlockCount">0개 블록</strong></div><p>블록을 추가한 뒤 드래그하거나 위·아래 버튼으로 순서를 바꿀 수 있습니다.</p></div><div class="editor-stage"><div id="editorCanvas" class="editor-canvas" aria-label="페이지 편집 영역"></div></div></main>
+      <main class="editor-workspace"><div class="editor-workspace-head"><div><small>PAGE CANVAS</small><strong id="editorBlockCount">0개 블록</strong></div><p>왼쪽에서 블록을 추가하고, 선택한 블록은 오른쪽에서 편집합니다.</p></div><div class="editor-stage"><div id="editorCanvas" class="editor-canvas" aria-label="페이지 편집 영역"></div></div></main>
       <aside class="editor-inspector" aria-label="블록 속성"><div class="editor-pane-head"><div><small>INSPECTOR</small><h2>블록 편집</h2></div></div><div id="editorInspector" class="editor-inspector-body"><p class="editor-empty">편집할 블록을 선택하세요.</p></div></aside>
     </div>
 
@@ -90,6 +59,7 @@
     <dialog id="editorConnectDialog" class="editor-connect-dialog"><div class="editor-connect-card"><div><small>ADMIN CONNECTION</small><h2>관리자 서버 연결</h2><p>배포 환경의 관리자 토큰을 입력하세요. 토큰은 이 탭의 세션에만 보관합니다.</p></div><label>관리자 토큰<input id="editorAdminToken" type="password" autocomplete="off" spellcheck="false"></label><p id="editorConnectMessage" class="editor-connect-message" role="status"></p><div class="editor-connect-actions"><button type="button" id="editorConnectCancel">취소</button><button type="button" id="editorConnectSubmit">연결</button></div></div></dialog>
   </div>
 
-  <script src="/assets/js/blocks/block-registry.js?v=2"></script><script src="/data/block-registry/v1/manifest.js?v=2"></script><script src="/assets/js/blocks/block-renderers.js?v=1"></script><script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script><script src="/assets/js/blocks/block-renderers-parity.js?v=1"></script><script src="/assets/js/block-lab/lab-data.js?v=1"></script><script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-parity-data.js?v=1"></script><script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script><script src="/assets/js/editor-lab/editor-app.js?v=2"></script><script src="/assets/js/editor-lab/page-meta.js?v=1"></script><script src="/assets/js/editor-lab/seo-meta.js?v=1"></script><script src="/assets/js/editor-lab/ai-brief.js?v=2"></script><script src="/assets/js/editor-lab/ai-response.js?v=1"></script><script src="/assets/js/editor-lab/ai-review.js?v=1"></script><script src="/assets/js/editor-lab/editor-server.js?v=4"></script><script src="/assets/js/editor-lab/publish-controls.js?v=2"></script><script src="/assets/js/editor-lab/media-picker.js?v=1"></script><script src="/assets/js/editor-lab/revision-history.js?v=1"></script><script src="/assets/js/editor-lab/inspector-friendly.js?v=1"></script>
+  <script src="/assets/js/admin/admin-shell-v1.js?v=2" data-admin-shell-loader></script>
+  <script src="/assets/js/blocks/block-registry.js?v=2"></script><script src="/data/block-registry/v1/manifest.js?v=3"></script><script src="/assets/js/blocks/block-renderers.js?v=1"></script><script src="/assets/js/blocks/block-renderers-extended.js?v=1"></script><script src="/assets/js/blocks/block-renderers-parity.js?v=1"></script><script src="/assets/js/block-lab/lab-data.js?v=1"></script><script src="/assets/js/block-lab/lab-data-extended.js?v=1"></script><script src="/assets/js/block-lab/lab-parity-data.js?v=2"></script><script src="/assets/js/block-lab/lab-interactions-extended.js?v=1"></script><script src="/assets/js/editor-lab/editor-app.js?v=2"></script><script src="/assets/js/editor-lab/page-meta.js?v=1"></script><script src="/assets/js/editor-lab/seo-meta.js?v=1"></script><script src="/assets/js/editor-lab/ai-brief.js?v=2"></script><script src="/assets/js/editor-lab/ai-response.js?v=1"></script><script src="/assets/js/editor-lab/ai-review.js?v=1"></script><script src="/assets/js/editor-lab/editor-server.js?v=4"></script><script src="/assets/js/editor-lab/publish-controls.js?v=2"></script><script src="/assets/js/editor-lab/media-picker.js?v=1"></script><script src="/assets/js/editor-lab/revision-history.js?v=1"></script><script src="/assets/js/editor-lab/inspector-friendly.js?v=1"></script>
 </body>
 </html>
