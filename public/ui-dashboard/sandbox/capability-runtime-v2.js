@@ -70,6 +70,8 @@
       if(!l&&!r){row.style.removeProperty('-webkit-mask-image');row.style.removeProperty('mask-image');}
       row.dataset.builderScrollbar=c.scrollbar||'hidden';
       row.dataset.builderDesktopDrag=String(bool(c.desktopDrag,true));
+      row.dataset.builderDragThreshold=String(num(c.dragThreshold,5));
+      row.dataset.builderClickSuppressMs=String(num(c.clickSuppressMs,220));
     });
   }
 
@@ -114,7 +116,11 @@
 
   function applyProgress(c={}){
     const nodes=$$('.nav-chapter-progress,.read-progress');nodes.forEach(node=>{node.hidden=!bool(c.enabled,true);node.style.opacity=String(num(c.opacity,100)/100);});
-    const progress=$('.nav-chapter-progress');if(progress){progress.style.background=rgba(c.color||'#4081ef',num(c.opacity,100)/100);if(num(c.thickness,2)>2){progress.style.top='auto';progress.style.bottom='0';progress.style.height=`${num(c.thickness,2)}px`;}}
+    const progress=$('.nav-chapter-progress');if(progress){
+      progress.style.background=rgba(c.color||'#4081ef',num(c.opacity,100)/100);
+      if(num(c.thickness,2)>2){progress.style.top='auto';progress.style.bottom='0';progress.style.height=`${num(c.thickness,2)}px`;}
+      else{progress.style.removeProperty('top');progress.style.removeProperty('bottom');progress.style.removeProperty('height');}
+    }
   }
 
   function applyFab(c={}){
