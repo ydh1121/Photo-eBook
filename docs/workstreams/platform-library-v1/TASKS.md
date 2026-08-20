@@ -11,6 +11,7 @@
 - [x] AI 사실/수치/사용자 문장 보존 계약
 - [x] canonical route loading/404 copy를 COPY_GUIDE에 추가
 - [x] UI Dashboard 실시간 미리보기/한글 상태 표시 규칙을 COPY_GUIDE에 추가
+- [x] photography production parity / 원본-vs-범용 실험 표시 규칙을 COPY_GUIDE에 추가
 - [ ] 이후 발견되는 reference 지속 등록
 
 ## 02. Block System
@@ -45,6 +46,12 @@
 - [x] collection bottom sheet / secondary filter 추출
 - [x] device handoff accordion 추출
 - [x] UI Dashboard photography preset 1차 보정
+- [x] photography-extracted UI는 production과 100% source parity를 기준으로 판정하는 계약 고정
+- [x] UI Dashboard `사진 페이지 원본` same-origin actual production mode
+- [x] `사진 페이지 원본` / `범용 실험` preview 분리
+- [x] 원본 mode viewport: 현재 폭 / 모바일 390 / PC 1180
+- [x] 원본 mode가 actual production DOM/CSS/JS로 상단 메뉴/rail/collection/device handoff/progress/FAB를 직접 조작하도록 연결
+- [ ] Safari browser chrome 연동 deferred-sticky는 실제 `/photography/` 전체 화면에서 최종 parity QA
 - [ ] floating action / collection 세부 primitive 추가 추출
 
 ### Content Block 1:1 분류
@@ -64,6 +71,7 @@
 
 Permanent classification:
 - `docs/library/blocks/photography/PARITY-V1.md`
+- `docs/library/ui-capabilities/PHOTOGRAPHY-PARITY.md`
 
 새 advanced candidate variants:
 - [x] `hero / immersive-metrics`
@@ -74,9 +82,12 @@ Permanent classification:
 - [x] photography 기존 variant용 built-in Style preset 추출/Sheet seed
 - [ ] base skill-card generic destination 결정
 - [ ] numbered checklist mini-card vs unified surface 결정
-- [ ] 사용자 parity review
+- [-] 사용자 parity review
 
 Photography production renderer 자체는 변경하지 않는다.
+
+Long-term target:
+`photography production owner → approved shared primitive/capability 추출 → photography와 신규 산업이 같은 shared source 사용`
 
 ## 05. UI Capability / Design Dashboard
 - [x] UI Capability contract
@@ -92,22 +103,17 @@ Photography production renderer 자체는 변경하지 않는다.
 - [x] public runtime: horizontal-card-rail 실제 적용
 - [x] public runtime: reading-progress 실제 적용
 - [x] Dashboard 설정 변경 즉시 specimen 반영
-- [x] Dashboard 7개 capability 직접 조작형 preview
-  - 상단 메뉴 내부 스크롤/칩 이동/진행 표시
-  - 가로 rail 터치 스크롤/PC drag/링크 클릭 억제
-  - 필터칩 실제 선택
-  - 하단 팝업 열기/닫기/탭/검색/필터/선택
-  - device handoff 아코디언/복사/연결 상태
-  - 읽기 진행선 실제 내부 스크롤 연동
-  - floating action 메뉴 열기/선택
+- [x] Dashboard 7개 capability 직접 조작형 `범용 실험` preview
 - [x] Dashboard 드롭다운/상태/source/category 한글 표시
 - [x] Dashboard 기본값 복원 + 현재 상태 요약
-- [-] 사용자 실제 UI Dashboard 조작 검토
+- [x] Dashboard `사진 페이지 원본` mode는 actual `/photography/`를 iframe으로 재사용
+- [x] 원본 mode와 실험 controls를 혼동하지 않도록 원본에서는 실험 controls 잠금 표시
+- [-] 사용자 실제 UI Dashboard 원본 parity + 범용 실험 조작 검토
 - [-] generic surface가 필요한 capability의 public runtime 적용 확대
 - [ ] capability 자체 approved/deprecated lifecycle UI
 - [ ] shared primitive/token 관리 탭
 
-상단 chapter nav, bottom sheet, filter 등은 실제 generic surface/data contract가 준비되기 전 production public runtime에 임의 생성하지 않는다. Safari deferred sticky safety를 우선한다.
+사진 원본 mode와 범용 실험 mode를 같은 승인 근거로 섞지 않는다. photography-extracted preset은 원본 mode와 visual/interaction/function/responsive parity가 맞아야 승인할 수 있다.
 
 Current capabilities:
 1. top-chapter-navigation
@@ -230,6 +236,7 @@ Current capabilities:
 
 Production invariants:
 - photography production renderer를 candidate로 교체하지 않음
+- photography parity baseline을 mockup으로 대체하지 않음
 - Safari deferred sticky safety 유지
 - mobile native horizontal scroll owner 유지
 - candidate 자동 publish 금지
@@ -239,18 +246,19 @@ Production invariants:
 - canonical dynamic route는 active snapshot만 반환
 - active snapshot만 public runtime 신뢰 대상으로 취급
 - `/video-editor/`는 현재 draft이므로 active snapshot이 생기기 전 공개되지 않아야 함
-- UI Dashboard는 production UI를 직접 변경하지 않고 preset 검토/저장만 수행
+- UI Dashboard는 production UI를 직접 변경하지 않고 원본 비교 + preset 실험/저장만 수행
 
 ## Exact next action
-1. [-] 사용자 `/ui-dashboard/` 실시간 조작형 preview 검토
-2. [-] 사용자 `/block-lab/` + `/qa/video-editor/` review 결과 수집
-3. [ ] review 결과에 따라 variant/style/UI preset을 server `approved` 또는 redesign/deprecated로 저장
-4. [ ] approved-only production Editor 최종 모드
-5. [ ] `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→canonical→rollback live QA
-6. [ ] 실제 Cloudflare canonical/404/sitemap smoke test
-7. [ ] 승인된 generic surface 기준 UI Capability public runtime 적용 확대
-8. [ ] PC/mobile/CWV + 광고 side rail QA
-9. [ ] workstream QA Drive archive
+1. [-] `/ui-dashboard/`의 `사진 페이지 원본` mode에서 7개 capability 실제 production parity 확인
+2. [-] 같은 capability의 `범용 실험` mode에서 조절 가능한 설정 검토
+3. [-] `/block-lab/` + `/qa/video-editor/` review 결과 수집
+4. [ ] review 결과에 따라 variant/style/UI preset을 server `approved` 또는 redesign/deprecated로 저장
+5. [ ] approved-only production Editor 최종 모드
+6. [ ] `ADMIN_EDITOR_TOKEN` 설정 후 authenticated Editor→publish→canonical→rollback live QA
+7. [ ] 실제 Cloudflare canonical/404/sitemap smoke test
+8. [ ] 승인된 generic surface 기준 UI Capability public runtime 적용 확대
+9. [ ] PC/mobile/CWV + 광고 side rail QA
+10. [ ] workstream QA Drive archive
 
 ## V1 완료 목표
 1. Block/variant/style preset 최종 승인
