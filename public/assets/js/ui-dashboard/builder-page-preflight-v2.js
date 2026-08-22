@@ -8,12 +8,15 @@
   const ARCHIVE='platformBuilderCapabilityConfigsLegacyArchiveV1';
   function read(key){try{const value=JSON.parse(localStorage.getItem(key)||'{}');return value&&typeof value==='object'?value:{};}catch{return {};}}
   function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
+  function remove(key){try{localStorage.removeItem(key);}catch{}}
 
   const legacy=read(LEGACY);
   const live=read(LIVE);
   if(Object.keys(legacy).length&&!localStorage.getItem(ARCHIVE))write(ARCHIVE,legacy);
   /* builder-v1 still owns inspector/panel creation, but it must boot from only
      the explicit live overrides. configFor() adds manifest defaults for form
-     presentation; the live runtime later resets the actual UI to production. */
-  write(LEGACY,live);
+     presentation; the live runtime later resets the actual UI to production.
+     Keep the legacy key absent when there are no explicit overrides so a full
+     canvas reset remains storage-clean after the parent page reloads. */
+  if(Object.keys(live).length)write(LEGACY,live);else remove(LEGACY);
 })();
