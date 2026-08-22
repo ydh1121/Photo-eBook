@@ -7,6 +7,11 @@
   if(!frame)return;
   let observer=null;
 
+  function closeRetiredInspector(){
+    const panel=document.querySelector('.builder-inspector[data-inspector-id="reading-progress"]');
+    panel?.querySelector('[data-close-inspector]')?.click();
+  }
+
   function repair(){
     const doc=frame.contentDocument;if(!doc)return;
     const legacy=doc.querySelector('.read-progress');
@@ -22,6 +27,7 @@
       progress.removeAttribute('data-builder-primary');
       progress.querySelector(':scope > .platform-builder-gear')?.remove();
     });
+    closeRetiredInspector();
   }
 
   function bind(){
@@ -33,5 +39,9 @@
   }
 
   frame.addEventListener('load',()=>[60,320,900,2100,3800].forEach(delay=>setTimeout(()=>{bind();repair();},delay)));
+  document.addEventListener('click',event=>{
+    if(!(event.target instanceof Element)||!event.target.closest('[data-mobile-panel="reading-progress"]'))return;
+    queueMicrotask(repair);
+  },true);
   if(frame.contentDocument?.readyState==='complete')bind();
 })();
