@@ -98,14 +98,22 @@
     context.appendChild(accordion);
   }
 
-  function resetTopProgress(){
+  function resetTopNavAudit(){
+    const shell=$('.nav-shell');
+    if(shell){shell.hidden=false;shell.style.removeProperty('display');}
     const progress=$('.nav-chapter-progress');
     if(!progress)return;
     progress.hidden=false;
     removeImportant(progress,['display','background','opacity','top','bottom','height','border-radius']);
   }
 
-  function applyTopProgress(config){
+  function applyTopNavAudit(config){
+    const shell=$('.nav-shell');
+    if(shell&&has(config,'enabled')){
+      shell.hidden=false;
+      if(config.enabled===false)shell.style.setProperty('display','none','important');
+      else shell.style.removeProperty('display');
+    }
     const progress=$('.nav-chapter-progress');if(!progress)return;
     if(has(config,'progressEnabled')){
       progress.hidden=false;
@@ -225,15 +233,34 @@
     if(has(config,'bulkSelection'))reconcileBulkSelection(config.bulkSelection!==false);
   }
 
+  function resetDeviceAudit(){
+    const accordion=$('.collection-device-accordion');
+    if(accordion){accordion.hidden=false;delete accordion.dataset.builderResponse;}
+  }
+
+  function applyDeviceAudit(config){
+    const accordion=$('.collection-device-accordion');
+    if(accordion&&has(config,'enabled'))accordion.hidden=config.enabled===false;
+  }
+
   function resetFabAudit(){
     const fab=$('#collectionFab');if(!fab)return;
     fab.style.removeProperty('--builder-fab-accent');
+    removeImportant(fab,['background','background-image']);
     delete fab.dataset.builderResponse;
   }
 
   function applyFabAudit(config){
     const fab=$('#collectionFab');if(!fab)return;
-    if(has(config,'accentColor'))fab.style.setProperty('--builder-fab-accent',config.accentColor||'#315fc9');
+    const accent=config.accentColor||'#315fc9';
+    if(has(config,'accentColor'))fab.style.setProperty('--builder-fab-accent',accent);
+    if(has(config,'family')||has(config,'accentColor')){
+      const family=config.family||fab.dataset.builderFamily||'glass';
+      const background=family==='flat'
+        ?accent
+        :`linear-gradient(145deg,color-mix(in srgb,${accent} 86%,#fff),color-mix(in srgb,${accent} 90%,#111))`;
+      fab.style.setProperty('background',background,'important');
+    }
     if(has(config,'response'))fab.dataset.builderResponse=config.response;
   }
 
@@ -241,21 +268,17 @@
     if(event.origin!==location.origin)return;
     const data=event.data||{};
     if(data.type==='platform-ui-reset'){
-      if(data.capabilityId==='top-chapter-navigation')requestAnimationFrame(resetTopProgress);
+      if(data.capabilityId==='top-chapter-navigation')requestAnimationFrame(resetTopNavAudit);
       else if(data.capabilityId==='horizontal-card-rail')requestAnimationFrame(resetRailAudit);
-      else if(data.capabilityId==='device-handoff-accordion'){
-        const accordion=$('.collection-device-accordion');
-        if(accordion)delete accordion.dataset.builderResponse;
-      }else if(data.capabilityId==='collection-bottom-sheet'){
-        requestAnimationFrame(()=>reconcileSheet(null,{reset:true}));
-      }else if(data.capabilityId==='floating-action'){
-        requestAnimationFrame(resetFabAudit);
-      }
+      else if(data.capabilityId==='device-handoff-accordion')requestAnimationFrame(resetDeviceAudit);
+      else if(data.capabilityId==='collection-bottom-sheet')requestAnimationFrame(()=>reconcileSheet(null,{reset:true}));
+      else if(data.capabilityId==='floating-action')requestAnimationFrame(resetFabAudit);
       return;
     }
     if(data.type!=='platform-ui-config')return;
-    if(data.capabilityId==='top-chapter-navigation')requestAnimationFrame(()=>applyTopProgress(data.config||{}));
+    if(data.capabilityId==='top-chapter-navigation')requestAnimationFrame(()=>applyTopNavAudit(data.config||{}));
     else if(data.capabilityId==='horizontal-card-rail')requestAnimationFrame(()=>applyRailAudit(data.config||{}));
+    else if(data.capabilityId==='device-handoff-accordion')requestAnimationFrame(()=>applyDeviceAudit(data.config||{}));
     else if(data.capabilityId==='collection-bottom-sheet')requestAnimationFrame(()=>reconcileSheet(data.config||{}));
     else if(data.capabilityId==='floating-action')requestAnimationFrame(()=>applyFabAudit(data.config||{}));
   }
