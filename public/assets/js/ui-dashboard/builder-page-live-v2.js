@@ -9,11 +9,19 @@
 
   const LIVE='platformBuilderCapabilityConfigsV2';
   const LEGACY='platformBuilderCapabilityConfigsV1';
+  const EXCLUDED=new Set(['reading-progress']);
   function read(key){try{const value=JSON.parse(localStorage.getItem(key)||'{}');return value&&typeof value==='object'?value:{};}catch{return {};}}
   function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
   function capability(id){return manifest.capabilities.find(item=>item.id===id);}
   function post(message){try{frame.contentWindow?.postMessage(message,location.origin);}catch{}}
 
+  function removeRetiredOverrides(){
+    for(const key of [LIVE,LEGACY]){
+      const all=read(key);let changed=false;
+      for(const id of EXCLUDED){if(Object.prototype.hasOwnProperty.call(all,id)){delete all[id];changed=true;}}
+      if(changed)write(key,all);
+    }
+  }
   function ensureCompat(){
     const doc=frame.contentDocument;if(!doc||doc.querySelector('script[data-builder-compat-v1]'))return;
     const script=doc.createElement('script');
@@ -22,14 +30,14 @@
     doc.head.appendChild(script);
   }
   function syncCapability(id){
-    if(!capability(id))return;
+    if(EXCLUDED.has(id)||!capability(id))return;
     const config=read(LIVE)[id];
     post({type:'platform-ui-reset',capabilityId:id});
     if(config&&Object.keys(config).length)post({type:'platform-ui-config',capabilityId:id,config});
   }
   function syncAll(){for(const item of manifest.capabilities)syncCapability(item.id);}
   function saveOne(id,key,value){
-    if(!capability(id))return;
+    if(EXCLUDED.has(id)||!capability(id))return;
     const all=read(LIVE);
     const next={...(all[id]||{})};next[key]=value;all[id]=next;
     write(LIVE,all);write(LEGACY,all);
@@ -37,6 +45,7 @@
     setTimeout(()=>syncCapability(id),0);
   }
   function clearCapability(id){
+    if(EXCLUDED.has(id))return;
     const all=read(LIVE);delete all[id];write(LIVE,all);write(LEGACY,all);
     queueMicrotask(()=>syncCapability(id));
     setTimeout(()=>syncCapability(id),0);
@@ -72,10 +81,11 @@
   },true);
 
   function scheduleSync(){
-    ensureCompat();
+    removeRetiredOverrides();ensureCompat();
     [40,130,300,780,1900,3600,4140].forEach(delay=>setTimeout(()=>{ensureCompat();syncAll();},delay));
   }
+  removeRetiredOverrides();
   frame.addEventListener('load',scheduleSync);
-  window.addEventListener('pageshow',()=>setTimeout(()=>{ensureCompat();syncAll();},120),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(()=>{removeRetiredOverrides();ensureCompat();syncAll();},120),{passive:true});
   if(frame.contentDocument?.readyState==='complete')scheduleSync();
 })();
