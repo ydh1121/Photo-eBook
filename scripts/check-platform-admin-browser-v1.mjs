@@ -50,6 +50,14 @@ async function enableSide(page,side){
   if(!(await menu.getAttribute('open')))await menu.locator('summary').click();
   await page.locator(id).click();
   const panel=page.locator(`.builder-ad-inspector[data-ad-inspector="${side}"]`);await panel.waitFor({state:'visible'});
+  if(side==='left'){
+    const geometry=await page.evaluate(()=>{
+      const admin=document.querySelector('.platform-admin-shell')?.getBoundingClientRect();
+      const panel=document.querySelector('.builder-ad-inspector[data-ad-inspector="left"]')?.getBoundingClientRect();
+      return {adminRight:admin?.right||0,panelLeft:panel?.left||0};
+    });
+    assert(geometry.panelLeft>=geometry.adminRight,`left ad inspector overlaps admin shell (${geometry.panelLeft} < ${geometry.adminRight})`);
+  }
   const enabled=panel.locator('[data-ad-control="enabled"]');if(!(await enabled.isChecked()))await enabled.check();
   await panel.locator('[data-close-ad-inspector]').click();
 }
@@ -59,11 +67,23 @@ async function bodyZone(frame){
 }
 async function expectedSideState(frame){
   return frame.evaluate(()=>{
-    const candidates=[...document.querySelectorAll('.chapter .section .content')].map(node=>node.getBoundingClientRect()).filter(rect=>rect.bottom>100&&rect.top<innerHeight-80&&rect.width>520);
-    const body=candidates.sort((a,b)=>Math.abs(a.top-108)-Math.abs(b.top-108))[0];
-    if(!body)return {innerWidth,left:false,right:false,leftRoom:0,rightRoom:0};
-    const leftRoom=body.left,rightRoom=innerWidth-body.right,need=150;
-    return {innerWidth,left:innerWidth>=1360&&leftRoom>=need,right:innerWidth>=1360&&rightRoom>=need,leftRoom,rightRoom};
+    const viewportH=innerHeight;
+    const candidates=[...document.querySelectorAll('.chapter .section .content')]
+      .map(node=>({rect:node.getBoundingClientRect()}))
+      .filter(({rect})=>rect.width>260&&rect.height>120&&rect.bottom>90&&rect.top<viewportH-40)
+      .map(item=>({...item,visible:Math.max(0,Math.min(item.rect.bottom,viewportH)-Math.max(item.rect.top,0))}))
+      .filter(item=>item.visible>100)
+      .sort((a,b)=>b.visible-a.visible);
+    const body=candidates[0]?.rect;
+    const preferredTop=108,width=110,gap=40;
+    const heroAtAnchor=[...document.querySelectorAll('.hero,.chapter-hero')].some(node=>{const rect=node.getBoundingClientRect();return rect.bottom>preferredTop&&rect.top<preferredTop;});
+    if(!body)return {innerWidth,left:false,right:false,leftRoom:0,rightRoom:0,heroAtAnchor,visibleHeight:0};
+    const visibleTop=Math.max(body.top,18),visibleBottom=Math.min(body.bottom,innerHeight-18),visibleHeight=visibleBottom-visibleTop;
+    const leftX=body.left-gap-width,rightX=body.right+gap;
+    const base=innerWidth>=1360&&!heroAtAnchor&&visibleHeight>=150;
+    const left=base&&leftX>=10&&leftX+width<=innerWidth-10;
+    const right=base&&rightX>=10&&rightX+width<=innerWidth-10;
+    return {innerWidth,left,right,leftRoom:body.left,rightRoom:innerWidth-body.right,heroAtAnchor,visibleHeight,leftX,rightX};
   });
 }
 async function verifySideWidths(context){
