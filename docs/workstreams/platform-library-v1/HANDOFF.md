@@ -4,6 +4,8 @@ Updated: 2026-08-23 KST
 Active branch: `fix/ui-dashboard-system-audit`
 Production branch: `main`
 Draft PR: `#3`
+Latest implementation QA HEAD: `7151adf41635d16a15b2f3f09eba588569dcd04c`
+Latest documentation HEAD will be newer than the QA HEAD.
 
 ## Resume order
 
@@ -38,18 +40,23 @@ Important meaning:
 `/ui-dashboard/`는 production `/photography/`가 아니라 `/ui-dashboard/sandbox/`를 iframe canvas로 사용한다.
 
 Page chain 핵심:
-- `builder-page-preflight-v2.js`: explicit V2 override만 legacy inspector store로 투영. override가 없으면 V1 key를 아예 제거한다.
+- `builder-page-preflight-v2.js`: explicit V2 override만 legacy inspector store로 투영. override가 없으면 V1 key 제거.
 - `builder-v1.js`: inspector / block DnD chrome
 - `builder-production-parity-v1.js`: sandbox app geometry stabilization
 - `builder-page-audit-v1.js`: editor nav fixed-pin / sandbox-only UX repair
 - `builder-progress-owner-audit-v1.js`: standalone reading-progress owner 제거
 - `builder-page-live-v2.js`: V2 override → sandbox canonical runtime
 - `builder-dynamic-sync-v1.js`: late-created collection/filter/device DOM 재적용
-- `builder-sandbox-ads-v1.js` + `builder-side-ad-zone-audit-v1.js`: side ads
+- `builder-sandbox-ads-v1.js`: side-ad 설정값 + inspector만 소유
+- `builder-side-ad-zone-audit-v1.js`: side-ad geometry / visibility 단독 owner
 - `builder-reset-audit-v1.js`: canvas draft reset
-- `builder-late-frame-bootstrap-v1.js`: iframe이 builder scripts보다 먼저 load된 경우 missed `load` lifecycle을 한 번 복구
+- `builder-late-frame-bootstrap-v1.js`: iframe이 builder scripts보다 먼저 load된 경우 missed lifecycle 복구
 
-Chrome QA가 실제로 `builder chrome missing` 회귀를 발견했고 원인은 dynamic script chain보다 iframe load가 먼저 끝난 race였다. `builder-late-frame-bootstrap-v1.js`로 수정했다.
+Chrome QA가 실제로 발견해 수정한 회귀:
+- builder chrome missed-load race
+- reset 뒤 빈 V1 store 재생성
+- dynamic bottom-sheet rerender 뒤 visibility override 소실
+- side-ad geometry double-owner race
 
 ## Live UI Kit runtime
 
@@ -61,6 +68,8 @@ Chrome QA가 실제로 `builder chrome missing` 회귀를 발견했고 원인은
 - `sandbox-kit-v4.js`: actual production component standalone extraction
 - `capability-runtime-v3.js`: canonical capability override owner
 - `runtime-audit-patch-v1.js`: production `!important` stack보다 높은 sandbox-only override / dark representation / device context
+- `runtime-dynamic-config-guard-v1.js`: collection runtime DOM 재생성 뒤 현재 bottom-sheet/device 설정 재적용
+- `builder-runtime-audit-loader-v1.js?v=2`: 위 runtime patches를 iframe에 확실히 주입
 
 Global:
 - White / Dark / System
@@ -78,30 +87,31 @@ State:
 ## Browser QA
 
 Workflow: `.github/workflows/platform-library-checks.yml`
-Browser script: `scripts/check-ui-dashboard-browser-v2.mjs`
+UI Dashboard browser script: `scripts/check-ui-dashboard-browser-v2.mjs`
+Management browser script: `scripts/check-platform-admin-browser-v1.mjs`
 
-The workflow now:
-1. registry / variants / capability / seed / snapshot checks
-2. JavaScript syntax checks
-3. installs `playwright@1.55.0`
-4. starts a local static server from `public/`
-5. uses runner Chrome/Chromium to operate UI Dashboard
-6. uploads `ui-dashboard-browser-qa` screenshot/report artifact
+Latest full successful run:
+- run: `32603032059` / #203
+- tested branch head: `7151adf41635d16a15b2f3f09eba588569dcd04c`
+- job: `97104043129`
+- conclusion: `success`
+- UI Dashboard artifact: `9483414399`
+- management artifact: `9483414627`
 
-Latest successful run:
-- run: `32601908580`
-- branch head tested: `e03ca2031b8d5eec6fb42ea44c583b3f4a38e248`
-- artifact: `9483117259`
-- report status: `pass`
-- 17 explicit browser checks
-- 14 screenshots
+Static checks all pass:
+- Registry sync
+- variant sync
+- UI capability sync
+- non-photography QA seed
+- Snapshot V2
+- JavaScript syntax
 
-Passed:
+UI Dashboard browser checks all pass:
 - all six Live UI Kit components across White / Dark / System × PC / Mobile
-- top nav: legacy progress absent/hidden, Material mode, native x-scroll, progress line, note local save
+- top nav: retired progress owner absent, Material mode, native x-scroll, progress line, note local save
 - horizontal rail: padding, right fade pseudo layer, scrollbar
 - filter chips: actual bottom-sheet source, click/active state
-- bottom sheet: settings state, theme/device visibility, reset restores standalone state
+- bottom sheet: state, theme/device visibility, reset restoration
 - device: accordion-only extraction, expansion
 - FAB: flat family, accent, response
 - page: fixed nav and integrated progress ownership
@@ -110,34 +120,47 @@ Passed:
 - side ad hidden over hero and active in visible body zone
 - mobile tap → inspector + dock
 
-The successful artifact screenshots were manually opened after download. Layout composition was coherent. Ubuntu runner lacked Korean glyph fonts, so screenshot copy appears as tofu boxes; this is a CI environment font limitation, not application copy evidence.
+Management browser checks all pass:
+- actual block DragEvent reorder + persisted order
+- side ad width boundaries at outer 1280 / 1440 / 1536 / 1600 / 1920
+- Block Lab / Page Editor / QA desktop/mobile current-nav + noindex
 
-## Bugs found by real browser QA
+Side-ad canonical width result:
+- 1280: left/right hidden
+- 1440: left/right hidden
+- 1536: left/right hidden
+- 1600: left/right active when body zone visible
+- 1920: left/right active when body zone visible
 
-1. `builder chrome missing`
-   - iframe could finish loading before `builder-v1` registered `load` handler.
-   - fixed with `builder-late-frame-bootstrap-v1.js`.
+## Visual artifact review
 
-2. reset storage not fully empty
-   - `builder-page-preflight-v2.js` recreated `platformBuilderCapabilityConfigsV1` as `{}` immediately after reset.
-   - fixed by removing V1 key when V2 has no explicit overrides.
+Both latest artifacts were downloaded and screenshots manually opened.
 
-3. Initial side-ad browser assertion was wrong
-   - test expected side ad while chapter hero still crossed the 108px anchor.
-   - production safety intentionally hides there.
-   - browser QA now first verifies hero hide, then scrolls into body and verifies activation.
+Observed:
+- Live UI Kit uses one component per canvas rather than stacked showcase cards.
+- filter chip preview contains only actual filter rail.
+- device preview contains only actual accordion.
+- bottom sheet is isolated on neutral floor.
+- horizontal rail is isolated and clipped/faded as intended.
+- FAB is standalone.
+- side ads sit outside body content at wide desktop.
+
+CI Ubuntu does not contain the Korean glyph font stack used by the app, so Korean copy appears as tofu boxes in runner screenshots. Use those screenshots for geometry/interaction evidence, not Korean typography judgement. Final Korean visual review remains a user-browser task.
 
 ## Side ads
 
-Final guard:
+Final ownership:
+- `builder-sandbox-ads-v1.js`: configuration + inspector + enabled mirror
+- `builder-side-ad-zone-audit-v1.js`: all placement and `data-ad-zone-active` writes
+
+Guard:
 - visible `.chapter .section .content` required
 - hero/chapter hero at ad top anchor → hidden
 - sandbox viewport <1360px → hidden
 - insufficient left/right room → hidden
 - follow on/off preserved
 
-Latest QA validated left side: hero hidden → body active at wide desktop.
-Right side and multiple outer browser widths remain the next automated coverage.
+The old double-writer race was removed after browser QA exposed inconsistent wide-screen visibility.
 
 ## Canvas reset
 
@@ -150,20 +173,24 @@ Right side and multiple outer browser widths remain the next automated coverage.
 Notes / saved presets remain.
 The preflight layer no longer recreates an empty V1 key after reload.
 
-## Main divergence
+## PR / main state
 
-At last comparison:
-- branch was ahead by 73 commits and behind `main` by 2 commits.
-- the 2 `main` commits only changed `public/ui-dashboard/sandbox/sandbox.js`.
-- `sandbox.js` blob SHA is identical on `main` and this branch: `9fd8c59d1487ae329ab78b4f05b5a7559f7a688a`.
-- no content conflict is currently known.
+At latest comparison before this documentation update:
+- branch ahead of `main`: 86 commits
+- branch behind `main`: 2 commits
+- status: diverged
+- PR #3: open / Draft / `mergeable: true`
+- base main: `bf8e006060a7c5de12692c28207328f83ac1d79d`
+
+GitHub currently calculates no merge conflict, but re-read `main` immediately before any merge because `main` can move.
 
 Do not merge PR #3 to `main` without explicit user approval.
 
 ## Next action
 
-1. Add browser coverage for actual block reorder/drop + persisted order.
-2. Add right side-ad and browser-width boundary coverage.
-3. Add browser QA for admin navigation across Block Lab / Page Editor / QA including mobile/noindex.
-4. Re-check main divergence immediately before any merge request.
-5. Keep PR #3 Draft until the user explicitly asks to publish/merge.
+The automated system audit is complete enough for user review.
+
+1. User checks `/ui-dashboard/` and `/ui-dashboard/?view=library` in a real browser after the branch is made viewable or merged.
+2. If visual feedback arrives, modify `fix/ui-dashboard-system-audit` and rerun full browser QA.
+3. If the user explicitly asks to merge/publish, re-read current `main`, compare divergence/conflicts, then merge safely.
+4. Never treat merge/deployment as approval of candidate UI/block presets.
