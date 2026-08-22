@@ -29,7 +29,11 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] 실제 디자인 반영 owner를 sandbox `capability-runtime-v3`로 통일
 [x] 설정 패널 input/change를 전역 live bridge로 연결
 [x] builder-v1 late reapply 뒤 canonical runtime 재적용
-[x] `초기값` 동작은 production 원본 reset으로 연결
+[x] 동적으로 생성되는 bottom sheet / filter / device UI에 설정 재적용
+[x] production owner가 없는 죽은 세부 조절기는 설정 패널에서 숨김
+[x] `초기값`은 production 원본 reset으로 연결
+[x] `더미 초기화`가 block/UI/ad 캔버스 초안을 실제로 지우고 parent page를 다시 시작하도록 수정
+[x] legacy full-width `.read-progress`가 다시 노출되지 않도록 호환층에서 차단
 [-] 모든 capability control을 실제 브라우저에서 live 변경 검증
 [-] block add/reorder/save/reset 동작 회귀 QA
 [-] 광고 좌/우/본문 동작 회귀 QA
@@ -51,14 +55,16 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] 다른 기기: 접힘 / 펼침 상태 전환
 [x] 범용 필터칩은 하단 팝업의 실제 `#collectionFilters > .collection-filter` DOM 사용
 [x] 더미 저장 영상 카테고리 3종으로 `전체 + 제품 + 인물 + 음식` 실제 필터 생성
-[x] 다른 기기는 실제 `.collection-device-accordion`만 분리 표시
+[x] 다른 기기는 실제 `.collection-device-accordion`만 표시하고 production CSS가 필요한 `.collection-settings` 문맥은 투명 wrapper로만 유지
 [x] 하단 팝업을 닫거나 아래로 내렸을 때 dummy page/FAB가 노출되지 않는 중립 floor 사용
 [x] component interaction 유지: nav click / rail drag / filter click / sheet tab·drag / device accordion
 [x] 초기 상태는 production CSS 원본, 사용자가 바꾼 속성만 V2 override
+[x] Material/iOS 표현 모드의 dark theme surface 보정
+[x] device accordion 반응 속도 조절을 production transition에 실제 연결
 [x] 구형 library controller / sandbox preview controller 제거
 [-] 6개 UI × 3 theme × PC/mobile 실제 브라우저 QA
 [-] UI별 quick mode 실제 paint 전환 검증
-[-] 세부 설정의 모든 control live 반영 검증
+[-] 세부 설정의 모든 노출 control live 반영 검증
 
 ## Production UI parity
 
@@ -72,9 +78,12 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 [x] 좌/우 광고 설정과 활성화를 분리
 [x] 1360px 미만 side ad 숨김
-[x] content 외곽 여백 기준 배치
+[x] 현재 viewport에 실제로 보이는 `.chapter .section .content` 기준으로 위치 재검증
+[x] hero / chapter hero anchor 구간에서는 side ad 숨김
+[x] 좌우 여백이 광고 폭 + gap을 수용하지 못하면 숨김
 [x] follow on/off 유지
 [-] 1440 / 1536 / 1600 / 1920 실제 브라우저 QA
+[-] chapter 경계에서 이미지 위로 광고가 올라오지 않는지 QA
 
 ## Other management tools
 
@@ -96,11 +105,11 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## Exact next action
 
-1. `fix/ui-dashboard-system-audit`의 UI Kit를 실제 브라우저에서 검증한다.
-2. Library: 6개 UI를 각각 White / Dark / System, PC / Mobile로 확인한다.
+1. Draft PR로 `Platform Library Checks`를 실행해 JS syntax / registry 회귀를 확인한다.
+2. CI가 통과하면 실제 브라우저에서 UI Kit 6개를 White / Dark / System, PC / Mobile로 확인한다.
 3. `범용 필터칩`이 실제 bottom-sheet chip 디자인과 동일한지 확인한다.
 4. `다른 기기`에서 accordion 이외의 settings/sheet UI가 보이지 않는지 확인한다.
 5. Bottom Sheet를 drag-close 했을 때 중립 floor 외에는 아무것도 보이지 않는지 확인한다.
-6. Page mode에서 각 inspector control을 한 번씩 변경해 즉시 반영되는지 확인한다.
-7. block / ad / draft save / reset 회귀 테스트를 수행한다.
+6. Page mode에서 노출된 각 inspector control을 한 번씩 변경해 즉시 반영되는지 확인한다.
+7. block add/reorder/save/reset과 광고 좌/우/본문을 회귀 테스트한다.
 8. 발견된 회귀만 같은 branch에서 수정한 뒤 `main`과 reconcile하고 사용자 승인 후 병합한다.
