@@ -26,141 +26,144 @@ Library components:
 - 다른 기기
 - 플로팅 버튼
 
-중요한 의미:
-- `범용 필터칩` = 실제 내 모음 bottom sheet 안의 `.collection-filter`
+Important meaning:
+- `범용 필터칩` = bottom sheet 실제 `.collection-filter`
 - `다른 기기` = 실제 `.collection-device-accordion` 하나만 표시
-- `읽기 진행` = 상단 메뉴 component의 일부
+- `읽기 진행` = 상단 메뉴 component 내부 owner
 - 초기 상태 = production CSS 원본
-- 사용자가 바꾼 값만 override
+- 사용자 변경값만 V2 override
 
-## Current runtime split
+## Page runtime
 
-`/ui-dashboard/` page mode:
-- builder-v1은 inspector / block selection / block DnD chrome을 유지
-- `builder-page-preflight-v2.js`가 V1 store를 V2 explicit override 기준으로 정규화
-- `builder-page-live-v2.js`가 design control을 sandbox canonical runtime으로 전달
-- `builder-dynamic-sync-v1.js`가 bottom sheet / filter / device처럼 클릭 뒤 생기는 DOM에 설정을 다시 적용
-- `builder-control-guard-v1.js`가 실제 owner가 없는 조절기를 UI에서 숨김
-- sandbox `capability-runtime-v3.js`가 실제 UI paint/behavior override owner
-- `runtime-audit-patch-v1.js`가 dark representation과 device transition/context 회귀를 보정
-- editor nav는 sandbox fixed-pin fallback으로 스크롤을 따라옴
+`/ui-dashboard/`는 production `/photography/`가 아니라 `/ui-dashboard/sandbox/`를 iframe canvas로 사용한다.
+
+Page chain 핵심:
+- `builder-page-preflight-v2.js`: explicit V2 override만 legacy inspector store로 투영. override가 없으면 V1 key를 아예 제거한다.
+- `builder-v1.js`: inspector / block DnD chrome
+- `builder-production-parity-v1.js`: sandbox app geometry stabilization
+- `builder-page-audit-v1.js`: editor nav fixed-pin / sandbox-only UX repair
+- `builder-progress-owner-audit-v1.js`: standalone reading-progress owner 제거
+- `builder-page-live-v2.js`: V2 override → sandbox canonical runtime
+- `builder-dynamic-sync-v1.js`: late-created collection/filter/device DOM 재적용
+- `builder-sandbox-ads-v1.js` + `builder-side-ad-zone-audit-v1.js`: side ads
+- `builder-reset-audit-v1.js`: canvas draft reset
+- `builder-late-frame-bootstrap-v1.js`: iframe이 builder scripts보다 먼저 load된 경우 missed `load` lifecycle을 한 번 복구
+
+Chrome QA가 실제로 `builder chrome missing` 회귀를 발견했고 원인은 dynamic script chain보다 iframe load가 먼저 끝난 race였다. `builder-late-frame-bootstrap-v1.js`로 수정했다.
+
+## Live UI Kit runtime
 
 `/ui-dashboard/?view=library`:
-- page builder scripts를 로드하지 않음
-- `builder-library-kit-v2.js`가 parent UI Kit owner
-- `builder-library-state-sync-v1.js`가 상태 전환 뒤 capability override를 재적용
-- `sandbox-kit-v4.js`가 실제 production component를 단독 추출
-- `runtime-audit-patch-v1.js`가 device standalone에 보이지 않는 `.collection-settings` 문맥만 유지
+- page builder scripts를 로드하지 않는다.
+- `builder-library-kit-v2.js`: parent UI Kit owner
+- `builder-library-state-sync-v1.js`: state 변경/reset 뒤 config + state 재동기화
+- `builder-library-notes-v1.js`: 수정 요청 메모 local + server notes
+- `sandbox-kit-v4.js`: actual production component standalone extraction
+- `capability-runtime-v3.js`: canonical capability override owner
+- `runtime-audit-patch-v1.js`: production `!important` stack보다 높은 sandbox-only override / dark representation / device context
 
-## Live UI Kit behavior
+Global:
+- White / Dark / System
+- PC / Mobile
 
-Global controls:
-- 색상: White / Dark / System
-- 화면: PC / Mobile
-
-Quick representation controls:
+Quick representation:
 - 상단 메뉴: 원본 / Material / iOS 플랫 / iOS 리퀴드
 - 범용 필터칩: 원본 / Material / iOS 플랫 / iOS 리퀴드
 - 플로팅 버튼: 원본 / 플랫 / 글래스 / 리퀴드
 
-State controls:
+State:
 - 하단 팝업: 전체 / 영상 / 읽을거리 / 질문 / 설정
 - 다른 기기: 접힘 / 펼침
 
-Component extraction:
-- nav: actual `.nav-shell`
-- rail: actual `.scroll-row` / `.desktop-rail-window`
-- filter: actual `#collectionFilters`
-- sheet: actual `#collectionLayer`, FAB hidden
-- device: actual `.collection-device-accordion`; production selector 문맥을 위한 투명 `.collection-settings` wrapper만 유지
-- FAB: actual `#collectionFab`
+## Browser QA
 
-The dummy page remains hidden behind isolated library previews. Dragging/closing the bottom sheet must reveal only the neutral kit floor.
+Workflow: `.github/workflows/platform-library-checks.yml`
+Browser script: `scripts/check-ui-dashboard-browser-v2.mjs`
 
-## Theme
+The workflow now:
+1. registry / variants / capability / seed / snapshot checks
+2. JavaScript syntax checks
+3. installs `playwright@1.55.0`
+4. starts a local static server from `public/`
+5. uses runner Chrome/Chromium to operate UI Dashboard
+6. uploads `ui-dashboard-browser-qa` screenshot/report artifact
 
-Sandbox `liquid-controller.js` owns `window.setPhotoRoadmapTheme(light|dark|system)`.
-`capability-runtime-v3.js` receives `platform-theme` from the parent and applies it inside the iframe.
-Storage isolation keeps `photoRoadmapThemeV1` inside sandbox memory, so UI Kit theme tests do not mutate the user's production theme.
+Latest successful run:
+- run: `32601908580`
+- branch head tested: `e03ca2031b8d5eec6fb42ea44c583b3f4a38e248`
+- artifact: `9483117259`
+- report status: `pass`
+- 17 explicit browser checks
+- 14 screenshots
 
-Material/iOS override families now have explicit dark surfaces in `runtime-audit-patch-v1.js`; dark mode no longer falls back to light chips/rails.
+Passed:
+- all six Live UI Kit components across White / Dark / System × PC / Mobile
+- top nav: legacy progress absent/hidden, Material mode, native x-scroll, progress line, note local save
+- horizontal rail: padding, right fade pseudo layer, scrollbar
+- filter chips: actual bottom-sheet source, click/active state
+- bottom sheet: settings state, theme/device visibility, reset restores standalone state
+- device: accordion-only extraction, expansion
+- FAB: flat family, accent, response
+- page: fixed nav and integrated progress ownership
+- inline advertisement add + layout save
+- dummy reset storage clean + inline ad removed
+- side ad hidden over hero and active in visible body zone
+- mobile tap → inspector + dock
 
-## Fixed editor nav
+The successful artifact screenshots were manually opened after download. Layout composition was coherent. Ubuntu runner lacked Korean glyph fonts, so screenshot copy appears as tofu boxes; this is a CI environment font limitation, not application copy evidence.
 
-Production의 Safari deferred-sticky owner는 유지한다.
+## Bugs found by real browser QA
 
-일반 desktop editor iframe에서는 CSS sticky가 scroll ancestor에 따라 불안정할 수 있으므로 sandbox 전용 fixed-pin fallback을 사용한다. `.nav-shell` 앞 spacer가 viewport top에 도달하면 실제 nav shell을 fixed로 전환한다. 이 동작은 production source를 수정하지 않는다.
+1. `builder chrome missing`
+   - iframe could finish loading before `builder-v1` registered `load` handler.
+   - fixed with `builder-late-frame-bootstrap-v1.js`.
 
-Legacy full-width `.read-progress`는 호환층에서 항상 제외한다.
+2. reset storage not fully empty
+   - `builder-page-preflight-v2.js` recreated `platformBuilderCapabilityConfigsV1` as `{}` immediately after reset.
+   - fixed by removing V1 key when V2 has no explicit overrides.
+
+3. Initial side-ad browser assertion was wrong
+   - test expected side ad while chapter hero still crossed the 108px anchor.
+   - production safety intentionally hides there.
+   - browser QA now first verifies hero hide, then scrolls into body and verifies activation.
+
+## Side ads
+
+Final guard:
+- visible `.chapter .section .content` required
+- hero/chapter hero at ad top anchor → hidden
+- sandbox viewport <1360px → hidden
+- insufficient left/right room → hidden
+- follow on/off preserved
+
+Latest QA validated left side: hero hidden → body active at wide desktop.
+Right side and multiple outer browser widths remain the next automated coverage.
 
 ## Canvas reset
 
-`더미 초기화`는 이제 단순 iframe reload가 아니다.
-
-초기화 대상:
+`더미 초기화` removes:
 - `platformBuilderLayoutV1`
 - `platformBuilderCapabilityConfigsV1`
 - `platformBuilderCapabilityConfigsV2`
 - `platformBuilderSideAdsV1`
 
-메모/저장 preset은 삭제하지 않는다. 캔버스 초안만 지운 뒤 parent 관리 화면을 다시 시작한다.
-
-## Side ads
-
-기존 side-ad owner가 페이지 전체의 가장 넓은 `.wide`를 선택할 수 있어 chapter hero 구간에 잘못 남는 가능성이 있었다.
-
-`builder-side-ad-zone-audit-v1.js`가 최종 배치를 다시 검증한다.
-
-- viewport에 실제로 보이는 `.chapter .section .content`가 있어야 함
-- hero / chapter hero anchor 위에서는 숨김
-- 좌우 실제 여백이 width + gap을 수용해야 함
-- 1360px 미만 숨김
-- follow on/off 유지
-
-## Registry / CI
-
-Draft PR #3에서 `Platform Library Checks`를 실행했다.
-
-첫 실행은 server `BLOCK_VARIANTS_V1`에 `advertisement`가 빠져 실패했다. 아래 4개 variant를 server mirror에 추가했다.
-- `inline-banner`
-- `native-card`
-- `desktop-side-rail`
-- `sticky-bottom`
-
-두 번째 실행은 전체 통과했다.
-- block registry sync
-- block variant sync
-- UI capability sync
-- non-photography QA seed
-- Snapshot V2 HTML
-- UI Dashboard를 포함한 platform JavaScript syntax
+Notes / saved presets remain.
+The preflight layer no longer recreates an empty V1 key after reload.
 
 ## Main divergence
 
-현재 `main`은 branch merge-base 이후 2커밋 앞서 있다.
-두 커밋의 실제 파일 변경은 `public/ui-dashboard/sandbox/sandbox.js` 하나이며, branch의 해당 파일 blob SHA와 현재 main blob SHA가 동일하다. 내용 충돌은 확인되지 않았다.
+At last comparison:
+- branch was ahead by 73 commits and behind `main` by 2 commits.
+- the 2 `main` commits only changed `public/ui-dashboard/sandbox/sandbox.js`.
+- `sandbox.js` blob SHA is identical on `main` and this branch: `9fd8c59d1487ae329ab78b4f05b5a7559f7a688a`.
+- no content conflict is currently known.
 
-## Removed / superseded paths
+Do not merge PR #3 to `main` without explicit user approval.
 
-Do not restore:
-- `builder-library-audit-v1.js`
-- `sandbox-v3.js`
+## Next action
 
-They were replaced by Live UI Kit v2 / sandbox kit v4.
-
-## Safety
-
-- builder canvas remains dummy-only.
-- production `/photography/` is not loaded into the builder.
-- production user storage/data are not read by sandbox.
-- UI previews reuse production component runtime/CSS but use isolated dummy data.
-- no preset/block automatic approval.
-- Draft PR #3 is for validation only; do not merge to `main` without user approval.
-
-## Next verification
-
-1. Run actual browser QA for the six UI Kit components across White / Dark / System and PC / Mobile.
-2. Verify filter source, device-only preview, bottom-sheet close floor, quick modes, and every visible inspector control.
-3. Verify block add/reorder/save/reset and left/right/inline ads.
-4. Fix only observed regressions on the same branch.
-5. Reconcile with `main`, then merge only after user approval.
+1. Add browser coverage for actual block reorder/drop + persisted order.
+2. Add right side-ad and browser-width boundary coverage.
+3. Add browser QA for admin navigation across Block Lab / Page Editor / QA including mobile/noindex.
+4. Re-check main divergence immediately before any merge request.
+5. Keep PR #3 Draft until the user explicitly asks to publish/merge.
