@@ -87,7 +87,15 @@ async function expectedSideState(frame){
   });
 }
 async function verifySideWidths(context){
-  const page=await context.newPage();await page.setViewportSize({width:1920,height:1100});await page.goto(`${BASE}/ui-dashboard/`,{waitUntil:'domcontentloaded'});let frame=await frameFor(page);
+  const page=await context.newPage();
+  await page.setViewportSize({width:1920,height:1100});
+  await page.goto(`${BASE}/ui-dashboard/`,{waitUntil:'domcontentloaded'});
+  await page.evaluate(()=>{
+    localStorage.removeItem('platformBuilderLayoutV1');
+    localStorage.removeItem('platformBuilderSideAdsV1');
+  });
+  await page.reload({waitUntil:'domcontentloaded'});
+  let frame=await frameFor(page);
   await enableSide(page,'left');await enableSide(page,'right');
   for(const width of [1280,1440,1536,1600,1920]){
     await page.setViewportSize({width,height:1100});frame=await frameFor(page);await bodyZone(frame);
@@ -100,9 +108,11 @@ async function verifySideWidths(context){
     report.widths.push({outerWidth:width,...expected,actual});
   }
   assert(report.widths.find(item=>item.outerWidth===1280)?.actual.left===false,'left ad visible at narrow desktop');
+  assert(report.widths.find(item=>item.outerWidth===1920)?.expected.left===true,'wide desktop fixture did not create left ad room');
+  assert(report.widths.find(item=>item.outerWidth===1920)?.expected.right===true,'wide desktop fixture did not create right ad room');
   assert(report.widths.find(item=>item.outerWidth===1920)?.actual.left===true,'left ad hidden at wide desktop');
   assert(report.widths.find(item=>item.outerWidth===1920)?.actual.right===true,'right ad hidden at wide desktop');
-  pass('side ad width boundaries','left/right geometry verified at 1280/1440/1536/1600/1920');
+  pass('side ad width boundaries','isolated canonical layout verified at 1280/1440/1536/1600/1920');
   await shot(page,'side-ads-wide-desktop');
   await page.close();
 }
