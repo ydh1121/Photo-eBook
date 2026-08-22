@@ -1,8 +1,8 @@
 # Platform Library V1 Handoff
 
-Updated: 2026-08-20 KST
-Active branch: `feat/admin-ux-shell-v1`
-Base main: `95e7d41811424b19b0f587adf4d1d9ad6ee6448c`
+Updated: 2026-08-22 KST
+Active branch: `fix/ui-dashboard-system-audit`
+Production branch: `main`
 
 ## Resume order
 
@@ -13,156 +13,105 @@ Base main: `95e7d41811424b19b0f587adf4d1d9ad6ee6448c`
 5. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
 6. current branch HEAD
 
-## Current direction
+## Current product direction
 
-관리 화면을 각각의 실험 페이지가 아니라 하나의 관리 제품처럼 통합한다.
+`UI 라이브러리`는 screenshot catalog가 아니다. 플랫폼에서 실제로 쓰는 reusable UI를 하나씩 독립적으로 띄우고 상태·테마·표현을 바꾸는 **Live UI Kit**이다.
 
-공통 전역 메뉴:
-- 화면 구성
-- UI 라이브러리
-- 블록 관리
-- 페이지 에디터
-- QA
+Library components:
+- 상단 메뉴
+- 가로 카드
+- 범용 필터칩
+- 하단 팝업
+- 다른 기기
+- 플로팅 버튼
 
-브라우저 뒤로가기는 주요 이동 수단이 아니다. 모든 관리 화면에서 공통 메뉴로 바로 이동한다.
+중요한 의미:
+- `범용 필터칩` = 실제 내 모음 bottom sheet 안의 `.collection-filter`
+- `다른 기기` = 실제 `.collection-device-accordion` 하나만 표시
+- `읽기 진행` = 상단 메뉴 component의 일부
+- 초기 상태 = production CSS 원본
+- 사용자가 바꾼 값만 override
 
-전역 이동과 각 도구의 로컬 작업 버튼을 같은 줄에 뒤섞지 않는다. 관리 chrome은 최소화하고 실제 작업 영역을 우선한다.
+## Current runtime split
 
-## Implemented in this branch
+`/ui-dashboard/` page mode:
+- builder-v1은 inspector / block selection / block DnD chrome을 유지
+- `builder-page-preflight-v2.js`가 V1 store를 V2 explicit override 기준으로 정규화
+- `builder-page-live-v2.js`가 모든 design control을 sandbox canonical runtime으로 전달
+- sandbox `capability-runtime-v3.js`가 실제 UI paint/behavior override owner
+- editor nav는 sandbox fixed-pin fallback으로 스크롤을 따라옴
 
-### Shared admin shell
+`/ui-dashboard/?view=library`:
+- page builder scripts를 로드하지 않음
+- `builder-library-kit-v2.js`만 parent UI Kit owner
+- `sandbox-kit-v4.js`가 실제 production component를 단독 추출
 
-New:
-- `public/assets/styles/admin/admin-shell-v1.css`
-- `public/assets/styles/admin/admin-surface-v1.css`
-- `public/assets/js/admin/admin-shell-v1.js`
+## Live UI Kit behavior
 
-Block Lab / Editor Lab / QA 계열은 `block-registry.js` bootstrap을 통해 공통 셸을 로드한다. `/ui-dashboard/`는 공통 셸을 직접 로드한다.
+Global controls:
+- 색상: White / Dark / System
+- 화면: PC / Mobile
 
-- 모든 주요 관리 화면에서 상호 직접 이동 가능
-- 현재 화면 한 곳만 active 표시
-- 관리 화면 명칭 통일
-- 공통 `더보기` 메뉴는 다른 곳 클릭, Esc, 항목 실행 뒤 닫힘
-- Block Lab의 별도 builder 복귀 링크는 공통 셸이 대체
-- QA도 동일한 전역 이동 구조 사용
-- 관리 JS/CSS와 block registry asset은 no-store 처리
+Quick representation controls:
+- 상단 메뉴: 원본 / Material / iOS 플랫 / iOS 리퀴드
+- 범용 필터칩: 원본 / Material / iOS 플랫 / iOS 리퀴드
+- 플로팅 버튼: 원본 / 플랫 / 글래스 / 리퀴드
 
-### Visual Builder simplification
+State controls:
+- 하단 팝업: 전체 / 영상 / 읽을거리 / 질문 / 설정
+- 다른 기기: 접힘 / 펼침
 
-New:
-- `public/assets/styles/ui-dashboard/builder-simplified-v2.css`
-- `public/assets/js/ui-dashboard/builder-ux-patch-v2.js`
+Component extraction:
+- nav: actual `.nav-shell`
+- rail: actual `.scroll-row` / `.desktop-rail-window`
+- filter: actual `#collectionFilters`
+- sheet: actual `#collectionLayer`, FAB hidden
+- device: actual `.collection-device-accordion` only
+- FAB: actual `#collectionFab` only
 
-`/ui-dashboard/` 기본 chrome:
-1. 공통 관리자 셸
-2. 로컬 toolbar 한 줄
-3. 더미 canvas
+The dummy page remains hidden behind isolated library previews. Dragging/closing the bottom sheet must reveal only the neutral kit floor.
 
-기존 builder-local topbar와 중복 global nav는 제거했다.
+## Theme
 
-로컬 toolbar:
-- 더미 화면
-- 편집 중 / 미리보기
-- 블록 추가
-- 광고
-- 초안 저장
-- 더보기
+Sandbox `liquid-controller.js` owns `window.setPhotoRoadmapTheme(light|dark|system)`.
+`capability-runtime-v3.js` receives `platform-theme` from the parent and applies it inside the iframe.
+Storage isolation keeps `photoRoadmapThemeV1` inside sandbox memory, so UI Kit theme tests do not mutate the user's production theme.
 
-`광고`:
-- 본문 광고 추가
-- 좌측 광고 설정
-- 우측 광고 설정
+## Fixed editor nav
 
-`더보기`:
-- 더미 초기화
-- 서버 연결
-- 설정 불러오기
-- 설정 저장
+CSS sticky alone was unreliable inside the editor iframe. The sandbox page-mode runtime now inserts a spacer before `.nav-shell` and switches the actual nav shell to `position:fixed` when the spacer reaches the viewport top. Scroll events are captured at document level, so it does not depend on a specific scroll owner.
 
-메뉴는 실행 뒤 자동으로 닫힌다. 동적으로 추가되는 본문 광고의 오래된 `실제 페이지 흐름` 표현도 MutationObserver로 더미 전용 카피로 교정한다.
+The user confirmed this editor nav now follows scrolling.
 
-UI Library mode에서는 page editing toolbar를 숨기고 library filter만 사용한다. page mode에서는 library strip을 숨긴다.
+## Removed / superseded paths
 
-### Page Editor simplification
+Do not restore:
+- `builder-library-audit-v1.js`
+- `sandbox-v3.js`
 
-기능을 제거하지 않고 작업 우선순위를 재배치했다.
-
-- Undo / Redo / Export / Import → `더보기`
-- Page meta / SEO / AI brief / publish → 접힌 `페이지·발행 설정`
-- 블록 검색과 블록 목록이 기본 작업 흐름에서 바로 보임
-- 상단바, 좌우 pane, canvas chrome 밀도 축소
-- 기존 element id/class와 event owner 유지
-
-### Block Lab simplification
-
-- topbar compact
-- sidebar/intro 설명 축소
-- landing-page형 heading 축소
-- specimen stage/card chrome 축소
-- 900px 이하에서 block nav horizontal rail 전환
-
-### Dummy top navigation
-
-`sandbox.css`에서 desktop `.nav-glass`는 structural wrapper만 남기고 visual surface를 제거했다.
-
-PC에서는 `nav-scroll` desktop rail 하나만 visible surface owner다. 기존 white outer capsule + inner rail 중첩 표현을 제거한다.
-
-### Side ads
-
-`builder-sandbox-ads-v1.js`는 더 이상 `50% + 590px` 위치를 가정하지 않는다.
-
-현재 visible `.chapter .section .content`의 실제 `getBoundingClientRect()`를 사용한다.
-
-- hero / chapter hero hidden
-- readable body content가 viewport에 들어올 때만 eligible
-- 좌/우 실제 여백이 광고 폭 + gap을 수용할 때만 visible
-- content bottom에 최소 광고 표시 공간이 없으면 hidden
-- 1360px 미만 hidden
-- follow on: eligible body 구간에서 viewport-following
-- follow off: 해당 body content 위치 기준 absolute
-- `광고 설정`을 여는 것과 광고 활성화를 분리
-- 꺼진 side ad는 canvas에서 완전히 hidden
-- 사용자가 inspector에서 `광고 켜기`를 명시해야 노출
-
-목적은 광고가 히어로/챕터 이미지 위에 올라가거나 편집 화면을 기본 상태부터 어지럽히는 문제를 제거하는 것이다.
-
-## Static verification
-
-Current syntax checks passed for:
-- `admin-shell-v1.js`
-- `builder-ux-patch-v2.js`
-- `builder-sandbox-ads-v1.js`
-- `block-registry.js`
-
-No GitHub status checks are attached to current branch commits.
+They were replaced by Live UI Kit v2 / sandbox kit v4.
 
 ## Safety
 
-- `/ui-dashboard/` iframe remains `/ui-dashboard/sandbox/` only.
-- production `/photography/` is not the builder canvas.
-- production user data/API are not introduced into sandbox.
-- photography renderer is untouched.
-- block/UI presets remain candidate/draft unless user explicitly approves.
-- management / QA / staging remain noindex.
+- builder canvas remains dummy-only.
+- production `/photography/` is not loaded into the builder.
+- production user storage/data are not read by sandbox.
+- UI previews reuse production component runtime/CSS but use isolated dummy data.
+- no preset/block automatic approval.
 
-## QA still required
+## QA still required before merge
 
-Cloudflare branch preview URL/status is not exposed through the available connector and public search did not surface a branch URL.
+1. Library component selector shows one UI only.
+2. White / Dark / System changes the active component immediately.
+3. PC / Mobile changes preview width without changing component source.
+4. Filter preview shows the actual bottom-sheet filter chips and all seeded categories.
+5. Filter click interaction remains live.
+6. Bottom sheet tabs and drag remain live; closing reveals only neutral floor.
+7. Device preview shows only accordion; collapsed/expanded controls work.
+8. FAB visual mode controls work.
+9. Page mode: every inspector input immediately changes the iframe through canonical runtime.
+10. Reset returns production UI, not manifest-forced defaults.
+11. Block DnD, ads, draft save/reset regressions are absent.
+12. 1440 / 1536 / 1920 desktop and mobile widths.
 
-Actual browser QA must cover:
-1. common shell appears on all five management modes,
-2. every mode can move directly to every other mode,
-3. sticky offsets do not overlap local toolbars,
-4. Screen Builder shows common shell + one local toolbar only,
-5. UI Library does not show page editing toolbar,
-6. Page Editor starts with block search/list visible and page settings collapsed,
-7. moved Page Editor `더보기` buttons preserve behavior,
-8. dummy desktop nav shows one surface only,
-9. opening side-ad settings does not activate the ad,
-10. enabled side ads remain absent on hero/chapter hero and appear only beside body content,
-11. 1440 / 1536 / 1920 desktop widths,
-12. <=900px and mobile management navigation.
-
-## Exact next action
-
-Confirm a Cloudflare preview for `feat/admin-ux-shell-v1`, run the QA list above, then fix only observed regressions. Do not merge to `main` until the user reviews the branch result or explicitly asks to merge.
+Do not merge to `main` until these checks are observed or the user explicitly requests merge despite remaining QA.
