@@ -25,6 +25,16 @@
       const link=$('#collectionDeviceLink'),accordion=$('.collection-device-accordion');
       remove(link,['transition-duration']);
       remove(accordion,['transition-duration']);
+      return;
+    }
+    if(id==='reading-progress'){
+      const legacy=$('.read-progress');
+      if(legacy){
+        legacy.hidden=true;
+        legacy.style.setProperty('display','none','important');
+        legacy.removeAttribute('data-builder-capability');
+        legacy.querySelector(':scope > .platform-builder-gear')?.remove();
+      }
     }
   }
 
