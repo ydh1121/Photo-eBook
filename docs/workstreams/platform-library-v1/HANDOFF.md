@@ -3,6 +3,7 @@
 Updated: 2026-08-23 KST
 Active branch: `fix/ui-dashboard-system-audit`
 Production branch: `main`
+Draft PR: `#3`
 
 ## Resume order
 
@@ -116,6 +117,24 @@ Legacy full-width `.read-progress`는 호환층에서 항상 제외한다.
 - 1360px 미만 숨김
 - follow on/off 유지
 
+## Registry / CI
+
+Draft PR #3에서 `Platform Library Checks`를 실행했다.
+
+첫 실행은 server `BLOCK_VARIANTS_V1`에 `advertisement`가 빠져 실패했다. 아래 4개 variant를 server mirror에 추가했다.
+- `inline-banner`
+- `native-card`
+- `desktop-side-rail`
+- `sticky-bottom`
+
+두 번째 실행은 전체 통과했다.
+- block registry sync
+- block variant sync
+- UI capability sync
+- non-photography QA seed
+- Snapshot V2 HTML
+- UI Dashboard를 포함한 platform JavaScript syntax
+
 ## Main divergence
 
 현재 `main`은 branch merge-base 이후 2커밋 앞서 있다.
@@ -136,14 +155,12 @@ They were replaced by Live UI Kit v2 / sandbox kit v4.
 - production user storage/data are not read by sandbox.
 - UI previews reuse production component runtime/CSS but use isolated dummy data.
 - no preset/block automatic approval.
-- do not merge to `main` without user approval.
+- Draft PR #3 is for validation only; do not merge to `main` without user approval.
 
 ## Next verification
 
-1. Open a Draft PR from `fix/ui-dashboard-system-audit` to `main` so `Platform Library Checks` runs.
-2. Confirm registry checks and JS syntax checks pass.
-3. Then run actual browser QA for the six UI Kit components across White / Dark / System and PC / Mobile.
-4. Verify filter source, device-only preview, bottom-sheet close floor, quick modes, and every visible inspector control.
-5. Verify block add/reorder/save/reset and left/right/inline ads.
-6. Fix only observed regressions on the same branch.
-7. Reconcile with `main`, then merge only after user approval.
+1. Run actual browser QA for the six UI Kit components across White / Dark / System and PC / Mobile.
+2. Verify filter source, device-only preview, bottom-sheet close floor, quick modes, and every visible inspector control.
+3. Verify block add/reorder/save/reset and left/right/inline ads.
+4. Fix only observed regressions on the same branch.
+5. Reconcile with `main`, then merge only after user approval.
