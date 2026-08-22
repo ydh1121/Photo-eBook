@@ -110,7 +110,7 @@ async function libraryMatrix(context){
 
     if(id==='top-chapter-navigation'){
       assert(await frame.locator('.nav-shell').count()===1,'top nav: nav shell missing');
-      assert(await frame.locator('.read-progress').evaluate(node=>getComputedStyle(node).display)==='none','top nav: legacy read-progress visible');
+      assert(await frame.locator('.read-progress').count()===0,'top nav: legacy read-progress still present in standalone preview');
       assert(await frame.locator('[data-builder-capability="reading-progress"]').count()===0,'top nav: retired reading-progress capability still exposed');
       await kitClick(page,'data-kit-viewport','desktop');
       await kitClick(page,'data-kit-mode','material-flat');
