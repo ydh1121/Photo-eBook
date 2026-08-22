@@ -3,7 +3,7 @@
   window.__platformBuilderAuditEntryV1=true;
   const library=new URLSearchParams(location.search).get('view')==='library';
   const sources=library
-    ?['/assets/js/ui-dashboard/builder-library-audit-v1.js?v=1']
+    ?['/assets/js/ui-dashboard/builder-library-kit-v2.js?v=2']
     :[
       '/assets/js/ui-dashboard/builder-v1.js?v=1',
       '/assets/js/ui-dashboard/builder-production-parity-v1.js?v=2',
