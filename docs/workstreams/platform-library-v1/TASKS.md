@@ -22,22 +22,20 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ### 화면 구성
 
-[x] 상단 메뉴가 editor iframe에서 스크롤을 따라오도록 fixed-pin fallback 추가
-[x] Safari는 기존 deferred-sticky owner 유지
-[x] 편집 chrome이 nav / sheet / FAB의 fixed/sticky geometry를 덮어쓰지 않도록 보정
-[x] `화이트 / 다크 / 시스템` preview theme 전환 제공
-[x] 구형 V1 설정값을 page boot 시 V2 explicit override로 정규화
-[x] 실제 디자인 반영 owner를 sandbox `capability-runtime-v3`로 통일
-[x] 설정 패널 input/change를 전역 live bridge로 연결
-[x] builder-v1 late reapply 뒤 canonical runtime 재적용
-[x] 동적으로 생성되는 bottom sheet / filter / device UI에 설정 재적용
-[x] production owner가 없는 죽은 세부 조절기는 설정 패널에서 숨김
-[x] `초기값`은 production 원본 reset으로 연결
-[x] `더미 초기화`가 block/UI/ad 캔버스 초안을 실제로 지우고 parent page를 다시 시작하도록 수정
-[x] legacy full-width `.read-progress`가 다시 노출되지 않도록 호환층에서 차단
-[-] 모든 capability control을 실제 브라우저에서 live 변경 검증
-[-] block add/reorder/save/reset 동작 회귀 QA
-[-] 광고 좌/우/본문 동작 회귀 QA
+[x] 상단 메뉴 editor fixed-pin fallback + Safari deferred-sticky owner 유지
+[x] 편집 chrome이 nav / sheet / FAB fixed/sticky geometry를 덮어쓰지 않도록 보정
+[x] 구형 V1 설정값을 V2 explicit override 기준으로 정규화
+[x] canonical design owner를 sandbox `capability-runtime-v3`로 통일
+[x] 동적 bottom sheet / filter / device DOM 재동기화
+[x] production owner가 없는 죽은 조절기 숨김 + stale override 제거
+[x] legacy full-width `.read-progress` 제거, 진행 표시는 상단 메뉴가 단독 소유
+[x] 이미 iframe load가 끝난 뒤 builder script가 붙는 경우 late bootstrap 추가
+[x] `더미 초기화` 후 빈 V1 config key가 다시 생성되지 않도록 수정
+[x] Chrome에서 fixed nav + integrated progress ownership 검증
+[x] Chrome에서 inline 광고 추가 → layout draft 저장 검증
+[x] Chrome에서 더미 reset 후 layout/UI/ad draft 완전 삭제 검증
+[x] Chrome 모바일에서 tap → 하단 inspector + dock 검증
+[-] 실제 block drag/drop 재정렬 이벤트와 저장 순서 검증
 
 ### UI 라이브러리 = Live UI Kit
 
@@ -48,53 +46,60 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] component selector: 상단 메뉴 / 가로 카드 / 범용 필터칩 / 하단 팝업 / 다른 기기 / 플로팅 버튼
 [x] `화이트 / 다크 / 시스템` 전역 색상 모드
 [x] PC / 모바일 preview 전환
-[x] 해당 UI가 지원하는 경우 표현 모드 quick switch
 [x] 상단 메뉴: 원본 / Material / iOS 플랫 / iOS 리퀴드
 [x] 범용 필터칩: 원본 / Material / iOS 플랫 / iOS 리퀴드
 [x] 플로팅 버튼: 원본 / 플랫 / 글래스 / 리퀴드
-[x] 하단 팝업: 전체 / 영상 / 읽을거리 / 질문 / 설정 상태 전환
-[x] 다른 기기: 접힘 / 펼침 상태 전환
-[x] 범용 필터칩은 하단 팝업의 실제 `#collectionFilters > .collection-filter` DOM 사용
-[x] 더미 저장 영상 카테고리 3종으로 `전체 + 제품 + 인물 + 음식` 실제 필터 생성
-[x] 다른 기기는 실제 `.collection-device-accordion`만 표시하고 production CSS가 필요한 `.collection-settings` 문맥은 투명 wrapper로만 유지
-[x] 하단 팝업을 닫거나 아래로 내렸을 때 dummy page/FAB가 노출되지 않는 중립 floor 사용
-[x] component interaction 유지: nav click / rail drag / filter click / sheet tab·drag / device accordion
-[x] 초기 상태는 production CSS 원본, 사용자가 바꾼 속성만 V2 override
-[x] Material/iOS 표현 모드의 dark theme surface 보정
-[x] device accordion 반응 속도 조절을 production transition에 실제 연결
-[x] 구형 library controller / sandbox preview controller 제거
-[-] 6개 UI × 3 theme × PC/mobile 실제 브라우저 QA
-[-] UI별 quick mode 실제 paint 전환 검증
-[-] 세부 설정의 모든 노출 control live 반영 검증
+[x] 하단 팝업: 전체 / 영상 / 읽을거리 / 질문 / 설정
+[x] 다른 기기: 접힘 / 펼침
+[x] 범용 필터칩은 실제 `#collectionFilters > .collection-filter` 사용
+[x] 다른 기기는 실제 `.collection-device-accordion`만 표시하고 보이지 않는 `.collection-settings` selector context만 유지
+[x] bottom sheet 뒤에는 dummy page/FAB 대신 neutral floor만 유지
+[x] component interaction owner 유지
+[x] production CSS 원본에서 시작하고 사용자 변경값만 V2 override
+[x] Material/iOS dark surface 보정
+[x] device accordion response transition 연결
+[x] `수정 요청 메모` local draft + 기존 `UI_PRESETS.notes` server write 복구
+[x] 6개 UI × White/Dark/System × PC/Mobile = 36개 조합 실제 Chromium QA 통과
+[x] top nav Material + native horizontal scroll + progress line live control 검증
+[x] horizontal rail padding / right fade / scrollbar live control 검증
+[x] filter 실제 chip click/active state 검증
+[x] bottom sheet state / visibility / reset 동기화 검증
+[x] device standalone + expansion 검증
+[x] FAB family / accent / response 검증
+[-] 모든 노출 control의 개별 극단값 visual QA
 
 ## Registry / CI
 
 [x] Draft PR #3 생성
 [x] browser Block Registry 28 types sync 통과
-[x] `advertisement` server variant mirror 추가: `inline-banner / native-card / desktop-side-rail / sticky-bottom`
+[x] advertisement server variants sync
 [x] block variant sync 통과
 [x] UI capability sync 통과
 [x] non-photography QA seed / Snapshot V2 check 통과
-[x] UI Dashboard 포함 platform JavaScript `node --check` 통과
+[x] UI Dashboard 포함 platform JavaScript syntax 통과
+[x] Playwright + runner Chrome 기반 실제 browser QA를 `Platform Library Checks`에 추가
+[x] browser QA screenshot/report artifact 업로드 추가
+[x] 성공 run `32601908580`, artifact `9483117259`, 17 browser checks 통과
 
 ## Production UI parity
 
 [x] production CSS stack을 sandbox에 동일 순서로 로드
 [x] production `liquid-controller`, `collection-hub`, `device-handoff`, rail runtime 재사용
 [x] 읽기 진행은 상단 메뉴 component에 포함
-[x] legacy full-width `.read-progress`는 editor/library parity 대상으로 사용하지 않음
-[-] `/photography/` 공개 화면과 sandbox의 nav/filter/sheet/FAB 시각 비교
+[x] legacy full-width `.read-progress`는 editor/library parity 대상에서 제외
+[-] 실제 production deployment와 sandbox의 nav/filter/sheet/FAB 수동 시각 비교
 
 ## Side advertisement placement
 
-[x] 좌/우 광고 설정과 활성화를 분리
-[x] 1360px 미만 side ad 숨김
-[x] 현재 viewport에 실제로 보이는 `.chapter .section .content` 기준으로 위치 재검증
-[x] hero / chapter hero anchor 구간에서는 side ad 숨김
-[x] 좌우 여백이 광고 폭 + gap을 수용하지 못하면 숨김
+[x] 좌/우 광고 설정과 활성화 분리
+[x] 1360px 미만 sandbox viewport에서 side ad 숨김
+[x] 현재 viewport에 보이는 `.chapter .section .content` 기준 배치
+[x] hero / chapter hero anchor에서 숨김
+[x] 좌우 여백이 폭 + gap을 수용하지 못하면 숨김
 [x] follow on/off 유지
-[-] 1440 / 1536 / 1600 / 1920 실제 브라우저 QA
-[-] chapter 경계에서 이미지 위로 광고가 올라오지 않는지 QA
+[x] Chrome에서 hero 위 숨김 → 본문 진입 시 좌측 광고 활성화 검증
+[-] 우측 광고 동일 경계 QA
+[-] 1440 / 1536 / 1600 / 1920 관리 화면 폭에서 여백 경계 QA
 
 ## Other management tools
 
@@ -102,7 +107,7 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] Page Editor secondary actions 그룹화
 [x] Block Lab 검토 중심 레이아웃
 [x] QA/theme는 management chrome이 아니라 preview canvas에 적용
-[-] 관리 페이지 간 직접 이동 및 responsive QA
+[-] 관리 페이지 간 직접 이동 및 desktop/mobile responsive browser QA
 
 ## Safety
 
@@ -116,10 +121,8 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## Exact next action
 
-1. 실제 브라우저에서 UI Kit 6개를 White / Dark / System, PC / Mobile로 확인한다.
-2. `범용 필터칩`이 실제 bottom-sheet chip 디자인과 동일한지 확인한다.
-3. `다른 기기`에서 accordion 이외의 settings/sheet UI가 보이지 않는지 확인한다.
-4. Bottom Sheet를 drag-close 했을 때 중립 floor 외에는 아무것도 보이지 않는지 확인한다.
-5. Page mode에서 노출된 각 inspector control을 한 번씩 변경해 즉시 반영되는지 확인한다.
-6. block add/reorder/save/reset과 광고 좌/우/본문을 회귀 테스트한다.
-7. 발견된 회귀만 같은 branch에서 수정한 뒤 `main`과 reconcile하고 사용자 승인 후 병합한다.
+1. block drag/drop 재정렬 이벤트와 저장 순서를 실제 Chromium으로 검증한다.
+2. 우측 side ad와 관리 화면 폭별 여백 경계를 검증한다.
+3. Block Lab / Page Editor / QA 관리 메뉴 이동과 모바일 responsive/noindex를 browser QA에 추가한다.
+4. `main`의 2커밋은 `sandbox.js`만 변경했고 현재 branch와 blob이 동일하므로 내용 충돌 여부를 최종 재확인한다.
+5. 사용자 승인 전에는 Draft PR #3을 `main`에 병합하지 않는다.
