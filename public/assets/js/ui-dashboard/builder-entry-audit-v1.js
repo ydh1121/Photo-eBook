@@ -20,6 +20,8 @@
       '/assets/js/ui-dashboard/builder-page-live-v2.js?v=1',
       '/assets/js/ui-dashboard/builder-dynamic-sync-v1.js?v=1',
       '/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=4',
+      '/assets/js/ui-dashboard/builder-side-ad-zone-audit-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-reset-audit-v1.js?v=1',
       '/assets/js/ui-dashboard/builder-control-guard-v1.js?v=1'
     ];
   let index=0;
