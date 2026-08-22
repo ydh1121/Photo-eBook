@@ -72,6 +72,63 @@
     }
   }
 
+  function installEditorNavPin(){
+    if(preview)return;
+    const shell=$('.nav-shell');
+    if(!shell||shell.dataset.editorNavPinBound==='true')return;
+    if(document.documentElement.classList.contains('ios-webkit-chrome'))return;
+
+    shell.dataset.editorNavPinBound='true';
+    document.documentElement.style.setProperty('overflow-x','clip','important');
+    document.body?.style.setProperty('overflow-x','clip','important');
+    $('#app')?.style.setProperty('overflow','visible','important');
+
+    const spacer=document.createElement('div');
+    spacer.className='sandbox-nav-pin-spacer';
+    spacer.setAttribute('aria-hidden','true');
+    shell.before(spacer);
+
+    let pinned=false;
+    let raf=0;
+    const props=['position','top','left','right','width','z-index','transform'];
+    const shellHeight=()=>Math.max(1,Math.ceil(shell.getBoundingClientRect().height||shell.offsetHeight||0));
+    const triggerY=()=>spacer.getBoundingClientRect().top+(window.scrollY||document.scrollingElement?.scrollTop||0);
+
+    function setPinned(next){
+      if(next===pinned)return;
+      pinned=next;
+      shell.classList.toggle('is-sandbox-editor-pinned',pinned);
+      document.documentElement.dataset.editorNavPinState=pinned?'fixed':'flow';
+      if(pinned){
+        spacer.style.height=`${shellHeight()}px`;
+        shell.style.setProperty('position','fixed','important');
+        shell.style.setProperty('top','0','important');
+        shell.style.setProperty('left','0','important');
+        shell.style.setProperty('right','0','important');
+        shell.style.setProperty('width','100%','important');
+        shell.style.setProperty('z-index','100','important');
+        shell.style.setProperty('transform','none','important');
+      }else{
+        props.forEach(prop=>shell.style.removeProperty(prop));
+        spacer.style.height='0px';
+      }
+    }
+
+    function update(){
+      raf=0;
+      const y=window.scrollY||document.scrollingElement?.scrollTop||0;
+      setPinned(y>=triggerY()-0.5);
+      if(pinned)spacer.style.height=`${shellHeight()}px`;
+    }
+    function queue(){if(!raf)raf=requestAnimationFrame(update);}
+
+    window.addEventListener('scroll',queue,{passive:true});
+    window.addEventListener('resize',queue,{passive:true});
+    window.addEventListener('pageshow',queue,{passive:true});
+    if('ResizeObserver' in window)new ResizeObserver(queue).observe(shell);
+    queue();
+  }
+
   function bindInlineOpen(){
     const button=$('#sandboxOpenCollection');if(!button||button.dataset.bound==='true')return;
     button.dataset.bound='true';button.addEventListener('click',()=>$('#collectionFab')?.click());
@@ -80,6 +137,8 @@
   function init(){
     bindInlineOpen();installPreviewMode();
     if(typeof window.setupNavigation==='function')window.setupNavigation();
+    setTimeout(installEditorNavPin,0);
+    setTimeout(installEditorNavPin,180);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,40),{once:true});
   else setTimeout(init,40);
