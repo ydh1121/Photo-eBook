@@ -92,7 +92,6 @@
     let raf=0;
     const props=['position','top','left','right','width','z-index','transform'];
     const shellHeight=()=>Math.max(1,Math.ceil(shell.getBoundingClientRect().height||shell.offsetHeight||0));
-    const triggerY=()=>spacer.getBoundingClientRect().top+(window.scrollY||document.scrollingElement?.scrollTop||0);
 
     function setPinned(next){
       if(next===pinned)return;
@@ -116,13 +115,13 @@
 
     function update(){
       raf=0;
-      const y=window.scrollY||document.scrollingElement?.scrollTop||0;
-      setPinned(y>=triggerY()-0.5);
+      setPinned(spacer.getBoundingClientRect().top<=0);
       if(pinned)spacer.style.height=`${shellHeight()}px`;
     }
     function queue(){if(!raf)raf=requestAnimationFrame(update);}
 
     window.addEventListener('scroll',queue,{passive:true});
+    document.addEventListener('scroll',queue,{passive:true,capture:true});
     window.addEventListener('resize',queue,{passive:true});
     window.addEventListener('pageshow',queue,{passive:true});
     if('ResizeObserver' in window)new ResizeObserver(queue).observe(shell);
