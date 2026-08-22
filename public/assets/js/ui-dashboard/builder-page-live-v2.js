@@ -14,6 +14,13 @@
   function capability(id){return manifest.capabilities.find(item=>item.id===id);}
   function post(message){try{frame.contentWindow?.postMessage(message,location.origin);}catch{}}
 
+  function ensureCompat(){
+    const doc=frame.contentDocument;if(!doc||doc.querySelector('script[data-builder-compat-v1]'))return;
+    const script=doc.createElement('script');
+    script.src='/ui-dashboard/sandbox/builder-compat-v1.js?v=1';
+    script.dataset.builderCompatV1='true';
+    doc.head.appendChild(script);
+  }
   function syncCapability(id){
     if(!capability(id))return;
     const config=read(LIVE)[id];
@@ -64,11 +71,11 @@
     if(id)clearCapability(id);
   },true);
 
-  /* builder-v1 performs late discovery/reapply passes at roughly 0.7, 1.8 and
-     3.5 seconds. Replay the canonical runtime just after each pass so there is
-     never a long interval where the legacy approximation owns the visuals. */
-  function scheduleSync(){[0,90,260,760,1880,3580,4100].forEach(delay=>setTimeout(syncAll,delay));}
+  function scheduleSync(){
+    ensureCompat();
+    [40,130,300,780,1900,3600,4140].forEach(delay=>setTimeout(()=>{ensureCompat();syncAll();},delay));
+  }
   frame.addEventListener('load',scheduleSync);
-  window.addEventListener('pageshow',()=>setTimeout(syncAll,120),{passive:true});
+  window.addEventListener('pageshow',()=>setTimeout(()=>{ensureCompat();syncAll();},120),{passive:true});
   if(frame.contentDocument?.readyState==='complete')scheduleSync();
 })();
