@@ -39,6 +39,7 @@ on:
       - 'scripts/check-public-route-v2.mjs'
       - 'scripts/check-ui-dashboard-browser.mjs'
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
+      - 'scripts/check-platform-admin-browser-v1.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
   pull_request:
@@ -78,6 +79,7 @@ on:
       - 'scripts/check-public-route-v2.mjs'
       - 'scripts/check-ui-dashboard-browser.mjs'
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
+      - 'scripts/check-platform-admin-browser-v1.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
 
@@ -87,7 +89,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -120,9 +122,10 @@ jobs:
           node --check scripts/check-public-route-v2.mjs
           node --check scripts/check-ui-dashboard-browser.mjs
           node --check scripts/check-ui-dashboard-browser-v2.mjs
+          node --check scripts/check-platform-admin-browser-v1.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
-      - name: Run UI Dashboard browser QA
+      - name: Run browser QA
         shell: bash
         run: |
           set -euo pipefail
@@ -141,12 +144,22 @@ jobs:
             cat /tmp/photo-ebook-http.log || true
             exit 1
           fi
-          UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-ui-dashboard-browser-v2.mjs
+          export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
+          node scripts/check-ui-dashboard-browser-v2.mjs
+          node scripts/check-platform-admin-browser-v1.mjs
       - name: Upload UI Dashboard browser QA
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ui-dashboard-browser-qa
           path: artifacts/ui-dashboard-browser
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload management browser QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-admin-browser-qa
+          path: artifacts/platform-admin-browser
           if-no-files-found: ignore
           retention-days: 7
