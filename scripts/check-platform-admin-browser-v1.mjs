@@ -107,11 +107,13 @@ async function verifySideWidths(context){
     const actual=await frame.evaluate(()=>({left:document.querySelector('[data-builder-ad-slot="left"]')?.dataset.adZoneActive==='true',right:document.querySelector('[data-builder-ad-slot="right"]')?.dataset.adZoneActive==='true'}));
     report.widths.push({outerWidth:width,...expected,actual});
   }
-  assert(report.widths.find(item=>item.outerWidth===1280)?.actual.left===false,'left ad visible at narrow desktop');
-  assert(report.widths.find(item=>item.outerWidth===1920)?.expected.left===true,'wide desktop fixture did not create left ad room');
-  assert(report.widths.find(item=>item.outerWidth===1920)?.expected.right===true,'wide desktop fixture did not create right ad room');
-  assert(report.widths.find(item=>item.outerWidth===1920)?.actual.left===true,'left ad hidden at wide desktop');
-  assert(report.widths.find(item=>item.outerWidth===1920)?.actual.right===true,'right ad hidden at wide desktop');
+  const narrow=report.widths.find(item=>item.outerWidth===1280);
+  const wide=report.widths.find(item=>item.outerWidth===1920);
+  assert(narrow?.actual.left===false,'left ad visible at narrow desktop');
+  assert(wide?.left===true,'wide desktop fixture did not create left ad room');
+  assert(wide?.right===true,'wide desktop fixture did not create right ad room');
+  assert(wide?.actual.left===true,'left ad hidden at wide desktop');
+  assert(wide?.actual.right===true,'right ad hidden at wide desktop');
   pass('side ad width boundaries','isolated canonical layout verified at 1280/1440/1536/1600/1920');
   await shot(page,'side-ads-wide-desktop');
   await page.close();
