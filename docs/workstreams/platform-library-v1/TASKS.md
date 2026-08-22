@@ -4,6 +4,7 @@ Workstream: `platform-library-v1`
 Status: `active`
 Production branch: `main`
 Current implementation branch: `fix/ui-dashboard-system-audit`
+Draft PR: `#3`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -66,6 +67,16 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [-] UI별 quick mode 실제 paint 전환 검증
 [-] 세부 설정의 모든 노출 control live 반영 검증
 
+## Registry / CI
+
+[x] Draft PR #3 생성
+[x] browser Block Registry 28 types sync 통과
+[x] `advertisement` server variant mirror 추가: `inline-banner / native-card / desktop-side-rail / sticky-bottom`
+[x] block variant sync 통과
+[x] UI capability sync 통과
+[x] non-photography QA seed / Snapshot V2 check 통과
+[x] UI Dashboard 포함 platform JavaScript `node --check` 통과
+
 ## Production UI parity
 
 [x] production CSS stack을 sandbox에 동일 순서로 로드
@@ -105,11 +116,10 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## Exact next action
 
-1. Draft PR로 `Platform Library Checks`를 실행해 JS syntax / registry 회귀를 확인한다.
-2. CI가 통과하면 실제 브라우저에서 UI Kit 6개를 White / Dark / System, PC / Mobile로 확인한다.
-3. `범용 필터칩`이 실제 bottom-sheet chip 디자인과 동일한지 확인한다.
-4. `다른 기기`에서 accordion 이외의 settings/sheet UI가 보이지 않는지 확인한다.
-5. Bottom Sheet를 drag-close 했을 때 중립 floor 외에는 아무것도 보이지 않는지 확인한다.
-6. Page mode에서 노출된 각 inspector control을 한 번씩 변경해 즉시 반영되는지 확인한다.
-7. block add/reorder/save/reset과 광고 좌/우/본문을 회귀 테스트한다.
-8. 발견된 회귀만 같은 branch에서 수정한 뒤 `main`과 reconcile하고 사용자 승인 후 병합한다.
+1. 실제 브라우저에서 UI Kit 6개를 White / Dark / System, PC / Mobile로 확인한다.
+2. `범용 필터칩`이 실제 bottom-sheet chip 디자인과 동일한지 확인한다.
+3. `다른 기기`에서 accordion 이외의 settings/sheet UI가 보이지 않는지 확인한다.
+4. Bottom Sheet를 drag-close 했을 때 중립 floor 외에는 아무것도 보이지 않는지 확인한다.
+5. Page mode에서 노출된 각 inspector control을 한 번씩 변경해 즉시 반영되는지 확인한다.
+6. block add/reorder/save/reset과 광고 좌/우/본문을 회귀 테스트한다.
+7. 발견된 회귀만 같은 branch에서 수정한 뒤 `main`과 reconcile하고 사용자 승인 후 병합한다.
