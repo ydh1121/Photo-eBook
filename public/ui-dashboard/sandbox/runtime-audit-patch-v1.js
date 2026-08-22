@@ -3,6 +3,8 @@
   window.__platformSandboxRuntimeAuditPatchV1=true;
 
   const $=(selector,root=document)=>root.querySelector(selector);
+  const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
+  const has=(object,key)=>Object.prototype.hasOwnProperty.call(object||{},key);
   const params=new URLSearchParams(location.search);
   const preview=params.get('preview')||'';
 
@@ -28,6 +30,9 @@
       }
       html[data-theme="dark"] .collection-filters[data-builder-family] .collection-filter.is-active{
         background:var(--builder-filter-accent,#315fc9)!important;color:#fff!important;border-color:var(--builder-filter-accent,#315fc9)!important
+      }
+      .collection-fab[data-builder-family="flat"]{
+        background:var(--builder-fab-accent,#315fc9)!important;background-image:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 5px 15px rgba(30,55,110,.16)!important
       }
       .collection-device-accordion[data-builder-response="lively"]>.collection-device-panel-v2{transition-duration:.18s!important}
       .collection-device-accordion[data-builder-response="standard"]>.collection-device-panel-v2{transition-duration:.36s!important}
@@ -57,16 +62,74 @@
     context.appendChild(accordion);
   }
 
-  function cleanDeviceResponseOnReset(event){
+  function reconcileBulkSelection(allowed=true){
+    const body=$('#collectionBody');
+    const settings=$('.collection-tab.is-active[data-library-tab="settings"]');
+    const hasItems=Boolean(body?.querySelector('.collection-item'));
+    $$('.collection-select-toggle').forEach(node=>node.hidden=!allowed||Boolean(settings)||!hasItems);
+    $$('.collection-bulkbar').forEach(node=>node.hidden=!allowed||Boolean(settings)||!body?.classList.contains('is-bulk-selecting'));
+  }
+
+  function reconcileSheet(config=null,{reset=false}={}){
+    const sheet=$('#collectionSheet'),backdrop=$('#collectionBackdrop');
+    if(!sheet)return;
+
+    if(reset){
+      $('.theme-setting-card',sheet)?.removeAttribute('hidden');
+      $('.collection-device-accordion',sheet)?.removeAttribute('hidden');
+      $('#collectionDeviceLink',sheet)?.removeAttribute('hidden');
+      reconcileBulkSelection(true);
+      if(sheet.classList.contains('is-open')||preview==='collection-bottom-sheet'){
+        sheet.hidden=false;
+        if(backdrop)backdrop.hidden=false;
+      }
+      return;
+    }
+
+    if(has(config,'enabled')&&config.enabled===true&&(sheet.classList.contains('is-open')||preview==='collection-bottom-sheet')){
+      sheet.hidden=false;
+      if(backdrop)backdrop.hidden=false;
+    }
+    if(has(config,'themeSelector')){
+      const card=$('.theme-setting-card',sheet);
+      if(card)card.hidden=config.themeSelector===false;
+    }
+    if(has(config,'deviceHandoff')){
+      const accordion=$('.collection-device-accordion',sheet);
+      const link=$('#collectionDeviceLink',sheet);
+      if(accordion)accordion.hidden=config.deviceHandoff===false;
+      else if(link)link.hidden=config.deviceHandoff===false;
+    }
+    if(has(config,'bulkSelection'))reconcileBulkSelection(config.bulkSelection!==false);
+  }
+
+  function applyFabAudit(config){
+    const fab=$('#collectionFab');if(!fab)return;
+    if(has(config,'accentColor'))fab.style.setProperty('--builder-fab-accent',config.accentColor||'#315fc9');
+    else fab.style.removeProperty('--builder-fab-accent');
+  }
+
+  function handleRuntimeMessage(event){
     if(event.origin!==location.origin)return;
     const data=event.data||{};
-    if(data.type!=='platform-ui-reset'||data.capabilityId!=='device-handoff-accordion')return;
-    const accordion=$('.collection-device-accordion');
-    if(accordion)delete accordion.dataset.builderResponse;
+    if(data.type==='platform-ui-reset'){
+      if(data.capabilityId==='device-handoff-accordion'){
+        const accordion=$('.collection-device-accordion');
+        if(accordion)delete accordion.dataset.builderResponse;
+      }else if(data.capabilityId==='collection-bottom-sheet'){
+        requestAnimationFrame(()=>reconcileSheet(null,{reset:true}));
+      }else if(data.capabilityId==='floating-action'){
+        $('#collectionFab')?.style.removeProperty('--builder-fab-accent');
+      }
+      return;
+    }
+    if(data.type!=='platform-ui-config')return;
+    if(data.capabilityId==='collection-bottom-sheet')requestAnimationFrame(()=>reconcileSheet(data.config||{}));
+    else if(data.capabilityId==='floating-action')requestAnimationFrame(()=>applyFabAudit(data.config||{}));
   }
 
   installStyle();
   ensureDeviceContext();
   new MutationObserver(()=>ensureDeviceContext()).observe(document.documentElement,{childList:true,subtree:true});
-  window.addEventListener('message',cleanDeviceResponseOnReset);
+  window.addEventListener('message',handleRuntimeMessage);
 })();
