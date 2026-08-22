@@ -3,7 +3,7 @@
 Workstream: `platform-library-v1`
 Status: `active`
 Production branch: `main`
-Current implementation branch: `feat/admin-ux-shell-v1`
+Current implementation branch: `fix/ui-dashboard-system-audit`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -12,119 +12,95 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] Content Block / variant / style preset 분리
 [x] UI Capability / preset 분리
 [x] photography production은 parity reference로 유지
-[x] Visual Builder는 `/ui-dashboard/sandbox/` 더미 캔버스만 사용
-[x] sandbox는 production API / Google Sheet 사용자 데이터와 분리
-[x] 관리 화면 공통 UX 계약: `docs/library/admin-ui/ADMIN-SHELL.md`
+[x] `/ui-dashboard/`는 `/ui-dashboard/sandbox/` 더미 캔버스만 사용
+[x] sandbox user/storage 데이터를 production과 격리
+[x] 관리 화면 공통 셸: `화면 구성 / UI 라이브러리 / 블록 관리 / 페이지 에디터 / QA`
+[x] UI Dashboard page mode와 library mode의 JS owner 분리
 
-## Management UX consolidation
+## UI Dashboard system audit
 
-대상:
-- `/ui-dashboard/` 화면 구성
-- `/ui-dashboard/?view=library` UI 라이브러리
-- `/block-lab/` 블록 관리
-- `/editor-lab/` 페이지 에디터
-- `/qa/video-editor/` QA
+### 화면 구성
 
-[x] 공통 관리자 셸 추가
-[x] 데스크톱 전역 이동을 고정 좌측 사이드바로 통합
-[x] 태블릿에서는 compact icon rail, 모바일에서는 상단 horizontal nav로 전환
-[x] 모든 주요 관리 화면에서 브라우저 뒤로가기 없이 상호 이동
-[x] 현재 화면 active state 표시
-[x] 관리 메뉴 용어를 `화면 구성 / UI 라이브러리 / 블록 관리 / 페이지 에디터 / QA`로 정리
-[x] 전역 이동과 로컬 작업 도구 분리
-[x] Block Lab 소개형 hero 제거, 목록 + 검토 대상 중심으로 재구성
-[x] Block Lab 미리보기를 설정 패널보다 먼저 읽히도록 순서 변경
-[x] Block Lab 서버 기능은 `동기화`, 테마/화면폭은 `보기`로 그룹화
-[x] Page Editor undo/redo/export/import를 `더보기`로 그룹화
-[x] Page Editor 서버 초안 기능을 `초안` 메뉴로 그룹화
-[x] Page Editor `페이지 설정`을 접힌 고급 설정으로 통합
-[x] Page Editor block 검색/목록을 기본 작업 흐름 앞으로 이동
-[x] QA 관리 chrome은 항상 중립 테마 유지
-[x] QA dark/light는 preview canvas에만 적용
-[x] Block Lab/Page Editor dark/light도 관리 chrome이 아니라 preview canvas에만 적용
-[x] management assets no-store 처리
-[-] 실제 브라우저에서 desktop/tablet/mobile responsive QA
+[x] 상단 메뉴가 editor iframe에서 스크롤을 따라오도록 fixed-pin fallback 추가
+[x] Safari는 기존 deferred-sticky owner 유지
+[x] 편집 chrome이 nav / sheet / FAB의 fixed/sticky geometry를 덮어쓰지 않도록 보정
+[x] `화이트 / 다크 / 시스템` preview theme 전환 제공
+[x] 구형 V1 설정값을 page boot 시 V2 explicit override로 정규화
+[x] 실제 디자인 반영 owner를 sandbox `capability-runtime-v3`로 통일
+[x] 설정 패널 input/change를 전역 live bridge로 연결
+[x] builder-v1 late reapply 뒤 canonical runtime 재적용
+[x] `초기값` 동작은 production 원본 reset으로 연결
+[-] 모든 capability control을 실제 브라우저에서 live 변경 검증
+[-] block add/reorder/save/reset 동작 회귀 QA
+[-] 광고 좌/우/본문 동작 회귀 QA
 
-## Visual Builder / UI Dashboard
+### UI 라이브러리 = Live UI Kit
 
-Route: `/ui-dashboard/`
-Dummy canvas: `/ui-dashboard/sandbox/`
-Status: noindex / production state non-mutating
+원칙: 카탈로그/쇼케이스가 아니라 실제 reusable UI를 하나씩 독립적으로 조작하는 live UI kit.
 
-[x] production `/photography/` iframe 제거
-[x] static dummy page 사용
-[x] 7 UI capability 탐지 및 inspector 유지
-[x] PC 다중 inspector / mobile bottom dock 유지
-[x] block drag/drop + local layout draft 유지
-[x] inline advertisement candidate 유지
-[x] 공통 관리자 셸 + 로컬 toolbar 한 줄 구조로 단순화
-[x] toolbar를 `편집 / 블록 추가 / 광고 / 초안 저장 / 더보기` 중심으로 축소
-[x] UI library에서는 page editing toolbar 숨김
-[x] builder stage가 viewport를 소유하고 iframe 내부만 스크롤하도록 중첩 스크롤 축소
-[x] UI library bare-floor 간격/폭 보정
+[x] 한 화면에 UI 하나만 표시
+[x] page builder runtime과 library runtime 완전 분리
+[x] component selector: 상단 메뉴 / 가로 카드 / 범용 필터칩 / 하단 팝업 / 다른 기기 / 플로팅 버튼
+[x] `화이트 / 다크 / 시스템` 전역 색상 모드
+[x] PC / 모바일 preview 전환
+[x] 해당 UI가 지원하는 경우 표현 모드 quick switch
+[x] 상단 메뉴: 원본 / Material / iOS 플랫 / iOS 리퀴드
+[x] 범용 필터칩: 원본 / Material / iOS 플랫 / iOS 리퀴드
+[x] 플로팅 버튼: 원본 / 플랫 / 글래스 / 리퀴드
+[x] 하단 팝업: 전체 / 영상 / 읽을거리 / 질문 / 설정 상태 전환
+[x] 다른 기기: 접힘 / 펼침 상태 전환
+[x] 범용 필터칩은 하단 팝업의 실제 `#collectionFilters > .collection-filter` DOM 사용
+[x] 더미 저장 영상 카테고리 3종으로 `전체 + 제품 + 인물 + 음식` 실제 필터 생성
+[x] 다른 기기는 실제 `.collection-device-accordion`만 분리 표시
+[x] 하단 팝업을 닫거나 아래로 내렸을 때 dummy page/FAB가 노출되지 않는 중립 floor 사용
+[x] component interaction 유지: nav click / rail drag / filter click / sheet tab·drag / device accordion
+[x] 초기 상태는 production CSS 원본, 사용자가 바꾼 속성만 V2 override
+[x] 구형 library controller / sandbox preview controller 제거
+[-] 6개 UI × 3 theme × PC/mobile 실제 브라우저 QA
+[-] UI별 quick mode 실제 paint 전환 검증
+[-] 세부 설정의 모든 control live 반영 검증
 
-## Production UI parity in editor
+## Production UI parity
 
-원칙: 편집 기능 때문에 production UI의 geometry나 paint가 달라지면 안 된다.
-
-[x] 실제 production nav DOM 구조를 유지
-[x] sandbox nav에 production 최종 `desktop/nav-corrections.css`를 그대로 재적용
-[x] builder의 generic `position:relative!important`가 sticky/fixed UI를 덮어쓰는 문제 보정
-[x] 원래 `position:static`인 요소에만 builder anchor를 부여
-[x] `.nav-shell` sticky, `.collection-fab` fixed, sheet/overlay 고유 positioning을 보존
-[x] 편집 outline/gear는 실제 UI geometry를 변경하지 않는 보조 chrome으로 제한
-[-] actual production `/photography/`와 sandbox nav 픽셀 비교 QA
-[-] production CSS 변경 시 sandbox parity drift 점검 자동화 검토
+[x] production CSS stack을 sandbox에 동일 순서로 로드
+[x] production `liquid-controller`, `collection-hub`, `device-handoff`, rail runtime 재사용
+[x] 읽기 진행은 상단 메뉴 component에 포함
+[x] legacy full-width `.read-progress`는 editor/library parity 대상으로 사용하지 않음
+[-] `/photography/` 공개 화면과 sandbox의 nav/filter/sheet/FAB 시각 비교
 
 ## Side advertisement placement
 
-[x] 고정 `50% + 590px` 위치 가정 제거
-[x] 현재 보이는 `.chapter .section .content` 실제 rect 기준 좌우 위치 계산
-[x] hero / chapter hero 구간에서는 광고 숨김
-[x] 본문 구간에 최소 표시 높이가 없으면 광고 숨김
-[x] 좌/우 여백이 광고 폭 + gap보다 작으면 해당 광고 숨김
-[x] 1360px 미만에서는 side ad 숨김
-[x] scroll-follow on/off 유지
-[x] `설정 열기`와 `광고 활성화` 분리
-[x] 꺼진 side ad 슬롯은 캔버스에서 완전히 숨김
-[-] 1440 / 1536 / 1600 / 1920 데스크톱 QA
-[-] chapter 경계에서 광고가 이미지 영역에 겹치지 않는지 QA
+[x] 좌/우 광고 설정과 활성화를 분리
+[x] 1360px 미만 side ad 숨김
+[x] content 외곽 여백 기준 배치
+[x] follow on/off 유지
+[-] 1440 / 1536 / 1600 / 1920 실제 브라우저 QA
 
-## Block Registry / Block Lab
+## Other management tools
 
-[x] 28 block family 유지 (advertisement 포함)
-[x] advertisement variants 유지
-[-] 사용자 실제 디자인 검토
-[ ] advertisement 4 variant 최종 디자인 검토
-[ ] 사용자 결정만 approved/redesign/deprecated 저장
-[ ] approved block/primitive production 승격
-
-## Page Editor / publish
-
-[x] 기존 block add/reorder/drag 유지
-[x] SEO / AI / media / revisions / snapshot 기반 기능 유지
-[x] 기능 삭제 없이 작업 빈도에 따라 chrome 재배치
-[ ] `ADMIN_EDITOR_TOKEN` production secret 설정
-[ ] authenticated publish / rollback live QA
+[x] Block Lab / Page Editor / QA 공통 관리자 셸 적용
+[x] Page Editor secondary actions 그룹화
+[x] Block Lab 검토 중심 레이아웃
+[x] QA/theme는 management chrome이 아니라 preview canvas에 적용
+[-] 관리 페이지 간 직접 이동 및 responsive QA
 
 ## Safety
 
-- Visual Builder에서 production `/photography/` 로드 금지
-- sandbox에서 production user data 읽기 금지
-- photography renderer 자동 교체 금지
-- 편집 chrome이 production UI의 position/size/flow를 변경하지 않음
-- mobile native horizontal scroll owner 유지
-- Safari deferred sticky safety 유지
-- 사용자 승인 전 preset/block 자동 승인 금지
-- management / QA / staging noindex 유지
+- production `/photography/`를 builder canvas로 로드하지 않는다.
+- sandbox에서 production user data를 읽거나 쓰지 않는다.
+- photography renderer를 candidate/mock으로 교체하지 않는다.
+- mobile native horizontal scroll owner를 유지한다.
+- Safari deferred sticky safety를 유지한다.
+- 사용자 승인 전 preset/block을 자동 승인하지 않는다.
+- management / QA / staging은 noindex를 유지한다.
 
 ## Exact next action
 
-1. `feat/admin-ux-shell-v1`을 실제 브라우저에서 확인한다.
-2. 좌측 공통 메뉴에서 화면 구성 → UI 라이브러리 → 블록 관리 → 페이지 에디터 → QA를 왕복한다.
-3. 화면 구성에서 더미 nav가 실제 production nav와 동일한 geometry/paint/sticky 동작인지 비교한다.
-4. 편집 모드 ON/OFF 전환으로 nav/FAB/sheet 위치가 변하지 않는지 확인한다.
-5. Block Lab에서 미리보기 → 판정 → variant → style 순서가 자연스러운지 확인한다.
-6. Page Editor에서 블록 추가가 첫 작업으로 읽히고 secondary actions가 메뉴 안에 있는지 확인한다.
-7. QA와 Block Lab/Page Editor에서 dark mode가 preview에만 적용되는지 확인한다.
-8. 1440 / 1536 / 1920 PC, 900px 전후, 모바일에서 검수한다.
+1. `fix/ui-dashboard-system-audit`의 UI Kit를 실제 브라우저에서 검증한다.
+2. Library: 6개 UI를 각각 White / Dark / System, PC / Mobile로 확인한다.
+3. `범용 필터칩`이 실제 bottom-sheet chip 디자인과 동일한지 확인한다.
+4. `다른 기기`에서 accordion 이외의 settings/sheet UI가 보이지 않는지 확인한다.
+5. Bottom Sheet를 drag-close 했을 때 중립 floor 외에는 아무것도 보이지 않는지 확인한다.
+6. Page mode에서 각 inspector control을 한 번씩 변경해 즉시 반영되는지 확인한다.
+7. block / ad / draft save / reset 회귀 테스트를 수행한다.
+8. 발견된 회귀만 같은 branch에서 수정한 뒤 `main`과 reconcile하고 사용자 승인 후 병합한다.
