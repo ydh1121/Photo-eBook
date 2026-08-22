@@ -24,6 +24,12 @@
     const style=document.createElement('style');
     style.id='platform-sandbox-runtime-audit-style';
     style.textContent=`
+      @media(min-width:1024px){
+        .nav-scroll[data-builder-family="material-flat"]::before,
+        .nav-scroll[data-builder-family="ios-flat"]::before{content:none!important;display:none!important}
+        .nav-scroll[data-builder-family="material-flat"],
+        .nav-scroll[data-builder-family="ios-flat"]{border-radius:999px!important;overflow:hidden!important}
+      }
       html[data-theme="dark"] .nav-scroll[data-builder-family="material-flat"]{
         background:#1a1e25!important;border-color:rgba(255,255,255,.08)!important;box-shadow:none!important;color:#c4cad3!important
       }
@@ -42,6 +48,8 @@
       html[data-theme="dark"] .collection-filters[data-builder-family] .collection-filter.is-active{
         background:var(--builder-filter-accent,#315fc9)!important;color:#fff!important;border-color:var(--builder-filter-accent,#315fc9)!important
       }
+      .desktop-rail-window[data-builder-right-fade="false"]::after{display:none!important}
+      .desktop-rail-window[data-builder-right-fade="true"]::after{display:block!important}
       #app .scroll-row[data-builder-scrollbar="auto"],
       #app .skills-infinite-row[data-builder-scrollbar="auto"],
       #app .curated-links-row[data-builder-scrollbar="auto"],
@@ -127,7 +135,11 @@
       row.style.removeProperty('--builder-fade-left');
       row.style.removeProperty('--builder-fade-right');
     });
-    $$('.desktop-rail-window').forEach(wrapper=>wrapper.style.removeProperty('--desktop-shadow-runway'));
+    $$('.desktop-rail-window').forEach(wrapper=>{
+      wrapper.style.removeProperty('--desktop-shadow-runway');
+      wrapper.style.removeProperty('--desktop-rail-blur');
+      delete wrapper.dataset.builderRightFade;
+    });
   }
 
   function maskFor(left,right,leftWidth,rightWidth){
@@ -139,10 +151,11 @@
 
   function applyRailAudit(config){
     const rows=$$(RAILS);
+    const wrappers=$$('.desktop-rail-window');
     if(has(config,'leftShadowGuard')||has(config,'leftPaintRunway')){
       const left=config.leftShadowGuard===false?0:num(config.leftPaintRunway,16);
       rows.forEach(row=>row.style.setProperty('padding-left',`${left}px`,'important'));
-      $$('.desktop-rail-window').forEach(wrapper=>wrapper.style.setProperty('--desktop-shadow-runway',`${left}px`,'important'));
+      wrappers.forEach(wrapper=>wrapper.style.setProperty('--desktop-shadow-runway',`${left}px`,'important'));
     }
     if(has(config,'rightContentPadding'))rows.forEach(row=>row.style.setProperty('padding-right',`${num(config.rightContentPadding,122)}px`,'important'));
     if(has(config,'leftFade')||has(config,'rightFade')||has(config,'rightFadeWidth')){
@@ -155,6 +168,11 @@
         row.style.setProperty('-webkit-mask-image',mask,'important');
         row.style.setProperty('mask-image',mask,'important');
       });
+      wrappers.forEach(wrapper=>{
+        wrapper.dataset.builderRightFade=String(right);
+        if(has(config,'rightFadeWidth'))wrapper.style.setProperty('--desktop-rail-blur',`${rightWidth}px`,'important');
+      });
+      if(has(config,'rightFadeWidth')&&!has(config,'rightContentPadding'))rows.forEach(row=>row.style.setProperty('padding-right','122px','important'));
     }
     if(has(config,'scrollbar')){
       rows.forEach(row=>{
