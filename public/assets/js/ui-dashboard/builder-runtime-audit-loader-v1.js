@@ -4,7 +4,10 @@
 
   const frame=document.querySelector('#builderFrame');
   if(!frame)return;
-  const SRC='/ui-dashboard/sandbox/runtime-audit-patch-v1.js?v=1';
+  const PATCHES=[
+    {src:'/ui-dashboard/sandbox/runtime-audit-patch-v1.js?v=1',marker:'runtimeAuditPatchV1'},
+    {src:'/ui-dashboard/sandbox/runtime-dynamic-config-guard-v1.js?v=1',marker:'runtimeDynamicConfigGuardV1'}
+  ];
 
   function ensureNativeScrollGuard(doc){
     if(!doc?.head||doc.querySelector('#platform-sandbox-native-scroll-guard'))return;
@@ -20,20 +23,20 @@
     doc.head.appendChild(style);
   }
 
+  function injectPatch(doc,patch){
+    const selector=`script[data-${patch.marker.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)}]`;
+    if(doc.querySelector(selector))return;
+    const script=doc.createElement('script');
+    script.src=patch.src;
+    script.dataset[patch.marker]='true';
+    doc.head.appendChild(script);
+  }
+
   function inject(){
     const doc=frame.contentDocument;
     if(!doc?.head)return;
-    const existing=doc.querySelector('script[data-runtime-audit-patch-v1]');
-    if(existing){
-      existing.addEventListener('load',()=>ensureNativeScrollGuard(doc),{once:true});
-      setTimeout(()=>ensureNativeScrollGuard(doc),40);
-      return;
-    }
-    const script=doc.createElement('script');
-    script.src=SRC;
-    script.dataset.runtimeAuditPatchV1='true';
-    script.addEventListener('load',()=>ensureNativeScrollGuard(doc),{once:true});
-    doc.head.appendChild(script);
+    PATCHES.forEach(patch=>injectPatch(doc,patch));
+    setTimeout(()=>ensureNativeScrollGuard(doc),40);
   }
 
   frame.addEventListener('load',()=>[0,80,260].forEach(delay=>setTimeout(inject,delay)));
