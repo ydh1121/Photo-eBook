@@ -38,6 +38,7 @@ on:
       - 'scripts/check-platform-qa-seed.mjs'
       - 'scripts/check-public-route-v2.mjs'
       - 'scripts/check-ui-dashboard-browser.mjs'
+      - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
   pull_request:
@@ -76,6 +77,7 @@ on:
       - 'scripts/check-platform-qa-seed.mjs'
       - 'scripts/check-public-route-v2.mjs'
       - 'scripts/check-ui-dashboard-browser.mjs'
+      - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
 
@@ -117,6 +119,7 @@ jobs:
           node --check scripts/check-platform-qa-seed.mjs
           node --check scripts/check-public-route-v2.mjs
           node --check scripts/check-ui-dashboard-browser.mjs
+          node --check scripts/check-ui-dashboard-browser-v2.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Run UI Dashboard browser QA
@@ -138,7 +141,7 @@ jobs:
             cat /tmp/photo-ebook-http.log || true
             exit 1
           fi
-          UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-ui-dashboard-browser.mjs
+          UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-ui-dashboard-browser-v2.mjs
       - name: Upload UI Dashboard browser QA
         if: always()
         uses: actions/upload-artifact@v4
