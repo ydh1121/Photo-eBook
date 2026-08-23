@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-23T09:29:10.687Z",
+  "startedAt": "2026-08-23T09:35:11.265Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-entry-audit-v1.js?v=9",
   "runtimeMarker": "__platformGlobalChipRuntimeV4",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-23T09:29:10.687Z",
+      "at": "2026-08-23T09:35:11.265Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 4114
@@ -27,14 +27,28 @@
       "name": "live filter Material parity",
       "status": "pass",
       "detail": "rgb(241, 243, 246)"
+    },
+    {
+      "name": "live filter → nav propagation",
+      "status": "pass",
+      "detail": "Material"
+    },
+    {
+      "name": "live filter iOS Liquid parity",
+      "status": "pass",
+      "detail": "blur(22px) saturate(1.38)"
+    },
+    {
+      "name": "live filter → nav propagation",
+      "status": "pass",
+      "detail": "iOS Liquid"
     }
   ],
-  "status": "fail",
-  "error": "page.waitForFunction: Timeout 30000ms exceeded.\n    at waitForFrame (/home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:62:14)\n    at async verifyLiveRuntime (/home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:103:11)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:145:3",
-  "finishedAt": "2026-08-23T09:29:43.567Z",
-  "sourceSha": "8b3fc450d755b48fb95cef74c9cf4993d6a86185",
+  "status": "pass",
+  "finishedAt": "2026-08-23T09:35:16.513Z",
+  "sourceSha": "393d5747cae9d6a8fc1c3b6b4816676b9193fe20",
   "sourceRef": "main",
-  "workflowRunId": "32631119004",
-  "workflowRunNumber": "3",
-  "recordedAt": "2026-08-23T09:29:43.620Z"
+  "workflowRunId": "32631402171",
+  "workflowRunNumber": "4",
+  "recordedAt": "2026-08-23T09:35:16.563Z"
 }
