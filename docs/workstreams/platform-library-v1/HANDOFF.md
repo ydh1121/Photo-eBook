@@ -1,11 +1,12 @@
 # Platform Library V1 Handoff
 
 Updated: 2026-08-23 KST
-Active branch: `fix/global-chip-parity-v3`
+Active branch: `main`
 Production branch: `main`
-Draft PR: `#6`
+Merged PR: `#6`
+Implementation merge commit: `9278658f464fd2179d642f668cea236f866b8d63`
 Latest implementation QA HEAD: `c8c130c236671f0fbdebdea90acd8051ed387b9f`
-Latest documentation HEAD will be newer than the QA HEAD.
+Documentation commits are newer than the implementation merge commit.
 
 ## Resume order
 
@@ -14,7 +15,7 @@ Latest documentation HEAD will be newer than the QA HEAD.
 3. this file
 4. `docs/library/admin-ui/ADMIN-SHELL.md`
 5. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
-6. current branch HEAD
+6. current `main` HEAD
 
 ## Current product direction
 
@@ -81,7 +82,7 @@ State:
 
 ## Global Chip parity fix
 
-PR #6에서 해결한 핵심:
+PR #6에서 완료:
 - 전역 Chip 승격 전 상단 메뉴의 Material/iOS Flat/iOS Liquid 표현을 canonical 기준으로 복원
 - Material rail: `#f1f3f6`, 기존 border, shadow 없음, blur 없음
 - iOS Flat rail: `rgba(244,247,251,.88)`, 12px blur, 기존 shadow
@@ -98,14 +99,14 @@ Workflow: `.github/workflows/platform-library-checks.yml`
 UI Dashboard browser script: `scripts/check-ui-dashboard-browser-v3.mjs`
 Management browser script: `scripts/check-platform-admin-browser-v1.mjs`
 
-Latest full successful run:
+Latest full successful pre-merge run:
 - run: `32628018616` / #245
 - tested branch head: `c8c130c236671f0fbdebdea90acd8051ed387b9f`
 - conclusion: `success`
 - UI Dashboard artifact: `9490245629`
 - management artifact: `9490245824`
 
-Static checks all pass:
+Static checks passed:
 - Registry sync
 - variant sync
 - UI capability sync
@@ -113,7 +114,7 @@ Static checks all pass:
 - Snapshot V2
 - JavaScript syntax
 
-UI Dashboard browser checks all pass:
+UI Dashboard browser checks passed:
 - all six Live UI Kit components across White / Dark / System × PC / Mobile
 - top nav: Material/iOS Flat/iOS Liquid global family propagation
 - filter: actual bottom-sheet source, click/active state, transparent inactive chips
@@ -124,7 +125,7 @@ UI Dashboard browser checks all pass:
 - FAB: family / accent / response
 - page: top nav no longer owns common Chip style; global filter-chip capability owns family
 
-Management browser checks all pass:
+Management browser checks passed:
 - block DragEvent reorder + persisted order
 - side ad width boundaries at 1280 / 1440 / 1536 / 1600 / 1920
 - Block Lab / Page Editor / QA desktop/mobile current-nav + noindex
@@ -164,19 +165,17 @@ Notes / saved presets remain.
 
 ## PR / main state
 
-Latest comparison before documentation update:
-- branch ahead of `main`: 32 commits
-- branch behind `main`: 0 commits
-- status: `ahead`
-- PR #6: open / Draft / `mergeable: true`
-- merge base and current main: `898ddeda49043094acb4422e6c4426efedbc2ea7`
-
-The user explicitly requested continuation through merge/deploy verification. No additional approval is required for this PR merge unless `main` moves or a new conflict appears.
+- PR #6: merged
+- merge commit: `9278658f464fd2179d642f668cea236f866b8d63`
+- merge time: 2026-08-23 17:26 KST
+- `main` contains `builder-entry-audit-v1.js?v=9`
+- `main` runtime loader points to `global-chip-runtime-v1.js?v=4`
+- implementation branch had no divergence before merge (`ahead 32 / behind 0`)
 
 ## Next action
 
-1. Wait for the documentation-only follow-up CI to pass.
-2. Mark PR #6 ready for review if required by GitHub, then merge to `main`.
-3. Confirm post-merge `main` CI.
-4. Confirm Cloudflare Pages deployment and fetch the deployed `/ui-dashboard/` and library routes.
-5. Do not treat merge/deployment as approval of candidate UI/block presets.
+1. Confirm post-merge `main` CI if the GitHub Actions push run becomes observable.
+2. Confirm Cloudflare Pages deployment reflects the latest `main` assets.
+3. Check deployed `/ui-dashboard/` and `/ui-dashboard/?view=library` for final runtime response.
+4. Final Korean typography and visual judgement remains a real-browser user review item.
+5. Never treat merge/deployment as approval of candidate UI/block presets.
