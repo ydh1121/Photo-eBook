@@ -20,13 +20,13 @@ async function sandbox(page,preview=''){
 async function clickSwitch(page,key,value){await page.locator(`[${key}="${value}"]`).click();}
 async function setInput(page,selector,value){const node=page.locator(selector);await node.waitFor({state:'attached'});await node.evaluate((el,next)=>{el.value=String(next);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},value);}
 async function openInspector(page){await page.locator('#kitSettings').click();await page.locator('.builder-kit-inspector:not([hidden])').waitFor({state:'visible'});}
-async function waitForFilterSpecimens(frame){await waitUntil(()=>frame.locator('#sandboxPreviewRoot[data-preview-kind="filter-chip-rail"]').evaluate(node=>node.dataset.specimenReady==='true'),'filter chip specimen board not ready',12000);}
+async function waitForFilterLive(frame){await waitUntil(()=>frame.locator('#sandboxPreviewRoot[data-preview-kind="filter-chip-rail"]').evaluate(node=>node.dataset.liveReady==='true'),'single filter chip rail not ready',12000);}
 
 const executablePath=browserPath();assert(executablePath,'Chrome not found');
 const browser=await chromium.launch({headless:true,executablePath,args:['--no-sandbox','--disable-dev-shm-usage']});
 
 async function verifyMatrix(page,frame,id){
-  if(id==='filter-chip-rail')await waitForFilterSpecimens(frame);
+  if(id==='filter-chip-rail')await waitForFilterLive(frame);
   for(const theme of ['light','dark','system']){
     await clickSwitch(page,'data-kit-theme',theme);
     await waitUntil(()=>page.evaluate(v=>document.querySelector('.builder-kit-workspace')?.dataset.themeChoice===v,theme),`${id}: theme ${theme}`);
@@ -41,82 +41,78 @@ async function verifyMatrix(page,frame,id){
   pass(`${id} theme/viewport`,'White/Dark/System × PC/Mobile');
 }
 
-async function globalChipPropagation(page){
+async function filterChipLiveEditor(page){
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});
-  let frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);await clickSwitch(page,'data-kit-viewport','desktop');
-  const chips=frame.locator('#collectionFilters .collection-filter');assert(await chips.count()>=4,'real bottom-sheet filter row missing');
-  assert(await frame.locator('.platform-kit-specimen').count()>=4,'live UI kit specimen set missing');
-  assert(await frame.locator('[data-specimen="실제 원본"] #collectionFilters').count()===1,'real bottom-sheet filter row is not the primary specimen');
-  assert(await frame.locator('.platform-kit-specimen--narrow').count()===1,'narrow-width filter specimen missing');
+  let frame=await sandbox(page,'filter-chip-rail');await waitForFilterLive(frame);await clickSwitch(page,'data-kit-viewport','desktop');
+  const root=frame.locator('#collectionFilters');
+  assert(await root.count()===1,'real bottom-sheet filter row missing');
+  assert(await frame.locator('.platform-kit-specimen').count()===0,'retired four-card specimen board still rendered');
+  assert(await frame.locator('#sandboxPreviewRoot[data-preview-kind="filter-chip-rail"] > #collectionFilters').count()===1,'filter rail is not the single direct live preview');
   const shellBox=await page.locator('.builder-kit-frame-shell').evaluate(node=>({w:node.getBoundingClientRect().width,h:node.getBoundingClientRect().height}));
-  assert(shellBox.w<=1060&&shellBox.h>=500&&shellBox.h<=540,`filter kit specimen workbench unexpected: ${shellBox.w}x${shellBox.h}`);
-  const floor=await frame.evaluate(()=>getComputedStyle(document.body).backgroundColor);assert(floor==='rgb(244, 245, 247)',`filter kit still renders a white iframe plate: ${floor}`);
+  assert(shellBox.w<=940&&shellBox.h>=280&&shellBox.h<=320,`single filter rail workbench unexpected: ${shellBox.w}x${shellBox.h}`);
+  assert(await page.locator('.builder-kit-filter-items:not([hidden])').count()===1,'sample chip editor missing');
+  assert((await page.locator('#kitSettings').textContent())?.includes('여백'),'filter settings entry is not spacing-first');
 
-  /* Material: exact former top-nav rail values; inactive chips are transparent after the configured visual transition settles. */
+  const input=page.locator('.builder-kit-filter-items input');
+  const beforeCount=await root.locator('.collection-filter').count();
+  await input.fill('제품·브랜드 촬영');await input.press('Enter');
+  await waitUntil(()=>root.locator('.collection-filter').count().then(n=>n===beforeCount+1),'sample chip add did not update live rail');
+  assert(await root.locator('.collection-filter').last().textContent()==='제품·브랜드 촬영','added sample chip label drifted');
+
+  await openInspector(page);
+  for(const id of ['gap','railPaddingTop','railPaddingRight','railPaddingBottom','railPaddingLeft','chipPaddingY','chipPaddingX'])assert(await page.locator(`[data-kit-control="${id}"]`).count()===1,`missing live spacing control: ${id}`);
+  assert(await page.locator('[data-kit-control="runway"]').count()===0,'retired combined runway control remains');
+  await setInput(page,'[data-kit-control="gap"]',11);
+  await setInput(page,'[data-kit-control="railPaddingTop"]',6);
+  await setInput(page,'[data-kit-control="railPaddingRight"]',8);
+  await setInput(page,'[data-kit-control="railPaddingBottom"]',7);
+  await setInput(page,'[data-kit-control="railPaddingLeft"]',12);
+  await setInput(page,'[data-kit-control="chipPaddingY"]',8);
+  await setInput(page,'[data-kit-control="chipPaddingX"]',13);
+  await waitUntil(()=>root.evaluate(node=>{const s=getComputedStyle(node);const chip=node.querySelector('.collection-filter');const c=chip?getComputedStyle(chip):null;return s.gap==='11px'&&s.paddingTop==='6px'&&s.paddingRight==='8px'&&s.paddingBottom==='7px'&&s.paddingLeft==='12px'&&c?.paddingTop==='8px'&&c?.paddingLeft==='13px';}),'four-side rail/chip spacing did not update live');
+  await page.locator('[data-kit-close]').click();
+
   await clickSwitch(page,'data-kit-mode','material-flat');
-  await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='material-flat'&&c?.accentColor==='#437ce7'&&c?.blur===0&&c?.gap===9&&c?.runway===5.5;}),'Material canonical preset not persisted');
+  await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='material-flat'&&c?.gap===11&&c?.railPaddingTop===6&&c?.railPaddingRight===8&&c?.railPaddingBottom===7&&c?.railPaddingLeft===12;}),'style switch overwrote tuned geometry');
   await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='material-flat'),'Material family not applied');
-  const materialFilter=await frame.locator('#collectionFilters').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,shadow:s.boxShadow,backdrop:s.backdropFilter};});
-  assert(materialFilter.background==='rgb(241, 243, 246)',`Material rail background drifted: ${materialFilter.background}`);
-  assert(materialFilter.shadow==='none',`Material rail shadow drifted: ${materialFilter.shadow}`);
-  assert(materialFilter.backdrop==='none',`Material rail backdrop drifted: ${materialFilter.backdrop}`);
-  await waitUntil(()=>chips.nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'Material inactive chip did not settle to transparent');
-  await chips.nth(1).click();await waitUntil(()=>chips.nth(1).evaluate(node=>node.classList.contains('is-active')),'Material filter interaction missing');
-  await openInspector(page);await setInput(page,'[data-kit-control="accentColor"]','#d9405f');
+  const material=await root.evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,shadow:s.boxShadow,backdrop:s.backdropFilter};});
+  assert(material.background==='rgb(241, 243, 246)'&&material.shadow==='none'&&material.backdrop==='none','Material surface parity lost');
+
+  for(const label of ['상업 제품 상세페이지 촬영','브랜드 캠페인 인물 프로필 촬영','음식 메뉴와 매장 공간 촬영','SNS 숏폼 콘텐츠 촬영','행사와 기업 인터뷰 촬영','추가 테스트 메뉴']){
+    await input.fill(label);await input.press('Enter');
+  }
+  await waitUntil(()=>root.evaluate(node=>node.scrollWidth>node.clientWidth+120),'sample chips did not create a horizontal overflow case');
+  const momentum=await frame.evaluate(async()=>{
+    const root=document.querySelector('#collectionFilters');if(!root)return null;
+    root.scrollLeft=0;
+    const emit=(type,x)=>root.dispatchEvent(new PointerEvent(type,{pointerId:91,pointerType:'mouse',button:0,buttons:type==='pointerup'?0:1,clientX:x,clientY:20,bubbles:true,cancelable:true}));
+    emit('pointerdown',420);
+    for(const x of [400,380,360,340,320]){await new Promise(resolve=>setTimeout(resolve,18));emit('pointermove',x);}
+    emit('pointerup',320);
+    const released=root.scrollLeft;
+    await new Promise(resolve=>setTimeout(resolve,220));
+    return {released,after:root.scrollLeft};
+  });
+  assert(momentum&&momentum.released>20&&momentum.after>momentum.released+1,`filter rail inertia missing: ${JSON.stringify(momentum)}`);
+
+  await clickSwitch(page,'data-kit-mode','ios-liquid');
+  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-liquid'),'iOS Liquid family not applied');
+  await waitUntil(()=>root.evaluate(node=>node.dataset.platformLiquidReady==='true'),'liquid selector did not mount');
+  const indicator=root.locator(':scope > .platform-filter-chip-indicator');assert(await indicator.count()===1,'liquid selector missing');
+  const liquidChips=root.locator('.collection-filter');const before=await indicator.evaluate(node=>node.style.transform);await liquidChips.nth(2).click();
+  await waitUntil(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'liquid selector did not move');
+  const filterSkin=await indicator.locator('.v37-liquid-skin').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundImage,shadow:s.boxShadow};});
+  await shot(page,'filter-chip-single-live-rail');
 
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
   assert(await page.locator('#kitMode[hidden]').count()===1,'top nav still owns chip representation control');
-  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='material-flat'),'Material family did not propagate to top nav');
-  const materialNav=await frame.locator('.nav-scroll').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,shadow:s.boxShadow,backdrop:s.backdropFilter};});
-  assert(materialNav.background==='rgb(241, 243, 246)',`former Material nav background lost: ${materialNav.background}`);
-  assert(materialNav.shadow==='none'&&materialNav.backdrop==='none','former Material nav surface lost');
-  const topAccent=await frame.locator('.nav-chip.is-active').evaluate(node=>getComputedStyle(node).backgroundColor);assert(topAccent!=='rgba(0, 0, 0, 0)','Material top nav active chip did not receive global accent');
-
-  /* iOS Flat: former nav rgba surface + 12px blur + exact shadow. */
-  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
-  await clickSwitch(page,'data-kit-mode','ios-flat');
-  await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='ios-flat'&&c?.accentColor==='#437ce7'&&c?.surfaceOpacity===88&&c?.blur===12&&c?.gap===9&&c?.runway===5.5;}),'iOS Flat canonical preset not persisted');
-  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-flat'),'iOS Flat family not applied');
-  const iosFlatSurface=await frame.locator('#collectionFilters').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,backdrop:s.backdropFilter,shadow:s.boxShadow};});
-  assert(iosFlatSurface.background==='rgba(244, 247, 251, 0.88)',`iOS Flat background drifted: ${iosFlatSurface.background}`);
-  assert(iosFlatSurface.backdrop.includes('blur(12px)'),`iOS Flat blur drifted: ${iosFlatSurface.backdrop}`);
-  assert(iosFlatSurface.shadow!=='none',`iOS Flat shadow missing`);
-  await waitUntil(()=>frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'iOS Flat inactive chip did not settle to transparent');
-
-  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
-  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-flat'),'iOS Flat family did not propagate to top nav');
-  const iosFlatNav=await frame.locator('.nav-scroll').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,backdrop:s.backdropFilter};});
-  assert(iosFlatNav.background==='rgba(244, 247, 251, 0.88)'&&iosFlatNav.backdrop.includes('blur(12px)'),'former iOS Flat nav surface lost');
-
-  /* iOS Liquid: production nav-corrections surface + v37 moving selector. */
-  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
-  await clickSwitch(page,'data-kit-mode','ios-liquid');
-  await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='ios-liquid'&&c?.accentColor==='#437ce7'&&c?.blur===22&&c?.surfaceOpacity===100&&c?.response==='standard'&&c?.gap===9&&c?.runway===5.5;}),'iOS Liquid canonical preset not persisted');
-  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-liquid'),'iOS Liquid global mode missing');
-  const liquidRail=await frame.locator('#collectionFilters').evaluate(node=>{const s=getComputedStyle(node);return {radius:s.borderRadius,backdrop:s.backdropFilter,shadow:s.boxShadow};});
-  assert(liquidRail.radius==='999px',`iOS Liquid rail radius drifted: ${liquidRail.radius}`);
-  assert(liquidRail.backdrop.includes('blur(22px)')&&liquidRail.backdrop.includes('saturate(1.38)'),`iOS Liquid glass drifted: ${liquidRail.backdrop}`);
-  assert(liquidRail.shadow!=='none','iOS Liquid canonical shadow missing');
-  await waitUntil(()=>frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'iOS Liquid inactive chip did not settle to transparent');
-  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.platformLiquidReady==='true'),'filter liquid indicator did not mount');
-  const indicator=frame.locator('#collectionFilters > .platform-filter-chip-indicator');assert(await indicator.count()===1,'filter liquid indicator missing');
-  const before=await indicator.evaluate(node=>node.style.transform);const liquidChips=frame.locator('#collectionFilters .collection-filter');await liquidChips.nth(2).click();
-  await waitUntil(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'canonical liquid indicator did not move with active chip');
-  assert(await frame.locator('.platform-kit-specimen .platform-filter-chip-indicator').count()>=3,'liquid runtime did not reach specimen clones');
-  const filterSkin=await indicator.locator('.v37-liquid-skin').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundImage,shadow:s.boxShadow};});
-  await shot(page,'global-filter-chip-ios-liquid-canonical');
-
-  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
-  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'iOS Liquid did not propagate to top nav');
-  const liquidNav=await frame.locator('.nav-scroll').evaluate(node=>getComputedStyle(node).backdropFilter);assert(liquidNav.includes('blur(22px)')&&liquidNav.includes('saturate(1.38)'),`former iOS Liquid nav glass lost: ${liquidNav}`);
-  assert(await frame.locator('.nav-v33-indicator .v37-liquid-skin').count()===1,'top nav liquid skin missing');
+  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'global chip style did not propagate to top nav');
   const navSkin=await frame.locator('.nav-v33-indicator .v37-liquid-skin').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundImage,shadow:s.boxShadow};});
-  assert(navSkin.background===filterSkin.background,`filter/nav liquid gradient mismatch\nfilter=${filterSkin.background}\nnav=${navSkin.background}`);
-  assert(navSkin.shadow===filterSkin.shadow,`filter/nav liquid shadow mismatch\nfilter=${filterSkin.shadow}\nnav=${navSkin.shadow}`);
+  assert(navSkin.background===filterSkin.background&&navSkin.shadow===filterSkin.shadow,'filter/nav liquid skin parity lost');
 
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=collection-bottom-sheet`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'collection-bottom-sheet');
-  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'canonical chip family did not propagate to bottom sheet');
-  pass('global chip canonical parity','former top-nav Material / iOS Flat / iOS Liquid surfaces and selector now own all common chips');
+  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'global chip family did not propagate to bottom sheet');
+  pass('filter chip live editor','single real rail, sample insertion, four-side spacing and mouse inertia');
 }
 
 async function library(context){
@@ -127,8 +123,7 @@ async function library(context){
     await page.goto(`${BASE}/ui-dashboard/?view=library&ui=${id}`,{waitUntil:'domcontentloaded'});const frame=await sandbox(page,id);await verifyMatrix(page,frame,id);
     if(id==='top-chapter-navigation'){
       assert(await frame.locator('.nav-shell').count()===1,'nav missing');
-      assert(await page.locator('[data-kit-control="chipFamily"]').count()===0,'legacy top-nav chipFamily inspector control remains');
-      await openInspector(page);await page.locator('[data-kit-control="progressMode"]').selectOption('line');await waitUntil(()=>frame.locator('.nav-chapter-progress').evaluate(node=>getComputedStyle(node).height==='2px'),'nav progress live control missing');
+      await openInspector(page);assert(await page.locator('[data-kit-control="chipFamily"]').count()===0,'legacy top-nav chipFamily control remains');await page.locator('[data-kit-control="progressMode"]').selectOption('line');await waitUntil(()=>frame.locator('.nav-chapter-progress').evaluate(node=>getComputedStyle(node).height==='2px'),'nav progress live control missing');
     }
     if(id==='horizontal-card-rail'){
       await openInspector(page);await setInput(page,'[data-kit-control="rightContentPadding"]',150);await waitUntil(()=>frame.locator('.scroll-row').evaluate(node=>getComputedStyle(node).paddingRight==='150px'),'rail padding missing');
@@ -140,17 +135,16 @@ async function library(context){
       const root=frame.locator('#sandboxPreviewRoot[data-preview-kind="device-handoff-accordion"]');assert(await root.locator('.collection-device-accordion').count()===1,'device accordion missing');assert(await root.locator('.collection-sheet,.collection-tabs').count()===0,'unrelated device UI leaked');
     }
   }
-  await globalChipPropagation(page);await shot(page,'global-chip-top-nav-ios-liquid-canonical');await page.close();
+  await filterChipLiveEditor(page);await page.close();
 }
 
 async function builder(context){
   const page=await context.newPage();await page.setViewportSize({width:1920,height:1200});
-  await page.goto(`${BASE}/ui-dashboard/`,{waitUntil:'domcontentloaded'});let frame=await sandbox(page);
+  await page.goto(`${BASE}/ui-dashboard/`,{waitUntil:'domcontentloaded'});const frame=await sandbox(page);
   await waitUntil(()=>frame.locator('.platform-builder-block-handle').count().then(n=>n>0),'builder chrome missing',16000);
   await frame.locator('[data-builder-capability="top-chapter-navigation"] > .platform-builder-gear').first().click({force:true});
   const topInspector=page.locator('.builder-inspector[data-inspector-id="top-chapter-navigation"]');await topInspector.waitFor({state:'visible'});assert(await topInspector.locator('[data-builder-control="chipFamily"],[data-builder-control="accentColor"]').count()===0,'page top-nav still owns common chip style');
   await topInspector.locator('[data-close-inspector]').click();
-
   await frame.locator('[data-builder-capability="filter-chip-rail"] > .platform-builder-gear').first().click({force:true}).catch(()=>{});
   const filterInspector=page.locator('.builder-inspector[data-inspector-id="filter-chip-rail"]');
   if(await filterInspector.count()){

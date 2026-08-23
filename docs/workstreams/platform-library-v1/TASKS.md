@@ -1,11 +1,12 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / deployed / user visual review`
+Status: `active / admin UI refinement / production connection deferred`
 Production branch: `main`
-Current implementation branch: `main`
+Current implementation branch: `fix/filter-chip-live-editor-v2`
 Canonical UI parity PR: `#6`
 Live verification PRs: `#7`, `#8`, `#9`, `#10`
+Current admin UI PR: `#11`
 Global Chip implementation merge: `9278658f464fd2179d642f668cea236f866b8d63`
 Latest live-verified source SHA: `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
 Latest live status commit: `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
@@ -60,6 +61,25 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] FAB family / accent / response 검증
 [-] 사용자 브라우저에서 최종 typography/미세 시각 조정 검토
 
+### Filter chip feedback patch V2
+
+[x] `하단 팝업 필터칩 / 활성 칩 비교 / 긴 라벨 / 좁은 폭` 4개 specimen board 제거
+[x] 실제 `#collectionFilters` 하나만 Live UI Kit에 직접 표시
+[x] 샘플 칩 이름 입력 → 추가 / 마지막 삭제 / 기본 구성 복원 기능 추가
+[x] 레일 위 / 오른쪽 / 아래 / 왼쪽 여백을 각각 live control로 분리
+[x] 칩 좌우 / 위아래 여백과 칩 사이 간격을 live control로 노출
+[x] 기존 `runway` 저장값은 네 방향 레일 여백으로 안전하게 migration
+[x] style family 전환이 사용자가 조정한 geometry를 덮어쓰지 않도록 분리
+[x] 기본 family를 처음 선택할 때 이전 상단 메뉴 기준 gap `9px`, rail inset `5.5px`를 적용
+[x] PC mouse drag에 velocity 기반 관성 스크롤 + drag 후 click suppression 추가
+[x] 모바일은 native horizontal scroll owner 유지
+[x] MutationObserver 재귀 루프 제거
+[x] 관성 시작 시 velocity가 0으로 초기화되던 버그 수정
+[x] 임시 진단 스크립트 및 CI 호출 제거
+[x] PR #11 `Platform Library Checks` run `32638788027`, job `97192525406` 성공
+[-] `main` merge 및 관리단 배포 확인
+[ ] 사용자 실제 브라우저 최종 확인
+
 ## Global Chip parity
 
 [x] `범용 필터칩`을 플랫폼 공통 Chip Design System owner로 승격
@@ -90,21 +110,24 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] global Chip canonical parity browser check
 [x] management browser suites
 [x] PR #10 전체 `Platform Library Checks` 성공: run `32631294005`, job `97174412641`
+[x] Filter chip V2 single-rail / live spacing / inertia browser check
+[x] PR #11 최종 clean CI 성공: run `32638788027`, job `97192525406`
 
 ## Live Cloudflare Pages verification
 
 [x] `Platform Live Deploy Check` workflow 추가
-[x] live HTML이 `builder-entry-audit-v1.js?v=9` 제공하는지 확인
+[x] 현재 live HTML이 `builder-entry-audit-v1.js?v=9` 제공하는지 확인
 [x] live asset이 `__platformGlobalChipRuntimeV4` 제공하는지 확인
 [x] live 범용 필터칩 Material surface = `rgb(241, 243, 246)` 확인
 [x] live Material 범용 필터칩 → 상단 메뉴 전파 확인
 [x] live iOS Liquid filter = `blur(22px) saturate(1.38)` 확인
 [x] live iOS Liquid 범용 필터칩 → 상단 메뉴 전파 확인
 [x] 성공/실패 모두 `docs/workstreams/platform-library-v1/qa/live-deploy-status.json`에 기록
-[x] 최종 live status = `pass`
-[x] live workflow run id `32631402171`, run number `4`
-[x] live 검증 대상 source SHA `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-[x] live status bot commit `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
+[x] 현재 live status = `pass`
+[x] 현재 live workflow run id `32631402171`, run number `4`
+[x] 현재 live 검증 대상 source SHA `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
+[x] 현재 live status bot commit `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
+[-] PR #11 merge 후 관리단의 `builder-entry-audit-v1.js?v=10` 배포 확인
 
 ## Production UI parity
 
@@ -114,6 +137,15 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] legacy full-width `.read-progress` 제외
 [x] live Pages에서 global Chip 핵심 runtime/전파 검증
 [-] 사용자 브라우저에서 실제 한국어 typography와 미세 시각 parity 최종 검토
+
+## Production connection — final task only
+
+[ ] 관리단에서 사용자가 UI를 최종 승인하기 전에는 관리단 설정을 공개 페이지 런타임에 연결하지 않는다.
+[ ] 최종 승인 후에만 관리단의 승인된 UI 설정을 `photo-ebook.pages.dev` 공개 페이지에 연결한다.
+[ ] 연결 시 승인된 preset/config만 production renderer가 읽도록 publish boundary를 둔다.
+[ ] 연결 후 공개 페이지 PC / 모바일 / White / Dark/System 회귀 QA를 다시 수행한다.
+
+현재 단계는 `관리단 자체 완성`이다. 공개 페이지 적용 연결은 최종 테스크로 보류한다.
 
 ## Side advertisement placement
 
@@ -145,6 +177,7 @@ Canonical width result:
 - mobile native horizontal scroll owner를 유지한다.
 - Safari deferred sticky safety를 유지한다.
 - 사용자 승인 전 preset/block을 자동 승인하지 않는다.
+- 관리단에서 승인 전 설정을 공개 페이지 production runtime에 publish하지 않는다.
 - management / QA / staging은 noindex를 유지한다.
 
 ## Current main state
@@ -159,6 +192,7 @@ Canonical width result:
 
 ## Exact next action
 
-1. 사용자가 `https://photo-ebook.pages.dev/ui-dashboard/?view=library&ui=filter-chip-rail`에서 최종 모양을 실제 한국어 브라우저 환경으로 확인한다.
-2. 이전 상단 메뉴 기준 Material / iOS 플랫 / iOS 리퀴드의 미세 시각 차이가 남으면 화면 캡처 기준으로 조정한다.
-3. 기능/디자인 승인 후 workstream을 archive 단계로 전환한다.
+1. PR #11을 `main`에 병합한다.
+2. Cloudflare Pages에서 관리단 `builder-entry-audit-v1.js?v=10` 배포와 `/ui-dashboard/?view=library&ui=filter-chip-rail` 동작만 검증한다.
+3. 이후 관리단의 나머지 UI/UX 조정을 계속한다.
+4. 공개 `photo-ebook.pages.dev` 화면과 승인 설정을 연결하는 작업은 사용자 최종 승인 시점까지 진행하지 않는다.
