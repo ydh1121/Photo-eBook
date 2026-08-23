@@ -1,9 +1,9 @@
 # Platform Library V1 Handoff
 
 Updated: 2026-08-23 KST
-Active branch: `fix/filter-chip-live-editor-v2`
+Active branch: `main`
 Production branch: `main`
-Status: `admin UI refinement / PR #11 clean QA passed / merge pending`
+Status: `admin UI refinement / PR #11 merged and live verified / production connection deferred`
 
 ## Resume order
 
@@ -32,34 +32,31 @@ Meaning:
 - 다른 기기 = 실제 `.collection-device-accordion` 하나만 표시
 - 초기 상태 = production CSS 원본, 사용자 변경값만 V2 override
 
-## Current filter-chip feedback patch
+## Filter-chip feedback patch V2
 
-User feedback identified three concrete issues:
-- four separate specimen cards made a single component unnecessarily hard to compare;
-- the isolated filter rail did not reproduce the intended rail-to-chip spacing;
-- desktop mouse drag stopped immediately instead of carrying momentum.
+PR #11 is merged and live on the management route.
 
-PR #11 changes the filter-chip editor as follows:
-- retires `filter-chip-specimens-v1.js`; no clone-based specimen board remains;
+Changes:
+- retired `filter-chip-specimens-v1.js`; no clone-based four-card specimen board remains;
 - renders one real `#collectionFilters` rail directly in the preview;
-- adds preview-only sample chip input with add / last delete / reset actions;
-- exposes rail top / right / bottom / left padding separately;
-- exposes chip horizontal / vertical padding and chip gap;
-- migrates legacy `runway` to the four explicit rail paddings;
-- preserves tuned geometry when switching Material / iOS Flat / iOS Liquid family;
-- when a family is first chosen, uses the former top-nav canonical gap `9px` and rail inset `5.5px` as missing geometry defaults;
-- adds velocity-based desktop mouse inertia with post-drag click suppression;
-- leaves native mobile horizontal scrolling unchanged.
+- preview-only sample chip input with add / last delete / reset actions;
+- rail top / right / bottom / left padding controls;
+- chip horizontal / vertical padding and chip gap controls;
+- legacy `runway` migration to explicit four-side rail paddings;
+- Material / iOS Flat / iOS Liquid style switching preserves tuned geometry;
+- when a family is first selected, missing geometry uses former top-nav canonical gap `9px` and rail inset `5.5px`;
+- velocity-based desktop mouse inertia with post-drag click suppression;
+- native mobile horizontal scrolling remains unchanged.
 
-New runtime owner: `public/ui-dashboard/sandbox/filter-chip-live-runtime-v2.js`.
-New editor style: `public/assets/styles/ui-dashboard/builder-filter-chip-live-v2.css`.
-Dashboard entry is bumped to `builder-entry-audit-v1.js?v=10` on the branch.
+Runtime owner: `public/ui-dashboard/sandbox/filter-chip-live-runtime-v2.js`.
+Editor style: `public/assets/styles/ui-dashboard/builder-filter-chip-live-v2.css`.
+Deployed dashboard entry: `builder-entry-audit-v1.js?v=10`.
 
 Two implementation regressions were found and fixed during CI:
 - `MutationObserver` annotation loop that could keep the library runtime busy;
 - `startMomentum()` zeroing velocity before the first animation frame, which made the rail stop exactly at mouse release.
 
-Temporary diagnostics were removed after isolating those issues.
+Temporary diagnostics were removed before the final clean validation.
 
 ## Global Chip ownership
 
@@ -157,23 +154,22 @@ Workflow: `.github/workflows/platform-live-deploy-check.yml`
 Script: `scripts/check-live-ui-dashboard-deploy.mjs`
 Status file: `docs/workstreams/platform-library-v1/qa/live-deploy-status.json`
 
-Current production live result before PR #11 merge: `pass`.
+PR #11 management deployment verification passed.
 
-Current deployed admin verification:
-- dashboard HTML serves `builder-entry-audit-v1.js?v=9`
+Verified live management state:
+- dashboard HTML serves `builder-entry-audit-v1.js?v=10`
 - live runtime contains `__platformGlobalChipRuntimeV4`
 - Material filter rail = `rgb(241, 243, 246)`
 - Material filter setting propagates to top nav
 - iOS Liquid filter = `blur(22px) saturate(1.38)` with moving selector
 - iOS Liquid setting propagates to top nav
 
-Current live result metadata:
-- source SHA: `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-- workflow run id: `32631402171`
-- workflow run number: `4`
-- result bot commit: `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
-
-After PR #11 merge, verify only the management/admin deployment expecting `builder-entry-audit-v1.js?v=10` and the new single-rail filter editor.
+Live result metadata:
+- source SHA: `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+- workflow run id: `32638904052`
+- workflow run number: `5`
+- result bot commit: `9a7e627e16b18eeed1a9cad1cbd8e0532a2f2059`
+- status: `pass`
 
 ## Production connection boundary
 
@@ -198,7 +194,8 @@ This distinction is important: deploying `/ui-dashboard/` updates is allowed now
 - PR #8: persist successful live result
 - PR #9: persist success or failure result
 - PR #10: preserve common Chip state across live route verification → merge `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-- PR #11: single filter rail + geometry controls + inertia — clean QA passed, merge pending
+- PR #11: single filter rail + geometry controls + inertia → merge `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+- PR #11 live verification bot commit: `9a7e627e16b18eeed1a9cad1cbd8e0532a2f2059`
 
 ## Safety
 
@@ -213,7 +210,6 @@ This distinction is important: deploying `/ui-dashboard/` updates is allowed now
 
 ## Exact next action
 
-1. Merge PR #11 into `main` now that clean CI is green.
-2. Verify Cloudflare Pages management deployment: v10 dashboard entry and single filter rail route only.
-3. Continue management UI refinement from user feedback.
-4. Do not connect approved management configuration to the public page until the user explicitly gives final approval.
+1. User visually checks `https://photo-ebook.pages.dev/ui-dashboard/?view=library&ui=filter-chip-rail` in the real browser.
+2. Continue management UI refinement from that feedback only.
+3. Do not connect approved management configuration to the public page until the user explicitly gives final approval.
