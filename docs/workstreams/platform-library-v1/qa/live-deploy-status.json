@@ -1,0 +1,40 @@
+{
+  "startedAt": "2026-08-23T09:29:10.687Z",
+  "base": "https://photo-ebook.pages.dev",
+  "entryMarker": "builder-entry-audit-v1.js?v=9",
+  "runtimeMarker": "__platformGlobalChipRuntimeV4",
+  "attempts": [
+    {
+      "attempt": 1,
+      "at": "2026-08-23T09:29:10.687Z",
+      "status": "http-ok",
+      "matched": true,
+      "bytes": 4114
+    }
+  ],
+  "checks": [
+    {
+      "name": "live dashboard entry",
+      "status": "pass",
+      "detail": "builder-entry-audit-v1.js?v=9"
+    },
+    {
+      "name": "live runtime asset",
+      "status": "pass",
+      "detail": "__platformGlobalChipRuntimeV4"
+    },
+    {
+      "name": "live filter Material parity",
+      "status": "pass",
+      "detail": "rgb(241, 243, 246)"
+    }
+  ],
+  "status": "fail",
+  "error": "page.waitForFunction: Timeout 30000ms exceeded.\n    at waitForFrame (/home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:62:14)\n    at async verifyLiveRuntime (/home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:103:11)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:145:3",
+  "finishedAt": "2026-08-23T09:29:43.567Z",
+  "sourceSha": "8b3fc450d755b48fb95cef74c9cf4993d6a86185",
+  "sourceRef": "main",
+  "workflowRunId": "32631119004",
+  "workflowRunNumber": "3",
+  "recordedAt": "2026-08-23T09:29:43.620Z"
+}
