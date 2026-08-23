@@ -23,9 +23,12 @@
     const active=document.querySelector('[data-kit-ui][aria-pressed="true"]')?.dataset.kitUi;
     const hint=document.querySelector('#kitHint');
     if(!hint)return;
-    if(active==='top-chapter-navigation')hint.textContent='메뉴 고정·진행·배치만 관리합니다. 칩 디자인은 범용 필터칩에서 플랫폼 공통으로 관리합니다.';
-    else if(active==='filter-chip-rail')hint.textContent='하단 팝업의 실제 필터칩을 기준으로 하며, 변경값은 상단 메뉴를 포함한 플랫폼 공통 칩에 적용됩니다.';
-    else hint.textContent='공개 페이지와 같은 UI 런타임을 사용합니다.';
+    const next=active==='top-chapter-navigation'
+      ?'메뉴 고정·진행·배치만 관리합니다. 칩 디자인은 범용 필터칩에서 플랫폼 공통으로 관리합니다.'
+      :active==='filter-chip-rail'
+        ?'하단 팝업의 실제 필터칩을 기준으로 하며, 변경값은 상단 메뉴를 포함한 플랫폼 공통 칩에 적용됩니다.'
+        :'공개 페이지와 같은 UI 런타임을 사용합니다.';
+    if(hint.textContent!==next)hint.textContent=next;
   }
 
   frame.addEventListener('load',()=>[60,220,620].forEach(delay=>setTimeout(sync,delay)));
