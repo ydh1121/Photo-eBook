@@ -7,13 +7,13 @@
   const PATCHES=[
     {src:'/ui-dashboard/sandbox/global-chip-runtime-v1.js?v=3',marker:'globalChipRuntimeV3'},
     {src:'/ui-dashboard/sandbox/filter-chip-specimens-v1.js?v=1',marker:'filterChipSpecimensV1'},
-    {src:'/ui-dashboard/sandbox/runtime-audit-patch-v1.js?v=2',marker:'runtimeAuditPatchV2'},
+    {src:'/ui-dashboard/sandbox/runtime-audit-patch-v1.js?v=3',marker:'runtimeAuditPatchV3'},
     {src:'/ui-dashboard/sandbox/runtime-dynamic-config-guard-v1.js?v=1',marker:'runtimeDynamicConfigGuardV1'}
   ];
 
   function ensureNativeScrollGuard(doc){
     if(!doc?.head||doc.querySelector('#platform-sandbox-native-scroll-guard'))return;
-    const style=document.createElement('style');
+    const style=doc.createElement('style');
     style.id='platform-sandbox-native-scroll-guard';
     style.textContent=`@media(min-width:1024px){
       .nav-scroll[data-builder-family="material-flat"],
