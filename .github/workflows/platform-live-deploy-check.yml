@@ -33,8 +33,8 @@ jobs:
           LIVE_DEPLOY_ATTEMPTS: '90'
           LIVE_DEPLOY_INTERVAL_MS: '4000'
         run: node scripts/check-live-ui-dashboard-deploy.mjs
-      - name: Record successful live deployment
-        if: success()
+      - name: Record live deployment result
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
@@ -43,7 +43,16 @@ jobs:
           const fs=require('node:fs');
           const source='artifacts/platform-live-deploy/report.json';
           const target='docs/workstreams/platform-library-v1/qa/live-deploy-status.json';
-          const report=JSON.parse(fs.readFileSync(source,'utf8'));
+          let report={
+            status:'fail',
+            error:'live deploy report was not created',
+            base:'https://photo-ebook.pages.dev',
+            startedAt:null,
+            finishedAt:new Date().toISOString(),
+            attempts:[],
+            checks:[]
+          };
+          if(fs.existsSync(source))report=JSON.parse(fs.readFileSync(source,'utf8'));
           const status={
             ...report,
             sourceSha:process.env.GITHUB_SHA,
