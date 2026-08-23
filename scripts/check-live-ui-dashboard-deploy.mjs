@@ -84,7 +84,9 @@ async function verifyLiveRuntime(){
   try{
     const context=await browser.newContext({viewport:{width:1440,height:1000}});
     const page=await context.newPage();
-    await page.addInitScript(()=>{try{localStorage.clear();sessionStorage.clear();}catch{}});
+
+    await page.goto(cacheBust(`${BASE}/ui-dashboard/`),{waitUntil:'domcontentloaded',timeout:45000});
+    await page.evaluate(()=>{try{localStorage.clear();sessionStorage.clear();}catch{}});
 
     await page.goto(cacheBust(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`),{waitUntil:'domcontentloaded',timeout:45000});
     let frame=await waitForFrame(page,'filter-chip-rail');
