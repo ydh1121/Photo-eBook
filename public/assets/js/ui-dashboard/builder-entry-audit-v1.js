@@ -5,7 +5,7 @@
   const sources=library
     ?[
       '/assets/js/ui-dashboard/builder-global-chip-manifest-v1.js?v=2',
-      '/assets/js/ui-dashboard/builder-runtime-audit-loader-v1.js?v=6',
+      '/assets/js/ui-dashboard/builder-runtime-audit-loader-v1.js?v=7',
       '/assets/js/ui-dashboard/builder-library-kit-v2.js?v=2',
       '/assets/js/ui-dashboard/builder-global-chip-kit-v1.js?v=3',
       '/assets/js/ui-dashboard/builder-library-state-sync-v1.js?v=1',
@@ -14,7 +14,7 @@
     ]
     :[
       '/assets/js/ui-dashboard/builder-global-chip-manifest-v1.js?v=2',
-      '/assets/js/ui-dashboard/builder-runtime-audit-loader-v1.js?v=6',
+      '/assets/js/ui-dashboard/builder-runtime-audit-loader-v1.js?v=7',
       '/assets/js/ui-dashboard/builder-page-preflight-v2.js?v=1',
       '/assets/js/ui-dashboard/builder-v1.js?v=1',
       '/assets/js/ui-dashboard/builder-production-parity-v1.js?v=2',
