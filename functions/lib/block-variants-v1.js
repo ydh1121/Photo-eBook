@@ -25,7 +25,8 @@ export const BLOCK_VARIANTS_V1=Object.freeze({
   'quote-expert':['quote','comment'],
   calculator:['multiply','sum'],
   cta:['band','minimal'],
-  'service-list':['rows','compact']
+  'service-list':['rows','compact'],
+  advertisement:['inline-banner','native-card','desktop-side-rail','sticky-bottom']
 });
 
 export function isKnownBlockVariant(type,variant){

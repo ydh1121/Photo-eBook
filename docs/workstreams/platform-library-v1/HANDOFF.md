@@ -1,8 +1,11 @@
 # Platform Library V1 Handoff
 
-Updated: 2026-08-20 KST
-Active branch: `feat/admin-ux-shell-v1`
-Base main: `95e7d41811424b19b0f587adf4d1d9ad6ee6448c`
+Updated: 2026-08-23 KST
+Active branch: `fix/ui-dashboard-system-audit`
+Production branch: `main`
+Draft PR: `#3`
+Latest implementation QA HEAD: `7151adf41635d16a15b2f3f09eba588569dcd04c`
+Latest documentation HEAD will be newer than the QA HEAD.
 
 ## Resume order
 
@@ -13,156 +16,181 @@ Base main: `95e7d41811424b19b0f587adf4d1d9ad6ee6448c`
 5. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
 6. current branch HEAD
 
-## Current direction
+## Current product direction
 
-관리 화면을 각각의 실험 페이지가 아니라 하나의 관리 제품처럼 통합한다.
+`UI 라이브러리`는 screenshot catalog가 아니다. 플랫폼에서 실제로 쓰는 reusable UI를 하나씩 독립적으로 띄우고 상태·테마·표현을 바꾸는 Live UI Kit이다.
 
-공통 전역 메뉴:
-- 화면 구성
-- UI 라이브러리
-- 블록 관리
-- 페이지 에디터
-- QA
+Library components:
+- 상단 메뉴
+- 가로 카드
+- 범용 필터칩
+- 하단 팝업
+- 다른 기기
+- 플로팅 버튼
 
-브라우저 뒤로가기는 주요 이동 수단이 아니다. 모든 관리 화면에서 공통 메뉴로 바로 이동한다.
+Important meaning:
+- `범용 필터칩` = bottom sheet 실제 `.collection-filter`
+- `다른 기기` = 실제 `.collection-device-accordion` 하나만 표시
+- `읽기 진행` = 상단 메뉴 component 내부 owner
+- 초기 상태 = production CSS 원본
+- 사용자 변경값만 V2 override
 
-전역 이동과 각 도구의 로컬 작업 버튼을 같은 줄에 뒤섞지 않는다. 관리 chrome은 최소화하고 실제 작업 영역을 우선한다.
+## Page runtime
 
-## Implemented in this branch
+`/ui-dashboard/`는 production `/photography/`가 아니라 `/ui-dashboard/sandbox/`를 iframe canvas로 사용한다.
 
-### Shared admin shell
+Page chain 핵심:
+- `builder-page-preflight-v2.js`: explicit V2 override만 legacy inspector store로 투영. override가 없으면 V1 key 제거.
+- `builder-v1.js`: inspector / block DnD chrome
+- `builder-production-parity-v1.js`: sandbox app geometry stabilization
+- `builder-page-audit-v1.js`: editor nav fixed-pin / sandbox-only UX repair
+- `builder-progress-owner-audit-v1.js`: standalone reading-progress owner 제거
+- `builder-page-live-v2.js`: V2 override → sandbox canonical runtime
+- `builder-dynamic-sync-v1.js`: late-created collection/filter/device DOM 재적용
+- `builder-sandbox-ads-v1.js`: side-ad 설정값 + inspector만 소유
+- `builder-side-ad-zone-audit-v1.js`: side-ad geometry / visibility 단독 owner
+- `builder-reset-audit-v1.js`: canvas draft reset
+- `builder-late-frame-bootstrap-v1.js`: iframe이 builder scripts보다 먼저 load된 경우 missed lifecycle 복구
 
-New:
-- `public/assets/styles/admin/admin-shell-v1.css`
-- `public/assets/styles/admin/admin-surface-v1.css`
-- `public/assets/js/admin/admin-shell-v1.js`
+Chrome QA가 실제로 발견해 수정한 회귀:
+- builder chrome missed-load race
+- reset 뒤 빈 V1 store 재생성
+- dynamic bottom-sheet rerender 뒤 visibility override 소실
+- side-ad geometry double-owner race
 
-Block Lab / Editor Lab / QA 계열은 `block-registry.js` bootstrap을 통해 공통 셸을 로드한다. `/ui-dashboard/`는 공통 셸을 직접 로드한다.
+## Live UI Kit runtime
 
-- 모든 주요 관리 화면에서 상호 직접 이동 가능
-- 현재 화면 한 곳만 active 표시
-- 관리 화면 명칭 통일
-- 공통 `더보기` 메뉴는 다른 곳 클릭, Esc, 항목 실행 뒤 닫힘
-- Block Lab의 별도 builder 복귀 링크는 공통 셸이 대체
-- QA도 동일한 전역 이동 구조 사용
-- 관리 JS/CSS와 block registry asset은 no-store 처리
+`/ui-dashboard/?view=library`:
+- page builder scripts를 로드하지 않는다.
+- `builder-library-kit-v2.js`: parent UI Kit owner
+- `builder-library-state-sync-v1.js`: state 변경/reset 뒤 config + state 재동기화
+- `builder-library-notes-v1.js`: 수정 요청 메모 local + server notes
+- `sandbox-kit-v4.js`: actual production component standalone extraction
+- `capability-runtime-v3.js`: canonical capability override owner
+- `runtime-audit-patch-v1.js`: production `!important` stack보다 높은 sandbox-only override / dark representation / device context
+- `runtime-dynamic-config-guard-v1.js`: collection runtime DOM 재생성 뒤 현재 bottom-sheet/device 설정 재적용
+- `builder-runtime-audit-loader-v1.js?v=2`: 위 runtime patches를 iframe에 확실히 주입
 
-### Visual Builder simplification
+Global:
+- White / Dark / System
+- PC / Mobile
 
-New:
-- `public/assets/styles/ui-dashboard/builder-simplified-v2.css`
-- `public/assets/js/ui-dashboard/builder-ux-patch-v2.js`
+Quick representation:
+- 상단 메뉴: 원본 / Material / iOS 플랫 / iOS 리퀴드
+- 범용 필터칩: 원본 / Material / iOS 플랫 / iOS 리퀴드
+- 플로팅 버튼: 원본 / 플랫 / 글래스 / 리퀴드
 
-`/ui-dashboard/` 기본 chrome:
-1. 공통 관리자 셸
-2. 로컬 toolbar 한 줄
-3. 더미 canvas
+State:
+- 하단 팝업: 전체 / 영상 / 읽을거리 / 질문 / 설정
+- 다른 기기: 접힘 / 펼침
 
-기존 builder-local topbar와 중복 global nav는 제거했다.
+## Browser QA
 
-로컬 toolbar:
-- 더미 화면
-- 편집 중 / 미리보기
-- 블록 추가
-- 광고
-- 초안 저장
-- 더보기
+Workflow: `.github/workflows/platform-library-checks.yml`
+UI Dashboard browser script: `scripts/check-ui-dashboard-browser-v2.mjs`
+Management browser script: `scripts/check-platform-admin-browser-v1.mjs`
 
-`광고`:
-- 본문 광고 추가
-- 좌측 광고 설정
-- 우측 광고 설정
+Latest full successful run:
+- run: `32603032059` / #203
+- tested branch head: `7151adf41635d16a15b2f3f09eba588569dcd04c`
+- job: `97104043129`
+- conclusion: `success`
+- UI Dashboard artifact: `9483414399`
+- management artifact: `9483414627`
 
-`더보기`:
-- 더미 초기화
-- 서버 연결
-- 설정 불러오기
-- 설정 저장
+Static checks all pass:
+- Registry sync
+- variant sync
+- UI capability sync
+- non-photography QA seed
+- Snapshot V2
+- JavaScript syntax
 
-메뉴는 실행 뒤 자동으로 닫힌다. 동적으로 추가되는 본문 광고의 오래된 `실제 페이지 흐름` 표현도 MutationObserver로 더미 전용 카피로 교정한다.
+UI Dashboard browser checks all pass:
+- all six Live UI Kit components across White / Dark / System × PC / Mobile
+- top nav: retired progress owner absent, Material mode, native x-scroll, progress line, note local save
+- horizontal rail: padding, right fade pseudo layer, scrollbar
+- filter chips: actual bottom-sheet source, click/active state
+- bottom sheet: state, theme/device visibility, reset restoration
+- device: accordion-only extraction, expansion
+- FAB: flat family, accent, response
+- page: fixed nav and integrated progress ownership
+- inline advertisement add + layout save
+- dummy reset storage clean + inline ad removed
+- side ad hidden over hero and active in visible body zone
+- mobile tap → inspector + dock
 
-UI Library mode에서는 page editing toolbar를 숨기고 library filter만 사용한다. page mode에서는 library strip을 숨긴다.
+Management browser checks all pass:
+- actual block DragEvent reorder + persisted order
+- side ad width boundaries at outer 1280 / 1440 / 1536 / 1600 / 1920
+- Block Lab / Page Editor / QA desktop/mobile current-nav + noindex
 
-### Page Editor simplification
+Side-ad canonical width result:
+- 1280: left/right hidden
+- 1440: left/right hidden
+- 1536: left/right hidden
+- 1600: left/right active when body zone visible
+- 1920: left/right active when body zone visible
 
-기능을 제거하지 않고 작업 우선순위를 재배치했다.
+## Visual artifact review
 
-- Undo / Redo / Export / Import → `더보기`
-- Page meta / SEO / AI brief / publish → 접힌 `페이지·발행 설정`
-- 블록 검색과 블록 목록이 기본 작업 흐름에서 바로 보임
-- 상단바, 좌우 pane, canvas chrome 밀도 축소
-- 기존 element id/class와 event owner 유지
+Both latest artifacts were downloaded and screenshots manually opened.
 
-### Block Lab simplification
+Observed:
+- Live UI Kit uses one component per canvas rather than stacked showcase cards.
+- filter chip preview contains only actual filter rail.
+- device preview contains only actual accordion.
+- bottom sheet is isolated on neutral floor.
+- horizontal rail is isolated and clipped/faded as intended.
+- FAB is standalone.
+- side ads sit outside body content at wide desktop.
 
-- topbar compact
-- sidebar/intro 설명 축소
-- landing-page형 heading 축소
-- specimen stage/card chrome 축소
-- 900px 이하에서 block nav horizontal rail 전환
+CI Ubuntu does not contain the Korean glyph font stack used by the app, so Korean copy appears as tofu boxes in runner screenshots. Use those screenshots for geometry/interaction evidence, not Korean typography judgement. Final Korean visual review remains a user-browser task.
 
-### Dummy top navigation
+## Side ads
 
-`sandbox.css`에서 desktop `.nav-glass`는 structural wrapper만 남기고 visual surface를 제거했다.
+Final ownership:
+- `builder-sandbox-ads-v1.js`: configuration + inspector + enabled mirror
+- `builder-side-ad-zone-audit-v1.js`: all placement and `data-ad-zone-active` writes
 
-PC에서는 `nav-scroll` desktop rail 하나만 visible surface owner다. 기존 white outer capsule + inner rail 중첩 표현을 제거한다.
+Guard:
+- visible `.chapter .section .content` required
+- hero/chapter hero at ad top anchor → hidden
+- sandbox viewport <1360px → hidden
+- insufficient left/right room → hidden
+- follow on/off preserved
 
-### Side ads
+The old double-writer race was removed after browser QA exposed inconsistent wide-screen visibility.
 
-`builder-sandbox-ads-v1.js`는 더 이상 `50% + 590px` 위치를 가정하지 않는다.
+## Canvas reset
 
-현재 visible `.chapter .section .content`의 실제 `getBoundingClientRect()`를 사용한다.
+`더미 초기화` removes:
+- `platformBuilderLayoutV1`
+- `platformBuilderCapabilityConfigsV1`
+- `platformBuilderCapabilityConfigsV2`
+- `platformBuilderSideAdsV1`
 
-- hero / chapter hero hidden
-- readable body content가 viewport에 들어올 때만 eligible
-- 좌/우 실제 여백이 광고 폭 + gap을 수용할 때만 visible
-- content bottom에 최소 광고 표시 공간이 없으면 hidden
-- 1360px 미만 hidden
-- follow on: eligible body 구간에서 viewport-following
-- follow off: 해당 body content 위치 기준 absolute
-- `광고 설정`을 여는 것과 광고 활성화를 분리
-- 꺼진 side ad는 canvas에서 완전히 hidden
-- 사용자가 inspector에서 `광고 켜기`를 명시해야 노출
+Notes / saved presets remain.
+The preflight layer no longer recreates an empty V1 key after reload.
 
-목적은 광고가 히어로/챕터 이미지 위에 올라가거나 편집 화면을 기본 상태부터 어지럽히는 문제를 제거하는 것이다.
+## PR / main state
 
-## Static verification
+At latest comparison before this documentation update:
+- branch ahead of `main`: 86 commits
+- branch behind `main`: 2 commits
+- status: diverged
+- PR #3: open / Draft / `mergeable: true`
+- base main: `bf8e006060a7c5de12692c28207328f83ac1d79d`
 
-Current syntax checks passed for:
-- `admin-shell-v1.js`
-- `builder-ux-patch-v2.js`
-- `builder-sandbox-ads-v1.js`
-- `block-registry.js`
+GitHub currently calculates no merge conflict, but re-read `main` immediately before any merge because `main` can move.
 
-No GitHub status checks are attached to current branch commits.
+Do not merge PR #3 to `main` without explicit user approval.
 
-## Safety
+## Next action
 
-- `/ui-dashboard/` iframe remains `/ui-dashboard/sandbox/` only.
-- production `/photography/` is not the builder canvas.
-- production user data/API are not introduced into sandbox.
-- photography renderer is untouched.
-- block/UI presets remain candidate/draft unless user explicitly approves.
-- management / QA / staging remain noindex.
+The automated system audit is complete enough for user review.
 
-## QA still required
-
-Cloudflare branch preview URL/status is not exposed through the available connector and public search did not surface a branch URL.
-
-Actual browser QA must cover:
-1. common shell appears on all five management modes,
-2. every mode can move directly to every other mode,
-3. sticky offsets do not overlap local toolbars,
-4. Screen Builder shows common shell + one local toolbar only,
-5. UI Library does not show page editing toolbar,
-6. Page Editor starts with block search/list visible and page settings collapsed,
-7. moved Page Editor `더보기` buttons preserve behavior,
-8. dummy desktop nav shows one surface only,
-9. opening side-ad settings does not activate the ad,
-10. enabled side ads remain absent on hero/chapter hero and appear only beside body content,
-11. 1440 / 1536 / 1920 desktop widths,
-12. <=900px and mobile management navigation.
-
-## Exact next action
-
-Confirm a Cloudflare preview for `feat/admin-ux-shell-v1`, run the QA list above, then fix only observed regressions. Do not merge to `main` until the user reviews the branch result or explicitly asks to merge.
+1. User checks `/ui-dashboard/` and `/ui-dashboard/?view=library` in a real browser after the branch is made viewable or merged.
+2. If visual feedback arrives, modify `fix/ui-dashboard-system-audit` and rerun full browser QA.
+3. If the user explicitly asks to merge/publish, re-read current `main`, compare divergence/conflicts, then merge safely.
+4. Never treat merge/deployment as approval of candidate UI/block presets.

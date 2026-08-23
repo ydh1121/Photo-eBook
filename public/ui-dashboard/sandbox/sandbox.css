@@ -3,7 +3,20 @@
 @import url('/assets/styles/ui/light-contrast-badges.css?v=1');
 @import url('/assets/styles/desktop/nav-corrections.css?v=1');
 
-html,body{margin:0;min-height:100%;background:#fff;color:#202226}body{overflow-x:hidden}.sandbox-app{position:relative;z-index:1}.sandbox-hero{min-height:72vh}.sandbox-hero .hero__image{object-position:center 48%}.sandbox-copy-stack{display:grid;gap:2rem}.sandbox-metrics{margin-top:1.2rem}.sandbox-market-card{min-height:100%}
+html,body{margin:0;min-height:100%;background:#fff;color:#202226;overflow-x:clip}.sandbox-app{position:relative;z-index:1;overflow:visible}.sandbox-hero{min-height:72vh}.sandbox-hero .hero__image{object-position:center 48%}.sandbox-copy-stack{display:grid;gap:2rem}.sandbox-metrics{margin-top:1.2rem}.sandbox-market-card{min-height:100%}
+
+/* Keep the production sticky owner intact inside the iframe. `overflow-x:hidden`
+   creates a scroll container in Chromium and can make the body become the
+   sticky containing block even though the viewport is the actual scroller. */
+html:not(.ios-webkit-chrome) .nav-shell,
+html:not(.ios-webkit-chrome) .nav-shell.is-compact,
+html:not(.ios-webkit-chrome) .nav-shell.is-scrolled{
+  position:-webkit-sticky!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:100!important;
+  transform:none!important;
+}
 
 /* Side advertisements are viewport-following only while a readable content
    column is active. They never sit on top of the hero or chapter imagery. */

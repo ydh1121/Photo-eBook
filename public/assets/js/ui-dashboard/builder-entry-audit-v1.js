@@ -1,0 +1,41 @@
+(function(){
+  if(window.__platformBuilderAuditEntryV1)return;
+  window.__platformBuilderAuditEntryV1=true;
+  const library=new URLSearchParams(location.search).get('view')==='library';
+  const sources=library
+    ?[
+      '/assets/js/ui-dashboard/builder-runtime-audit-loader-v1.js?v=2',
+      '/assets/js/ui-dashboard/builder-library-kit-v2.js?v=2',
+      '/assets/js/ui-dashboard/builder-library-state-sync-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-library-notes-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-control-guard-v1.js?v=1'
+    ]
+    :[
+      '/assets/js/ui-dashboard/builder-runtime-audit-loader-v1.js?v=2',
+      '/assets/js/ui-dashboard/builder-page-preflight-v2.js?v=1',
+      '/assets/js/ui-dashboard/builder-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-production-parity-v1.js?v=2',
+      '/assets/js/ui-dashboard/builder-ux-patch-v3.js?v=3',
+      '/assets/js/ui-dashboard/builder-boundaries-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-page-audit-v1.js?v=2',
+      '/assets/js/ui-dashboard/builder-progress-owner-audit-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-page-live-v2.js?v=1',
+      '/assets/js/ui-dashboard/builder-dynamic-sync-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-sandbox-ads-v1.js?v=4',
+      '/assets/js/ui-dashboard/builder-side-ad-zone-audit-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-reset-audit-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-control-guard-v1.js?v=1',
+      '/assets/js/ui-dashboard/builder-late-frame-bootstrap-v1.js?v=1'
+    ];
+  let index=0;
+  function loadNext(){
+    if(index>=sources.length)return;
+    const script=document.createElement('script');
+    script.src=sources[index++];
+    script.async=false;
+    script.onload=loadNext;
+    script.onerror=loadNext;
+    document.head.appendChild(script);
+  }
+  loadNext();
+})();

@@ -1,0 +1,25 @@
+@import url('/assets/styles/ui/liquid-flat-canonical.css?v=1');
+@import url('/assets/styles/ui/liquid-skin.css?v=1');
+@import url('/assets/styles/ui/light-contrast-badges.css?v=1');
+@import url('/assets/styles/desktop/nav-corrections.css?v=1');
+
+html,body{margin:0;min-height:100%;background:#fff;color:#202226}
+/* `overflow-x:hidden` turns body into a scrolling ancestor and breaks sticky.
+   Production uses clip, so the sandbox must use the same scroll ownership. */
+body{overflow-x:clip}.sandbox-app{position:relative;z-index:1;overflow:visible!important}.sandbox-hero{min-height:72vh}.sandbox-hero .hero__image{object-position:center 48%}.sandbox-copy-stack{display:grid;gap:2rem}.sandbox-metrics{margin-top:1.2rem}.sandbox-market-card{min-height:100%}
+
+/* Desktop sandbox parity: the production navigation is viewport-sticky. iOS
+   keeps the existing deferred-sticky owner and is intentionally excluded. */
+html:not(.ios-webkit-chrome):not([data-sandbox-preview]) .sandbox-app>.nav-shell,
+html:not(.ios-webkit-chrome):not([data-sandbox-preview]) .sandbox-app>.nav-shell.is-compact,
+html:not(.ios-webkit-chrome):not([data-sandbox-preview]) .sandbox-app>.nav-shell.is-scrolled{
+  position:-webkit-sticky!important;position:sticky!important;top:0!important;z-index:100!important;transform:none!important
+}
+
+/* Side advertisements are viewport-following only while a readable content
+   column is active. They never sit on top of the hero or chapter imagery. */
+.sandbox-side-ad{--sandbox-ad-width:120px;--sandbox-ad-height:430px;--sandbox-ad-top:148px;--sandbox-ad-gap:18px;position:fixed;z-index:90;top:var(--sandbox-ad-top);width:var(--sandbox-ad-width);height:var(--sandbox-ad-height);display:grid;grid-template-rows:auto 1fr;padding:8px;border:1px solid rgba(49,95,201,.16);border-radius:16px;background:rgba(250,251,254,.98);box-shadow:0 10px 28px rgba(26,37,60,.065);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px);transition:opacity .16s ease,transform .16s ease,visibility 0s linear .16s}.sandbox-side-ad[data-ad-zone-active="true"][data-ad-enabled="true"]{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:opacity .16s ease,transform .16s ease,visibility 0s}.sandbox-side-ad__settings{align-self:start;justify-self:end;min-height:27px;padding:0 8px;border:1px solid rgba(28,40,65,.08);border-radius:8px;background:#fff;color:#69707a;font-size:8.5px;font-weight:750;cursor:pointer}.sandbox-side-ad__inner{display:grid;place-items:center;align-content:center;gap:7px;padding:12px;text-align:center}.sandbox-side-ad__inner small{display:grid;place-items:center;width:28px;height:20px;border-radius:6px;background:#30333a;color:#fff;font-size:8px;font-weight:800}.sandbox-side-ad__inner strong{font-size:10.5px;line-height:1.35}.sandbox-side-ad__inner span{max-width:92px;color:#858b94;font-size:8px;line-height:1.5}
+
+.collection-fab>span:first-child{font-size:27px;font-weight:300;line-height:1}.collection-sheet[hidden],.collection-backdrop[hidden]{display:none!important}.sandbox-device-note{color:#8c9199;font-size:10px}.sandbox-surface-note{padding:14px 16px;border:1px solid rgba(28,40,65,.055);border-radius:16px;background:#f7f8fa;color:#6d747e;font-size:11px;line-height:1.6}
+
+@media(max-width:1360px){.sandbox-side-ad{display:none!important}}@media(max-width:760px){.sandbox-hero{min-height:auto}.sandbox-copy-stack{gap:1.35rem}.collection-fab{bottom:calc(env(safe-area-inset-bottom) + 22px)}}

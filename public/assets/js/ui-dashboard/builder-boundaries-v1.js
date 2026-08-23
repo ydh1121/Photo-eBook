@@ -1,8 +1,24 @@
 (function(){
   const frame=document.querySelector('#builderFrame');
   if(!frame)return;
+
+  function restoreNavPosition(doc){
+    const app=doc.querySelector('#app');if(!app)return;
+    const hero=app.querySelector(':scope > .hero');
+    const placeholder=app.querySelector(':scope > .nav-placeholder');
+    const shell=app.querySelector(':scope > .nav-shell');
+    if(!hero||!shell)return;
+    if(placeholder){
+      if(hero.nextElementSibling!==placeholder)hero.after(placeholder);
+      if(placeholder.nextElementSibling!==shell)placeholder.after(shell);
+    }else if(hero.nextElementSibling!==shell){
+      hero.after(shell);
+    }
+  }
+
   function repair(){
     const doc=frame.contentDocument;if(!doc)return;
+    restoreNavPosition(doc);
     doc.querySelectorAll('#app > .nav-placeholder,#app > .nav-shell').forEach(node=>{
       node.draggable=false;
       node.classList.remove('platform-builder-block','is-builder-drop-target','is-builder-dragging');
@@ -16,7 +32,7 @@
       node.addEventListener('dragstart',block,true);
     });
   }
-  frame.addEventListener('load',()=>{[250,900,2100,4200].forEach(delay=>setTimeout(repair,delay));});
+  frame.addEventListener('load',()=>{[80,250,900,2100,4200].forEach(delay=>setTimeout(repair,delay));});
   const observer=new MutationObserver(repair);
   setInterval(()=>{const doc=frame.contentDocument;if(doc?.body&&!doc.body.dataset.builderBoundaryObserved){doc.body.dataset.builderBoundaryObserved='true';observer.observe(doc.body,{childList:true,subtree:true});repair();}},700);
 })();
