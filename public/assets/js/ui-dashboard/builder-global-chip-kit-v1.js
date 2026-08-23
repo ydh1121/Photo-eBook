@@ -63,7 +63,8 @@
     if(activeId()!=='filter-chip-rail')return;
     const current=read()?.family||'original';
     document.querySelectorAll('[data-kit-mode]').forEach(button=>{
-      button.setAttribute('aria-pressed',String(button.dataset.kitMode===current));
+      const next=String(button.dataset.kitMode===current);
+      if(button.getAttribute('aria-pressed')!==next)button.setAttribute('aria-pressed',next);
     });
   }
 
@@ -72,8 +73,8 @@
     const hint=document.querySelector('#kitHint');
     const workspace=document.querySelector('.builder-kit-workspace');
     if(workspace){
-      workspace.dataset.activeUi=active;
-      if(active==='filter-chip-rail')workspace.style.setProperty('--kit-preview-height','210px');
+      if(workspace.dataset.activeUi!==active)workspace.dataset.activeUi=active;
+      if(active==='filter-chip-rail'&&workspace.style.getPropertyValue('--kit-preview-height')!=='210px')workspace.style.setProperty('--kit-preview-height','210px');
     }
     if(!hint)return;
     const next=active==='top-chapter-navigation'
