@@ -3,13 +3,14 @@
 Workstream: `platform-library-v1`
 Status: `active / admin UI refinement / production connection deferred`
 Production branch: `main`
-Current implementation branch: `fix/filter-chip-live-editor-v2`
+Current implementation branch: `main`
 Canonical UI parity PR: `#6`
 Live verification PRs: `#7`, `#8`, `#9`, `#10`
-Current admin UI PR: `#11`
+Latest admin UI PR: `#11` merged
 Global Chip implementation merge: `9278658f464fd2179d642f668cea236f866b8d63`
-Latest live-verified source SHA: `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-Latest live status commit: `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
+Latest admin UI merge: `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+Latest live-verified source SHA: `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+Latest live status commit: `9a7e627e16b18eeed1a9cad1cbd8e0532a2f2059`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -77,8 +78,9 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] 관성 시작 시 velocity가 0으로 초기화되던 버그 수정
 [x] 임시 진단 스크립트 및 CI 호출 제거
 [x] PR #11 `Platform Library Checks` run `32638788027`, job `97192525406` 성공
-[-] `main` merge 및 관리단 배포 확인
-[ ] 사용자 실제 브라우저 최종 확인
+[x] PR #11 `main` merge: `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+[x] Cloudflare Pages 관리단 v10 배포 검증
+[-] 사용자 실제 브라우저 최종 확인
 
 ## Global Chip parity
 
@@ -116,7 +118,7 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 ## Live Cloudflare Pages verification
 
 [x] `Platform Live Deploy Check` workflow 추가
-[x] 현재 live HTML이 `builder-entry-audit-v1.js?v=9` 제공하는지 확인
+[x] 관리단 HTML이 `builder-entry-audit-v1.js?v=10` 제공하는지 확인
 [x] live asset이 `__platformGlobalChipRuntimeV4` 제공하는지 확인
 [x] live 범용 필터칩 Material surface = `rgb(241, 243, 246)` 확인
 [x] live Material 범용 필터칩 → 상단 메뉴 전파 확인
@@ -124,10 +126,9 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] live iOS Liquid 범용 필터칩 → 상단 메뉴 전파 확인
 [x] 성공/실패 모두 `docs/workstreams/platform-library-v1/qa/live-deploy-status.json`에 기록
 [x] 현재 live status = `pass`
-[x] 현재 live workflow run id `32631402171`, run number `4`
-[x] 현재 live 검증 대상 source SHA `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-[x] 현재 live status bot commit `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
-[-] PR #11 merge 후 관리단의 `builder-entry-audit-v1.js?v=10` 배포 확인
+[x] live workflow run id `32638904052`, run number `5`
+[x] live 검증 대상 source SHA `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+[x] live status bot commit `9a7e627e16b18eeed1a9cad1cbd8e0532a2f2059`
 
 ## Production UI parity
 
@@ -183,16 +184,15 @@ Canonical width result:
 ## Current main state
 
 - global Chip implementation merge: `9278658f464fd2179d642f668cea236f866b8d63`
-- live deploy checker merge sequence: PR #7 → #8 → #9 → #10
-- latest live-verified implementation source: `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-- live verification result commit: `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
+- PR #11 admin UI merge: `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+- latest live-verified implementation source: `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
+- live verification result commit: `9a7e627e16b18eeed1a9cad1cbd8e0532a2f2059`
 - live status: `pass`
-- deployed dashboard entry: `builder-entry-audit-v1.js?v=9`
+- deployed dashboard entry: `builder-entry-audit-v1.js?v=10`
 - deployed common Chip runtime: `__platformGlobalChipRuntimeV4`
 
 ## Exact next action
 
-1. PR #11을 `main`에 병합한다.
-2. Cloudflare Pages에서 관리단 `builder-entry-audit-v1.js?v=10` 배포와 `/ui-dashboard/?view=library&ui=filter-chip-rail` 동작만 검증한다.
-3. 이후 관리단의 나머지 UI/UX 조정을 계속한다.
-4. 공개 `photo-ebook.pages.dev` 화면과 승인 설정을 연결하는 작업은 사용자 최종 승인 시점까지 진행하지 않는다.
+1. 사용자가 `https://photo-ebook.pages.dev/ui-dashboard/?view=library&ui=filter-chip-rail`에서 단일 레일, 관성, 상하좌우 여백, 샘플 칩 추가/삭제 UX를 확인한다.
+2. 피드백이 있으면 관리단만 계속 조정한다.
+3. 공개 `photo-ebook.pages.dev` 화면과 승인 설정을 연결하는 작업은 사용자 최종 승인 시점까지 진행하지 않는다.
