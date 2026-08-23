@@ -41,7 +41,6 @@ on:
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'scripts/check-ui-dashboard-browser-v3.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
-      - 'scripts/debug-chip-cascade.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
   pull_request:
@@ -83,7 +82,6 @@ on:
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'scripts/check-ui-dashboard-browser-v3.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
-      - 'scripts/debug-chip-cascade.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
 
@@ -128,7 +126,6 @@ jobs:
           node --check scripts/check-ui-dashboard-browser-v2.mjs
           node --check scripts/check-ui-dashboard-browser-v3.mjs
           node --check scripts/check-platform-admin-browser-v1.mjs
-          node --check scripts/debug-chip-cascade.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Run browser QA
@@ -151,7 +148,6 @@ jobs:
             exit 1
           fi
           export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
-          node scripts/debug-chip-cascade.mjs
           node scripts/check-ui-dashboard-browser-v3.mjs
           node scripts/check-platform-admin-browser-v1.mjs
       - name: Upload UI Dashboard browser QA
