@@ -43,7 +43,14 @@ async function globalChipPropagation(page){
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});
   let frame=await sandbox(page,'filter-chip-rail');
   const chips=frame.locator('#collectionFilters .collection-filter');assert(await chips.count()>=4,'real bottom-sheet filter row missing');
+
+  const shellBox=await page.locator('.builder-kit-frame-shell').evaluate(node=>({w:node.getBoundingClientRect().width,h:node.getBoundingClientRect().height}));
+  assert(shellBox.w<=780&&shellBox.h<=220,`filter kit workbench oversized: ${shellBox.w}x${shellBox.h}`);
+  const floor=await frame.evaluate(()=>getComputedStyle(document.body).backgroundColor);
+  assert(floor==='rgb(244, 245, 247)',`filter kit still renders a white iframe plate: ${floor}`);
+
   await clickSwitch(page,'data-kit-mode','material-flat');
+  await waitUntil(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail']?.family==='material-flat'),'material preset not persisted');
   await openInspector(page);await setInput(page,'[data-kit-control="accentColor"]','#d9405f');
   await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='material-flat'),'global chip family not applied to filter preview');
   await chips.nth(1).click();await waitUntil(()=>chips.nth(1).evaluate(node=>node.classList.contains('is-active')),'filter interaction missing');
@@ -59,11 +66,25 @@ async function globalChipPropagation(page){
   await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.builderFamily==='material-flat'),'global chip family did not propagate to bottom sheet');
 
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});
-  frame=await sandbox(page,'filter-chip-rail');await clickSwitch(page,'data-kit-mode','ios-liquid');
+  frame=await sandbox(page,'filter-chip-rail');
+  await clickSwitch(page,'data-kit-mode','ios-liquid');
+  await waitUntil(()=>page.evaluate(()=>{
+    const config=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];
+    return config?.family==='ios-liquid'&&config?.accentColor==='#437ce7'&&config?.blur===18&&config?.surfaceOpacity===78&&config?.response==='standard'&&config?.gap===8&&config?.runway===14;
+  }),'iOS liquid did not switch as a complete preset');
   await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-liquid'),'iOS liquid global mode missing');
+  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.platformLiquidReady==='true'),'filter liquid indicator did not mount');
+  const indicator=frame.locator('#collectionFilters > .platform-filter-chip-indicator');assert(await indicator.count()===1,'filter liquid indicator missing');
+  const before=await indicator.evaluate(node=>node.style.transform);
+  const liquidChips=frame.locator('#collectionFilters .collection-filter');await liquidChips.nth(2).click();
+  await waitUntil(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'liquid indicator did not move with active chip');
+  await shot(page,'global-filter-chip-ios-liquid');
+
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
   await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'iOS liquid did not propagate to top nav');
-  pass('global chip system','bottom-sheet source → common mode/accent → top nav and bottom sheet');
+  await waitUntil(()=>frame.evaluate(()=>document.documentElement.style.getPropertyValue('--platform-chip-accent').trim()==='#437ce7'),'liquid preset accent did not propagate to top nav');
+  assert(await frame.locator('.nav-v33-indicator .v37-liquid-skin').count()===1,'top nav liquid skin missing');
+  pass('global chip system','real bottom-sheet filters → preset bundle → moving liquid selector → top nav propagation');
 }
 
 async function library(context){
