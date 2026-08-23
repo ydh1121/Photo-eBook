@@ -6,6 +6,7 @@
   if(!frame)return;
   const PATCHES=[
     {src:'/ui-dashboard/sandbox/global-chip-runtime-v1.js?v=2',marker:'globalChipRuntimeV2'},
+    {src:'/ui-dashboard/sandbox/filter-chip-specimens-v1.js?v=1',marker:'filterChipSpecimensV1'},
     {src:'/ui-dashboard/sandbox/runtime-audit-patch-v1.js?v=1',marker:'runtimeAuditPatchV1'},
     {src:'/ui-dashboard/sandbox/runtime-dynamic-config-guard-v1.js?v=1',marker:'runtimeDynamicConfigGuardV1'}
   ];
