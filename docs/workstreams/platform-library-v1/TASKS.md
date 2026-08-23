@@ -1,11 +1,11 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / user review ready`
+Status: `active / merge ready`
 Production branch: `main`
-Current implementation branch: `fix/ui-dashboard-system-audit`
-Draft PR: `#3`
-Latest verified HEAD: `7151adf41635d16a15b2f3f09eba588569dcd04c`
+Current implementation branch: `fix/global-chip-parity-v3`
+Draft PR: `#6`
+Latest verified QA HEAD: `c8c130c236671f0fbdebdea90acd8051ed387b9f`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -70,9 +70,23 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] FAB family / accent / response 검증
 [-] 모든 노출 control의 개별 극단값 수동 visual QA
 
+## Global Chip parity
+
+[x] 범용 Chip 표현 owner를 `global-chip-runtime-v1.js`로 단일화
+[x] `runtime-audit-patch-v1.js`의 Material/iOS/iOS Liquid chip paint 중복 owner 제거
+[x] 구형 sandbox `capability-runtime-v3`의 `.collection-filters[data-builder-family] .collection-filter` paint rule 제거
+[x] Material rail `#f1f3f6`, border, no-shadow/no-blur 복원
+[x] iOS Flat rail `rgba(244,247,251,.88)`, 12px blur, 기존 shadow 복원
+[x] iOS Liquid 22px / saturate 138% glass + v37 moving selector 복원
+[x] inactive chip은 모든 공통 family에서 투명 surface 유지
+[x] top nav / filter / bottom sheet가 동일 global family와 accent를 공유
+[x] production `nav-corrections.css`보다 global family nav surface가 최종 표현 owner가 되도록 specificity 정리
+[x] Material → iOS Flat → iOS Liquid 런타임 전환을 실제 iframe 적용 완료 후 검증
+[x] 임시 cascade diagnostic 제거
+
 ## Registry / CI
 
-[x] Draft PR #3 생성
+[x] Draft PR #6 생성
 [x] browser Block Registry 28 types sync 통과
 [x] advertisement server variants sync
 [x] block variant sync 통과
@@ -81,11 +95,11 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] UI Dashboard 포함 platform JavaScript syntax 통과
 [x] Playwright + runner Chrome 기반 실제 browser QA를 `Platform Library Checks`에 추가
 [x] browser QA screenshot/report artifact 업로드 추가
-[x] 최신 전체 성공 run `32603032059`
-[x] 최신 UI Dashboard artifact `9483414399`
-[x] 최신 management artifact `9483414627`
-[x] UI Dashboard 17개 explicit browser checks 통과
-[x] management 3개 browser suites 통과
+[x] 최신 전체 성공 run `32628018616`
+[x] 최신 UI Dashboard artifact `9490245629`
+[x] 최신 management artifact `9490245824`
+[x] global chip canonical parity browser check 통과
+[x] management browser suites 통과
 
 ## Production UI parity
 
@@ -127,13 +141,11 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## Visual artifact review
 
-[x] latest UI Dashboard artifact의 14개 screenshot 직접 확인
-[x] latest management artifact의 5개 screenshot 직접 확인
 [x] Live UI Kit에서 한 화면에 한 component만 노출되는 구조 확인
 [x] filter / device / sheet / FAB / rail이 서로 섞이지 않는 구조 확인
 [x] side ad가 body 외곽에 놓이고 narrow desktop에서 숨는 구조 확인
 
-참고: GitHub Ubuntu runner에는 한국어 glyph font가 없어 screenshot의 한국어가 tofu box로 보인다. 이는 레이아웃 QA에는 사용할 수 있지만 실제 한국어 typography 판정 근거로 사용하지 않는다.
+참고: GitHub Ubuntu runner에는 한국어 glyph font가 없어 screenshot의 한국어가 tofu box로 보일 수 있다. 이는 레이아웃 QA에는 사용할 수 있지만 실제 한국어 typography 판정 근거로 사용하지 않는다.
 
 ## Safety
 
@@ -147,15 +159,17 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## Current branch state
 
-- HEAD: `7151adf41635d16a15b2f3f09eba588569dcd04c`
-- PR #3: open / Draft / mergeable
-- `main` 대비: ahead 86 / behind 2 / diverged
-- GitHub merge calculation: conflict 없이 merge 가능
-- latest `Platform Library Checks`: success
+- QA HEAD: `c8c130c236671f0fbdebdea90acd8051ed387b9f`
+- documentation HEAD will be newer than QA HEAD
+- PR #6: open / Draft / mergeable
+- `main` 대비: ahead 32 / behind 0
+- merge base: `898ddeda49043094acb4422e6c4426efedbc2ea7`
+- GitHub comparison: `ahead`, conflict 없음
+- latest `Platform Library Checks`: success (`32628018616`)
 
 ## Exact next action
 
-1. 사용자가 `UI 라이브러리`와 `화면 구성`을 실제 브라우저에서 최종 육안 검토한다.
-2. 피드백이 있으면 `fix/ui-dashboard-system-audit`에서 수정하고 browser QA를 다시 통과시킨다.
-3. 병합 요청이 오면 먼저 `main`의 최신 HEAD와 2개 divergence commit을 재확인한다.
-4. 사용자 승인 전에는 Draft PR #3을 `main`에 병합하지 않는다.
+1. TASKS/HANDOFF 문서 갱신 후 CI가 다시 성공하는지 확인한다.
+2. PR #6을 Draft 해제하고 `main`에 병합한다.
+3. `main`의 post-merge CI와 Cloudflare Pages 배포 반영을 확인한다.
+4. 배포된 `/ui-dashboard/`와 `/ui-dashboard/?view=library`에서 최종 runtime 버전과 화면 응답을 확인한다.

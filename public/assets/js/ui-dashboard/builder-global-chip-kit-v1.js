@@ -1,17 +1,22 @@
 (function(){
   const params=new URLSearchParams(location.search);
-  if(params.get('view')!=='library'||window.__platformGlobalChipKitV2)return;
-  window.__platformGlobalChipKitV2=true;
+  if(params.get('view')!=='library'||window.__platformGlobalChipKitV3)return;
+  window.__platformGlobalChipKitV3=true;
 
   const frame=document.querySelector('#builderFrame');
   if(!frame)return;
   const STORE='platformBuilderCapabilityConfigsV2';
-  const MIGRATION='platformGlobalChipPresetMigrationV2';
+  const MIGRATION='platformGlobalChipCanonicalNavMigrationV3';
   const PRESETS=Object.freeze({
-    'material-flat':Object.freeze({family:'material-flat',accentColor:'#315fc9',surfaceOpacity:100,blur:0,response:'calm',gap:8,runway:14}),
-    'ios-flat':Object.freeze({family:'ios-flat',accentColor:'#202226',surfaceOpacity:100,blur:0,response:'calm',gap:7,runway:0}),
-    'ios-liquid':Object.freeze({family:'ios-liquid',accentColor:'#437ce7',surfaceOpacity:78,blur:18,response:'standard',gap:8,runway:14})
+    'material-flat':Object.freeze({family:'material-flat',accentColor:'#437ce7',surfaceOpacity:100,blur:0,response:'standard',gap:9,runway:5.5}),
+    'ios-flat':Object.freeze({family:'ios-flat',accentColor:'#437ce7',surfaceOpacity:88,blur:12,response:'standard',gap:9,runway:5.5}),
+    'ios-liquid':Object.freeze({family:'ios-liquid',accentColor:'#437ce7',surfaceOpacity:100,blur:22,response:'standard',gap:9,runway:5.5})
   });
+  const RETIRED_PRESETS=[
+    {family:'material-flat',accentColor:'#315fc9',surfaceOpacity:100,blur:0,response:'calm',gap:8,runway:14},
+    {family:'ios-flat',accentColor:'#202226',surfaceOpacity:100,blur:0,response:'calm',gap:7,runway:0},
+    {family:'ios-liquid',accentColor:'#437ce7',surfaceOpacity:78,blur:18,response:'standard',gap:8,runway:14}
+  ];
 
   function readAll(){
     try{
@@ -28,21 +33,19 @@
     if(config&&Object.keys(config).length)post({type:'platform-ui-config',capabilityId:'filter-chip-rail',config});
   }
   function activeId(){return document.querySelector('[data-kit-ui][aria-pressed="true"]')?.dataset.kitUi||'';}
+  function samePreset(a,b){
+    if(!a||!b)return false;
+    return Object.keys(b).every(key=>String(a[key])===String(b[key]))&&Object.keys(a).every(key=>Object.prototype.hasOwnProperty.call(b,key));
+  }
 
-  function migrateBrokenFamilyOnlyState(){
+  function migrateRetiredPreset(){
     try{
       if(localStorage.getItem(MIGRATION)==='done')return;
       const all=readAll();
       const config=all['filter-chip-rail'];
-      const looksLikeOldBase=config&&config.family&&config.family!=='ios-flat'
-        && String(config.accentColor||'#202226').toLowerCase()==='#202226'
-        && Number(config.surfaceOpacity??100)===100
-        && Number(config.blur??0)===0
-        && String(config.response||'calm')==='calm'
-        && Number(config.gap??7)===7
-        && Number(config.runway??0)===0;
-      if(looksLikeOldBase&&PRESETS[config.family]){
-        all['filter-chip-rail']={...PRESETS[config.family]};
+      const retired=RETIRED_PRESETS.find(item=>samePreset(config,item));
+      if(retired&&PRESETS[retired.family]){
+        all['filter-chip-rail']={...PRESETS[retired.family]};
         writeAll(all);
       }
       localStorage.setItem(MIGRATION,'done');
@@ -78,14 +81,14 @@
     }
     if(!hint)return;
     const next=active==='top-chapter-navigation'
-      ?'메뉴 고정·진행·배치만 관리합니다. 칩 디자인은 범용 필터칩에서 플랫폼 공통으로 관리합니다.'
+      ?'메뉴 고정·진행·배치만 관리합니다. 칩 스타일은 범용 필터칩에서 이전 상단 메뉴의 canonical 표현을 공통으로 사용합니다.'
       :active==='filter-chip-rail'
-        ?'하단 팝업 실제 원본과 선택·긴 라벨·좁은 폭 상태를 같은 공통 런타임으로 비교합니다. 표현 변경은 상단 메뉴 등 공통 칩에도 함께 적용됩니다.'
+        ?'원본은 하단 팝업 필터칩입니다. Material · iOS 플랫 · iOS 리퀴드는 이전 상단 메뉴에 구현됐던 표면과 선택 동작을 그대로 공통 적용합니다.'
         :'공개 페이지와 같은 UI 런타임을 사용합니다.';
     if(hint.textContent!==next)hint.textContent=next;
   }
 
-  migrateBrokenFamilyOnlyState();
+  migrateRetiredPreset();
 
   frame.addEventListener('load',()=>[60,220,620].forEach(delay=>setTimeout(sync,delay)));
   window.addEventListener('message',event=>{
@@ -98,9 +101,7 @@
     if(!target)return;
     const modeButton=target.closest('[data-kit-mode]');
     if(modeButton&&activeId()==='filter-chip-rail'){
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
+      event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
       applyPreset(modeButton.dataset.kitMode||'original');
       [30,120,320].forEach(delay=>setTimeout(()=>{sync();annotate();updateModeButtons();},delay));
       return;

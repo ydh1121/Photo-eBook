@@ -20,9 +20,7 @@ async function sandbox(page,preview=''){
 async function clickSwitch(page,key,value){await page.locator(`[${key}="${value}"]`).click();}
 async function setInput(page,selector,value){const node=page.locator(selector);await node.waitFor({state:'attached'});await node.evaluate((el,next)=>{el.value=String(next);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},value);}
 async function openInspector(page){await page.locator('#kitSettings').click();await page.locator('.builder-kit-inspector:not([hidden])').waitFor({state:'visible'});}
-async function waitForFilterSpecimens(frame){
-  await waitUntil(()=>frame.locator('#sandboxPreviewRoot[data-preview-kind="filter-chip-rail"]').evaluate(node=>node.dataset.specimenReady==='true'),'filter chip specimen board not ready',12000);
-}
+async function waitForFilterSpecimens(frame){await waitUntil(()=>frame.locator('#sandboxPreviewRoot[data-preview-kind="filter-chip-rail"]').evaluate(node=>node.dataset.specimenReady==='true'),'filter chip specimen board not ready',12000);}
 
 const executablePath=browserPath();assert(executablePath,'Chrome not found');
 const browser=await chromium.launch({headless:true,executablePath,args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -45,55 +43,80 @@ async function verifyMatrix(page,frame,id){
 
 async function globalChipPropagation(page){
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});
-  let frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
-  await clickSwitch(page,'data-kit-viewport','desktop');
+  let frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);await clickSwitch(page,'data-kit-viewport','desktop');
   const chips=frame.locator('#collectionFilters .collection-filter');assert(await chips.count()>=4,'real bottom-sheet filter row missing');
   assert(await frame.locator('.platform-kit-specimen').count()>=4,'live UI kit specimen set missing');
   assert(await frame.locator('[data-specimen="실제 원본"] #collectionFilters').count()===1,'real bottom-sheet filter row is not the primary specimen');
   assert(await frame.locator('.platform-kit-specimen--narrow').count()===1,'narrow-width filter specimen missing');
-
   const shellBox=await page.locator('.builder-kit-frame-shell').evaluate(node=>({w:node.getBoundingClientRect().width,h:node.getBoundingClientRect().height}));
   assert(shellBox.w<=1060&&shellBox.h>=500&&shellBox.h<=540,`filter kit specimen workbench unexpected: ${shellBox.w}x${shellBox.h}`);
-  const floor=await frame.evaluate(()=>getComputedStyle(document.body).backgroundColor);
-  assert(floor==='rgb(244, 245, 247)',`filter kit still renders a white iframe plate: ${floor}`);
+  const floor=await frame.evaluate(()=>getComputedStyle(document.body).backgroundColor);assert(floor==='rgb(244, 245, 247)',`filter kit still renders a white iframe plate: ${floor}`);
 
+  /* Material: exact former top-nav rail values; inactive chips are transparent after the configured visual transition settles. */
   await clickSwitch(page,'data-kit-mode','material-flat');
-  await waitUntil(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail']?.family==='material-flat'),'material preset not persisted');
+  await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='material-flat'&&c?.accentColor==='#437ce7'&&c?.blur===0&&c?.gap===9&&c?.runway===5.5;}),'Material canonical preset not persisted');
+  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='material-flat'),'Material family not applied');
+  const materialFilter=await frame.locator('#collectionFilters').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,shadow:s.boxShadow,backdrop:s.backdropFilter};});
+  assert(materialFilter.background==='rgb(241, 243, 246)',`Material rail background drifted: ${materialFilter.background}`);
+  assert(materialFilter.shadow==='none',`Material rail shadow drifted: ${materialFilter.shadow}`);
+  assert(materialFilter.backdrop==='none',`Material rail backdrop drifted: ${materialFilter.backdrop}`);
+  await waitUntil(()=>chips.nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'Material inactive chip did not settle to transparent');
+  await chips.nth(1).click();await waitUntil(()=>chips.nth(1).evaluate(node=>node.classList.contains('is-active')),'Material filter interaction missing');
   await openInspector(page);await setInput(page,'[data-kit-control="accentColor"]','#d9405f');
-  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='material-flat'),'global chip family not applied to filter preview');
-  await chips.nth(1).click();await waitUntil(()=>chips.nth(1).evaluate(node=>node.classList.contains('is-active')),'filter interaction missing');
-
-  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});
-  frame=await sandbox(page,'top-chapter-navigation');
-  assert(await page.locator('#kitMode[hidden]').count()===1,'top nav still owns chip representation control');
-  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='material-flat'),'global chip family did not propagate to top nav');
-  const topAccent=await frame.locator('.nav-chip.is-active').evaluate(node=>getComputedStyle(node).backgroundColor);assert(topAccent!=='rgba(0, 0, 0, 0)','top nav active chip did not receive global accent');
-
-  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=collection-bottom-sheet`,{waitUntil:'domcontentloaded'});
-  frame=await sandbox(page,'collection-bottom-sheet');
-  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.builderFamily==='material-flat'),'global chip family did not propagate to bottom sheet');
-
-  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});
-  frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
-  await clickSwitch(page,'data-kit-mode','ios-liquid');
-  await waitUntil(()=>page.evaluate(()=>{
-    const config=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];
-    return config?.family==='ios-liquid'&&config?.accentColor==='#437ce7'&&config?.blur===18&&config?.surfaceOpacity===78&&config?.response==='standard'&&config?.gap===8&&config?.runway===14;
-  }),'iOS liquid did not switch as a complete preset');
-  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-liquid'),'iOS liquid global mode missing');
-  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.platformLiquidReady==='true'),'filter liquid indicator did not mount');
-  const indicator=frame.locator('#collectionFilters > .platform-filter-chip-indicator');assert(await indicator.count()===1,'filter liquid indicator missing');
-  const before=await indicator.evaluate(node=>node.style.transform);
-  const liquidChips=frame.locator('#collectionFilters .collection-filter');await liquidChips.nth(2).click();
-  await waitUntil(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'liquid indicator did not move with active chip');
-  assert(await frame.locator('.platform-kit-specimen .platform-filter-chip-indicator').count()>=3,'liquid runtime did not reach specimen clones');
-  await shot(page,'global-filter-chip-ios-liquid');
 
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
-  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'iOS liquid did not propagate to top nav');
-  await waitUntil(()=>frame.evaluate(()=>document.documentElement.style.getPropertyValue('--platform-chip-accent').trim()==='#437ce7'),'liquid preset accent did not propagate to top nav');
+  assert(await page.locator('#kitMode[hidden]').count()===1,'top nav still owns chip representation control');
+  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='material-flat'),'Material family did not propagate to top nav');
+  const materialNav=await frame.locator('.nav-scroll').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,shadow:s.boxShadow,backdrop:s.backdropFilter};});
+  assert(materialNav.background==='rgb(241, 243, 246)',`former Material nav background lost: ${materialNav.background}`);
+  assert(materialNav.shadow==='none'&&materialNav.backdrop==='none','former Material nav surface lost');
+  const topAccent=await frame.locator('.nav-chip.is-active').evaluate(node=>getComputedStyle(node).backgroundColor);assert(topAccent!=='rgba(0, 0, 0, 0)','Material top nav active chip did not receive global accent');
+
+  /* iOS Flat: former nav rgba surface + 12px blur + exact shadow. */
+  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
+  await clickSwitch(page,'data-kit-mode','ios-flat');
+  await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='ios-flat'&&c?.accentColor==='#437ce7'&&c?.surfaceOpacity===88&&c?.blur===12&&c?.gap===9&&c?.runway===5.5;}),'iOS Flat canonical preset not persisted');
+  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-flat'),'iOS Flat family not applied');
+  const iosFlatSurface=await frame.locator('#collectionFilters').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,backdrop:s.backdropFilter,shadow:s.boxShadow};});
+  assert(iosFlatSurface.background==='rgba(244, 247, 251, 0.88)',`iOS Flat background drifted: ${iosFlatSurface.background}`);
+  assert(iosFlatSurface.backdrop.includes('blur(12px)'),`iOS Flat blur drifted: ${iosFlatSurface.backdrop}`);
+  assert(iosFlatSurface.shadow!=='none',`iOS Flat shadow missing`);
+  await waitUntil(()=>frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'iOS Flat inactive chip did not settle to transparent');
+
+  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
+  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-flat'),'iOS Flat family did not propagate to top nav');
+  const iosFlatNav=await frame.locator('.nav-scroll').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,backdrop:s.backdropFilter};});
+  assert(iosFlatNav.background==='rgba(244, 247, 251, 0.88)'&&iosFlatNav.backdrop.includes('blur(12px)'),'former iOS Flat nav surface lost');
+
+  /* iOS Liquid: production nav-corrections surface + v37 moving selector. */
+  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
+  await clickSwitch(page,'data-kit-mode','ios-liquid');
+  await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='ios-liquid'&&c?.accentColor==='#437ce7'&&c?.blur===22&&c?.surfaceOpacity===100&&c?.response==='standard'&&c?.gap===9&&c?.runway===5.5;}),'iOS Liquid canonical preset not persisted');
+  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-liquid'),'iOS Liquid global mode missing');
+  const liquidRail=await frame.locator('#collectionFilters').evaluate(node=>{const s=getComputedStyle(node);return {radius:s.borderRadius,backdrop:s.backdropFilter,shadow:s.boxShadow};});
+  assert(liquidRail.radius==='999px',`iOS Liquid rail radius drifted: ${liquidRail.radius}`);
+  assert(liquidRail.backdrop.includes('blur(22px)')&&liquidRail.backdrop.includes('saturate(1.38)'),`iOS Liquid glass drifted: ${liquidRail.backdrop}`);
+  assert(liquidRail.shadow!=='none','iOS Liquid canonical shadow missing');
+  await waitUntil(()=>frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'iOS Liquid inactive chip did not settle to transparent');
+  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.platformLiquidReady==='true'),'filter liquid indicator did not mount');
+  const indicator=frame.locator('#collectionFilters > .platform-filter-chip-indicator');assert(await indicator.count()===1,'filter liquid indicator missing');
+  const before=await indicator.evaluate(node=>node.style.transform);const liquidChips=frame.locator('#collectionFilters .collection-filter');await liquidChips.nth(2).click();
+  await waitUntil(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'canonical liquid indicator did not move with active chip');
+  assert(await frame.locator('.platform-kit-specimen .platform-filter-chip-indicator').count()>=3,'liquid runtime did not reach specimen clones');
+  const filterSkin=await indicator.locator('.v37-liquid-skin').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundImage,shadow:s.boxShadow};});
+  await shot(page,'global-filter-chip-ios-liquid-canonical');
+
+  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
+  await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'iOS Liquid did not propagate to top nav');
+  const liquidNav=await frame.locator('.nav-scroll').evaluate(node=>getComputedStyle(node).backdropFilter);assert(liquidNav.includes('blur(22px)')&&liquidNav.includes('saturate(1.38)'),`former iOS Liquid nav glass lost: ${liquidNav}`);
   assert(await frame.locator('.nav-v33-indicator .v37-liquid-skin').count()===1,'top nav liquid skin missing');
-  pass('global chip system','live specimen board → preset bundle → moving liquid selectors → top nav propagation');
+  const navSkin=await frame.locator('.nav-v33-indicator .v37-liquid-skin').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundImage,shadow:s.boxShadow};});
+  assert(navSkin.background===filterSkin.background,`filter/nav liquid gradient mismatch\nfilter=${filterSkin.background}\nnav=${navSkin.background}`);
+  assert(navSkin.shadow===filterSkin.shadow,`filter/nav liquid shadow mismatch\nfilter=${filterSkin.shadow}\nnav=${navSkin.shadow}`);
+
+  await page.goto(`${BASE}/ui-dashboard/?view=library&ui=collection-bottom-sheet`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'collection-bottom-sheet');
+  await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'canonical chip family did not propagate to bottom sheet');
+  pass('global chip canonical parity','former top-nav Material / iOS Flat / iOS Liquid surfaces and selector now own all common chips');
 }
 
 async function library(context){
@@ -117,7 +140,7 @@ async function library(context){
       const root=frame.locator('#sandboxPreviewRoot[data-preview-kind="device-handoff-accordion"]');assert(await root.locator('.collection-device-accordion').count()===1,'device accordion missing');assert(await root.locator('.collection-sheet,.collection-tabs').count()===0,'unrelated device UI leaked');
     }
   }
-  await globalChipPropagation(page);await shot(page,'global-chip-top-nav-ios-liquid');await page.close();
+  await globalChipPropagation(page);await shot(page,'global-chip-top-nav-ios-liquid-canonical');await page.close();
 }
 
 async function builder(context){
