@@ -1,9 +1,9 @@
 # Platform Library V1 Handoff
 
 Updated: 2026-08-23 KST
-Active branch: `main`
+Active branch: `fix/filter-chip-live-editor-v2`
 Production branch: `main`
-Status: `deployed / live verified / user visual review`
+Status: `user feedback patch / PR QA pending`
 
 ## Resume order
 
@@ -32,9 +32,32 @@ Meaning:
 - 다른 기기 = 실제 `.collection-device-accordion` 하나만 표시
 - 초기 상태 = production CSS 원본, 사용자 변경값만 V2 override
 
-## Global Chip final ownership
+## Current filter-chip feedback patch
 
-Canonical owner: `public/ui-dashboard/sandbox/global-chip-runtime-v1.js`
+User feedback on the live library route identified three concrete issues:
+- four separate specimen cards made a single component unnecessarily hard to compare;
+- the isolated filter rail did not reproduce the intended rail-to-chip spacing;
+- desktop mouse drag stopped immediately instead of carrying momentum.
+
+The active branch changes the filter-chip editor as follows:
+- retires `filter-chip-specimens-v1.js`; no clone-based specimen board remains;
+- renders one real `#collectionFilters` rail directly in the preview;
+- adds preview-only sample chip input with add / last delete / reset actions;
+- exposes rail top / right / bottom / left padding separately;
+- exposes chip horizontal / vertical padding and chip gap;
+- migrates legacy `runway` to the four explicit rail paddings;
+- preserves tuned geometry when switching Material / iOS Flat / iOS Liquid family;
+- when a family is first chosen, uses the former top-nav canonical gap `9px` and rail inset `5.5px` as missing geometry defaults;
+- adds velocity-based desktop mouse inertia with post-drag click suppression;
+- leaves native mobile horizontal scrolling unchanged.
+
+New runtime owner: `public/ui-dashboard/sandbox/filter-chip-live-runtime-v2.js`.
+New editor style: `public/assets/styles/ui-dashboard/builder-filter-chip-live-v2.css`.
+Dashboard entry is bumped to `builder-entry-audit-v1.js?v=10` on the branch.
+
+## Global Chip ownership
+
+Canonical paint owner: `public/ui-dashboard/sandbox/global-chip-runtime-v1.js`
 Runtime marker: `__platformGlobalChipRuntimeV4`
 Style marker: `platform-global-chip-style-v4`
 
@@ -45,7 +68,8 @@ Canonical styles restored from the former top navigation:
 - inactive common chips remain transparent
 - top nav / bottom-sheet filters share the same family and accent
 
-`runtime-audit-patch-v1.js` and legacy capability runtime no longer own common Chip paint.
+`filter-chip-live-runtime-v2.js` now owns filter-rail geometry and desktop drag momentum only. It does not replace common Chip paint.
+`runtime-audit-patch-v1.js` and legacy capability runtime do not own common Chip paint.
 Production `nav-corrections.css` remains intact; global family selectors have final representation priority only while the builder/UI Kit override is active.
 
 ## Page runtime
@@ -70,10 +94,12 @@ Safari deferred sticky and mobile native horizontal scrolling remain unchanged.
 Route: `/ui-dashboard/?view=library`
 
 - `builder-library-kit-v2.js`: parent Live UI Kit owner
+- `builder-global-chip-kit-v1.js`: filter family presets + sample chip editor + geometry-preserving style switch
 - `builder-library-state-sync-v1.js`: state/config resync
 - `builder-library-notes-v1.js`: modification notes
 - `sandbox-kit-v4.js`: standalone actual component extraction
-- `global-chip-runtime-v1.js`: common Chip paint/interaction owner
+- `global-chip-runtime-v1.js`: common Chip paint/selector owner
+- `filter-chip-live-runtime-v2.js`: one-rail preview, filter geometry, sample labels, desktop inertia
 - `runtime-audit-patch-v1.js`: non-Chip sandbox visual corrections
 - `runtime-dynamic-config-guard-v1.js`: reapply settings after dynamic DOM rebuild
 
@@ -81,9 +107,17 @@ Global controls:
 - White / Dark / System
 - PC / Mobile
 
+Filter-chip direct controls:
+- Material / iOS Flat / iOS Liquid
+- sample chip add / last delete / reset
+- rail top / right / bottom / left padding
+- chip horizontal / vertical padding
+- chip gap
+- response / overshoot settings remain in the inspector
+
 ## Browser QA
 
-Local/PR Chromium coverage passes:
+Previous main coverage passes:
 - six Live UI Kit components × White/Dark/System × PC/Mobile
 - canonical Material / iOS Flat / iOS Liquid Chip parity
 - common filter → top nav / bottom sheet propagation
@@ -96,10 +130,16 @@ Local/PR Chromium coverage passes:
 - side ads at 1280/1440/1536/1600/1920
 - Block Lab / Page Editor / QA responsive admin shell + noindex
 
-Latest PR #10 validation:
-- workflow run `32631294005`
-- job `97174412641`
-- conclusion `success`
+The active branch updates `scripts/check-ui-dashboard-browser-v3.mjs` to additionally assert:
+- no `.platform-kit-specimen` board is rendered;
+- the real filter rail is the single direct preview;
+- sample chip insertion updates the same rail;
+- four-side rail padding and chip X/Y padding apply live;
+- style switches preserve tuned geometry;
+- simulated desktop mouse drag continues after release through inertia;
+- Liquid selector and global filter → top-nav / bottom-sheet propagation still work.
+
+PR validation is still pending.
 
 ## Live Cloudflare Pages verification
 
@@ -107,9 +147,9 @@ Workflow: `.github/workflows/platform-live-deploy-check.yml`
 Script: `scripts/check-live-ui-dashboard-deploy.mjs`
 Status file: `docs/workstreams/platform-library-v1/qa/live-deploy-status.json`
 
-Final live result: `pass`
+Current production live result before this feedback patch: `pass`.
 
-Verified against `https://photo-ebook.pages.dev`:
+Current production verification:
 - dashboard HTML serves `builder-entry-audit-v1.js?v=9`
 - live runtime contains `__platformGlobalChipRuntimeV4`
 - Material filter rail = `rgb(241, 243, 246)`
@@ -117,13 +157,13 @@ Verified against `https://photo-ebook.pages.dev`:
 - iOS Liquid filter = `blur(22px) saturate(1.38)` with moving selector
 - iOS Liquid setting propagates to top nav
 
-Live result metadata:
+Current live result metadata:
 - source SHA: `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
 - workflow run id: `32631402171`
 - workflow run number: `4`
 - result bot commit: `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
 
-The first live check failure was a QA bug: storage was cleared on every route navigation. PR #10 changed the checker to clear storage once, after which the live check passed. It was not a production runtime failure.
+The branch live checker now expects `builder-entry-audit-v1.js?v=10` after merge.
 
 ## Merge history relevant to current state
 
@@ -132,6 +172,7 @@ The first live check failure was a QA bug: storage was cleared on every route na
 - PR #8: persist successful live result
 - PR #9: persist success or failure result
 - PR #10: preserve common Chip state across live route verification → merge `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
+- active: `fix/filter-chip-live-editor-v2` — single filter rail + geometry controls + inertia
 
 ## Safety
 
@@ -145,8 +186,7 @@ The first live check failure was a QA bug: storage was cleared on every route na
 
 ## Exact next action
 
-Automated implementation, Chromium regression QA, merge, and live deployment verification are complete.
-
-1. User visually checks the live global filter-chip UI in the real Korean browser/font environment.
-2. If there is remaining visual mismatch against the former top-nav Material / iOS Flat / iOS Liquid appearance, fix only the observed visual delta and rerun both local Chromium and live deploy checks.
-3. Once the user accepts the visual result, archive the active workstream according to `AGENTS.md`.
+1. Open a PR from `fix/filter-chip-live-editor-v2` to `main` and run `Platform Library Checks`.
+2. Fix any regression from the updated single-rail / spacing / inertia browser assertions.
+3. Merge only after the PR checks pass, then wait for Cloudflare Pages and confirm the v10 live entry with `Platform Live Deploy Check`.
+4. Ask for one final user visual pass on the live filter-chip route.
