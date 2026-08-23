@@ -108,6 +108,15 @@
     }
   }
 
+  function bootstrapFromParent(){
+    try{
+      if(window.parent===window)return;
+      const all=JSON.parse(window.parent.localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}');
+      const config=all&&typeof all==='object'?all['filter-chip-rail']:null;
+      apply(config&&typeof config==='object'?config:null);
+    }catch{}
+  }
+
   installStyle();
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin)return;
@@ -119,4 +128,5 @@
 
   const observer=new MutationObserver(()=>{if(current)queueMicrotask(()=>apply(current));});
   observer.observe(document.documentElement,{childList:true,subtree:true});
+  [0,120,420].forEach(delay=>setTimeout(bootstrapFromParent,delay));
 })();
