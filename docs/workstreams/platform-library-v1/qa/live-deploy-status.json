@@ -1,22 +1,50 @@
 {
-  "startedAt": "2026-08-23T09:35:11.265Z",
+  "startedAt": "2026-08-23T12:16:11.103Z",
   "base": "https://photo-ebook.pages.dev",
-  "entryMarker": "builder-entry-audit-v1.js?v=9",
+  "entryMarker": "builder-entry-audit-v1.js?v=10",
   "runtimeMarker": "__platformGlobalChipRuntimeV4",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-23T09:35:11.265Z",
+      "at": "2026-08-23T12:16:11.104Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4114
+    },
+    {
+      "attempt": 2,
+      "at": "2026-08-23T12:16:15.294Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4114
+    },
+    {
+      "attempt": 3,
+      "at": "2026-08-23T12:16:19.330Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4114
+    },
+    {
+      "attempt": 4,
+      "at": "2026-08-23T12:16:23.369Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4114
+    },
+    {
+      "attempt": 5,
+      "at": "2026-08-23T12:16:27.400Z",
       "status": "http-ok",
       "matched": true,
-      "bytes": 4114
+      "bytes": 4212
     }
   ],
   "checks": [
     {
       "name": "live dashboard entry",
       "status": "pass",
-      "detail": "builder-entry-audit-v1.js?v=9"
+      "detail": "builder-entry-audit-v1.js?v=10"
     },
     {
       "name": "live runtime asset",
@@ -45,10 +73,10 @@
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-08-23T09:35:16.513Z",
-  "sourceSha": "393d5747cae9d6a8fc1c3b6b4816676b9193fe20",
+  "finishedAt": "2026-08-23T12:16:41.017Z",
+  "sourceSha": "46eb02f4eedf30fbe8b4b01c706e11759577abb0",
   "sourceRef": "main",
-  "workflowRunId": "32631402171",
-  "workflowRunNumber": "4",
-  "recordedAt": "2026-08-23T09:35:16.563Z"
+  "workflowRunId": "32638904052",
+  "workflowRunNumber": "5",
+  "recordedAt": "2026-08-23T12:16:41.080Z"
 }
