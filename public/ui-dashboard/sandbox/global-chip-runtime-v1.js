@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformGlobalChipRuntimeV3)return;
-  window.__platformGlobalChipRuntimeV3=true;
+  if(window.__platformGlobalChipRuntimeV4)return;
+  window.__platformGlobalChipRuntimeV4=true;
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
@@ -10,9 +10,9 @@
   let current=null;
 
   function installStyle(){
-    if($('#platform-global-chip-style-v3'))return;
+    if($('#platform-global-chip-style-v4'))return;
     const style=document.createElement('style');
-    style.id='platform-global-chip-style-v3';
+    style.id='platform-global-chip-style-v4';
     style.textContent=`
       /*
        * Canonical source: the former top-chapter-navigation runtime.
@@ -27,14 +27,16 @@
       }
 
       /* Former top-nav Material mode: exact runtime values from capability-runtime-v3. */
-      html[data-platform-chip-family="material-flat"] :is(.nav-scroll,.collection-filters){
+      html[data-platform-chip-family="material-flat"] .collection-filters,
+      html[data-platform-chip-family="material-flat"] .nav-shell .nav-scroll{
         background:#f1f3f6!important;border:1px solid rgba(22,30,48,.07)!important;
         box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important
       }
       html[data-platform-chip-family="material-flat"] :is(.nav-chip,.collection-filter){color:#626a74!important}
 
       /* Former top-nav iOS Flat mode: exact runtime values from capability-runtime-v3. */
-      html[data-platform-chip-family="ios-flat"] :is(.nav-scroll,.collection-filters){
+      html[data-platform-chip-family="ios-flat"] .collection-filters,
+      html[data-platform-chip-family="ios-flat"] .nav-shell .nav-scroll{
         background:rgba(244,247,251,var(--platform-chip-flat-opacity,.88))!important;
         border:1px solid rgba(22,30,48,.075)!important;
         box-shadow:0 5px 16px rgba(25,38,62,.06)!important;
@@ -64,17 +66,19 @@
         -webkit-backdrop-filter:blur(var(--platform-chip-blur,22px)) saturate(138%)!important;
         backdrop-filter:blur(var(--platform-chip-blur,22px)) saturate(138%)!important
       }
-      html[data-platform-chip-family="ios-liquid"] .nav-scroll{
+      html[data-platform-chip-family="ios-liquid"] .nav-shell .nav-scroll{
         -webkit-backdrop-filter:blur(var(--platform-chip-blur,22px)) saturate(138%)!important;
         backdrop-filter:blur(var(--platform-chip-blur,22px)) saturate(138%)!important
       }
       html[data-platform-chip-family="ios-liquid"] :is(.nav-chip,.collection-filter){color:#636b76!important}
 
-      html[data-theme="dark"][data-platform-chip-family="material-flat"] :is(.nav-scroll,.collection-filters){
+      html[data-theme="dark"][data-platform-chip-family="material-flat"] .collection-filters,
+      html[data-theme="dark"][data-platform-chip-family="material-flat"] .nav-shell .nav-scroll{
         background:#1a1e25!important;border-color:rgba(255,255,255,.08)!important;box-shadow:none!important;color:#c4cad3!important
       }
       html[data-theme="dark"][data-platform-chip-family="material-flat"] :is(.nav-chip,.collection-filter){color:#c4cad3!important}
-      html[data-theme="dark"][data-platform-chip-family="ios-flat"] :is(.nav-scroll,.collection-filters){
+      html[data-theme="dark"][data-platform-chip-family="ios-flat"] .collection-filters,
+      html[data-theme="dark"][data-platform-chip-family="ios-flat"] .nav-shell .nav-scroll{
         background:rgba(27,31,39,var(--platform-chip-flat-dark-opacity,.9))!important;border-color:rgba(255,255,255,.09)!important;
         box-shadow:0 6px 18px rgba(0,0,0,.22)!important;color:#c7ced8!important;
         -webkit-backdrop-filter:blur(var(--platform-chip-blur,12px))!important;backdrop-filter:blur(var(--platform-chip-blur,12px))!important
@@ -88,7 +92,7 @@
         -webkit-backdrop-filter:blur(var(--platform-chip-dark-blur,24px)) saturate(132%)!important;
         backdrop-filter:blur(var(--platform-chip-dark-blur,24px)) saturate(132%)!important
       }
-      html[data-theme="dark"][data-platform-chip-family="ios-liquid"] .nav-scroll{
+      html[data-theme="dark"][data-platform-chip-family="ios-liquid"] .nav-shell .nav-scroll{
         -webkit-backdrop-filter:blur(var(--platform-chip-dark-blur,24px)) saturate(132%)!important;
         backdrop-filter:blur(var(--platform-chip-dark-blur,24px)) saturate(132%)!important
       }
