@@ -52,7 +52,7 @@ async function globalChipPropagation(page){
   assert(shellBox.w<=1060&&shellBox.h>=500&&shellBox.h<=540,`filter kit specimen workbench unexpected: ${shellBox.w}x${shellBox.h}`);
   const floor=await frame.evaluate(()=>getComputedStyle(document.body).backgroundColor);assert(floor==='rgb(244, 245, 247)',`filter kit still renders a white iframe plate: ${floor}`);
 
-  /* Material: exact former top-nav rail values; inactive chips are transparent. */
+  /* Material: exact former top-nav rail values; inactive chips are transparent after the configured visual transition settles. */
   await clickSwitch(page,'data-kit-mode','material-flat');
   await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='material-flat'&&c?.accentColor==='#437ce7'&&c?.blur===0&&c?.gap===9&&c?.runway===5.5;}),'Material canonical preset not persisted');
   await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='material-flat'),'Material family not applied');
@@ -60,7 +60,7 @@ async function globalChipPropagation(page){
   assert(materialFilter.background==='rgb(241, 243, 246)',`Material rail background drifted: ${materialFilter.background}`);
   assert(materialFilter.shadow==='none',`Material rail shadow drifted: ${materialFilter.shadow}`);
   assert(materialFilter.backdrop==='none',`Material rail backdrop drifted: ${materialFilter.backdrop}`);
-  const materialInactive=await chips.nth(1).evaluate(node=>getComputedStyle(node).backgroundColor);assert(materialInactive==='rgba(0, 0, 0, 0)',`Material inactive chip is not transparent: ${materialInactive}`);
+  await waitUntil(()=>chips.nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'Material inactive chip did not settle to transparent');
   await chips.nth(1).click();await waitUntil(()=>chips.nth(1).evaluate(node=>node.classList.contains('is-active')),'Material filter interaction missing');
   await openInspector(page);await setInput(page,'[data-kit-control="accentColor"]','#d9405f');
 
@@ -80,7 +80,7 @@ async function globalChipPropagation(page){
   assert(iosFlatSurface.background==='rgba(244, 247, 251, 0.88)',`iOS Flat background drifted: ${iosFlatSurface.background}`);
   assert(iosFlatSurface.backdrop.includes('blur(12px)'),`iOS Flat blur drifted: ${iosFlatSurface.backdrop}`);
   assert(iosFlatSurface.shadow!=='none',`iOS Flat shadow missing`);
-  const iosFlatInactive=await frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor);assert(iosFlatInactive==='rgba(0, 0, 0, 0)',`iOS Flat inactive chip is not transparent: ${iosFlatInactive}`);
+  await waitUntil(()=>frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'iOS Flat inactive chip did not settle to transparent');
 
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
   await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-flat'),'iOS Flat family did not propagate to top nav');
@@ -96,7 +96,7 @@ async function globalChipPropagation(page){
   assert(liquidRail.radius==='999px',`iOS Liquid rail radius drifted: ${liquidRail.radius}`);
   assert(liquidRail.backdrop.includes('blur(22px)')&&liquidRail.backdrop.includes('saturate(1.38)'),`iOS Liquid glass drifted: ${liquidRail.backdrop}`);
   assert(liquidRail.shadow!=='none','iOS Liquid canonical shadow missing');
-  const liquidInactive=await frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor);assert(liquidInactive==='rgba(0, 0, 0, 0)',`iOS Liquid inactive chip is not transparent: ${liquidInactive}`);
+  await waitUntil(()=>frame.locator('#collectionFilters .collection-filter').nth(1).evaluate(node=>getComputedStyle(node).backgroundColor==='rgba(0, 0, 0, 0)'),'iOS Liquid inactive chip did not settle to transparent');
   await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.platformLiquidReady==='true'),'filter liquid indicator did not mount');
   const indicator=frame.locator('#collectionFilters > .platform-filter-chip-indicator');assert(await indicator.count()===1,'filter liquid indicator missing');
   const before=await indicator.evaluate(node=>node.style.transform);const liquidChips=frame.locator('#collectionFilters .collection-filter');await liquidChips.nth(2).click();
