@@ -64,12 +64,14 @@
 
   function removeLegacyChipPaint(){
     const style=$('#sandbox-capability-runtime-v3-style');
-    if(!style)return;
-    let css=style.textContent||'';
-    const next=css
-      .replace(/\.nav-scroll\[data-builder-family[^\{]*\][^\{]*\{[^}]*\}/g,'')
-      .replace(/\.collection-filters\[data-builder-family[^\{]*\][^\{]*\{[^}]*\}/g,'');
-    if(next!==css)style.textContent=next;
+    const sheet=style?.sheet;
+    if(!sheet)return;
+    for(let index=sheet.cssRules.length-1;index>=0;index--){
+      const rule=sheet.cssRules[index];
+      if(rule.type!==CSSRule.STYLE_RULE)continue;
+      const selector=String(rule.selectorText||'');
+      if(selector.includes('.nav-scroll[data-builder-family')||selector.includes('.collection-filters[data-builder-family'))sheet.deleteRule(index);
+    }
   }
 
   function ensureDeviceContext(){
@@ -253,6 +255,7 @@
   function handleRuntimeMessage(event){
     if(event.origin!==location.origin)return;
     const data=event.data||{};
+    removeLegacyChipPaint();
     if(data.type==='platform-ui-reset'){
       if(data.capabilityId==='top-chapter-navigation')requestAnimationFrame(resetTopNavAudit);
       else if(data.capabilityId==='horizontal-card-rail')requestAnimationFrame(resetRailAudit);
@@ -270,7 +273,7 @@
   }
 
   installStyle();
-  [0,60,240].forEach(delay=>setTimeout(removeLegacyChipPaint,delay));
+  [0,60,240,720].forEach(delay=>setTimeout(removeLegacyChipPaint,delay));
   ensureDeviceContext();
   new MutationObserver(()=>ensureDeviceContext()).observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener('message',handleRuntimeMessage);
