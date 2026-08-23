@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify-live-pages:
@@ -33,6 +33,36 @@ jobs:
           LIVE_DEPLOY_ATTEMPTS: '90'
           LIVE_DEPLOY_INTERVAL_MS: '4000'
         run: node scripts/check-live-ui-dashboard-deploy.mjs
+      - name: Record successful live deployment
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/workstreams/platform-library-v1/qa
+          node <<'NODE'
+          const fs=require('node:fs');
+          const source='artifacts/platform-live-deploy/report.json';
+          const target='docs/workstreams/platform-library-v1/qa/live-deploy-status.json';
+          const report=JSON.parse(fs.readFileSync(source,'utf8'));
+          const status={
+            ...report,
+            sourceSha:process.env.GITHUB_SHA,
+            sourceRef:process.env.GITHUB_REF_NAME,
+            workflowRunId:process.env.GITHUB_RUN_ID,
+            workflowRunNumber:process.env.GITHUB_RUN_NUMBER,
+            recordedAt:new Date().toISOString()
+          };
+          fs.writeFileSync(target,JSON.stringify(status,null,2)+'\n');
+          NODE
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/workstreams/platform-library-v1/qa/live-deploy-status.json
+          if git diff --cached --quiet; then
+            echo 'Live deployment status is unchanged.'
+          else
+            git commit -m 'Record live Pages verification [skip ci]'
+            git push origin HEAD:main
+          fi
       - name: Upload live deployment evidence
         if: always()
         uses: actions/upload-artifact@v4
