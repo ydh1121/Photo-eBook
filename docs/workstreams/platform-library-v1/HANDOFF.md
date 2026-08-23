@@ -3,7 +3,7 @@
 Updated: 2026-08-23 KST
 Active branch: `fix/filter-chip-live-editor-v2`
 Production branch: `main`
-Status: `user feedback patch / PR QA pending`
+Status: `admin UI refinement / PR #11 clean QA passed / merge pending`
 
 ## Resume order
 
@@ -34,12 +34,12 @@ Meaning:
 
 ## Current filter-chip feedback patch
 
-User feedback on the live library route identified three concrete issues:
+User feedback identified three concrete issues:
 - four separate specimen cards made a single component unnecessarily hard to compare;
 - the isolated filter rail did not reproduce the intended rail-to-chip spacing;
 - desktop mouse drag stopped immediately instead of carrying momentum.
 
-The active branch changes the filter-chip editor as follows:
+PR #11 changes the filter-chip editor as follows:
 - retires `filter-chip-specimens-v1.js`; no clone-based specimen board remains;
 - renders one real `#collectionFilters` rail directly in the preview;
 - adds preview-only sample chip input with add / last delete / reset actions;
@@ -55,6 +55,12 @@ New runtime owner: `public/ui-dashboard/sandbox/filter-chip-live-runtime-v2.js`.
 New editor style: `public/assets/styles/ui-dashboard/builder-filter-chip-live-v2.css`.
 Dashboard entry is bumped to `builder-entry-audit-v1.js?v=10` on the branch.
 
+Two implementation regressions were found and fixed during CI:
+- `MutationObserver` annotation loop that could keep the library runtime busy;
+- `startMomentum()` zeroing velocity before the first animation frame, which made the rail stop exactly at mouse release.
+
+Temporary diagnostics were removed after isolating those issues.
+
 ## Global Chip ownership
 
 Canonical paint owner: `public/ui-dashboard/sandbox/global-chip-runtime-v1.js`
@@ -68,7 +74,7 @@ Canonical styles restored from the former top navigation:
 - inactive common chips remain transparent
 - top nav / bottom-sheet filters share the same family and accent
 
-`filter-chip-live-runtime-v2.js` now owns filter-rail geometry and desktop drag momentum only. It does not replace common Chip paint.
+`filter-chip-live-runtime-v2.js` owns filter-rail geometry and desktop drag momentum only. It does not replace common Chip paint.
 `runtime-audit-patch-v1.js` and legacy capability runtime do not own common Chip paint.
 Production `nav-corrections.css` remains intact; global family selectors have final representation priority only while the builder/UI Kit override is active.
 
@@ -117,10 +123,25 @@ Filter-chip direct controls:
 
 ## Browser QA
 
-Previous main coverage passes:
+PR #11 clean validation passed after diagnostics were removed.
+
+Final clean run:
+- workflow: `Platform Library Checks`
+- run: `32638788027`
+- run number: `263`
+- job: `97192525406`
+- conclusion: `success`
+
+Coverage includes:
 - six Live UI Kit components × White/Dark/System × PC/Mobile
-- canonical Material / iOS Flat / iOS Liquid Chip parity
-- common filter → top nav / bottom sheet propagation
+- no `.platform-kit-specimen` board on filter-chip route
+- real filter rail as the single direct preview
+- sample chip insertion on the same rail
+- four-side rail padding and chip X/Y padding live updates
+- style switches preserving tuned geometry
+- simulated desktop mouse drag continuing after release through inertia
+- Liquid selector movement
+- global filter → top nav / bottom sheet style propagation
 - horizontal rail controls
 - bottom sheet state/reset
 - device accordion standalone
@@ -130,26 +151,15 @@ Previous main coverage passes:
 - side ads at 1280/1440/1536/1600/1920
 - Block Lab / Page Editor / QA responsive admin shell + noindex
 
-The active branch updates `scripts/check-ui-dashboard-browser-v3.mjs` to additionally assert:
-- no `.platform-kit-specimen` board is rendered;
-- the real filter rail is the single direct preview;
-- sample chip insertion updates the same rail;
-- four-side rail padding and chip X/Y padding apply live;
-- style switches preserve tuned geometry;
-- simulated desktop mouse drag continues after release through inertia;
-- Liquid selector and global filter → top-nav / bottom-sheet propagation still work.
-
-PR validation is still pending.
-
 ## Live Cloudflare Pages verification
 
 Workflow: `.github/workflows/platform-live-deploy-check.yml`
 Script: `scripts/check-live-ui-dashboard-deploy.mjs`
 Status file: `docs/workstreams/platform-library-v1/qa/live-deploy-status.json`
 
-Current production live result before this feedback patch: `pass`.
+Current production live result before PR #11 merge: `pass`.
 
-Current production verification:
+Current deployed admin verification:
 - dashboard HTML serves `builder-entry-audit-v1.js?v=9`
 - live runtime contains `__platformGlobalChipRuntimeV4`
 - Material filter rail = `rgb(241, 243, 246)`
@@ -163,7 +173,23 @@ Current live result metadata:
 - workflow run number: `4`
 - result bot commit: `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
 
-The branch live checker now expects `builder-entry-audit-v1.js?v=10` after merge.
+After PR #11 merge, verify only the management/admin deployment expecting `builder-entry-audit-v1.js?v=10` and the new single-rail filter editor.
+
+## Production connection boundary
+
+The user explicitly set the public-site connection as the final task.
+
+Until the management UI is finally approved:
+- do not publish management overrides into the public `photo-ebook.pages.dev` page runtime;
+- do not make the production photography renderer read unapproved Live UI Kit config;
+- continue using sandbox/admin preview as the design and QA surface.
+
+After final UI-management approval only:
+- create the publish boundary from approved preset/config to production;
+- connect approved UI settings to the public page;
+- rerun public PC/mobile and theme regression QA.
+
+This distinction is important: deploying `/ui-dashboard/` updates is allowed now; wiring those settings into the public visible site is deferred.
 
 ## Merge history relevant to current state
 
@@ -172,7 +198,7 @@ The branch live checker now expects `builder-entry-audit-v1.js?v=10` after merge
 - PR #8: persist successful live result
 - PR #9: persist success or failure result
 - PR #10: preserve common Chip state across live route verification → merge `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-- active: `fix/filter-chip-live-editor-v2` — single filter rail + geometry controls + inertia
+- PR #11: single filter rail + geometry controls + inertia — clean QA passed, merge pending
 
 ## Safety
 
@@ -182,11 +208,12 @@ The branch live checker now expects `builder-entry-audit-v1.js?v=10` after merge
 - mobile native horizontal scroll remains.
 - Safari deferred sticky remains.
 - no automatic preset/block approval.
+- unapproved admin settings are not published to public production runtime.
 - management / QA / staging remain noindex.
 
 ## Exact next action
 
-1. Open a PR from `fix/filter-chip-live-editor-v2` to `main` and run `Platform Library Checks`.
-2. Fix any regression from the updated single-rail / spacing / inertia browser assertions.
-3. Merge only after the PR checks pass, then wait for Cloudflare Pages and confirm the v10 live entry with `Platform Live Deploy Check`.
-4. Ask for one final user visual pass on the live filter-chip route.
+1. Merge PR #11 into `main` now that clean CI is green.
+2. Verify Cloudflare Pages management deployment: v10 dashboard entry and single filter rail route only.
+3. Continue management UI refinement from user feedback.
+4. Do not connect approved management configuration to the public page until the user explicitly gives final approval.
