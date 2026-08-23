@@ -22,15 +22,17 @@ try{
       if(!rules)return;
       for(let i=0;i<rules.length;i++){
         const rule=rules[i];
-        if(rule.cssRules){visit(rule.cssRules,source);continue;}
-        if(!rule.selectorText||!rule.style)continue;
-        let matches=false;try{matches=node.matches(rule.selectorText);}catch{}
-        if(!matches)continue;
-        const bg=rule.style.getPropertyValue('background');
-        const bgc=rule.style.getPropertyValue('background-color');
-        const bgi=rule.style.getPropertyValue('background-image');
-        if(!bg&&!bgc&&!bgi)continue;
-        rows.push({source,selector:rule.selectorText,background:bg,backgroundPriority:rule.style.getPropertyPriority('background'),backgroundColor:bgc,backgroundColorPriority:rule.style.getPropertyPriority('background-color'),backgroundImage:bgi,backgroundImagePriority:rule.style.getPropertyPriority('background-image')});
+        if(rule.type===CSSRule.STYLE_RULE&&rule.selectorText&&rule.style){
+          let matches=false;try{matches=node.matches(rule.selectorText);}catch{}
+          if(!matches)continue;
+          const bg=rule.style.getPropertyValue('background');
+          const bgc=rule.style.getPropertyValue('background-color');
+          const bgi=rule.style.getPropertyValue('background-image');
+          if(!bg&&!bgc&&!bgi)continue;
+          rows.push({source,selector:rule.selectorText,background:bg,backgroundPriority:rule.style.getPropertyPriority('background'),backgroundColor:bgc,backgroundColorPriority:rule.style.getPropertyPriority('background-color'),backgroundImage:bgi,backgroundImagePriority:rule.style.getPropertyPriority('background-image')});
+          continue;
+        }
+        if(rule.cssRules)visit(rule.cssRules,source);
       }
     }
     for(const sheet of [...document.styleSheets]){
