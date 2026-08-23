@@ -3,7 +3,7 @@
   window.__platformBuilderControlGuardV1=true;
 
   const UNSUPPORTED={
-    'top-chapter-navigation':new Set(['response','overshoot','durationScale']),
+    'top-chapter-navigation':new Set(['chipFamily','accentColor','response','overshoot','durationScale']),
     'filter-chip-rail':new Set(['overshoot']),
     'floating-action':new Set(['overshoot'])
   };
