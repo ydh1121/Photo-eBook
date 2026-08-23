@@ -20,11 +20,15 @@ async function sandbox(page,preview=''){
 async function clickSwitch(page,key,value){await page.locator(`[${key}="${value}"]`).click();}
 async function setInput(page,selector,value){const node=page.locator(selector);await node.waitFor({state:'attached'});await node.evaluate((el,next)=>{el.value=String(next);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},value);}
 async function openInspector(page){await page.locator('#kitSettings').click();await page.locator('.builder-kit-inspector:not([hidden])').waitFor({state:'visible'});}
+async function waitForFilterSpecimens(frame){
+  await waitUntil(()=>frame.locator('#sandboxPreviewRoot[data-preview-kind="filter-chip-rail"]').evaluate(node=>node.dataset.specimenReady==='true'),'filter chip specimen board not ready',12000);
+}
 
 const executablePath=browserPath();assert(executablePath,'Chrome not found');
 const browser=await chromium.launch({headless:true,executablePath,args:['--no-sandbox','--disable-dev-shm-usage']});
 
 async function verifyMatrix(page,frame,id){
+  if(id==='filter-chip-rail')await waitForFilterSpecimens(frame);
   for(const theme of ['light','dark','system']){
     await clickSwitch(page,'data-kit-theme',theme);
     await waitUntil(()=>page.evaluate(v=>document.querySelector('.builder-kit-workspace')?.dataset.themeChoice===v,theme),`${id}: theme ${theme}`);
@@ -41,11 +45,15 @@ async function verifyMatrix(page,frame,id){
 
 async function globalChipPropagation(page){
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});
-  let frame=await sandbox(page,'filter-chip-rail');
+  let frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
+  await clickSwitch(page,'data-kit-viewport','desktop');
   const chips=frame.locator('#collectionFilters .collection-filter');assert(await chips.count()>=4,'real bottom-sheet filter row missing');
+  assert(await frame.locator('.platform-kit-specimen').count()>=4,'live UI kit specimen set missing');
+  assert(await frame.locator('[data-specimen="실제 원본"] #collectionFilters').count()===1,'real bottom-sheet filter row is not the primary specimen');
+  assert(await frame.locator('.platform-kit-specimen--narrow').count()===1,'narrow-width filter specimen missing');
 
   const shellBox=await page.locator('.builder-kit-frame-shell').evaluate(node=>({w:node.getBoundingClientRect().width,h:node.getBoundingClientRect().height}));
-  assert(shellBox.w<=780&&shellBox.h<=220,`filter kit workbench oversized: ${shellBox.w}x${shellBox.h}`);
+  assert(shellBox.w<=1060&&shellBox.h>=500&&shellBox.h<=540,`filter kit specimen workbench unexpected: ${shellBox.w}x${shellBox.h}`);
   const floor=await frame.evaluate(()=>getComputedStyle(document.body).backgroundColor);
   assert(floor==='rgb(244, 245, 247)',`filter kit still renders a white iframe plate: ${floor}`);
 
@@ -66,7 +74,7 @@ async function globalChipPropagation(page){
   await waitUntil(()=>frame.locator('#collectionFilters').evaluate(node=>node.dataset.builderFamily==='material-flat'),'global chip family did not propagate to bottom sheet');
 
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});
-  frame=await sandbox(page,'filter-chip-rail');
+  frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
   await clickSwitch(page,'data-kit-mode','ios-liquid');
   await waitUntil(()=>page.evaluate(()=>{
     const config=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];
@@ -78,13 +86,14 @@ async function globalChipPropagation(page){
   const before=await indicator.evaluate(node=>node.style.transform);
   const liquidChips=frame.locator('#collectionFilters .collection-filter');await liquidChips.nth(2).click();
   await waitUntil(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'liquid indicator did not move with active chip');
+  assert(await frame.locator('.platform-kit-specimen .platform-filter-chip-indicator').count()>=3,'liquid runtime did not reach specimen clones');
   await shot(page,'global-filter-chip-ios-liquid');
 
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=top-chapter-navigation`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'top-chapter-navigation');
   await waitUntil(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.builderFamily==='ios-liquid'),'iOS liquid did not propagate to top nav');
   await waitUntil(()=>frame.evaluate(()=>document.documentElement.style.getPropertyValue('--platform-chip-accent').trim()==='#437ce7'),'liquid preset accent did not propagate to top nav');
   assert(await frame.locator('.nav-v33-indicator .v37-liquid-skin').count()===1,'top nav liquid skin missing');
-  pass('global chip system','real bottom-sheet filters → preset bundle → moving liquid selector → top nav propagation');
+  pass('global chip system','live specimen board → preset bundle → moving liquid selectors → top nav propagation');
 }
 
 async function library(context){
