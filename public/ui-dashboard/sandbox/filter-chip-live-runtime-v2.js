@@ -76,7 +76,8 @@
   }
 
   function startMomentum(root,state){
-    stopMomentum(state);
+    if(state.raf)cancelAnimationFrame(state.raf);
+    state.raf=0;
     if(Math.abs(state.velocity)<0.035)return;
     let last=performance.now();
     const started=last;
