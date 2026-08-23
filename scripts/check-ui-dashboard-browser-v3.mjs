@@ -76,6 +76,7 @@ async function globalChipPropagation(page){
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=filter-chip-rail`,{waitUntil:'domcontentloaded'});frame=await sandbox(page,'filter-chip-rail');await waitForFilterSpecimens(frame);
   await clickSwitch(page,'data-kit-mode','ios-flat');
   await waitUntil(()=>page.evaluate(()=>{const c=JSON.parse(localStorage.getItem('platformBuilderCapabilityConfigsV2')||'{}')['filter-chip-rail'];return c?.family==='ios-flat'&&c?.accentColor==='#437ce7'&&c?.surfaceOpacity===88&&c?.blur===12&&c?.gap===9&&c?.runway===5.5;}),'iOS Flat canonical preset not persisted');
+  await waitUntil(()=>frame.evaluate(()=>document.documentElement.dataset.platformChipFamily==='ios-flat'),'iOS Flat family not applied');
   const iosFlatSurface=await frame.locator('#collectionFilters').evaluate(node=>{const s=getComputedStyle(node);return {background:s.backgroundColor,backdrop:s.backdropFilter,shadow:s.boxShadow};});
   assert(iosFlatSurface.background==='rgba(244, 247, 251, 0.88)',`iOS Flat background drifted: ${iosFlatSurface.background}`);
   assert(iosFlatSurface.backdrop.includes('blur(12px)'),`iOS Flat blur drifted: ${iosFlatSurface.backdrop}`);
