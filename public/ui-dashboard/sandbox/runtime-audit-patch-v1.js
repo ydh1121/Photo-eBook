@@ -24,30 +24,6 @@
     const style=document.createElement('style');
     style.id='platform-sandbox-runtime-audit-style';
     style.textContent=`
-      @media(min-width:1024px){
-        .nav-scroll[data-builder-family="material-flat"]::before,
-        .nav-scroll[data-builder-family="ios-flat"]::before{content:none!important;display:none!important}
-        .nav-scroll[data-builder-family="material-flat"],
-        .nav-scroll[data-builder-family="ios-flat"]{border-radius:999px!important;overflow:hidden!important}
-      }
-      html[data-theme="dark"] .nav-scroll[data-builder-family="material-flat"]{
-        background:#1a1e25!important;border-color:rgba(255,255,255,.08)!important;box-shadow:none!important;color:#c4cad3!important
-      }
-      html[data-theme="dark"] .nav-scroll[data-builder-family="ios-flat"]{
-        background:rgba(27,31,39,.9)!important;border-color:rgba(255,255,255,.09)!important;box-shadow:0 6px 18px rgba(0,0,0,.22)!important;color:#c7ced8!important
-      }
-      html[data-theme="dark"] .collection-filters[data-builder-family="material-flat"] .collection-filter{
-        background:#20242b!important;border-color:rgba(255,255,255,.07)!important;color:#aeb6c2!important
-      }
-      html[data-theme="dark"] .collection-filters[data-builder-family="ios-flat"] .collection-filter{
-        background:rgba(31,35,43,var(--builder-filter-opacity,1))!important;border-color:rgba(255,255,255,.07)!important;color:#aeb6c2!important
-      }
-      html[data-theme="dark"] .collection-filters[data-builder-family="ios-liquid"] .collection-filter{
-        background:rgba(31,37,47,var(--builder-filter-opacity,.78))!important;border-color:rgba(255,255,255,.09)!important;color:#bac2ce!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 7px 18px rgba(0,0,0,.2)!important
-      }
-      html[data-theme="dark"] .collection-filters[data-builder-family] .collection-filter.is-active{
-        background:var(--builder-filter-accent,#315fc9)!important;color:#fff!important;border-color:var(--builder-filter-accent,#315fc9)!important
-      }
       .desktop-rail-window[data-builder-right-fade="false"]::after{display:none!important}
       .desktop-rail-window[data-builder-right-fade="true"]::after{display:block!important}
       #app .scroll-row[data-builder-scrollbar="auto"],
