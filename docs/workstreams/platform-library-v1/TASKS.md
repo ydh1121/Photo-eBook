@@ -1,9 +1,9 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / deployed / user visual review`
+Status: `active / user feedback patch / PR QA pending`
 Production branch: `main`
-Current implementation branch: `main`
+Current implementation branch: `fix/filter-chip-live-editor-v2`
 Canonical UI parity PR: `#6`
 Live verification PRs: `#7`, `#8`, `#9`, `#10`
 Global Chip implementation merge: `9278658f464fd2179d642f668cea236f866b8d63`
@@ -60,6 +60,23 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] FAB family / accent / response 검증
 [-] 사용자 브라우저에서 최종 typography/미세 시각 조정 검토
 
+### Filter chip feedback patch V2
+
+[x] `하단 팝업 필터칩 / 활성 칩 비교 / 긴 라벨 / 좁은 폭` 4개 specimen board 제거
+[x] 실제 `#collectionFilters` 하나만 Live UI Kit에 직접 표시
+[x] 샘플 칩 이름 입력 → 추가 / 마지막 삭제 / 기본 구성 복원 기능 추가
+[x] 레일 위 / 오른쪽 / 아래 / 왼쪽 여백을 각각 live control로 분리
+[x] 칩 좌우 / 위아래 여백과 칩 사이 간격을 live control로 노출
+[x] 기존 `runway` 저장값은 네 방향 레일 여백으로 안전하게 migration
+[x] style family 전환이 사용자가 조정한 geometry를 덮어쓰지 않도록 분리
+[x] 기본 family를 처음 선택할 때 이전 상단 메뉴 기준 gap `9px`, rail inset `5.5px`를 적용
+[x] PC mouse drag에 velocity 기반 관성 스크롤 + drag 후 click suppression 추가
+[x] 모바일은 native horizontal scroll owner 유지
+[-] PR Chromium regression QA
+[ ] `main` merge
+[ ] Cloudflare Pages live deploy verification
+[ ] 사용자 실제 브라우저 최종 확인
+
 ## Global Chip parity
 
 [x] `범용 필터칩`을 플랫폼 공통 Chip Design System owner로 승격
@@ -90,21 +107,23 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] global Chip canonical parity browser check
 [x] management browser suites
 [x] PR #10 전체 `Platform Library Checks` 성공: run `32631294005`, job `97174412641`
+[-] Filter chip V2 single-rail / live spacing / inertia browser check 추가
 
 ## Live Cloudflare Pages verification
 
 [x] `Platform Live Deploy Check` workflow 추가
-[x] live HTML이 `builder-entry-audit-v1.js?v=9` 제공하는지 확인
+[x] 현재 live HTML이 `builder-entry-audit-v1.js?v=9` 제공하는지 확인
 [x] live asset이 `__platformGlobalChipRuntimeV4` 제공하는지 확인
 [x] live 범용 필터칩 Material surface = `rgb(241, 243, 246)` 확인
 [x] live Material 범용 필터칩 → 상단 메뉴 전파 확인
 [x] live iOS Liquid filter = `blur(22px) saturate(1.38)` 확인
 [x] live iOS Liquid 범용 필터칩 → 상단 메뉴 전파 확인
 [x] 성공/실패 모두 `docs/workstreams/platform-library-v1/qa/live-deploy-status.json`에 기록
-[x] 최종 live status = `pass`
-[x] live workflow run id `32631402171`, run number `4`
-[x] live 검증 대상 source SHA `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-[x] live status bot commit `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
+[x] 현재 live status = `pass`
+[x] 현재 live workflow run id `32631402171`, run number `4`
+[x] 현재 live 검증 대상 source SHA `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
+[x] 현재 live status bot commit `4c54d59ae1ea2dc982b3c67289ae9fcdb42a9079`
+[ ] Filter chip V2 merge 후 `builder-entry-audit-v1.js?v=10` live 확인
 
 ## Production UI parity
 
@@ -159,6 +178,6 @@ Canonical width result:
 
 ## Exact next action
 
-1. 사용자가 `https://photo-ebook.pages.dev/ui-dashboard/?view=library&ui=filter-chip-rail`에서 최종 모양을 실제 한국어 브라우저 환경으로 확인한다.
-2. 이전 상단 메뉴 기준 Material / iOS 플랫 / iOS 리퀴드의 미세 시각 차이가 남으면 화면 캡처 기준으로 조정한다.
-3. 기능/디자인 승인 후 workstream을 archive 단계로 전환한다.
+1. `fix/filter-chip-live-editor-v2`에서 `Platform Library Checks`를 통과시킨다.
+2. 통과하면 PR을 `main`에 병합하고 Cloudflare Pages live deploy check로 `builder-entry-audit-v1.js?v=10`과 새 단일 레일 동작을 확인한다.
+3. 이후 사용자가 실제 브라우저에서 관성, 레일 네 방향 여백, 칩 추가/삭제 UX를 확인한다.
