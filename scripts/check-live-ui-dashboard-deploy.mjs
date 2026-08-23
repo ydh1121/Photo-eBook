@@ -3,7 +3,7 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 
 const BASE=(process.env.UI_DASHBOARD_LIVE_URL||'https://photo-ebook.pages.dev').replace(/\/$/,'');
-const ENTRY_MARKER='builder-entry-audit-v1.js?v=9';
+const ENTRY_MARKER='builder-entry-audit-v1.js?v=10';
 const RUNTIME_MARKER='__platformGlobalChipRuntimeV4';
 const STYLE_MARKER='platform-global-chip-style-v4';
 const ATTEMPTS=Math.max(1,Number(process.env.LIVE_DEPLOY_ATTEMPTS||90));
