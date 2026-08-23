@@ -62,6 +62,16 @@
     document.head.appendChild(style);
   }
 
+  function removeLegacyChipPaint(){
+    const style=$('#sandbox-capability-runtime-v3-style');
+    if(!style)return;
+    let css=style.textContent||'';
+    const next=css
+      .replace(/\.nav-scroll\[data-builder-family[^\{]*\][^\{]*\{[^}]*\}/g,'')
+      .replace(/\.collection-filters\[data-builder-family[^\{]*\][^\{]*\{[^}]*\}/g,'');
+    if(next!==css)style.textContent=next;
+  }
+
   function ensureDeviceContext(){
     if(preview!=='device-handoff-accordion')return;
     const root=$('#sandboxPreviewRoot[data-preview-kind="device-handoff-accordion"]');
@@ -260,6 +270,7 @@
   }
 
   installStyle();
+  [0,60,240].forEach(delay=>setTimeout(removeLegacyChipPaint,delay));
   ensureDeviceContext();
   new MutationObserver(()=>ensureDeviceContext()).observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener('message',handleRuntimeMessage);
