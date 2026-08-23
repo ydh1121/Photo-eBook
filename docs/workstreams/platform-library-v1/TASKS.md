@@ -1,10 +1,11 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / merge ready`
+Status: `active / merged / deploy verification pending`
 Production branch: `main`
-Current implementation branch: `fix/global-chip-parity-v3`
-Draft PR: `#6`
+Current implementation branch: `main`
+Merged PR: `#6`
+Implementation merge commit: `9278658f464fd2179d642f668cea236f866b8d63`
 Latest verified QA HEAD: `c8c130c236671f0fbdebdea90acd8051ed387b9f`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
@@ -83,10 +84,11 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] production `nav-corrections.css`보다 global family nav surface가 최종 표현 owner가 되도록 specificity 정리
 [x] Material → iOS Flat → iOS Liquid 런타임 전환을 실제 iframe 적용 완료 후 검증
 [x] 임시 cascade diagnostic 제거
+[x] PR #6을 `main`에 병합
 
 ## Registry / CI
 
-[x] Draft PR #6 생성
+[x] PR #6 생성 및 병합
 [x] browser Block Registry 28 types sync 통과
 [x] advertisement server variants sync
 [x] block variant sync 통과
@@ -95,11 +97,12 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] UI Dashboard 포함 platform JavaScript syntax 통과
 [x] Playwright + runner Chrome 기반 실제 browser QA를 `Platform Library Checks`에 추가
 [x] browser QA screenshot/report artifact 업로드 추가
-[x] 최신 전체 성공 run `32628018616`
-[x] 최신 UI Dashboard artifact `9490245629`
-[x] 최신 management artifact `9490245824`
+[x] 병합 전 최신 전체 성공 run `32628018616`
+[x] 병합 전 최신 UI Dashboard artifact `9490245629`
+[x] 병합 전 최신 management artifact `9490245824`
 [x] global chip canonical parity browser check 통과
 [x] management browser suites 통과
+[-] post-merge `main` CI 확인
 
 ## Production UI parity
 
@@ -157,19 +160,18 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 - 사용자 승인 전 preset/block을 자동 승인하지 않는다.
 - management / QA / staging은 noindex를 유지한다.
 
-## Current branch state
+## Current main state
 
-- QA HEAD: `c8c130c236671f0fbdebdea90acd8051ed387b9f`
-- documentation HEAD will be newer than QA HEAD
-- PR #6: open / Draft / mergeable
-- `main` 대비: ahead 32 / behind 0
-- merge base: `898ddeda49043094acb4422e6c4426efedbc2ea7`
-- GitHub comparison: `ahead`, conflict 없음
-- latest `Platform Library Checks`: success (`32628018616`)
+- implementation QA HEAD: `c8c130c236671f0fbdebdea90acd8051ed387b9f`
+- merged PR: `#6`
+- implementation merge commit: `9278658f464fd2179d642f668cea236f866b8d63`
+- `main`에서 `builder-entry-audit-v1.js?v=9` 확인
+- `main`에서 `global-chip-runtime-v1.js?v=4` loader 확인
+- merge 직전 full `Platform Library Checks`: success (`32628018616`)
 
 ## Exact next action
 
-1. TASKS/HANDOFF 문서 갱신 후 CI가 다시 성공하는지 확인한다.
-2. PR #6을 Draft 해제하고 `main`에 병합한다.
-3. `main`의 post-merge CI와 Cloudflare Pages 배포 반영을 확인한다.
-4. 배포된 `/ui-dashboard/`와 `/ui-dashboard/?view=library`에서 최종 runtime 버전과 화면 응답을 확인한다.
+1. post-merge `main` CI를 확인한다.
+2. Cloudflare Pages 배포가 최신 `main`을 반영했는지 확인한다.
+3. 배포된 `/ui-dashboard/`와 `/ui-dashboard/?view=library`에서 최종 runtime 버전과 화면 응답을 확인한다.
+4. 실제 브라우저에서 production reference와 최종 육안 비교가 필요한 항목은 사용자 확인으로 닫는다.
