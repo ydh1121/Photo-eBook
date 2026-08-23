@@ -74,13 +74,13 @@
     const workspace=document.querySelector('.builder-kit-workspace');
     if(workspace){
       if(workspace.dataset.activeUi!==active)workspace.dataset.activeUi=active;
-      if(active==='filter-chip-rail'&&workspace.style.getPropertyValue('--kit-preview-height')!=='210px')workspace.style.setProperty('--kit-preview-height','210px');
+      if(active==='filter-chip-rail'&&workspace.style.getPropertyValue('--kit-preview-height')!=='520px')workspace.style.setProperty('--kit-preview-height','520px');
     }
     if(!hint)return;
     const next=active==='top-chapter-navigation'
       ?'메뉴 고정·진행·배치만 관리합니다. 칩 디자인은 범용 필터칩에서 플랫폼 공통으로 관리합니다.'
       :active==='filter-chip-rail'
-        ?'하단 팝업의 실제 필터칩을 기준으로 합니다. 표현 모드는 완성된 프리셋 단위로 바뀌며 상단 메뉴 등 공통 칩에도 함께 적용됩니다.'
+        ?'하단 팝업 실제 원본과 선택·긴 라벨·좁은 폭 상태를 같은 공통 런타임으로 비교합니다. 표현 변경은 상단 메뉴 등 공통 칩에도 함께 적용됩니다.'
         :'공개 페이지와 같은 UI 런타임을 사용합니다.';
     if(hint.textContent!==next)hint.textContent=next;
   }
@@ -90,7 +90,7 @@
   frame.addEventListener('load',()=>[60,220,620].forEach(delay=>setTimeout(sync,delay)));
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin)return;
-    if(event.data?.type==='platform-preview-ready')setTimeout(()=>{sync();updateModeButtons();},40);
+    if(event.data?.type==='platform-preview-ready'||event.data?.type==='platform-specimen-ready')setTimeout(()=>{sync();updateModeButtons();},40);
   });
 
   document.addEventListener('click',event=>{
