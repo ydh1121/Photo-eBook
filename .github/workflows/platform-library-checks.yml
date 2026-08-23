@@ -41,8 +41,10 @@ on:
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'scripts/check-ui-dashboard-browser-v3.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
+      - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
+      - '.github/workflows/platform-live-deploy-check.yml'
   pull_request:
     paths:
       - 'public/_routes.json'
@@ -82,8 +84,10 @@ on:
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'scripts/check-ui-dashboard-browser-v3.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
+      - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
+      - '.github/workflows/platform-live-deploy-check.yml'
 
 permissions:
   contents: read
@@ -126,6 +130,7 @@ jobs:
           node --check scripts/check-ui-dashboard-browser-v2.mjs
           node --check scripts/check-ui-dashboard-browser-v3.mjs
           node --check scripts/check-platform-admin-browser-v1.mjs
+          node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Run browser QA

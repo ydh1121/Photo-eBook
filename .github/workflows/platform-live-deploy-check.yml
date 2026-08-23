@@ -1,0 +1,43 @@
+name: Platform Live Deploy Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/ui-dashboard/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'scripts/check-live-ui-dashboard-deploy.mjs'
+      - '.github/workflows/platform-live-deploy-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check deploy script syntax
+        run: node --check scripts/check-live-ui-dashboard-deploy.mjs
+      - name: Install browser dependency
+        run: npm install --no-save --no-package-lock playwright@1.55.0
+      - name: Verify Cloudflare Pages deployment
+        env:
+          UI_DASHBOARD_LIVE_URL: https://photo-ebook.pages.dev
+          LIVE_DEPLOY_ATTEMPTS: '90'
+          LIVE_DEPLOY_INTERVAL_MS: '4000'
+        run: node scripts/check-live-ui-dashboard-deploy.mjs
+      - name: Upload live deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-live-deploy
+          path: artifacts/platform-live-deploy
+          if-no-files-found: ignore
+          retention-days: 7
