@@ -110,8 +110,14 @@
       if(workspace.dataset.activeUi!==active)workspace.dataset.activeUi=active;
       if(active==='filter-chip-rail'&&workspace.style.getPropertyValue('--kit-preview-height')!=='300px')workspace.style.setProperty('--kit-preview-height','300px');
     }
-    if(itemTools)itemTools.hidden=active!=='filter-chip-rail';
-    if(settings)settings.textContent=active==='filter-chip-rail'?'여백·간격':'세부 설정';
+    if(itemTools){
+      const hidden=active!=='filter-chip-rail';
+      if(itemTools.hidden!==hidden)itemTools.hidden=hidden;
+    }
+    if(settings){
+      const nextLabel=active==='filter-chip-rail'?'여백·간격':'세부 설정';
+      if(settings.textContent!==nextLabel)settings.textContent=nextLabel;
+    }
     if(!hint)return;
     const next=active==='top-chapter-navigation'
       ?'메뉴 고정과 읽기 진행을 조정합니다. 칩 스타일은 범용 필터칩에서 공통으로 관리합니다.'
