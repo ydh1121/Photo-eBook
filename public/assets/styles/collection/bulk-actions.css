@@ -24,8 +24,8 @@
   backdrop-filter:blur(18px) saturate(130%);
 }
 #collectionSheet .collection-bulkbar[hidden]{display:none!important}
-#collectionSheet .collection-bulk-selectall,
-#collectionSheet .collection-bulk-delete{
+#collectionSheet .collection-bulkbar__all,
+#collectionSheet .collection-bulkbar__delete{
   min-height:42px;
   padding:0 15px;
   border:0;
@@ -35,11 +35,11 @@
   font-weight:720;
   cursor:pointer;
 }
-#collectionSheet .collection-bulk-selectall{
+#collectionSheet .collection-bulkbar__all{
   background:#eef1f5;
   color:#454d5b;
 }
-#collectionSheet .collection-bulk-count{
+#collectionSheet .collection-bulkbar__count{
   min-width:0;
   color:#5f6878;
   font-size:13px;
@@ -47,12 +47,12 @@
   text-align:center;
   white-space:nowrap;
 }
-#collectionSheet .collection-bulk-delete{
+#collectionSheet .collection-bulkbar__delete{
   background:#e54b4b;
   color:#fff;
   box-shadow:0 4px 12px rgba(193,45,45,.16);
 }
-#collectionSheet .collection-bulk-delete:disabled{
+#collectionSheet .collection-bulkbar__delete:disabled{
   opacity:.45;
   cursor:default;
   box-shadow:none;
@@ -62,10 +62,10 @@ html[data-theme="dark"] #collectionSheet .collection-bulkbar{
   background:rgba(20,24,31,.96);
   box-shadow:0 -10px 28px rgba(0,0,0,.20);
 }
-html[data-theme="dark"] #collectionSheet .collection-bulk-selectall{background:#292f39;color:#e1e5eb}
-html[data-theme="dark"] #collectionSheet .collection-bulk-count{color:#aeb6c3}
+html[data-theme="dark"] #collectionSheet .collection-bulkbar__all{background:#292f39;color:#e1e5eb}
+html[data-theme="dark"] #collectionSheet .collection-bulkbar__count{color:#aeb6c3}
 @media(max-width:430px){
   #collectionSheet .collection-bulkbar{gap:8px;min-height:60px;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
-  #collectionSheet .collection-bulk-selectall,#collectionSheet .collection-bulk-delete{min-height:40px;padding-inline:13px;border-radius:13px;font-size:12.5px}
-  #collectionSheet .collection-bulk-count{font-size:12.5px}
+  #collectionSheet .collection-bulkbar__all,#collectionSheet .collection-bulkbar__delete{min-height:40px;padding-inline:13px;border-radius:13px;font-size:12.5px}
+  #collectionSheet .collection-bulkbar__count{font-size:12.5px}
 }
