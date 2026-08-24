@@ -50,30 +50,34 @@
   registry.register({
     id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
     ownerFiles:[...shared,...origin.nav],previewProps:{items:source.fixtures.nav},editorProps:{items:source.fixtures.nav},
+    styleDefaults:{enabled:true,stickyMode:'deferred-sticky',chipFamily:'ios-liquid',accentColor:'#437ce7',progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef',progressOpacityStart:24,progressOpacityEnd:16,mobileChipGap:6,desktopChipGap:9,railInset:5.5,response:'standard',overshoot:'high',durationScale:1.1,safariSafety:true},
     render:source.navigation.render,hydrate:source.navigation.hydrate
   });
   registry.register({
     id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
     ownerFiles:[...origin.liquid,'public/assets/styles/collection/hub.css'],previewProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},editorProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},
+    styleDefaults:{family:'ios-liquid',accentColor:'#4c7fdf',surfaceOpacity:100,blur:0,response:'standard',overshoot:'medium',gap:4,runway:4},
     render:renderGenericFilterRail,hydrate:hydrateGenericFilterRail
   });
   registry.register({
     id:'horizontal-card-rail',label:'가로 카드',category:'content',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
     ownerFiles:[...shared,...origin.card],previewProps:{items:source.fixtures.market},editorProps:{items:source.fixtures.market},
+    styleDefaults:{nativeTouch:true,desktopDrag:true,leftShadowGuard:true,leftPaintRunway:16,leftFade:false,rightFade:true,rightFadeMode:'alpha-mask',rightFadeWidth:112,rightContentPadding:122,scrollbar:'hidden',dragThreshold:5,clickSuppressMs:220},
     render:source.horizontalCardRail.render
   });
   registry.register({
     id:'collection-bottom-sheet',label:'하단 팝업',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
     ownerFiles:[...shared,...origin.collection,...origin.liquid,...origin.device],previewProps:{open:true,activeTab:'all',items:source.fixtures.collectionItems},editorProps:{open:true,activeTab:'all',items:source.fixtures.collectionItems},
+    styleDefaults:{enabled:true,backdrop:true,backdropBlur:12,sheetBlur:26,sheetSaturation:135,maxWidth:760,maxHeightDvh:84,radiusTop:30,handle:true,tabs:true,search:true,filters:true,bulkSelection:true,themeSelector:true,deviceHandoff:true},
     render:source.collectionBottomSheet.render,hydrate:source.collectionBottomSheet.hydrate
   });
   registry.register({
     id:'device-handoff-accordion',label:'다른 기기',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
-    ownerFiles:[...shared,...origin.device],previewProps:{},editorProps:{},render:source.deviceHandoff.render,
+    ownerFiles:[...shared,...origin.device],previewProps:{},editorProps:{},styleDefaults:{enabled:true,heightMode:'measured',response:'standard',copyAction:true,connectAction:true,statusMessage:true},render:source.deviceHandoff.render,
     hydrate(){setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}
   });
   registry.register({
     id:'floating-action',label:'플로팅 버튼',category:'action',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
-    ownerFiles:[...shared,...origin.collection],previewProps:{domId:'collectionFabPreview'},editorProps:{domId:'collectionFabPreview'},render:source.floatingAction.render
+    ownerFiles:[...shared,...origin.collection],previewProps:{domId:'collectionFabPreview'},editorProps:{domId:'collectionFabPreview'},styleDefaults:{family:'glass',accentColor:'#315fc9',response:'standard',overshoot:'low'},render:source.floatingAction.render
   });
 })();
