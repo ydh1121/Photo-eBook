@@ -1,97 +1,97 @@
 # Platform Management UI Contract
 
-Status: active review contract
+Status: active
 
-## 목적
+## 관리 제품의 네 역할
 
-관리 화면은 각각의 실험 페이지처럼 보이지 않고 하나의 관리 제품처럼 동작해야 한다.
+관리 셸은 다음 네 화면만 1급 제품 역할로 노출한다.
 
-공통 관리 화면:
-- `/ui-dashboard/` 페이지 구성
-- `/ui-dashboard/?view=library` UI 라이브러리
-- `/block-lab/` 블록 관리
-- `/editor-lab/` 페이지 에디터
-- `/qa/video-editor/` QA
+1. `UI 라이브러리` `/ui-dashboard/`
+   - 승인된 공통 모듈 UI Kit
+2. `블록 연구실` `/block-lab/`
+   - 신규 블록 연구와 논의
+3. `블록 에디터` `/block-editor/`
+   - 승인 모듈로 페이지 조립, 저장, 분류
+4. `QA` `/qa/video-editor/`
+   - 발행 전 최종 화면 검수
 
-어느 화면에서도 브라우저 뒤로가기를 주요 이동 수단으로 요구하지 않는다.
+기존 `화면 구성` 메뉴와 `/ui-dashboard/?view=library` 이중 모드는 폐기한다.
 
 ## 공통 관리자 셸
 
-모든 관리 화면 최상단에 동일한 관리자 셸을 둔다.
+모든 관리 화면은 동일한 관리자 셸을 사용한다.
 
-고정 메뉴:
-1. 페이지 구성
-2. UI 라이브러리
-3. 블록 관리
-4. 페이지 에디터
-5. QA
+PC와 모바일에서 메뉴 순서와 명칭을 유지한다. 현재 화면은 한 항목만 active 상태여야 한다.
 
-현재 화면은 한 곳만 활성 상태로 표시한다. 각 관리 도구의 로컬 툴바에는 다른 관리 화면으로 가는 중복 링크를 두지 않는다.
+관리 화면 로컬 툴바에서 다른 관리 화면으로 이동하는 중복 링크를 최소화한다. 전역 이동은 관리자 셸이 담당한다.
 
-PC와 모바일 모두 메뉴 순서와 명칭을 유지한다. 좁은 화면에서는 메뉴를 가로 스크롤할 수 있지만 항목을 숨기지 않는다.
+공개 페이지 링크는 작업 surface와 분리해 외부 확인용으로 제공한다.
 
-## 화면별 역할
+## UI 라이브러리
 
-### 페이지 구성
+`/ui-dashboard/`는 승인 모듈 catalog와 preview에 집중한다.
 
-더미 페이지의 블록 순서, 공통 UI 설정, 광고 위치를 조립한다.
+- Registry approved 모듈만 표시
+- 테마/PC/모바일 확인
+- capability settings 확인
+- provenance 표시
+- shared module preview 사용
 
-상단에는 자주 쓰는 행동만 둔다.
-- 편집 상태
-- 블록 추가
-- 광고
-- 저장
-- 더보기
+페이지 순서 조립, 광고 배치, candidate 연구 기능을 두지 않는다.
 
-광고 세부 종류와 초기화처럼 빈도가 낮은 행동은 메뉴 안으로 넣는다.
+## 블록 연구실
 
-### UI 라이브러리
+`/block-lab/`는 research-only surface다.
 
-페이지 구성과 같은 경로를 사용하더라도 독립된 작업 모드로 취급한다. 페이지 구성 툴바와 라이브러리 필터를 동시에 노출하지 않는다.
+- candidate block
+- variant
+- style experiment
+- 사용자/GPT 검토
+- promotion 판단
 
-### 블록 관리
+이 화면의 코드와 샘플 데이터는 Library/Editor의 dependency가 아니다.
 
-Block type, variant, style preset 검토에 집중한다. 페이지 구성으로 돌아가는 별도 버튼은 공통 관리자 셸로 대체한다.
+승격 시 연구실 파일을 공유하는 것이 아니라 재사용 가능한 결과를 canonical `PlatformModuleRegistry` 코드로 추출한다.
 
-### 페이지 에디터
+## 블록 에디터
 
-페이지 제작과 발행 준비에 집중한다. 되돌리기, 내보내기처럼 사용 빈도가 낮은 기능은 `더보기`로 묶고 편집 모드, 화면 폭, 테마, 서버 상태를 우선 노출한다.
+Canonical route는 `/block-editor/`다. 기존 `/editor-lab/`는 호환 route로만 유지할 수 있다.
 
-### QA
+에디터의 insertion catalog는 `PlatformModuleRegistry.listFor('editor')`에서 가져온 approved module만 표시한다.
 
-미리보기 검수에 집중한다. 다른 관리 화면 이동은 공통 관리자 셸에서 처리한다.
+페이지 인스턴스는 `module id + props`를 저장한다. Block Lab sample object를 저장하지 않는다.
 
-## 더미 캔버스
+페이지 설정, SEO, AI 작업 기준, revision, 발행 준비 같은 page-level 기능은 에디터가 계속 소유한다.
 
-운영 `/photography/`를 iframe으로 사용하지 않는다. `/ui-dashboard/sandbox/` 정적 더미 캔버스만 사용한다.
+## QA
 
-운영 UI와 동일한 공통 class/CSS owner를 재사용하되 서로 다른 세대의 visual surface가 중첩되지 않게 한다. 특히 상단 chapter navigation은 한 개의 surface owner만 보이게 유지한다.
+QA는 발행 직전 페이지를 검사한다.
 
-## 좌우 광고
+- approved module 사용 여부
+- responsive
+- theme
+- interaction
+- overflow
+- public renderer parity
+- noindex/index 정책
 
-PC 좌우 광고는 히어로, chapter hero, 전체 폭 이미지 위에 겹치지 않는다.
-
-광고가 나타날 수 있는 조건:
-- 실제 읽기 본문 `.section .content` 구간이 viewport에 있음
-- 해당 본문 좌우에 광고 폭 + 간격을 수용할 공간이 있음
-- PC 최소 폭 조건을 만족함
-
-배치는 현재 보이는 본문 column의 실제 `getBoundingClientRect()`를 기준으로 계산한다. 고정된 `50% + 590px` 식으로 전체 페이지 위치를 가정하지 않는다.
-
-`스크롤 따라가기`가 켜져 있으면 본문 구간 안에서 viewport를 따라간다. 본문 구간이 끝나거나 다음 chapter hero가 시작되면 숨긴다.
+연구실 candidate를 QA에서 production 승인으로 자동 승격하지 않는다.
 
 ## 시각 원칙
 
-- 전역 이동과 로컬 작업을 같은 줄에 섞지 않는다.
-- 자주 쓰지 않는 작업은 `더보기` 또는 문맥 메뉴로 내린다.
-- 같은 의미의 저장 버튼을 여러 곳에 동시에 노출하지 않는다.
-- 화면마다 별도 브랜드처럼 보이는 헤더를 만들지 않는다.
-- 관리 셸, 버튼, 탭, 패널의 radius와 typography를 공통 토큰으로 맞춘다.
-- 화면의 주인공은 관리 chrome이 아니라 작업 대상이다.
+- 전역 이동과 로컬 작업을 같은 컨트롤 묶음에 섞지 않는다.
+- 화면마다 다른 제품처럼 보이는 중복 브랜드 헤더를 만들지 않는다.
+- 관리 chrome보다 작업 대상이 우선한다.
+- radius, typography, control hierarchy는 공통 admin token을 따른다.
+- 좁은 화면에서도 역할 메뉴를 임의로 숨기지 않는다.
 
-## 안전
+## 안전 경계
 
-- 관리 UI 통합은 production content renderer를 교체하지 않는다.
-- Visual Builder는 production API/Google Sheet 사용자 데이터를 읽지 않는다.
-- 사용자 승인 전 block/UI preset을 자동 승인하지 않는다.
-- 관리/QA/staging 화면은 noindex를 유지한다.
+- 관리 화면은 noindex를 유지한다.
+- Block Lab은 Library/Editor/Public에 직접 import되지 않는다.
+- Library는 Public user data를 읽지 않는다.
+- Editor는 approved canonical module만 조립한다.
+- Public은 Registry에서 approved + public consumer가 허용된 모듈만 사용할 수 있다.
+- candidate 자동 승인과 자동 publish를 금지한다.
+
+상세 module promotion contract는 `docs/library/platform-modules/CANONICAL-MODULE-PIPELINE.md`를 따른다.
