@@ -2,8 +2,104 @@
   const registry=window.PlatformBlockRegistry;
   if(!registry)return;
 
+  const scriptLoads=new Map();
+  const styleLoads=new Map();
+  const SAFE_RUNTIME_SCRIPTS=new Set([
+    '/assets/js/ui/liquid-controller.js',
+    '/assets/js/navigation/chapter-navigation.js',
+    '/assets/js/desktop/rail-drag.js',
+    '/assets/js/collection/bulk-selection.js',
+    '/assets/js/collection/device-handoff-compat.js',
+    '/assets/js/collection/device-handoff.js',
+    '/assets/js/collection/modal-shield.js'
+  ]);
+
   function escapeHtml(value=''){
     return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+  }
+  function assetPath(value){
+    const path=String(value||'').trim().replace(/^public\//,'/');
+    return path.startsWith('/')?path:`/${path}`;
+  }
+  function loadScript(src){
+    const clean=assetPath(src);
+    if(scriptLoads.has(clean))return scriptLoads.get(clean);
+    const existing=[...document.scripts].find(node=>(node.getAttribute('src')||'').split('?')[0]===clean);
+    if(existing){const ready=Promise.resolve(existing);scriptLoads.set(clean,ready);return ready;}
+    const promise=new Promise((resolve,reject)=>{
+      const node=document.createElement('script');
+      node.src=clean;node.async=false;
+      node.onload=()=>resolve(node);
+      node.onerror=()=>reject(new Error(`모듈 스크립트를 불러오지 못했습니다: ${clean}`));
+      document.body.appendChild(node);
+    });
+    scriptLoads.set(clean,promise);
+    return promise;
+  }
+  function loadStyle(href){
+    const clean=assetPath(href);
+    if(styleLoads.has(clean))return styleLoads.get(clean);
+    const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(node=>(node.getAttribute('href')||'').split('?')[0]===clean);
+    if(existing){const ready=Promise.resolve(existing);styleLoads.set(clean,ready);return ready;}
+    const promise=new Promise((resolve,reject)=>{
+      const node=document.createElement('link');
+      node.rel='stylesheet';node.href=clean;
+      node.onload=()=>resolve(node);
+      node.onerror=()=>reject(new Error(`모듈 스타일을 불러오지 못했습니다: ${clean}`));
+      document.head.appendChild(node);
+    });
+    styleLoads.set(clean,promise);
+    return promise;
+  }
+  async function ensureModuleRuntime(){
+    await loadScript('/assets/js/platform-modules/module-registry-v1.js');
+    await loadScript('/assets/js/platform-modules/photo-public-module-source-v1.js');
+    await loadScript('/assets/js/platform-modules/photo-core-modules-v1.js');
+    await loadScript('/assets/js/platform-modules/module-style-runtime-v1.js');
+    return window.PlatformModuleRegistry;
+  }
+  async function ensureDefinitionAssets(definition){
+    const files=Array.isArray(definition?.ownerFiles)?definition.ownerFiles:[];
+    await Promise.all(files.filter(file=>String(file).endsWith('.css')).map(loadStyle));
+    for(const file of files.filter(file=>String(file).endsWith('.js'))){
+      const src=assetPath(file);
+      if(SAFE_RUNTIME_SCRIPTS.has(src))await loadScript(src);
+    }
+  }
+  function moduleStyle(block){
+    if(block?.styleOverrides&&typeof block.styleOverrides==='object'&&Object.keys(block.styleOverrides).length)return block.styleOverrides;
+    if(block?.resolvedStyle&&typeof block.resolvedStyle==='object')return block.resolvedStyle;
+    return {};
+  }
+  async function mountUiModules(root,blocks){
+    const uiBlocks=blocks.filter(block=>block?.type==='ui-module'&&block.enabled!==false);
+    if(!uiBlocks.length)return [];
+    const modules=await ensureModuleRuntime();
+    if(!modules)throw new Error('PlatformModuleRegistry를 불러오지 못했습니다.');
+    const mounted=[];
+    for(const block of uiBlocks){
+      const moduleId=String(block.variant||'');
+      const definition=modules.get(moduleId);
+      const host=root.querySelector(`[data-public-ui-module-host="${CSS.escape(String(block.id))}"]`);
+      if(!definition||!host||!modules.listFor('public').some(item=>item.id===moduleId)){
+        if(host){host.dataset.platformPublicModuleError='unsupported';host.textContent='지원하지 않는 UI 모듈입니다.';}
+        continue;
+      }
+      await ensureDefinitionAssets(definition);
+      try{
+        const instance=modules.mount(host,moduleId,block.content&&typeof block.content==='object'?block.content:{},{consumer:'public'});
+        window.PlatformModuleStyleRuntime?.apply?.(moduleId,host,moduleStyle(block));
+        host.dataset.platformPublicModuleReady='true';
+        host.dataset.platformPublicModule=moduleId;
+        mounted.push({blockId:block.id,moduleId,instance});
+        requestAnimationFrame(()=>window.dispatchEvent(new Event('pageshow')));
+      }catch(error){
+        host.dataset.platformPublicModuleError=String(error?.message||error);
+        host.textContent='UI 모듈을 표시하지 못했습니다.';
+      }
+    }
+    document.dispatchEvent(new CustomEvent('platform:public-modules-mounted',{detail:{mounted:mounted.map(item=>({blockId:item.blockId,moduleId:item.moduleId}))}}));
+    return mounted;
   }
 
   function applyMetadata(snapshot,{canonicalBase=location.origin}={}){
@@ -36,6 +132,11 @@
     const errors=[];
     const rendered=[];
     blocks.forEach((block,index)=>{
+      if(block?.type==='ui-module'){
+        const moduleId=escapeHtml(block.variant||'');
+        rendered.push(`<div class="public-snapshot-block public-snapshot-block--ui-module" data-public-block="${escapeHtml(block.id)}" data-block-style-host="true" data-public-ui-module="${moduleId}"><div class="platform-public-module-host" data-public-ui-module-host="${escapeHtml(block.id)}"></div></div>`);
+        return;
+      }
       const productionCheck=!allowCandidate&&!trustedPublished;
       const validation=registry.validateUsage?.(block,{production:productionCheck});
       if(validation&&!validation.ok){errors.push(...validation.errors.map(message=>`#${index+1} ${message}`));return;}
@@ -65,8 +166,10 @@
     if(trustedPublished)document.documentElement.dataset.publicSnapshotTrust='publish-gated';
     else delete document.documentElement.dataset.publicSnapshotTrust;
     if(statusNode)statusNode.textContent=`v${snapshot.version||'—'} · ${blocks.length} blocks`;
+    const modulePromise=mountUiModules(root,blocks).catch(error=>{console.error('Public UI module mount failed',error);return [];});
+    window.__PUBLIC_SNAPSHOT_MODULES_READY=modulePromise;
     document.dispatchEvent(new CustomEvent('platform:public-snapshot-rendered',{detail:{snapshot,blocks,uiCapabilities,trustedPublished}}));
-    return {ok:true,errors:[],snapshot,blocks,uiCapabilities,trustedPublished};
+    return {ok:true,errors:[],snapshot,blocks,uiCapabilities,trustedPublished,modulePromise};
   }
 
   async function fetchAndRender(slug,options={}){
@@ -113,5 +216,5 @@
     document.head.appendChild(node);
   }
 
-  window.PublicSnapshotRuntimeV2={render,fetchAndRender,applyMetadata};
+  window.PublicSnapshotRuntimeV2={render,fetchAndRender,applyMetadata,mountUiModules};
 })();
