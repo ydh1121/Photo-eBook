@@ -18,7 +18,7 @@
       [data-module-style-family="material-flat"] :is(.nav-v33-indicator,.collection-v33-indicator),[data-module-style-family="ios-flat"] :is(.nav-v33-indicator,.collection-v33-indicator){display:none!important}
       [data-module-style-family="material-flat"] :is(.nav-chip,.collection-tab).is-active,[data-module-style-family="ios-flat"] :is(.nav-chip,.collection-tab).is-active{background:var(--module-accent,#437ce7)!important;border-color:var(--module-accent,#437ce7)!important;color:#fff!important;box-shadow:none!important}
       .platform-filter-chip-source[hidden]{display:none!important}
-      .platform-filter-chip-source--flat[data-custom-accent="true"] .collection-filter.is-active{background:var(--module-flat-accent,#202226)!important;border-color:var(--module-flat-accent,#202226)!important;color:#fff!important}
+      .platform-filter-chip-source--flat .collection-filter.is-active{background:var(--module-flat-accent,#202226)!important;border-color:var(--module-flat-accent,#202226)!important;color:#fff!important}
       .collection-fab[data-module-style-family="flat"]{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:0 5px 15px rgba(30,55,110,.16)!important}
       .collection-fab[data-module-style-family="liquid"]{-webkit-backdrop-filter:blur(18px) saturate(145%)!important;backdrop-filter:blur(18px) saturate(145%)!important;box-shadow:0 8px 22px rgba(34,76,165,.22),inset 0 1px 0 rgba(255,255,255,.35)!important}
       [data-platform-module="collection-bottom-sheet"][data-module-disabled="true"] :is(#collectionFab,#collectionBackdrop,#collectionSheet){display:none!important;pointer-events:none!important}
@@ -51,7 +51,7 @@
       const module=$('[data-platform-module="filter-chip-rail"]',root),liquid=$('.platform-filter-chip-source--liquid',root),flat=$('.platform-filter-chip-source--flat',root);
       if(module)module.dataset.platformFilterFamily='ios-liquid';
       if(liquid){liquid.hidden=false;resetInline(liquid,['gap','padding-left','padding-right','background','-webkit-backdrop-filter','backdrop-filter','--module-accent','--v36-blue-top','--v36-blue-mid','--v36-blue-bottom','--lg-blue-a','--lg-blue-b','--lg-blue-c']);$$('.collection-tab',liquid).forEach(button=>resetInline(button,['transition-duration']));}
-      if(flat){flat.hidden=true;delete flat.dataset.customAccent;resetInline(flat,['gap','padding-left','padding-right','--module-flat-accent']);$$('.collection-filter',flat).forEach(button=>resetInline(button,['transition-duration','background','-webkit-backdrop-filter','backdrop-filter']));}
+      if(flat){flat.hidden=true;resetInline(flat,['gap','padding-left','padding-right','--module-flat-accent']);$$('.collection-filter',flat).forEach(button=>resetInline(button,['transition-duration','background','-webkit-backdrop-filter','backdrop-filter']));}
     }else if(id==='horizontal-card-rail'){
       const rail=$('[data-platform-module="horizontal-card-rail"]',root);
       if(rail){delete rail.dataset.builderDesktopDrag;delete rail.dataset.builderDragThreshold;delete rail.dataset.builderClickSuppressMs;resetInline(rail,['padding-left','padding-right','-webkit-mask-image','mask-image']);}
@@ -113,12 +113,12 @@
         liquid.style.backdropFilter=`blur(${num(value.blur,15)}px) saturate(125%)`;liquid.style.webkitBackdropFilter=liquid.style.backdropFilter;
         requestAnimationFrame(()=>liquid.__photoLiquidController?.update?.({instant:true}));
       }else{
-        const custom=hasCustomAccent(id,value);flat.dataset.customAccent=String(custom);if(custom)flat.style.setProperty('--module-flat-accent',value.accentColor||'#202226');
+        flat.style.setProperty('--module-flat-accent',hasCustomAccent(id,value)?(value.accentColor||'#202226'):'#202226');
         const defaultSurface=num(defaults(id).surfaceOpacity,54),defaultBlur=num(defaults(id).blur,15);
         const flatOpacity=num(value.surfaceOpacity,defaultSurface)===defaultSurface?100:num(value.surfaceOpacity,100);
         const flatBlur=num(value.blur,defaultBlur)===defaultBlur?0:num(value.blur,0);
         $$('.collection-filter',flat).forEach(button=>{
-          button.style.background=`color-mix(in srgb, #f3f4f7 ${flatOpacity}%, transparent)`;
+          if(!button.classList.contains('is-active'))button.style.background=`color-mix(in srgb, #f3f4f7 ${flatOpacity}%, transparent)`;
           button.style.backdropFilter=`blur(${flatBlur}px)`;button.style.webkitBackdropFilter=button.style.backdropFilter;
         });
       }
