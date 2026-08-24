@@ -65,7 +65,16 @@
       },
       openQuestion(id){
         const item=readArray(QUESTIONS).find(entry=>String(entry?.id)===String(id));if(!item)return;
-        const quote=document.getElementById('askQuote'),input=document.getElementById('askInput');if(quote)quote.textContent=item.selected_text||'';if(input)input.value=item.question||'';
+        const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===String(id));
+        const ownerOpen=ownerCard?.querySelector('.history-open');
+        if(ownerOpen){
+          ownerOpen.click();
+          requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
+          return;
+        }
+        const quote=document.getElementById('askQuote'),input=document.getElementById('askInput');
+        if(quote)quote.textContent=item.selected_text||'';
+        if(input)input.value=item.question||'';
         window.__photoForceQuestionWrite?.();
       },
       openSettings(){}
@@ -98,7 +107,14 @@
       const context={consumer};
       if(moduleId==='collection-bottom-sheet')context.collectionSource=previewCollectionSource();
       mounted=registry.mount(host,moduleId,props,context);
-    }catch(error){host.textContent=error?.message||'모듈을 불러오지 못했습니다.';post('platform-preview-error',{message:String(error?.message||error)});return;}
+      document.documentElement.removeAttribute('data-platform-mount-error');
+    }catch(error){
+      const message=String(error?.message||error);
+      document.documentElement.dataset.platformMountError=message;
+      host.textContent=message||'모듈을 불러오지 못했습니다.';
+      post('platform-preview-error',{message});
+      return;
+    }
     applyStyle();
     if(moduleId==='collection-bottom-sheet')await ensureCollectionEnhancers();
     requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));applyStyle();});
