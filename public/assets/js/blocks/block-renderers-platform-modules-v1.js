@@ -20,7 +20,7 @@
       if(!definition)return '';
       const id=context.escapeHtml(moduleId);
       const label=context.escapeHtml(definition.label||moduleId);
-      return `<div class="platform-editor-module" data-platform-editor-module="${id}" data-platform-module-source="${context.escapeHtml(definition.source)}"><iframe class="platform-editor-module-frame" data-platform-editor-module-frame="${id}" title="${label}" src="/ui-dashboard/module-preview/?module=${encodeURIComponent(moduleId)}&embed=editor&v=1" loading="eager"></iframe></div>`;
+      return `<div class="platform-editor-module" data-platform-editor-module="${id}" data-platform-module-source="${context.escapeHtml(definition.source)}"><iframe class="platform-editor-module-frame" data-platform-editor-module-frame="${id}" title="${label}" src="/ui-dashboard/module-preview/?module=${encodeURIComponent(moduleId)}&embed=editor&v=2" loading="eager"></iframe></div>`;
     }
   });
 })();
