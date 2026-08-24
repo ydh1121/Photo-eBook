@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'public/index.html'
+      - 'public/_routes.json'
       - 'public/_redirects'
       - 'public/block-lab/**'
       - 'public/editor-lab/**'
