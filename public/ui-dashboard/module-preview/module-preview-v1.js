@@ -1,9 +1,10 @@
 (function(){
-  if(window.__platformModulePreviewV2)return;
-  window.__platformModulePreviewV2=true;
+  if(window.__platformModulePreviewV3)return;
+  window.__platformModulePreviewV3=true;
 
   const params=new URLSearchParams(location.search);
   const registry=window.PlatformModuleRegistry;
+  const styleRuntime=window.PlatformModuleStyleRuntime;
   const root=document.getElementById('platformModulePreviewRoot');
   if(!registry||!root)return;
 
@@ -12,6 +13,7 @@
   const available=registry.listFor(consumer).map(item=>item.id);
   const moduleId=available.includes(requested)?requested:(available[0]||'');
   let props=consumer==='editor'?(registry.editorProps(moduleId)||{}):(registry.previewProps(moduleId)||{});
+  let styleConfig={};
   let mounted=null;
 
   document.documentElement.dataset.platformModulePreview='true';
@@ -32,23 +34,23 @@
     let contextClass='';
     let before='',after='';
     if(moduleId==='horizontal-card-rail'){
-      contextClass=' platform-module-context--rail';
-      before='<div class="wide">';after='</div>';
+      contextClass=' platform-module-context--rail';before='<div class="wide">';after='</div>';
     }else if(moduleId==='filter-chip-rail'){
-      contextClass=' platform-module-context--collection-inner';
-      before='<div class="collection-tools">';after='</div>';
+      contextClass=' platform-module-context--segmented';
     }else if(moduleId==='device-handoff-accordion'){
       contextClass=' platform-module-context--device';
     }
     root.innerHTML=`<section class="platform-module-stage" data-module="${registry.attr(moduleId)}"><div class="platform-module-context${contextClass}">${before}<div class="platform-module-host" id="platformModuleHost"></div>${after}</div></section>`;
     return document.getElementById('platformModuleHost');
   }
+  function applyStyle(){styleRuntime?.apply?.(moduleId,root,styleConfig);}
   function mount({announce=false}={}){
     mounted?.cleanup?.();
     const host=stageMarkup();if(!host)return;
     try{
       mounted=registry.mount(host,moduleId,props,{consumer});
-      requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+      applyStyle();
+      requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));applyStyle();});
       if(announce)post('platform-preview-ready',{canonicalModule:true,consumer,provenance:registry.provenance(moduleId),sourceOwner:'photo-public-module-source-v1'});
     }catch(error){
       host.textContent=error?.message||'모듈을 불러오지 못했습니다.';
@@ -59,45 +61,40 @@
     if(moduleId==='collection-bottom-sheet'){
       mounted?.api?.setState?.({tab:String(state||'all'),filter:'all'});
       mounted?.api?.open?.(String(state||'all'));
+      applyStyle();
       return;
     }
     if(moduleId==='device-handoff-accordion'){
       const want=state==='expanded';
       const attempt=()=>{
         const link=root.querySelector('#collectionDeviceLink');if(!link)return false;
-        const expanded=link.getAttribute('aria-expanded')==='true';if(expanded!==want)link.click();return true;
+        const expanded=link.getAttribute('aria-expanded')==='true';if(expanded!==want)link.click();applyStyle();return true;
       };
       if(!attempt())setTimeout(attempt,160);
     }
   }
-  function applyFilterItems(value){
-    if(moduleId!=='filter-chip-rail')return;
-    const options=(Array.isArray(value)?value:[]).map(item=>String(item&&typeof item==='object'?(item.label||item.value||''):item||'').trim()).filter(Boolean).slice(0,24);
-    if(!options.length)return;
-    const normalized=options[0]==='전체'?['all',...options.slice(1)]:options[0]==='all'?options:['all',...options];
-    props={...props,options:normalized,activeFilter:'all'};mount();
-  }
 
   root.addEventListener('platform-filter-select',event=>post('platform-filter-chip-selection',{value:event.detail?.value||'all'}));
   root.addEventListener('platform-collection-tab',event=>post('platform-preview-state-change',{state:event.detail?.tab||'all'}));
-  root.addEventListener('platform-collection-render',event=>{if(event.detail?.tab==='settings')setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);});
+  root.addEventListener('platform-collection-render',event=>{if(event.detail?.tab==='settings')setTimeout(()=>{window.dispatchEvent(new Event('pageshow'));applyStyle();},0);});
 
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin)return;
     const data=event.data||{};
-    if(data.type==='platform-theme'){theme(data.theme);return;}
+    if(data.type==='platform-theme'){theme(data.theme);requestAnimationFrame(applyStyle);return;}
+    if(data.type==='platform-module-style'&&data.moduleId===moduleId){styleConfig=data.config&&typeof data.config==='object'?registry.clone(data.config):{};applyStyle();return;}
     if(data.type==='platform-module-props'&&data.moduleId===moduleId){
       props=data.props&&typeof data.props==='object'?registry.clone(data.props):registry.previewProps(moduleId);mount();return;
     }
     if(data.type==='platform-editor-module-props'&&consumer==='editor'&&data.moduleId===moduleId){
-      props=data.props&&typeof data.props==='object'?registry.clone(data.props):registry.editorProps(moduleId);mount();post('platform-editor-module-ready',{consumer:'editor'});return;
+      props=data.props&&typeof data.props==='object'?registry.clone(data.props):registry.editorProps(moduleId);
+      if(data.styleConfig&&typeof data.styleConfig==='object')styleConfig=registry.clone(data.styleConfig);
+      mount();post('platform-editor-module-ready',{consumer:'editor'});return;
     }
     if(data.type==='platform-kit-state'&&data.capabilityId===moduleId){applyState(data.state);return;}
-    if(data.type==='platform-filter-chip-preview-items'){applyFilterItems(data.items||data.labels);return;}
   });
 
   const media=matchMedia('(prefers-color-scheme: dark)');
   media.addEventListener?.('change',()=>{if(document.documentElement.dataset.themeChoice==='system')theme('system');});
-  theme('light');
-  mount({announce:true});
+  theme('light');mount({announce:true});
 })();
