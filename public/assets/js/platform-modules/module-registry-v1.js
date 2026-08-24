@@ -4,6 +4,9 @@
   const definitions=new Map();
   const VALID_STATUS=new Set(['approved','candidate','deprecated']);
   const VALID_SOURCE=new Set(['public-extracted','block-lab-approved','platform-core']);
+  const EDITOR_STYLE_SNAPSHOT=Symbol.for('platform.module.style.snapshot');
+  const CONTENT_DEFAULTS_KEY='platformModuleContentDefaultsV1';
+  const STYLE_DEFAULTS_KEY='platformModuleDefaultsV1';
 
   function escapeHtml(value=''){
     return String(value??'').replace(/[&<>"']/g,char=>({
@@ -13,6 +16,9 @@
 
   function attr(value=''){return escapeHtml(value);}
   function clone(value){return value==null?value:JSON.parse(JSON.stringify(value));}
+  function readLocalObject(key){
+    try{const value=JSON.parse(localStorage.getItem(key)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}catch{return {};}
+  }
 
   function normalizeDefinition(input={}){
     const id=String(input.id||'').trim();
@@ -93,14 +99,24 @@
       return {definition,target,cleanup,api};
     },
     previewProps(id){return clone(definitions.get(String(id||''))?.previewProps||{});},
-    editorProps(id){return clone(definitions.get(String(id||''))?.editorProps||{});},
+    editorProps(id){
+      const definition=definitions.get(String(id||''));
+      const base=clone(definition?.editorProps||{});
+      if(!definition)return base;
+      const contentDefaults=readLocalObject(CONTENT_DEFAULTS_KEY)[definition.id];
+      const styleDefaults=readLocalObject(STYLE_DEFAULTS_KEY)[definition.id];
+      const content={...base,...(contentDefaults&&typeof contentDefaults==='object'?clone(contentDefaults):{})};
+      Object.defineProperty(content,EDITOR_STYLE_SNAPSHOT,{value:{...(clone(definition.styleDefaults||{})),...(styleDefaults&&typeof styleDefaults==='object'?clone(styleDefaults):{})},enumerable:false,configurable:false});
+      return content;
+    },
     provenance(id){
       const def=definitions.get(String(id||''));if(!def)return null;
       return {id:def.id,status:def.status,source:def.source,sourceRoute:def.sourceRoute,ownerFiles:[...def.ownerFiles],consumers:[...def.consumers],version:def.version};
     },
     escapeHtml,
     attr,
-    clone
+    clone,
+    editorStyleSnapshotSymbol:EDITOR_STYLE_SNAPSHOT
   };
 
   window.PlatformModuleRegistry=registry;
