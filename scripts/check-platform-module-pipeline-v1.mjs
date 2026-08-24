@@ -71,19 +71,11 @@ async function verifyLibrary(context,publicRef){
   assert(ids.length===expected.length&&expected.every(id=>ids.includes(id)),'Library module set mismatch');
 
   let frame=await choose(page,'filter-chip-rail');
-  const module=frame.locator('[data-platform-module="filter-chip-rail"]');
   try{
-    await waitUntil(()=>module.count().then(n=>n===1),'canonical filter module missing',8000);
+    await waitUntil(()=>frame.evaluate(()=>document.querySelectorAll('[data-platform-module="filter-chip-rail"]').length===1),'canonical filter module missing',8000);
   }catch(error){
     const diag=await frame.evaluate(()=>({
-      module:document.documentElement.dataset.platformModule||'',
-      consumer:document.documentElement.dataset.platformModuleConsumer||'',
-      mountError:document.documentElement.dataset.platformMountError||'',
-      styleError:document.documentElement.dataset.platformStyleError||'',
-      registry:window.PlatformModuleRegistry?.listFor?.('library')?.map(item=>item.id)||[],
-      host:document.querySelector('#platformModuleHost')?.innerHTML||'',
-      root:document.querySelector('#platformModulePreviewRoot')?.innerHTML||'',
-      body:(document.body?.innerText||'').slice(0,1200)
+      module:document.documentElement.dataset.platformModule||'',consumer:document.documentElement.dataset.platformModuleConsumer||'',mountError:document.documentElement.dataset.platformMountError||'',styleError:document.documentElement.dataset.platformStyleError||'',registry:window.PlatformModuleRegistry?.listFor?.('library')?.map(item=>item.id)||[],host:document.querySelector('#platformModuleHost')?.innerHTML||'',root:document.querySelector('#platformModulePreviewRoot')?.innerHTML||'',body:(document.body?.innerText||'').slice(0,1200)
     }));
     console.error('FILTER_PREVIEW_DIAGNOSTIC',JSON.stringify({diag,browserErrors},null,2));
     throw error;
@@ -166,7 +158,7 @@ async function verifyEditor(context){
   await page.locator('[data-add-module="filter-chip-rail"]').click();
   await waitUntil(()=>page.locator('[data-platform-editor-module-frame="filter-chip-rail"]').count().then(n=>n===1),'Editor filter iframe missing');
   const handle=await page.$('[data-platform-editor-module-frame="filter-chip-rail"]');const frame=await handle.contentFrame();assert(frame,'Editor filter iframe unavailable');
-  await waitUntil(()=>frame.locator('[data-platform-module="filter-chip-rail"]').count().then(n=>n===1),'Editor canonical filter module did not mount');
+  await waitUntil(()=>frame.evaluate(()=>document.querySelectorAll('[data-platform-module="filter-chip-rail"]').length===1),'Editor canonical filter module did not mount');
   assert(await page.locator('[data-array-add]').count()>=1,'Editor filter instance has no per-page menu add control');
   const draft=await page.evaluate(()=>JSON.parse(localStorage.getItem('platformEditorLabDraftV1')||'{}'));
   assert(draft?.blocks?.[0]?.type==='ui-module'&&draft.blocks[0].variant==='filter-chip-rail','Editor did not persist canonical filter module instance');
