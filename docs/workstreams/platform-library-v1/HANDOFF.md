@@ -1,9 +1,10 @@
 # Platform Library V1 Handoff
 
-Updated: 2026-08-23 KST
-Active branch: `main`
+Updated: 2026-08-24 KST
+Active branch: `refactor/admin-ui-component-runtime-v1`
 Production branch: `main`
-Status: `admin UI refinement / PR #11 merged and live verified / production connection deferred`
+Current PR: `#13`
+Status: `admin UI architecture cleanup / production connection deferred`
 
 ## Resume order
 
@@ -12,204 +13,184 @@ Status: `admin UI refinement / PR #11 merged and live verified / production conn
 3. this file
 4. `docs/library/admin-ui/ADMIN-SHELL.md`
 5. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
-6. current `main` HEAD
+6. current branch HEAD
 
-## Product direction
+## Why this refactor exists
 
-`UI 라이브러리`는 실제 reusable UI를 한 번에 하나씩 조작하는 Live UI Kit다.
+The user's 2026-08-24 browser recording exposed an architectural failure in the previous UI Library.
 
-Components:
-- 상단 메뉴
-- 가로 카드
-- 범용 필터칩
-- 하단 팝업
-- 다른 기기
-- 플로팅 버튼
+Previous flow:
+`full sandbox page → execute collection runtime → open UI → extract/reparent DOM → close original UI → apply repair patches`
 
-Meaning:
-- `범용 필터칩` = bottom sheet 실제 `#collectionFilters > .collection-filter`를 기준으로 한 플랫폼 공통 Chip Design System
-- 상단 메뉴는 common Chip paint를 소유하지 않고 layout / sticky / reading progress만 소유
-- 다른 기기 = 실제 `.collection-device-accordion` 하나만 표시
-- 초기 상태 = production CSS 원본, 사용자 변경값만 V2 override
+This produced:
+- full-page/hero flashes while switching UI components;
+- bottom sheet disappearing after tab changes;
+- filter rail, floating selector and legacy indicator competing for ownership;
+- multiple mutation/state repair scripts reacting to one another;
+- management code drifting away from the original goal of a simple reusable UI editor.
 
-## Filter-chip feedback patch V2
+Do not fix those symptoms by restoring another patch layer.
 
-PR #11 is merged and live on the management route.
+## New architecture
 
-Changes:
-- retired `filter-chip-specimens-v1.js`; no clone-based four-card specimen board remains;
-- renders one real `#collectionFilters` rail directly in the preview;
-- preview-only sample chip input with add / last delete / reset actions;
-- rail top / right / bottom / left padding controls;
-- chip horizontal / vertical padding and chip gap controls;
-- legacy `runway` migration to explicit four-side rail paddings;
-- Material / iOS Flat / iOS Liquid style switching preserves tuned geometry;
-- when a family is first selected, missing geometry uses former top-nav canonical gap `9px` and rail inset `5.5px`;
-- velocity-based desktop mouse inertia with post-drag click suppression;
-- native mobile horizontal scrolling remains unchanged.
+UI Library:
+`builder-library-kit-v3.js → /ui-dashboard/component-preview/ → component-preview-v1.js`
 
-Runtime owner: `public/ui-dashboard/sandbox/filter-chip-live-runtime-v2.js`.
-Editor style: `public/assets/styles/ui-dashboard/builder-filter-chip-live-v2.css`.
-Deployed dashboard entry: `builder-entry-audit-v1.js?v=10`.
+The management parent owns:
+- selected component;
+- theme and viewport;
+- management config storage;
+- component state;
+- filter sample items and per-item overrides;
+- inspector controls.
 
-Two implementation regressions were found and fixed during CI:
-- `MutationObserver` annotation loop that could keep the library runtime busy;
-- `startMomentum()` zeroing velocity before the first animation frame, which made the rail stop exactly at mouse release.
+The component-preview iframe owns:
+- direct preview DOM rendering;
+- component-local interaction;
+- state feedback to the parent.
 
-Temporary diagnostics were removed before the final clean validation.
+It does NOT load the full sandbox page and does NOT extract/reparent production-like DOM.
 
-## Global Chip ownership
+## New files
 
-Canonical paint owner: `public/ui-dashboard/sandbox/global-chip-runtime-v1.js`
-Runtime marker: `__platformGlobalChipRuntimeV4`
-Style marker: `platform-global-chip-style-v4`
+- `public/ui-dashboard/component-preview/index.html`
+- `public/ui-dashboard/component-preview/component-preview-v1.js`
+- `public/assets/styles/ui-dashboard/component-preview-v1.css`
+- `public/assets/js/ui-dashboard/builder-library-kit-v3.js`
+- `public/assets/styles/ui-dashboard/builder-kit-v3.css`
+- `scripts/check-ui-dashboard-browser-v5.mjs`
 
-Canonical styles restored from the former top navigation:
-- Material: `#f1f3f6`, former border, no shadow, no blur
-- iOS Flat: `rgba(244,247,251,.88)`, 12px blur, former shadow
-- iOS Liquid: 22px blur / saturate 138% glass, moving v37 selector
-- inactive common chips remain transparent
-- top nav / bottom-sheet filters share the same family and accent
+## Removed library patch stack
 
-`filter-chip-live-runtime-v2.js` owns filter-rail geometry and desktop drag momentum only. It does not replace common Chip paint.
-`runtime-audit-patch-v1.js` and legacy capability runtime do not own common Chip paint.
-Production `nav-corrections.css` remains intact; global family selectors have final representation priority only while the builder/UI Kit override is active.
+Removed on PR #13:
+- `builder-library-kit-v2.js`
+- `builder-global-chip-kit-v1.js`
+- `builder-library-canonical-state-v1.js`
+- `builder-library-state-sync-v1.js`
+- `builder-library-notes-v1.js`
+- `builder-kit-v2.css`
+- `builder-filter-chip-live-v2.css`
+- `bottom-sheet-parity-v1.js`
+- `filter-chip-legacy-guard-v1.js`
+- `filter-chip-live-runtime-v2.js`
+- `filter-chip-live-runtime-v3.js`
 
-## Page runtime
+`builder-entry-audit-v1.js` library mode now boots only:
+1. `builder-global-chip-manifest-v1.js`
+2. `builder-library-kit-v3.js`
 
-`/ui-dashboard/` uses `/ui-dashboard/sandbox/`, never production `/photography/`.
+## Filter chip ownership
 
-Important owners:
-- `builder-v1.js`: inspector / block DnD chrome
-- `builder-page-audit-v1.js`: editor fixed-pin nav fallback
-- `builder-progress-owner-audit-v1.js`: removes retired standalone progress owner
-- `builder-page-live-v2.js`: V2 override → sandbox runtime
-- `builder-dynamic-sync-v1.js`: dynamic collection/filter/device sync
-- `builder-sandbox-ads-v1.js`: side-ad configuration
-- `builder-side-ad-zone-audit-v1.js`: side-ad geometry/visibility
-- `builder-reset-audit-v1.js`: canvas draft reset
-- `builder-late-frame-bootstrap-v1.js`: missed iframe lifecycle recovery
+Filter preview structure:
+- `.collection-filters` = horizontal scroll owner
+- `.component-chip-active` = sibling overlay above the rail
+- no in-rail active indicator owner
+- no preview drag-momentum patch
 
-Safari deferred sticky and mobile native horizontal scrolling remain unchanged.
+Shared defaults currently normalized by `builder-global-chip-manifest-v1.js`:
+- family: iOS Flat
+- accent: `#437ce7`
+- gap: `9px`
+- rail inset: `5.5px` each side
+- chip Y: `7px`
+- chip X: `10px`
 
-## Live UI Kit runtime
+Filter sample controls:
+- add chip
+- delete last chip
+- restore defaults
+- click a chip to select it
+- per-chip family: inherit / Material / iOS Flat / iOS Liquid
 
-Route: `/ui-dashboard/?view=library`
+Top navigation receives the shared filter-chip family/accent via the parent preview config. It does not own a second common Chip style setting.
 
-- `builder-library-kit-v2.js`: parent Live UI Kit owner
-- `builder-global-chip-kit-v1.js`: filter family presets + sample chip editor + geometry-preserving style switch
-- `builder-library-state-sync-v1.js`: state/config resync
-- `builder-library-notes-v1.js`: modification notes
-- `sandbox-kit-v4.js`: standalone actual component extraction
-- `global-chip-runtime-v1.js`: common Chip paint/selector owner
-- `filter-chip-live-runtime-v2.js`: one-rail preview, filter geometry, sample labels, desktop inertia
-- `runtime-audit-patch-v1.js`: non-Chip sandbox visual corrections
-- `runtime-dynamic-config-guard-v1.js`: reapply settings after dynamic DOM rebuild
+## Bottom sheet ownership
 
-Global controls:
-- White / Dark / System
-- PC / Mobile
+The preview directly renders one stable sheet.
 
-Filter-chip direct controls:
-- Material / iOS Flat / iOS Liquid
-- sample chip add / last delete / reset
-- rail top / right / bottom / left padding
-- chip horizontal / vertical padding
-- chip gap
-- response / overshoot settings remain in the inspector
+States:
+- all
+- video
+- article
+- question
+- settings
 
-## Browser QA
+Tab change rule:
+- do not open/close the production-like collection hub;
+- do not move `#collectionLayer` between parents;
+- keep one `.collection-sheet` and replace its internal state/content only.
 
-PR #11 clean validation passed after diagnostics were removed.
+Internal preview tab clicks send `platform-preview-state-change` so the parent buttons stay in sync.
 
-Final clean run:
-- workflow: `Platform Library Checks`
-- run: `32638788027`
-- run number: `263`
-- job: `97192525406`
-- conclusion: `success`
+## Sandbox page mode
 
-Coverage includes:
-- six Live UI Kit components × White/Dark/System × PC/Mobile
-- no `.platform-kit-specimen` board on filter-chip route
-- real filter rail as the single direct preview
-- sample chip insertion on the same rail
-- four-side rail padding and chip X/Y padding live updates
-- style switches preserving tuned geometry
-- simulated desktop mouse drag continuing after release through inertia
-- Liquid selector movement
-- global filter → top nav / bottom sheet style propagation
-- horizontal rail controls
-- bottom sheet state/reset
-- device accordion standalone
-- FAB family/accent/response
-- fixed editor nav + reading progress ownership
-- block drag/drop/save/reset
-- side ads at 1280/1440/1536/1600/1920
-- Block Lab / Page Editor / QA responsive admin shell + noindex
+`public/ui-dashboard/sandbox/` remains the page-builder dummy canvas only.
 
-## Live Cloudflare Pages verification
+`sandbox-kit-v4.js` was stripped down to page-only behavior:
+- inline collection open helper;
+- editor nav pin fallback.
 
-Workflow: `.github/workflows/platform-live-deploy-check.yml`
-Script: `scripts/check-live-ui-dashboard-deploy.mjs`
-Status file: `docs/workstreams/platform-library-v1/qa/live-deploy-status.json`
+It no longer has `?preview=` component extraction logic.
 
-PR #11 management deployment verification passed.
+`builder-runtime-audit-loader-v1.js` no longer injects filter-preview or bottom-sheet-preview repair scripts.
 
-Verified live management state:
-- dashboard HTML serves `builder-entry-audit-v1.js?v=10`
-- live runtime contains `__platformGlobalChipRuntimeV4`
-- Material filter rail = `rgb(241, 243, 246)`
-- Material filter setting propagates to top nav
-- iOS Liquid filter = `blur(22px) saturate(1.38)` with moving selector
-- iOS Liquid setting propagates to top nav
+## Page builder / ads
 
-Live result metadata:
-- source SHA: `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
-- workflow run id: `32638904052`
-- workflow run number: `5`
-- result bot commit: `9a7e627e16b18eeed1a9cad1cbd8e0532a2f2059`
-- status: `pass`
+PR #12 page-mode work remains:
+- PC side ads based on outer content gutter rather than currently visible chapter;
+- no hero-dependent hide/show intent;
+- `캔버스 넓게` for hiding the admin sidebar while inspecting the page.
+
+The current refactor is primarily UI Library architecture. Do not mix production publish work into it.
+
+## QA
+
+`check-ui-dashboard-browser-v5.mjs` is the canonical library browser suite for this architecture.
+
+It checks:
+- component preview contains no full sandbox `#app` or hero;
+- no sandbox extraction/filter/bottom-sheet repair runtime is loaded;
+- six components across White/Dark/System and PC/Mobile;
+- filter rail and active overlay ownership;
+- sample filter insertion;
+- per-chip override inheritance;
+- stable bottom sheet across all states;
+- internal state → parent state sync;
+- device accordion state sync;
+- real horizontal card overflow.
+
+The old `check-admin-ui-parity-v3.mjs` is no longer run by the main Platform Library workflow because it asserted the retired DOM-extraction architecture.
+
+Current PR #13 final validation may be superseded by newer commits. Always fetch the latest PR head SHA and its latest `Platform Library Checks` run before merging.
+
+## Live deployment checker
+
+`scripts/check-live-ui-dashboard-deploy.mjs` now expects:
+- dashboard entry `builder-entry-audit-v1.js?v=12`;
+- live asset marker `__platformComponentPreviewV1`;
+- isolated filter preview without full sandbox/repair scripts;
+- filter rail + sibling active overlay;
+- per-chip override;
+- stable bottom sheet through all five tabs.
 
 ## Production connection boundary
 
-The user explicitly set the public-site connection as the final task.
+The user explicitly set public-site connection as the final task.
 
-Until the management UI is finally approved:
-- do not publish management overrides into the public `photo-ebook.pages.dev` page runtime;
-- do not make the production photography renderer read unapproved Live UI Kit config;
-- continue using sandbox/admin preview as the design and QA surface.
+Until final management approval:
+- do not make public `photo-ebook.pages.dev` runtime read management config;
+- do not publish unapproved presets/configs;
+- do not replace the production photography renderer.
 
-After final UI-management approval only:
-- create the publish boundary from approved preset/config to production;
-- connect approved UI settings to the public page;
-- rerun public PC/mobile and theme regression QA.
-
-This distinction is important: deploying `/ui-dashboard/` updates is allowed now; wiring those settings into the public visible site is deferred.
-
-## Merge history relevant to current state
-
-- PR #6: canonical global Chip parity → merge `9278658f464fd2179d642f668cea236f866b8d63`
-- PR #7: live Cloudflare Pages checker
-- PR #8: persist successful live result
-- PR #9: persist success or failure result
-- PR #10: preserve common Chip state across live route verification → merge `393d5747cae9d6a8fc1c3b6b4816676b9193fe20`
-- PR #11: single filter rail + geometry controls + inertia → merge `46eb02f4eedf30fbe8b4b01c706e11759577abb0`
-- PR #11 live verification bot commit: `9a7e627e16b18eeed1a9cad1cbd8e0532a2f2059`
-
-## Safety
-
-- production `/photography/` is not the builder canvas.
-- sandbox does not read production user data.
-- photography renderer is not replaced.
-- mobile native horizontal scroll remains.
-- Safari deferred sticky remains.
-- no automatic preset/block approval.
-- unapproved admin settings are not published to public production runtime.
-- management / QA / staging remain noindex.
+After explicit final approval only:
+- add a publish boundary for approved config;
+- connect approved UI settings to production;
+- rerun public PC/mobile/theme regression QA.
 
 ## Exact next action
 
-1. User visually checks `https://photo-ebook.pages.dev/ui-dashboard/?view=library&ui=filter-chip-rail` in the real browser.
-2. Continue management UI refinement from that feedback only.
-3. Do not connect approved management configuration to the public page until the user explicitly gives final approval.
+1. Fetch PR #13 latest head and latest Platform Library Checks.
+2. Fix only failures in the new isolated component architecture; do not resurrect removed patch owners.
+3. When green, merge PR #13 to `main`.
+4. Wait for Cloudflare Pages and verify the management route with the v12 live checker.
+5. Have the user re-check the real browser before moving on to the Lego/page-builder UX phase.
