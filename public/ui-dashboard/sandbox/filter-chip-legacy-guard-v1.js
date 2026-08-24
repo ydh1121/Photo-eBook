@@ -9,7 +9,12 @@
     legacy.style.setProperty('display','none','important');
     root.prepend(legacy);
   }
-  function apply(){document.querySelectorAll('.collection-filters[data-platform-chip-stage="true"]').forEach(guard);}
+  function cleanupStages(){
+    document.querySelectorAll('.platform-filter-chip-stage').forEach(stage=>{
+      if(!stage.querySelector(':scope > .collection-filters'))stage.remove();
+    });
+  }
+  function apply(){cleanupStages();document.querySelectorAll('.collection-filters[data-platform-chip-stage="true"]').forEach(guard);}
   new MutationObserver(()=>requestAnimationFrame(apply)).observe(document.documentElement,{childList:true,subtree:true});
   [0,80,240,600].forEach(delay=>setTimeout(apply,delay));
 })();
