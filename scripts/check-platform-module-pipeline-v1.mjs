@@ -75,8 +75,11 @@ async function verifyLibrary(context){
     }
     if(id==='device-handoff-accordion'){
       await waitUntil(()=>frame.locator('.collection-device-accordion #collectionDeviceLink').count().then(n=>n===1),'device handoff did not mount in canonical settings context',12000);
-      const link=frame.locator('#collectionDeviceLink');if(await link.getAttribute('aria-expanded')!=='true')await link.click();
+      await sleep(180);
+      const link=frame.locator('#collectionDeviceLink');
+      if(await link.getAttribute('aria-expanded')!=='true')await link.click();
       await waitUntil(()=>link.getAttribute('aria-expanded').then(value=>value==='true'),'device handoff did not expand');
+      assert(await frame.locator('.collection-device-panel-v2[aria-hidden="false"]').count()===1,'device handoff panel did not become visible');
     }
     if(id==='floating-action'){
       assert(await frame.locator('[data-platform-module="floating-action"].collection-fab').count()===1,'canonical floating action missing');
