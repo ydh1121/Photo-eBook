@@ -43,7 +43,9 @@
 
   function stageMarkup(){
     root.innerHTML=`<section class="platform-module-stage" data-module="${registry.attr(moduleId)}"><div class="platform-module-host" id="platformModuleHost"></div></section>`;
-    return document.getElementById('platformModuleHost');
+    const host=document.getElementById('platformModuleHost');
+    if(moduleId==='device-handoff-accordion')host?.classList.add('collection-settings');
+    return host;
   }
 
   function mount({announce=false}={}){
