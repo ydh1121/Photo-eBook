@@ -18,9 +18,9 @@
       const moduleId=variants.includes(block.variant)?block.variant:variants[0];
       const definition=modules.get(moduleId);
       if(!definition)return '';
-      const props=block.content&&Object.keys(block.content).length?block.content:modules.editorProps(moduleId);
-      const html=modules.render(moduleId,props,{consumer:'editor'});
-      return `<div class="platform-editor-module" data-platform-editor-module="${context.escapeHtml(moduleId)}" data-platform-module-source="${context.escapeHtml(definition.source)}">${html}</div>`;
+      const id=context.escapeHtml(moduleId);
+      const label=context.escapeHtml(definition.label||moduleId);
+      return `<div class="platform-editor-module" data-platform-editor-module="${id}" data-platform-module-source="${context.escapeHtml(definition.source)}"><iframe class="platform-editor-module-frame" data-platform-editor-module-frame="${id}" title="${label}" src="/ui-dashboard/module-preview/?module=${encodeURIComponent(moduleId)}&embed=editor&v=1" loading="eager"></iframe></div>`;
     }
   });
 })();
