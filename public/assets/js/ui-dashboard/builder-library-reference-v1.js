@@ -25,8 +25,8 @@
   const FILTER_SELECTED_STORE='platformBuilderFilterPreviewSelectedV1';
   const ORDER=['top-chapter-navigation','horizontal-card-rail','filter-chip-rail','collection-bottom-sheet','device-handoff-accordion','floating-action'];
   const LABEL={'top-chapter-navigation':'상단 메뉴','horizontal-card-rail':'가로 카드','filter-chip-rail':'범용 필터칩','collection-bottom-sheet':'하단 팝업','device-handoff-accordion':'다른 기기','floating-action':'플로팅 버튼'};
-  const META={'top-chapter-navigation':'사진 페이지 상단 메뉴','horizontal-card-rail':'사진 페이지 가로 카드 레일','filter-chip-rail':'내 모음 필터 레일','collection-bottom-sheet':'내 모음 하단 팝업','device-handoff-accordion':'다른 기기 연결','floating-action':'내 모음 플로팅 버튼'};
-  const HINT={'top-chapter-navigation':'실제 상단 메뉴 DOM·CSS·JS를 그대로 불러옵니다.','horizontal-card-rail':'실제 카드 레일과 PC 드래그·모바일 스크롤을 같은 폭에서 확인합니다.','filter-chip-rail':'필터 레일은 스크롤을 담당하고 선택 칩은 레일 위의 별도 레이어에서 움직입니다.','collection-bottom-sheet':'같은 하단 팝업을 유지한 채 탭 내용만 바뀝니다.','device-handoff-accordion':'실제 설정 화면의 아코디언을 원래 DOM 위치에서 확인합니다.','floating-action':'실제 내 모음 플로팅 버튼을 viewport 위치에서 확인합니다.'};
+  const META={'top-chapter-navigation':'공통 상단 메뉴','horizontal-card-rail':'공통 가로 카드 레일','filter-chip-rail':'공통 필터 레일','collection-bottom-sheet':'공통 하단 팝업','device-handoff-accordion':'공통 다른 기기 연결','floating-action':'공통 플로팅 버튼'};
+  const HINT={'top-chapter-navigation':'공개 페이지에서 추출해 승인된 상단 메뉴 모듈을 그대로 실행합니다.','horizontal-card-rail':'승인된 카드 레일 모듈과 기존 PC 드래그·모바일 스크롤을 함께 확인합니다.','filter-chip-rail':'승인된 필터칩 모듈에서 샘플 메뉴와 스타일·간격을 조정합니다.','collection-bottom-sheet':'승인된 하단 팝업 모듈의 탭과 상태를 같은 구조로 확인합니다.','device-handoff-accordion':'승인된 다른 기기 연결 모듈을 실제 interaction owner와 함께 확인합니다.','floating-action':'승인된 플로팅 버튼 모듈을 같은 CSS owner로 확인합니다.'};
   const HEIGHT={'top-chapter-navigation':220,'horizontal-card-rail':500,'filter-chip-rail':230,'collection-bottom-sheet':760,'device-handoff-accordion':360,'floating-action':300};
   const STATE_OPTIONS={'collection-bottom-sheet':[['all','전체'],['video','영상'],['article','읽을거리'],['question','질문'],['settings','설정']],'device-handoff-accordion':[['collapsed','접힘'],['expanded','펼침']]};
   const GROUP_LABEL={basic:'기본',advanced:'세부',motion:'움직임',safety:'안전',input:'입력','left-edge':'왼쪽 끝','right-edge':'오른쪽 끝',visibility:'표시','스타일':'스타일','여백과 간격':'여백과 간격','움직임':'움직임'};
@@ -92,7 +92,7 @@
 
   root.dataset.builderView='library';
   if(toolbar)toolbar.hidden=true;if(stage)stage.classList.add('builder-library-kit-hidden-stage');tools.hidden=false;filters.innerHTML='';
-  const intro=$('.builder-library-intro',tools);if(intro){intro.querySelector('strong').textContent='UI 라이브러리';intro.querySelector('span').textContent='사진 페이지에서 쓰는 실제 UI 런타임을 격리된 더미 데이터로 확인합니다.';}
+  const intro=$('.builder-library-intro',tools);if(intro){intro.querySelector('strong').textContent='UI 라이브러리';intro.querySelector('span').textContent='승인된 공통 모듈을 실제 코드로 실행하고 조정합니다.';}
 
   const selector=document.createElement('nav');selector.className='builder-kit-selector';selector.setAttribute('aria-label','UI 컴포넌트');filters.appendChild(selector);
   const controlBar=document.createElement('div');controlBar.className='builder-kit-controls builder-kit-controls--primary';controlBar.innerHTML='<div class="builder-kit-switch" id="kitTheme"></div><div class="builder-kit-switch" id="kitViewport"></div>';tools.appendChild(controlBar);
@@ -124,7 +124,7 @@
   function openInspector(){
     const item=capability(active);if(!item)return;const values=displayedConfig(active);const groups=new Map();
     (item.controls||[]).forEach(control=>{const name=GROUP_LABEL[control.group]||control.group||'설정';if(!groups.has(name))groups.set(name,[]);groups.get(name).push(control);});
-    inspector.innerHTML=`<header><div><small>UI 라이브러리</small><strong>${esc(LABEL[active]||item.label)}</strong></div><button type="button" data-kit-close aria-label="닫기">×</button></header><div class="builder-library-audit-inspector__body"><p class="builder-library-origin">실제 UI 코드는 그대로 사용하고, 이 관리단에서 바꾼 값만 별도로 저장합니다.</p>${stateSection()}${filterItemsSection()}${[...groups.entries()].map(([name,controls])=>`<section class="builder-control-group"><strong>${esc(name)}</strong><div class="builder-control-grid">${controls.map(control=>controlHtml(control,values[control.id])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-kit-reset>운영값으로 되돌리기</button></footer>`;
+    inspector.innerHTML=`<header><div><small>UI 라이브러리</small><strong>${esc(LABEL[active]||item.label)}</strong></div><button type="button" data-kit-close aria-label="닫기">×</button></header><div class="builder-library-audit-inspector__body"><p class="builder-library-origin">공통 모듈 코드는 유지하고, 이 관리단에서 바꾼 값만 별도로 저장합니다.</p>${stateSection()}${filterItemsSection()}${[...groups.entries()].map(([name,controls])=>`<section class="builder-control-group"><strong>${esc(name)}</strong><div class="builder-control-grid">${controls.map(control=>controlHtml(control,values[control.id])).join('')}</div></section>`).join('')}</div><footer><button type="button" data-kit-reset>운영값으로 되돌리기</button></footer>`;
     inspector.hidden=false;
     $('[data-kit-close]',inspector)?.addEventListener('click',()=>inspector.hidden=true);
     $('[data-kit-reset]',inspector)?.addEventListener('click',()=>resetConfig(active));
@@ -158,8 +158,8 @@
   function select(id){
     if(!ORDER.includes(id))return;active=id;frameReady=false;renderSelector();title.textContent=LABEL[id];meta.textContent=META[id]||'';hint.textContent=HINT[id]||'';workspace.dataset.activeUi=id;workspace.style.setProperty('--kit-preview-height',`${HEIGHT[id]||420}px`);applyViewport();workspace.dataset.theme=effectiveTheme();workspace.dataset.themeChoice=theme;
     const url=new URL(location.href);url.searchParams.set('view','library');url.searchParams.set('ui',id);history.replaceState({},'',url);
-    if(status){status.hidden=false;status.textContent='실제 UI를 불러오는 중';}
-    frame.src=`/ui-dashboard/reference-preview/?preview=${encodeURIComponent(id)}&kit=reference&v=1`;
+    if(status){status.hidden=false;status.textContent='공통 모듈을 불러오는 중';}
+    frame.src=`/ui-dashboard/module-preview/?module=${encodeURIComponent(id)}&kit=library&v=1`;
     if(!inspector.hidden)openInspector();
   }
 
@@ -167,7 +167,7 @@
   frame.addEventListener('load',()=>{setTimeout(()=>{if(frameReady)syncFrame();},80);});
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin)return;const data=event.data||{};
-    if(data.type==='platform-preview-ready'&&data.capabilityId===active&&data.referenceRuntime){frameReady=true;if(status)status.hidden=true;syncFrame();return;}
+    if(data.type==='platform-preview-ready'&&data.capabilityId===active&&data.canonicalModule){frameReady=true;if(status)status.hidden=true;syncFrame();return;}
     if(data.type==='platform-filter-chip-selection'&&active==='filter-chip-rail'){
       const id=String(data.id||'');if(id){setSelectedFilterId(id);refreshFilterItemEditor();}return;
     }
