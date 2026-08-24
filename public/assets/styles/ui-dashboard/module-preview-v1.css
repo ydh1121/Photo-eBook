@@ -7,7 +7,8 @@ html[data-platform-module-preview="true"] body{height:100%;min-height:100%;margi
 .platform-module-context{box-sizing:border-box;width:100%;min-height:100%}
 .platform-module-context--rail{padding-top:42px}
 .platform-module-context--rail>.wide{width:100%}
-.platform-module-context--collection-inner{width:min(760px,100%);margin:0 auto;padding:58px 18px 18px}
+.platform-module-context--segmented{width:min(760px,100%);margin:0 auto;padding-top:58px}
+.platform-module-context--segmented .platform-module-host{min-height:0}
 .platform-module-context--device{width:min(760px,100%);margin:0 auto;padding:58px 18px 18px}
 .platform-module-context--device .collection-settings{padding-top:3px}
 .platform-module-preview-chapters{position:absolute;z-index:-1;top:680px;left:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
@@ -15,5 +16,6 @@ html[data-platform-module-preview="true"] body{height:100%;min-height:100%;margi
 .platform-module-stage[data-module="floating-action"] .platform-module-host{height:100%}
 @media(max-width:560px){
   .platform-module-context--rail{padding-top:24px}
-  .platform-module-context--collection-inner,.platform-module-context--device{padding:36px 12px 12px}
+  .platform-module-context--segmented{padding-top:36px}
+  .platform-module-context--device{padding:36px 12px 12px}
 }
