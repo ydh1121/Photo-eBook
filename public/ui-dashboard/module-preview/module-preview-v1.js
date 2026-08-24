@@ -7,14 +7,16 @@
   const root=document.getElementById('platformModulePreviewRoot');
   if(!registry||!root)return;
 
+  const consumer=params.get('embed')==='editor'?'editor':'library';
   const requested=params.get('module')||'top-chapter-navigation';
-  const available=registry.listFor('library').map(item=>item.id);
+  const available=registry.listFor(consumer).map(item=>item.id);
   const moduleId=available.includes(requested)?requested:(available[0]||'');
-  let props=registry.previewProps(moduleId)||{};
+  let props=consumer==='editor'?(registry.editorProps(moduleId)||{}):(registry.previewProps(moduleId)||{});
   let mounted=null;
 
   document.documentElement.dataset.platformModulePreview='true';
   document.documentElement.dataset.platformModule=moduleId;
+  document.documentElement.dataset.platformModuleConsumer=consumer;
 
   function post(type,payload={}){
     try{window.parent?.postMessage({type,capabilityId:moduleId,moduleId,...payload},location.origin);}catch{}
@@ -49,9 +51,9 @@
     const host=stageMarkup();
     if(!host)return;
     try{
-      mounted=registry.mount(host,moduleId,props,{consumer:'library'});
+      mounted=registry.mount(host,moduleId,props,{consumer});
       requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
-      if(announce)post('platform-preview-ready',{canonicalModule:true,provenance:registry.provenance(moduleId)});
+      if(announce)post('platform-preview-ready',{canonicalModule:true,consumer,provenance:registry.provenance(moduleId)});
     }catch(error){
       host.textContent=error?.message||'모듈을 불러오지 못했습니다.';
       post('platform-preview-error',{message:String(error?.message||error)});
@@ -99,6 +101,12 @@
     if(event.origin!==location.origin)return;
     const data=event.data||{};
     if(data.type==='platform-theme'){theme(data.theme);return;}
+    if(data.type==='platform-editor-module-props'&&consumer==='editor'&&data.moduleId===moduleId){
+      props=data.props&&typeof data.props==='object'?registry.clone(data.props):registry.editorProps(moduleId);
+      mount();
+      post('platform-editor-module-ready',{consumer:'editor'});
+      return;
+    }
     if(data.type==='platform-kit-state'&&data.capabilityId===moduleId){applyState(data.state);return;}
     if(data.type==='platform-filter-chip-preview-items'){applyFilterItems(data.items||data.labels);return;}
   });
