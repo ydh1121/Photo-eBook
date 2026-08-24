@@ -5,6 +5,7 @@
 
   const esc=registry.escapeHtml;
   const attr=registry.attr;
+  const has=(object,key)=>Object.prototype.hasOwnProperty.call(object||{},key);
 
   const DEFAULT_NAV=[
     {id:'intro',label:'시작'},{id:'market',label:'시장'},{id:'education',label:'교육'},{id:'skills',label:'실무'},
@@ -34,7 +35,7 @@
 
   function renderNav(props={},context={}){
     const items=normalizeNav(props.items);
-    const nav=`<div class="nav-placeholder" aria-hidden="true"></div><div class="nav-shell">
+    const nav=`<div class="nav-placeholder" aria-hidden="true"></div><div class="nav-shell" data-platform-module="top-chapter-navigation">
       <nav class="nav-scroll" aria-label="${attr(props.ariaLabel||'챕터')}">
         ${items.map((item,index)=>`<button class="nav-chip ${index===Number(props.activeIndex||0)?'is-active':''}" data-target="${attr(item.id)}">${esc(item.label)}</button>`).join('')}
       </nav>
@@ -51,11 +52,17 @@
     });
   }
 
+  function renderFilterButtons(items,activeId){
+    return items.map(item=>`<button type="button" data-library-filter="${attr(item.id)}" data-platform-chip-override="${attr(item.family)}" class="collection-filter ${item.id===activeId?'is-active':''}">${esc(item.label)}</button>`).join('');
+  }
+
   function renderFilterRail(props={}){
     const items=normalizeFilters(props.items);
     const activeId=String(props.activeId||items[0]?.id||'');
+    const buttons=renderFilterButtons(items,activeId);
+    if(props.innerOnly===true)return buttons;
     const id=props.domId===false?'':` id="${attr(props.domId||'collectionFilters')}"`;
-    return `<div${id} class="collection-filters" data-platform-module="filter-chip-rail">${items.map(item=>`<button type="button" data-library-filter="${attr(item.id)}" data-platform-chip-override="${attr(item.family)}" class="collection-filter ${item.id===activeId?'is-active':''}">${esc(item.label)}</button>`).join('')}</div>`;
+    return `<div${id} class="collection-filters" data-platform-module="filter-chip-rail">${buttons}</div>`;
   }
 
   function hydrateFilterRail(host){
@@ -83,7 +90,9 @@
   }
 
   function renderDeviceRow(props={}){
-    return `<div class="collection-device-module" data-platform-module="device-handoff-accordion"><button class="collection-setting-row" id="collectionDeviceLink" type="button" aria-expanded="false"><span><strong>${esc(props.title||'다른 기기에서 이어보기')}</strong><small>${esc(props.description||'저장한 질문을 다른 기기에서도 확인할 수 있게 연결합니다.')}</small></span><b>›</b></button></div>`;
+    const button=`<button class="collection-setting-row" id="collectionDeviceLink" type="button" aria-expanded="false"><span><strong>${esc(props.title||'다른 기기에서 이어보기')}</strong><small>${esc(props.description||'저장한 질문을 다른 기기에서도 확인할 수 있게 연결합니다.')}</small></span><b>›</b></button>`;
+    if(props.wrap===false)return button;
+    return `<div class="collection-device-module" data-platform-module="device-handoff-accordion">${button}</div>`;
   }
 
   function renderFab(props={}){
@@ -94,7 +103,8 @@
     const activeTab=String(props.activeTab||'all');
     const tabs=[['all','전체'],['video','영상'],['article','읽을거리'],['question','질문'],['settings','설정']];
     const filterMarkup=renderFilterRail({items:props.filterItems||DEFAULT_FILTERS,activeId:props.activeFilter||'all'});
-    const previewBody=props.bodyHtml||'<div class="collection-empty"><div class="collection-empty__icon">'+collectionIcon()+'</div><strong>아직 저장한 항목이 없습니다.</strong><p>관심 있는 영상과 글, 질문을 저장해 두면 여기서 한 번에 찾을 수 있습니다.</p></div>';
+    const defaultBody='<div class="collection-empty"><div class="collection-empty__icon">'+collectionIcon()+'</div><strong>아직 저장한 항목이 없습니다.</strong><p>관심 있는 영상과 글, 질문을 저장해 두면 여기서 한 번에 찾을 수 있습니다.</p></div>';
+    const bodyMarkup=has(props,'bodyHtml')?String(props.bodyHtml||''):defaultBody;
     return `<div id="collectionLayer" data-platform-module="collection-bottom-sheet">
       ${renderFab({domId:'collectionFab'})}
       <div id="collectionBackdrop" class="collection-backdrop" ${props.open?'':'hidden'}></div>
@@ -103,7 +113,7 @@
         <div class="collection-head"><div><small>저장한 항목과 질문을 한곳에서</small><h2>내 모음</h2></div><button id="collectionClose" class="collection-close" type="button" aria-label="닫기">×</button></div>
         <div class="collection-tabs" role="tablist">${tabs.map(([id,label])=>`<button class="collection-tab ${id===activeTab?'is-active':''}" data-library-tab="${id}" type="button">${label}</button>`).join('')}</div>
         <div class="collection-tools" id="collectionTools"><label class="collection-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="collectionSearch" type="search" placeholder="저장한 항목 검색" autocomplete="off"></label>${filterMarkup}</div>
-        <div id="collectionBody" class="collection-body">${previewBody}</div>
+        <div id="collectionBody" class="collection-body">${bodyMarkup}</div>
       </section>
     </div>`;
   }
@@ -131,7 +141,7 @@
     id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:1,
     ownerFiles:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/navigation/chapter-navigation.js','public/assets/styles/desktop/nav-corrections.css'],
     previewProps:{items:DEFAULT_NAV},editorProps:{items:DEFAULT_NAV},render:renderNav,
-    hydrate(host){if(typeof window.setupNavigation==='function')requestAnimationFrame(()=>window.setupNavigation());}
+    hydrate(host,props,context){if(context.consumer==='library'&&typeof window.setupNavigation==='function')requestAnimationFrame(()=>window.setupNavigation());}
   });
 
   registry.register({
@@ -156,7 +166,7 @@
     id:'device-handoff-accordion',label:'다른 기기',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:1,
     ownerFiles:['public/assets/js/collection/device-handoff.js','public/assets/styles/collection/device-accordion.css'],
     previewProps:{},editorProps:{},render:renderDeviceRow,
-    hydrate(){if(typeof window.dispatchEvent==='function')setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}
+    hydrate(host,props,context){if(context.consumer==='library'&&typeof window.dispatchEvent==='function')setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}
   });
 
   registry.register({
