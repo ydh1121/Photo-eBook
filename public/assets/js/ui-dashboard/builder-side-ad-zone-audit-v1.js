@@ -48,7 +48,7 @@
     const d=doc(),w=win(),node=slot(side);if(!d||!w||!node)return;
     const cfg=config(side);
     node.dataset.adZoneActive='false';
-    if(!cfg.enabled||w.innerWidth<1440)return;
+    if(!cfg.enabled||w.innerWidth<1360)return;
 
     const width=Math.max(90,Number(cfg.width)||110);
     const requestedHeight=Math.max(180,Number(cfg.height)||430);
