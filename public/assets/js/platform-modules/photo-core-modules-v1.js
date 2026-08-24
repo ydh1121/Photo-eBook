@@ -72,7 +72,7 @@
     render:source.collectionBottomSheet.render,hydrate:source.collectionBottomSheet.hydrate
   });
   registry.register({
-    id:'device-handoff-accordion',label:'다른 기기',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
+    id:'device-handoff-accordion',label:'아코디언 탭',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:4,
     ownerFiles:[...shared,...origin.device],previewProps:{},editorProps:{},styleDefaults:{enabled:true,heightMode:'measured',response:'standard',copyAction:true,connectAction:true,statusMessage:true},render:source.deviceHandoff.render,
     hydrate(){setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}
   });
