@@ -1,40 +1,12 @@
 {
-  "startedAt": "2026-08-24T07:39:19.073Z",
+  "startedAt": "2026-08-24T07:47:43.160Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js?v=2",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-24T07:39:19.073Z",
-      "status": "http-ok",
-      "matched": false,
-      "bytes": 4217
-    },
-    {
-      "attempt": 2,
-      "at": "2026-08-24T07:39:23.489Z",
-      "status": "http-ok",
-      "matched": false,
-      "bytes": 4217
-    },
-    {
-      "attempt": 3,
-      "at": "2026-08-24T07:39:27.568Z",
-      "status": "http-ok",
-      "matched": false,
-      "bytes": 4217
-    },
-    {
-      "attempt": 4,
-      "at": "2026-08-24T07:39:31.664Z",
-      "status": "http-ok",
-      "matched": false,
-      "bytes": 4217
-    },
-    {
-      "attempt": 5,
-      "at": "2026-08-24T07:39:35.730Z",
+      "at": "2026-08-24T07:47:43.160Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 1814
@@ -55,14 +27,24 @@
       "name": "live UI Library",
       "status": "pass",
       "detail": "registry-driven root route"
+    },
+    {
+      "name": "live Library theme/viewport",
+      "status": "pass",
+      "detail": "dark + mobile shared preview"
+    },
+    {
+      "name": "live Block Lab boundary",
+      "status": "pass",
+      "detail": "research-only"
     }
   ],
   "status": "fail",
-  "error": "Error: live canonical nav missing\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:16:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:98:40)\n    at runNextTicks (node:internal/process/task_queues:64:5)\n    at process.processImmediate (node:internal/timers:452:9)\n    at process.callbackTrampoline (node:internal/async_hooks:130:17)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:163:3",
-  "finishedAt": "2026-08-24T07:39:50.072Z",
-  "sourceSha": "e0b76c9496a0482425a2ebe0e1519216d370b796",
+  "error": "page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('.platform-admin-shell') to be visible\n\n    at verifyLiveBrowser (/home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:148:16)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:182:3",
+  "finishedAt": "2026-08-24T07:48:16.268Z",
+  "sourceSha": "8c11de62891d7543c1d2fbdca63f05f616b7a5b6",
   "sourceRef": "main",
-  "workflowRunId": "32702463978",
-  "workflowRunNumber": "10",
-  "recordedAt": "2026-08-24T07:39:50.116Z"
+  "workflowRunId": "32703124590",
+  "workflowRunNumber": "11",
+  "recordedAt": "2026-08-24T07:48:16.876Z"
 }
