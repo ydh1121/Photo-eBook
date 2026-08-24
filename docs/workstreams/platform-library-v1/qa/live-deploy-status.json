@@ -1,45 +1,68 @@
 {
-  "startedAt": "2026-08-24T05:30:05.034Z",
+  "startedAt": "2026-08-24T07:39:19.073Z",
   "base": "https://photo-ebook.pages.dev",
-  "entryMarker": "builder-entry-audit-v1.js?v=11",
-  "runtimeMarker": "__platformGlobalChipRuntimeV4",
+  "entryMarker": "builder-library-reference-v1.js?v=2",
+  "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-24T05:30:05.035Z",
+      "at": "2026-08-24T07:39:19.073Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4217
+    },
+    {
+      "attempt": 2,
+      "at": "2026-08-24T07:39:23.489Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4217
+    },
+    {
+      "attempt": 3,
+      "at": "2026-08-24T07:39:27.568Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4217
+    },
+    {
+      "attempt": 4,
+      "at": "2026-08-24T07:39:31.664Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 4217
+    },
+    {
+      "attempt": 5,
+      "at": "2026-08-24T07:39:35.730Z",
       "status": "http-ok",
       "matched": true,
-      "bytes": 4304
+      "bytes": 1814
     }
   ],
   "checks": [
     {
       "name": "live dashboard entry",
       "status": "pass",
-      "detail": "builder-entry-audit-v1.js?v=11"
+      "detail": "builder-library-reference-v1.js?v=2"
     },
     {
-      "name": "live runtime asset",
+      "name": "live canonical assets",
       "status": "pass",
-      "detail": "__platformGlobalChipRuntimeV4"
+      "detail": "6 approved photo modules"
     },
     {
-      "name": "live filter Material parity",
+      "name": "live UI Library",
       "status": "pass",
-      "detail": "rgb(241, 243, 246)"
-    },
-    {
-      "name": "live filter → nav propagation",
-      "status": "pass",
-      "detail": "Material"
+      "detail": "registry-driven root route"
     }
   ],
   "status": "fail",
-  "error": "Error: live iOS Liquid filter is not floating above the rail\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:16:48)\n    at verifyLiveRuntime (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:82:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:93:72",
-  "finishedAt": "2026-08-24T05:30:09.160Z",
-  "sourceSha": "a8c6b42f9dbb3b25c16b28269a8c6844b6e45b64",
+  "error": "Error: live canonical nav missing\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:16:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:98:40)\n    at runNextTicks (node:internal/process/task_queues:64:5)\n    at process.processImmediate (node:internal/timers:452:9)\n    at process.callbackTrampoline (node:internal/async_hooks:130:17)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:163:3",
+  "finishedAt": "2026-08-24T07:39:50.072Z",
+  "sourceSha": "e0b76c9496a0482425a2ebe0e1519216d370b796",
   "sourceRef": "main",
-  "workflowRunId": "32693741837",
-  "workflowRunNumber": "9",
-  "recordedAt": "2026-08-24T05:30:09.228Z"
+  "workflowRunId": "32702463978",
+  "workflowRunNumber": "10",
+  "recordedAt": "2026-08-24T07:39:50.116Z"
 }
