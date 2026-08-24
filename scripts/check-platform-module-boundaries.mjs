@@ -72,6 +72,9 @@ expect(adminShell.includes("href:'/block-editor/'"),'Block Editor must have a ca
 
 const redirects=read('public/_redirects');
 expect(redirects.includes('/block-editor /editor-lab/index.html 200'),'Canonical /block-editor route is missing.');
+const routes=JSON.parse(read('public/_routes.json'));
+expect(routes.exclude?.includes('/block-editor'),'Cloudflare Functions must exclude /block-editor.');
+expect(routes.exclude?.includes('/block-editor/*'),'Cloudflare Functions must exclude /block-editor/*.');
 
 const publicHtml=read('public/index.html');
 expect(publicHtml.includes('/assets/js/platform-modules/module-registry-v1.js'),'Public page must load the common module registry.');
