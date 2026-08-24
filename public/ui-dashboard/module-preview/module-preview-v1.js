@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformModulePreviewV3)return;
-  window.__platformModulePreviewV3=true;
+  if(window.__platformModulePreviewV4)return;
+  window.__platformModulePreviewV4=true;
 
   const params=new URLSearchParams(location.search);
   const registry=window.PlatformModuleRegistry;
@@ -30,11 +30,17 @@
     root.innerHTML=`<section class="platform-module-stage" data-module="${registry.attr(moduleId)}"><div class="platform-module-context${contextClass}">${before}<div class="platform-module-host" id="platformModuleHost"></div>${after}</div></section>`;
     return document.getElementById('platformModuleHost');
   }
-  function applyStyle(){styleRuntime?.apply?.(moduleId,root,styleConfig);}
+  function applyStyle(){
+    try{styleRuntime?.apply?.(moduleId,root,styleConfig);document.documentElement.removeAttribute('data-platform-style-error');return true;}
+    catch(error){document.documentElement.dataset.platformStyleError=String(error?.message||error);post('platform-preview-style-error',{message:String(error?.message||error)});return false;}
+  }
   function mount({announce=false}={}){
     mounted?.cleanup?.();const host=stageMarkup();if(!host)return;
-    try{mounted=registry.mount(host,moduleId,props,{consumer});applyStyle();requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));applyStyle();});if(announce)post('platform-preview-ready',{canonicalModule:true,consumer,provenance:registry.provenance(moduleId),sourceOwner:'photo-public-module-source-v1'});}
-    catch(error){host.textContent=error?.message||'모듈을 불러오지 못했습니다.';post('platform-preview-error',{message:String(error?.message||error)});}
+    try{mounted=registry.mount(host,moduleId,props,{consumer});}
+    catch(error){host.textContent=error?.message||'모듈을 불러오지 못했습니다.';post('platform-preview-error',{message:String(error?.message||error)});return;}
+    applyStyle();
+    requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));applyStyle();});
+    if(announce)post('platform-preview-ready',{canonicalModule:true,consumer,provenance:registry.provenance(moduleId),sourceOwner:'photo-public-module-source-v1'});
   }
   function applyState(state){
     if(moduleId==='collection-bottom-sheet'){mounted?.api?.setState?.({tab:String(state||'all'),filter:'all'});mounted?.api?.open?.(String(state||'all'));applyStyle();return;}
