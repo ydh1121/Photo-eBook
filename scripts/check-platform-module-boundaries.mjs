@@ -14,6 +14,9 @@ expect(moduleRegistry.includes("VALID_SOURCE=new Set(['public-extracted','block-
 expect(moduleRegistry.includes("definition.status!=='approved'"),'Non-approved modules must be blocked from normal consumers.');
 expect(moduleRegistry.includes('hydration?.cleanup'),'Registry mount must support shared interaction-controller cleanup.');
 expect(moduleRegistry.includes('hydration.api'),'Registry mount must expose shared module controller APIs.');
+expect(moduleRegistry.includes("CONTENT_DEFAULTS_KEY='platformModuleContentDefaultsV1'"),'Module registry must snapshot Library content defaults for new Editor instances.');
+expect(moduleRegistry.includes("STYLE_DEFAULTS_KEY='platformModuleDefaultsV1'"),'Module registry must snapshot Library style defaults for new Editor instances.');
+expect(moduleRegistry.includes("Symbol.for('platform.module.style.snapshot')"),'Module registry must carry new-instance style defaults through a non-content snapshot channel.');
 
 const publicSource=read('public/assets/js/platform-modules/photo-public-module-source-v1.js');
 for(const marker of ['renderNavigation','renderHorizontalCardRail','renderFilterRail','renderCollectionShell','hydrateCollection','renderDeviceHandoff','renderFab'])expect(publicSource.includes(marker),`Missing extracted public owner: ${marker}`);
@@ -27,6 +30,7 @@ expect((photoModules.match(/status:'approved'/g)||[]).length>=expected.length,'P
 expect(photoModules.includes("source:'public-extracted'"),'Photo modules must record public-page provenance.');
 expect(photoModules.includes('window.PhotoPublicModuleSource'),'Module definitions must delegate public-owned modules to the extracted public owner.');
 expect(photoModules.includes("class=\"collection-tabs platform-filter-chip-rail\""),'Generic filter chip must be extracted from the public liquid segmented rail, not secondary collection-filter chips.');
+expect(photoModules.includes("id:'device-handoff-accordion',label:'아코디언 탭'"),'Device handoff module must be labeled 아코디언 탭 in the module library.');
 expect(photoModules.includes('styleDefaults:'),'Canonical modules must record their public baseline style defaults.');
 for(const forbidden of ['function renderNav','function renderCard','function renderCollection','DEFAULT_CARDS','DEFAULT_FILTERS'])expect(!photoModules.includes(forbidden),`photo-core-modules must not contain a Library imitation renderer: ${forbidden}`);
 
@@ -59,7 +63,10 @@ expect(dashboardHtml.includes('/assets/js/platform-modules/photo-public-module-s
 const libraryController=read('public/assets/js/ui-dashboard/builder-library-reference-v1.js');
 expect(libraryController.includes("registry.listFor('library')"),'UI Library catalog must come from approved modules.');
 expect(libraryController.includes('/ui-dashboard/module-preview/'),'UI Library must render through the shared module preview host.');
-expect(libraryController.includes("STYLE_KEY='platformModuleDefaultsV1'"),'Library style changes must be stored as module defaults.');
+expect(libraryController.includes("STYLE_KEY='platformModuleDefaultsV1'"),'Library style changes must be stored as new-module defaults.');
+expect(libraryController.includes("CONTENT_KEY='platformModuleContentDefaultsV1'"),'Library content changes must be stored as new-module defaults.');
+expect(libraryController.includes('data-menu-add')&&libraryController.includes('data-menu-remove'),'Generic filter menus must be editable in the UI Library.');
+expect(libraryController.includes('PREVIEW_SPEC'),'UI Library must size preview stages by module interaction characteristics.');
 expect(libraryController.includes('data-style-control'),'Library style controls must be restored.');
 expect(!libraryController.includes('kitStatebar'),'State controls must not be rendered above the canvas.');
 expect(!libraryController.includes('platformBuilderCapabilityConfigs'),'UI Library must not retain old capability-emulation config.');
@@ -75,12 +82,19 @@ expect(previewHtml.includes('/assets/js/collection/device-handoff.js'),'Preview 
 
 const previewCss=read('public/assets/styles/ui-dashboard/module-preview-v1.css');
 for(const forbidden of ['.nav-shell{position:','.collection-sheet{position:','.collection-filters{max-width:','.collection-fab{display:grid!important;position:'])expect(!previewCss.includes(forbidden),`Preview CSS must not override public component geometry: ${forbidden}`);
+expect(previewCss.includes('html[data-platform-module="top-chapter-navigation"]')&&previewCss.includes('overflow-y:auto'),'Top navigation preview must expose a real hidden-scrollbar vertical runway.');
+expect(previewCss.includes('html[data-platform-module="horizontal-card-rail"] .scroll-row'),'Card preview must preserve the actual horizontal scroller.');
 
 const modulePreview=read('public/ui-dashboard/module-preview/module-preview-v1.js');
 expect(modulePreview.includes("const consumer=params.get('embed')==='editor'?'editor':'library'"),'Shared preview host must serve Library and Editor.');
 expect(modulePreview.includes('platform-editor-module-props'),'Shared preview host must accept Editor props.');
 expect(modulePreview.includes('platform-module-style'),'Shared preview host must accept standard module style config.');
 expect(modulePreview.includes("sourceOwner:'photo-public-module-source-v1'"),'Preview must identify the actual public source owner.');
+
+const styleRuntime=read('public/assets/js/platform-modules/module-style-runtime-v1.js');
+expect(styleRuntime.includes("data-module-disabled=\"true\""),'Bottom sheet disable state must suppress its complete module surface.');
+expect(styleRuntime.includes('hasCustomAccent'),'Canonical liquid baseline must not be flattened unless accent is customized.');
+expect(styleRuntime.includes("--lg-blue-a")&&styleRuntime.includes('color-mix'),'Custom liquid accents must retain a gradient hierarchy.');
 
 const editorHtml=read('public/editor-lab/index.html');
 expect(!editorHtml.includes('/assets/js/block-lab/'),'Block Editor must not load Block Lab JavaScript.');
@@ -92,8 +106,11 @@ const editorDefsIndex=editorHtml.indexOf('/assets/js/platform-modules/photo-core
 expect(editorRegistryIndex>=0&&editorSourceIndex>editorRegistryIndex&&editorDefsIndex>editorSourceIndex,'Block Editor must load Registry → extracted public source → definitions in that order.');
 expect(editorHtml.includes('/assets/js/blocks/block-renderers-platform-modules-v1.js'),'Block Editor must use the approved module bridge.');
 const editorBridge=read('public/assets/js/editor-lab/module-frame-bridge-v1.js');
-expect(editorBridge.includes("MODULE_DEFAULTS_KEY='platformModuleDefaultsV1'"),'Block Editor must inherit Library standard module values.');
-expect(editorBridge.includes('styleOverrides'),'Block Editor must allow instance overrides over the Library default.');
+expect(!editorBridge.includes('platformModuleDefaultsV1'),'Existing Editor instances must not reread mutable Library defaults.');
+expect(editorBridge.includes('block?.styleOverrides'),'Editor preview must render from persisted instance style overrides.');
+const blockRegistry=read('public/assets/js/blocks/block-registry.js');
+expect(blockRegistry.includes("Symbol.for('platform.module.style.snapshot')"),'Block registry must receive new-instance Library style snapshots.');
+expect(blockRegistry.includes('styleOverrides:hasExplicitStyle?explicitStyle:snapshotStyle'),'New Editor modules must persist the snapped Library style as instance data.');
 
 const editorJsDir=path.join(root,'public/assets/js/editor-lab');
 for(const name of fs.readdirSync(editorJsDir)){
@@ -105,6 +122,7 @@ for(const name of fs.readdirSync(editorJsDir)){
 const editorApp=read('public/assets/js/editor-lab/editor-app.js');
 expect(editorApp.includes("modules.listFor('editor')"),'Block Editor insertion library must be registry-driven.');
 expect(editorApp.includes("type:'ui-module'"),'Block Editor must persist module instances, not research block records.');
+expect(editorApp.includes('data-array-add'),'Block Editor must allow per-instance array/menu item additions.');
 
 const labHtml=read('public/block-lab/index.html');
 expect(labHtml.includes('RESEARCH ONLY'),'Block Lab must visibly identify itself as research-only.');
