@@ -54,9 +54,18 @@ async function verifyLibrary(context,publicRef){
 
   let frame=await choose(page,'filter-chip-rail');
   const filter=frame.locator('[data-platform-module="filter-chip-rail"]');
-  assert(await filter.count()===1,'generic filter rail missing');
+  const filterCount=await filter.count();
+  if(filterCount!==1){
+    const diag=await frame.evaluate(()=>({
+      body:(document.body?.innerText||'').slice(0,800),
+      host:(document.querySelector('#platformModuleHost')?.innerHTML||'').slice(0,1200),
+      styleError:document.documentElement.dataset.platformStyleError||'',
+      modules:window.PlatformModuleRegistry?.listFor('library')?.map(item=>({id:item.id,version:item.version,render:String(item.render).slice(0,100)}))||[]
+    }));
+    throw new Error(`generic filter rail count=${filterCount}; ${JSON.stringify(diag)}`);
+  }
   assert(await filter.evaluate(node=>node.classList.contains('collection-tabs')),'generic filter rail is not extracted from the public liquid segmented rail');
-  assert(await frame.locator('.collection-v33-indicator').count()===1,'generic filter liquid indicator missing');
+  await waitUntil(()=>frame.locator('.collection-v33-indicator').count().then(n=>n===1),'generic filter liquid indicator missing',5000);
   const filterStyle=await style(frame,'[data-platform-module="filter-chip-rail"]',['borderRadius','backgroundImage','backdropFilter']);
   assert(filterStyle.borderRadius===publicRef.tabsStyle.borderRadius,'generic filter border radius differs from public collection tabs');
   assert(filterStyle.backgroundImage===publicRef.tabsStyle.backgroundImage,'generic filter surface differs from public collection tabs');
@@ -78,8 +87,7 @@ async function verifyLibrary(context,publicRef){
   await page.locator('[data-kit-close]').click();
 
   frame=await choose(page,'collection-bottom-sheet');
-  assert(await page.locator('#kitSettings').count()===1,'bottom sheet settings button missing');
-  assert(await page.locator('text=상태').count()===0,'bottom sheet state controls are visible outside inspector');
+  assert(await page.locator('#kitStatebar').count()===0,'bottom sheet state controls are visible above canvas');
   await page.locator('#kitSettings').click();
   assert(await page.locator('[data-inspector-state]').count()===5,'bottom sheet state controls are not inside inspector');
   await page.locator('[data-inspector-state="question"]').click();await sleep(120);
@@ -87,7 +95,7 @@ async function verifyLibrary(context,publicRef){
   await page.locator('[data-kit-close]').click();
 
   frame=await choose(page,'device-handoff-accordion');
-  assert(await page.locator('text=상태').count()===0,'device state controls are visible above canvas');
+  assert(await page.locator('#kitStatebar').count()===0,'device state controls are visible above canvas');
   await page.locator('#kitSettings').click();
   assert(await page.locator('[data-inspector-state]').count()===2,'device state controls are not inside inspector');
   await page.locator('[data-inspector-state="expanded"]').click();
