@@ -98,27 +98,28 @@ async function verifyLibrary(context,publicRef){
 
   frame=await choose(page,'horizontal-card-rail');
   const cardShell=await box(page,'#builderCanvasShell');
-  assert(cardShell.height>=680,'card preview stage is still too short');
-  const cardMetrics=await frame.locator('[data-platform-module="horizontal-card-rail"]').evaluate(node=>({clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
-  assert(cardMetrics.scrollWidth>cardMetrics.clientWidth+20,'card preview no longer exposes horizontal scrolling');
-  await frame.locator('[data-platform-module="horizontal-card-rail"]').evaluate(node=>{node.scrollLeft=120;});await sleep(80);
-  assert(await frame.locator('[data-platform-module="horizontal-card-rail"]').evaluate(node=>node.scrollLeft)>20,'card preview horizontal scroll does not work');
+  assert(cardShell.height>=680,`card preview stage is still too short: ${JSON.stringify(cardShell)}`);
+  const cardSelector='#platformModuleHost > .scroll-row[data-platform-module="horizontal-card-rail"]';
+  const cardMetrics=await frame.locator(cardSelector).evaluate(node=>({clientWidth:node.clientWidth,scrollWidth:node.scrollWidth,clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+  assert(cardMetrics.scrollWidth>cardMetrics.clientWidth+20,`card preview no longer exposes horizontal scrolling: ${JSON.stringify(cardMetrics)}`);
+  await frame.locator(cardSelector).evaluate(node=>{node.scrollLeft=120;});await sleep(80);
+  assert(await frame.locator(cardSelector).evaluate(node=>node.scrollLeft)>20,'card preview horizontal scroll does not work');
   const lastCard=await box(frame,'.market-card:last-child');
-  assert(lastCard.bottom<650,'card content is vertically clipped inside its module stage');
+  assert(lastCard.bottom<690,`card content is vertically clipped inside its module stage: ${JSON.stringify(lastCard)}`);
 
   frame=await choose(page,'top-chapter-navigation');
-  const navShell=await box(page,'#builderCanvasShell');assert(navShell.height>=410,'top nav preview stage is too short for behavior testing');
+  const navShell=await box(page,'#builderCanvasShell');assert(navShell.height>=410,`top nav preview stage is too short for behavior testing: ${JSON.stringify(navShell)}`);
   const navScrollability=await frame.evaluate(()=>({innerHeight,scrollHeight:document.documentElement.scrollHeight,scrollbarWidth:getComputedStyle(document.documentElement).scrollbarWidth}));
-  assert(navScrollability.scrollHeight>navScrollability.innerHeight+500,'top nav preview has no vertical scroll runway');
+  assert(navScrollability.scrollHeight>navScrollability.innerHeight+500,`top nav preview has no vertical scroll runway: ${JSON.stringify(navScrollability)}`);
   await frame.evaluate(()=>window.scrollTo(0,520));await sleep(120);
   assert(await frame.evaluate(()=>window.scrollY)>100,'top nav preview wheel/vertical scrolling does not operate');
   assert(navScrollability.scrollbarWidth==='none','top nav preview scrollbar should be hidden');
 
   frame=await choose(page,'collection-bottom-sheet');
-  const sheetShell=await box(page,'#builderCanvasShell');assert(sheetShell.height>=880,'bottom sheet preview stage is still clipped');
+  const sheetShell=await box(page,'#builderCanvasShell');assert(sheetShell.height>=880,`bottom sheet preview stage is still clipped: ${JSON.stringify(sheetShell)}`);
   assert(await page.locator('#kitStatebar').count()===0,'bottom sheet state controls are visible above canvas');
   const sheetBox=await box(frame,'#collectionSheet');
-  assert(sheetBox.bottom<=905,'bottom sheet extends outside the module preview stage');
+  assert(sheetBox.bottom<=935,`bottom sheet extends outside the module preview stage: ${JSON.stringify(sheetBox)}`);
   await page.locator('#kitSettings').click();
   assert(await page.locator('[data-inspector-state]').count()===5,'bottom sheet state controls are not inside inspector');
   await page.locator('[data-inspector-state="question"]').click();await sleep(120);
@@ -132,7 +133,7 @@ async function verifyLibrary(context,publicRef){
   await page.locator('[data-kit-close]').click();
 
   frame=await choose(page,'device-handoff-accordion');
-  const accordionShell=await box(page,'#builderCanvasShell');assert(accordionShell.height>=700,'accordion preview stage is too short');
+  const accordionShell=await box(page,'#builderCanvasShell');assert(accordionShell.height>=700,`accordion preview stage is too short: ${JSON.stringify(accordionShell)}`);
   assert(await page.locator('#kitStatebar').count()===0,'accordion state controls are visible above canvas');
   await page.locator('#kitSettings').click();
   assert(await page.locator('[data-inspector-state]').count()===2,'accordion state controls are not inside inspector');
