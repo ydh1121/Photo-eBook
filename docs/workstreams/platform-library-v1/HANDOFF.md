@@ -1,10 +1,10 @@
 # Platform Library V1 Handoff
 
 Updated: 2026-08-24 KST
-Active branch: `refactor/admin-ui-component-runtime-v1`
 Production branch: `main`
-Current PR: `#13`
-Status: `admin UI architecture cleanup / production connection deferred`
+Architecture reset merge: `80dc5a835b3515e07c7b53b2f69164664d7dfc82`
+Live verification: `pass`
+Status: `isolated admin component runtime deployed / user browser review`
 
 ## Resume order
 
@@ -13,45 +13,44 @@ Status: `admin UI architecture cleanup / production connection deferred`
 3. this file
 4. `docs/library/admin-ui/ADMIN-SHELL.md`
 5. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
-6. current branch HEAD
+6. current `main`
 
-## Why this refactor exists
+## Why the architecture was reset
 
-The user's 2026-08-24 browser recording exposed an architectural failure in the previous UI Library.
+The 2026-08-24 user recording showed that the previous UI Library had become a patch stack.
 
-Previous flow:
-`full sandbox page → execute collection runtime → open UI → extract/reparent DOM → close original UI → apply repair patches`
+Retired flow:
+`full sandbox page → execute collection runtime → open UI → extract/reparent DOM → close original UI → repair with patches`
 
-This produced:
-- full-page/hero flashes while switching UI components;
-- bottom sheet disappearing after tab changes;
-- filter rail, floating selector and legacy indicator competing for ownership;
-- multiple mutation/state repair scripts reacting to one another;
-- management code drifting away from the original goal of a simple reusable UI editor.
+Observed failures:
+- hero/full-page flash while changing UI component;
+- bottom sheet disappeared after tab changes;
+- filter rail, floating selector and legacy indicator competed for ownership;
+- Mutation/state repair scripts reacted to each other;
+- management UI drifted away from the original reusable-editor goal.
 
-Do not fix those symptoms by restoring another patch layer.
+Do not restore this extraction flow.
 
-## New architecture
+## Current UI Library architecture
 
-UI Library:
 `builder-library-kit-v3.js → /ui-dashboard/component-preview/ → component-preview-v1.js`
 
-The management parent owns:
-- selected component;
-- theme and viewport;
+Parent management owner:
+- component selection;
+- theme / viewport;
 - management config storage;
 - component state;
 - filter sample items and per-item overrides;
 - inspector controls.
 
-The component-preview iframe owns:
-- direct preview DOM rendering;
+Preview owner:
+- direct component DOM rendering;
 - component-local interaction;
-- state feedback to the parent.
+- state feedback to parent.
 
-It does NOT load the full sandbox page and does NOT extract/reparent production-like DOM.
+The preview does not load the full sandbox page and does not extract or reparent page DOM.
 
-## New files
+## Current files
 
 - `public/ui-dashboard/component-preview/index.html`
 - `public/ui-dashboard/component-preview/component-preview-v1.js`
@@ -60,9 +59,13 @@ It does NOT load the full sandbox page and does NOT extract/reparent production-
 - `public/assets/styles/ui-dashboard/builder-kit-v3.css`
 - `scripts/check-ui-dashboard-browser-v5.mjs`
 
-## Removed library patch stack
+`builder-entry-audit-v1.js` library mode boots only:
+1. `builder-global-chip-manifest-v1.js`
+2. `builder-library-kit-v3.js`
 
-Removed on PR #13:
+## Removed patch stack
+
+Removed by PR #13:
 - `builder-library-kit-v2.js`
 - `builder-global-chip-kit-v1.js`
 - `builder-library-canonical-state-v1.js`
@@ -75,38 +78,35 @@ Removed on PR #13:
 - `filter-chip-live-runtime-v2.js`
 - `filter-chip-live-runtime-v3.js`
 
-`builder-entry-audit-v1.js` library mode now boots only:
-1. `builder-global-chip-manifest-v1.js`
-2. `builder-library-kit-v3.js`
-
 ## Filter chip ownership
 
-Filter preview structure:
 - `.collection-filters` = horizontal scroll owner
-- `.component-chip-active` = sibling overlay above the rail
+- `.component-chip-active` = sibling active overlay above the rail
 - no in-rail active indicator owner
-- no preview drag-momentum patch
+- no preview drag momentum patch
 
-Shared defaults currently normalized by `builder-global-chip-manifest-v1.js`:
-- family: iOS Flat
-- accent: `#437ce7`
-- gap: `9px`
-- rail inset: `5.5px` each side
-- chip Y: `7px`
-- chip X: `10px`
-
-Filter sample controls:
-- add chip
-- delete last chip
+Management controls:
+- add sample chip
+- delete last sample chip
 - restore defaults
-- click a chip to select it
+- click chip to select it
 - per-chip family: inherit / Material / iOS Flat / iOS Liquid
+- rail four-side padding
+- chip X/Y padding and gap
 
-Top navigation receives the shared filter-chip family/accent via the parent preview config. It does not own a second common Chip style setting.
+Shared defaults normalized by `builder-global-chip-manifest-v1.js`:
+- iOS Flat
+- `#437ce7`
+- gap `9px`
+- rail inset `5.5px`
+- chip Y `7px`
+- chip X `10px`
+
+Top navigation inherits shared filter-chip family/accent through management preview config.
 
 ## Bottom sheet ownership
 
-The preview directly renders one stable sheet.
+The preview directly renders one stable `.collection-sheet`.
 
 States:
 - all
@@ -115,82 +115,82 @@ States:
 - question
 - settings
 
-Tab change rule:
-- do not open/close the production-like collection hub;
-- do not move `#collectionLayer` between parents;
-- keep one `.collection-sheet` and replace its internal state/content only.
+Tab changes keep the same sheet context and change only internal state/content. There is no production-like collection hub open/close or `#collectionLayer` reparenting.
 
-Internal preview tab clicks send `platform-preview-state-change` so the parent buttons stay in sync.
+Internal tab clicks sync parent state through `platform-preview-state-change`.
 
 ## Sandbox page mode
 
-`public/ui-dashboard/sandbox/` remains the page-builder dummy canvas only.
+`/ui-dashboard/sandbox/` is page-builder dummy canvas only.
 
-`sandbox-kit-v4.js` was stripped down to page-only behavior:
+`sandbox-kit-v4.js` now contains page-only behavior:
 - inline collection open helper;
 - editor nav pin fallback.
-
-It no longer has `?preview=` component extraction logic.
 
 `builder-runtime-audit-loader-v1.js` no longer injects filter-preview or bottom-sheet-preview repair scripts.
 
 ## Page builder / ads
 
-PR #12 page-mode work remains:
-- PC side ads based on outer content gutter rather than currently visible chapter;
-- no hero-dependent hide/show intent;
-- `캔버스 넓게` for hiding the admin sidebar while inspecting the page.
+PR #12 work remains in page mode:
+- PC side ads use outer content gutter direction;
+- hero-dependent slot hide/show was removed by intent;
+- `캔버스 넓게` hides the admin sidebar for wider inspection.
 
-The current refactor is primarily UI Library architecture. Do not mix production publish work into it.
+The architecture reset did not connect management config to the public site.
 
-## QA
+## QA result
 
-`check-ui-dashboard-browser-v5.mjs` is the canonical library browser suite for this architecture.
+Canonical library suite: `scripts/check-ui-dashboard-browser-v5.mjs`
 
-It checks:
-- component preview contains no full sandbox `#app` or hero;
-- no sandbox extraction/filter/bottom-sheet repair runtime is loaded;
-- six components across White/Dark/System and PC/Mobile;
-- filter rail and active overlay ownership;
-- sample filter insertion;
-- per-chip override inheritance;
-- stable bottom sheet across all states;
-- internal state → parent state sync;
-- device accordion state sync;
-- real horizontal card overflow.
+PR #13 Platform Library Checks:
+- run: `32678705117`
+- result: `success`
 
-The old `check-admin-ui-parity-v3.mjs` is no longer run by the main Platform Library workflow because it asserted the retired DOM-extraction architecture.
-
-Current PR #13 final validation may be superseded by newer commits. Always fetch the latest PR head SHA and its latest `Platform Library Checks` run before merging.
-
-## Live deployment checker
-
-`scripts/check-live-ui-dashboard-deploy.mjs` now expects:
-- dashboard entry `builder-entry-audit-v1.js?v=12`;
-- live asset marker `__platformComponentPreviewV1`;
-- isolated filter preview without full sandbox/repair scripts;
+Coverage:
+- no full sandbox `#app` or hero in component preview;
+- no extraction/filter/bottom-sheet repair scripts loaded;
+- six components × White/Dark/System × PC/Mobile;
 - filter rail + sibling active overlay;
+- per-chip override inheritance;
+- bottom sheet all→video→article→question→settings→all;
+- preview state ↔ parent state;
+- device accordion state;
+- card rail overflow.
+
+## Live deployment
+
+Live deployment source:
+- merge SHA: `80dc5a835b3515e07c7b53b2f69164664d7dfc82`
+- dashboard entry: `builder-entry-audit-v1.js?v=12`
+- preview marker: `__platformComponentPreviewV1`
+- workflow run: `32678756008`
+- status bot commit: `85fb5577b797d94f8505d7fec68a2c5e8016ab72`
+- result: `pass`
+
+Live checker confirmed:
+- isolated component preview boot;
+- no full-page sandbox/repair patch in preview;
+- filter rail scroll + sibling overlay;
 - per-chip override;
-- stable bottom sheet through all five tabs.
+- stable bottom sheet through all states.
 
 ## Production connection boundary
 
-The user explicitly set public-site connection as the final task.
+Public-site connection remains the final task by explicit user instruction.
 
 Until final management approval:
-- do not make public `photo-ebook.pages.dev` runtime read management config;
-- do not publish unapproved presets/configs;
+- do not make public runtime read management config;
+- do not publish unapproved presets;
 - do not replace the production photography renderer.
 
 After explicit final approval only:
-- add a publish boundary for approved config;
-- connect approved UI settings to production;
+- define approved-config publish boundary;
+- connect approved settings to public runtime;
 - rerun public PC/mobile/theme regression QA.
 
 ## Exact next action
 
-1. Fetch PR #13 latest head and latest Platform Library Checks.
-2. Fix only failures in the new isolated component architecture; do not resurrect removed patch owners.
-3. When green, merge PR #13 to `main`.
-4. Wait for Cloudflare Pages and verify the management route with the v12 live checker.
-5. Have the user re-check the real browser before moving on to the Lego/page-builder UX phase.
+1. User checks the newly deployed UI Library in a real browser.
+2. Any visual/interaction regressions are fixed only inside the V3 owner architecture; do not restore retired patch files.
+3. Once UI Library is accepted, continue the Lego/module page-builder UX work in `화면 구성`.
+4. Public production connection stays last.
