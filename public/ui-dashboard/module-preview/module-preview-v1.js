@@ -49,18 +49,61 @@
   function writeArray(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
   function writeObject(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
 
+  function primeQuestionStateThroughOwner(item){
+    const text=String(item?.selected_text||'').trim();
+    const question=String(item?.question||'').trim();
+    const bubble=document.getElementById('askBubble');
+    if(!text||!bubble||!window.getSelection)return false;
+
+    let app=document.getElementById('app');
+    let createdApp=false;
+    if(!app){
+      app=document.createElement('div');
+      app.id='app';
+      app.setAttribute('aria-hidden','true');
+      app.style.cssText='position:fixed;left:-10000px;top:0;width:max-content;max-width:600px;opacity:0.001;pointer-events:none;z-index:-1';
+      document.body.appendChild(app);
+      createdApp=true;
+    }
+    const marker=document.createElement('span');
+    marker.textContent=text;
+    app.appendChild(marker);
+
+    try{
+      const range=document.createRange();
+      range.selectNodeContents(marker);
+      const selection=window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      bubble.click();
+    }catch{
+      marker.remove();
+      if(createdApp)app.remove();
+      return false;
+    }
+
+    document.getElementById('askMinimize')?.click();
+    const input=document.getElementById('askInput');
+    if(input){
+      input.value=question;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    marker.remove();
+    if(createdApp)app.remove();
+    requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
+    return true;
+  }
+
   function openSavedQuestionThroughOwner(id){
     const key=String(id||'');
     if(!key)return false;
-    const findOpen=()=>{
-      const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===key);
-      return ownerCard?.querySelector('.history-open')||null;
-    };
-    let ownerOpen=findOpen();
-    if(!ownerOpen){
-      document.getElementById('askHistoryTab')?.click();
-      ownerOpen=findOpen();
-    }
+    const item=readArray('photoRoadmapQuestionsV2').find(entry=>String(entry?.id||'')===key);
+    if(!item)return false;
+    if(primeQuestionStateThroughOwner(item))return true;
+
+    const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===key);
+    const ownerOpen=ownerCard?.querySelector('.history-open');
     if(!ownerOpen)return false;
     ownerOpen.click();
     requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
@@ -93,14 +136,7 @@
         else if(type==='article'){writeArray(ARTICLE_IDS,readArray(ARTICLE_IDS).filter(value=>String(value)!==String(id)));const items=readObject(ARTICLE_ITEMS);delete items[id];writeObject(ARTICLE_ITEMS,items);}
         else if(type==='question')writeArray(QUESTIONS,readArray(QUESTIONS).filter(item=>String(item?.id)!==String(id)));
       },
-      openQuestion(id){
-        const item=readArray(QUESTIONS).find(entry=>String(entry?.id)===String(id));if(!item)return;
-        if(openSavedQuestionThroughOwner(id))return;
-        const quote=document.getElementById('askQuote'),input=document.getElementById('askInput');
-        if(quote)quote.textContent=item.selected_text||'';
-        if(input)input.value=item.question||'';
-        window.__photoForceQuestionWrite?.();
-      },
+      openQuestion(id){openSavedQuestionThroughOwner(id);},
       openSettings(){}
     };
   }
