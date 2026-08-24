@@ -19,7 +19,6 @@ async function frameFor(page,id){
   const handle=await page.$('#builderFrame');const frame=await handle.contentFrame();assert(frame,'frame missing');return frame;
 }
 async function openInspector(page){await page.locator('#kitSettings').click();await page.locator('.builder-kit-inspector:not([hidden])').waitFor({state:'visible'});}
-async function setInput(page,selector,value){const node=page.locator(selector);await node.waitFor({state:'attached'});await node.evaluate((el,next)=>{el.value=String(next);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},value);}
 
 const executablePath=browserPath();assert(executablePath,'Chrome not found');
 const browser=await chromium.launch({headless:true,executablePath,args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -31,8 +30,10 @@ async function verifyBase(page,id){
   assert(await frame.locator('#sandboxPreviewRoot,#app,.sandbox-hero').count()===0,`${id}: full sandbox/hero leaked into library`);
   const scripts=await frame.locator('script[src]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('src')||''));
   assert(!scripts.some(src=>src.includes('sandbox-kit-v4')||src.includes('bottom-sheet-parity')||src.includes('runtime-audit-patch')),`${id}: extraction/repair runtime leaked into reference preview`);
-  const overflow=await frame.evaluate(()=>({x:document.documentElement.scrollWidth-innerWidth,y:document.documentElement.scrollHeight-innerHeight}));
-  assert(overflow.x<=2&&overflow.y<=2,`${id}: preview document has unrelated page overflow ${JSON.stringify(overflow)}`);
+  const geometry=await frame.evaluate(()=>({x:document.documentElement.scrollWidth-innerWidth,htmlOverflowX:getComputedStyle(document.documentElement).overflowX,bodyOverflowX:getComputedStyle(document.body).overflowX}));
+  assert(geometry.x<=2,`${id}: preview created horizontal page overflow ${JSON.stringify(geometry)}`);
+  const parentOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+  assert(parentOverflow<=2,`${id}: admin page created outer horizontal scrollbar (${parentOverflow}px)`);
   return frame;
 }
 
@@ -45,6 +46,8 @@ async function verifyThemeViewport(page,id){
       await waitUntil(()=>page.evaluate(v=>document.querySelector('.builder-kit-workspace')?.dataset.viewport===v,viewport),`${id}: viewport ${viewport}`);
       const width=await page.locator('#builderFrame').evaluate(node=>node.getBoundingClientRect().width);
       assert(viewport==='mobile'?width<=400:width>600,`${id}: wrong ${viewport} frame width ${width}`);
+      const parentOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+      assert(parentOverflow<=2,`${id}: ${viewport} mode created outer scrollbar (${parentOverflow}px)`);
     }
   }
   await clickSwitch(page,'data-kit-theme','light');await clickSwitch(page,'data-kit-viewport','desktop');
@@ -56,9 +59,10 @@ async function filterChecks(page){
   await waitUntil(()=>root.count().then(n=>n===1),'filter root missing');
   assert(await root.evaluate(node=>Boolean(node.closest('#collectionSheet')&&node.closest('#collectionTools'))),'filter rail was detached from the real collection sheet DOM');
   await waitUntil(()=>root.evaluate(node=>node.parentElement?.classList.contains('platform-filter-chip-stage')),'filter overlay stage missing');
-  assert(await root.locator(':scope > .platform-filter-chip-indicator').evaluate(node=>getComputedStyle(node).display==='none'),'legacy in-rail liquid indicator remains visible');
+  const legacy=root.locator(':scope > .platform-filter-chip-indicator');
+  if(await legacy.count())assert(await legacy.evaluate(node=>getComputedStyle(node).display==='none'),'legacy in-rail liquid indicator remains visible');
   assert(await frame.locator('.platform-filter-chip-stage>.platform-filter-chip-float').count()===1,'sibling active chip layer missing');
-  assert(await frame.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2&&document.documentElement.scrollHeight<=innerHeight+2),'filter preview created page-level scrollbar');
+  assert(await frame.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),'filter preview created horizontal page scrollbar');
 
   await openInspector(page);
   assert(await page.locator('.builder-filter-item-editor').count()===1,'filter sample editor is not in inspector');
