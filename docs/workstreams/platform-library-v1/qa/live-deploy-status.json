@@ -1,50 +1,647 @@
 {
-  "startedAt": "2026-08-24T09:22:36.074Z",
+  "startedAt": "2026-08-24T10:11:33.592Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js?v=2",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-24T09:22:36.075Z",
+      "at": "2026-08-24T10:11:33.593Z",
       "status": "http-ok",
-      "matched": true,
-      "bytes": 1814
+      "matched": false,
+      "bytes": 1780
+    },
+    {
+      "attempt": 2,
+      "at": "2026-08-24T10:11:37.936Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 3,
+      "at": "2026-08-24T10:11:42.290Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 4,
+      "at": "2026-08-24T10:11:46.361Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 5,
+      "at": "2026-08-24T10:11:50.424Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 6,
+      "at": "2026-08-24T10:11:54.469Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 7,
+      "at": "2026-08-24T10:11:58.523Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 8,
+      "at": "2026-08-24T10:12:02.590Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 9,
+      "at": "2026-08-24T10:12:06.641Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 10,
+      "at": "2026-08-24T10:12:10.687Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 11,
+      "at": "2026-08-24T10:12:14.738Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 12,
+      "at": "2026-08-24T10:12:18.802Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 13,
+      "at": "2026-08-24T10:12:22.871Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 14,
+      "at": "2026-08-24T10:12:26.927Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 15,
+      "at": "2026-08-24T10:12:30.979Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 16,
+      "at": "2026-08-24T10:12:35.036Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 17,
+      "at": "2026-08-24T10:12:39.098Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 18,
+      "at": "2026-08-24T10:12:43.168Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 19,
+      "at": "2026-08-24T10:12:47.287Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 20,
+      "at": "2026-08-24T10:12:51.339Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 21,
+      "at": "2026-08-24T10:12:55.392Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 22,
+      "at": "2026-08-24T10:12:59.452Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 23,
+      "at": "2026-08-24T10:13:03.510Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 24,
+      "at": "2026-08-24T10:13:07.646Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 25,
+      "at": "2026-08-24T10:13:11.698Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 26,
+      "at": "2026-08-24T10:13:15.747Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 27,
+      "at": "2026-08-24T10:13:19.800Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 28,
+      "at": "2026-08-24T10:13:23.855Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 29,
+      "at": "2026-08-24T10:13:27.906Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 30,
+      "at": "2026-08-24T10:13:31.958Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 31,
+      "at": "2026-08-24T10:13:36.077Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 32,
+      "at": "2026-08-24T10:13:40.128Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 33,
+      "at": "2026-08-24T10:13:44.183Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 34,
+      "at": "2026-08-24T10:13:48.239Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 35,
+      "at": "2026-08-24T10:13:52.290Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 36,
+      "at": "2026-08-24T10:13:56.349Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 37,
+      "at": "2026-08-24T10:14:00.410Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 38,
+      "at": "2026-08-24T10:14:04.459Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 39,
+      "at": "2026-08-24T10:14:08.507Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 40,
+      "at": "2026-08-24T10:14:12.558Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 41,
+      "at": "2026-08-24T10:14:16.606Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 42,
+      "at": "2026-08-24T10:14:20.673Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 43,
+      "at": "2026-08-24T10:14:24.728Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 44,
+      "at": "2026-08-24T10:14:28.863Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 45,
+      "at": "2026-08-24T10:14:32.908Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 46,
+      "at": "2026-08-24T10:14:36.961Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 47,
+      "at": "2026-08-24T10:14:41.017Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 48,
+      "at": "2026-08-24T10:14:45.071Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 49,
+      "at": "2026-08-24T10:14:49.123Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 50,
+      "at": "2026-08-24T10:14:53.240Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 51,
+      "at": "2026-08-24T10:14:57.293Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 52,
+      "at": "2026-08-24T10:15:01.349Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 53,
+      "at": "2026-08-24T10:15:05.416Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 54,
+      "at": "2026-08-24T10:15:09.468Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 55,
+      "at": "2026-08-24T10:15:13.519Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 56,
+      "at": "2026-08-24T10:15:17.573Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 57,
+      "at": "2026-08-24T10:15:21.628Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 58,
+      "at": "2026-08-24T10:15:25.681Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 59,
+      "at": "2026-08-24T10:15:29.734Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 60,
+      "at": "2026-08-24T10:15:33.788Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 61,
+      "at": "2026-08-24T10:15:37.865Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 62,
+      "at": "2026-08-24T10:15:41.912Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 63,
+      "at": "2026-08-24T10:15:45.972Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 64,
+      "at": "2026-08-24T10:15:50.043Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 65,
+      "at": "2026-08-24T10:15:54.097Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 66,
+      "at": "2026-08-24T10:15:58.152Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 67,
+      "at": "2026-08-24T10:16:02.283Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 68,
+      "at": "2026-08-24T10:16:06.373Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 69,
+      "at": "2026-08-24T10:16:10.426Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 70,
+      "at": "2026-08-24T10:16:14.482Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 71,
+      "at": "2026-08-24T10:16:18.560Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 72,
+      "at": "2026-08-24T10:16:22.628Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 73,
+      "at": "2026-08-24T10:16:26.677Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 74,
+      "at": "2026-08-24T10:16:30.733Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 75,
+      "at": "2026-08-24T10:16:34.843Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 76,
+      "at": "2026-08-24T10:16:38.924Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 77,
+      "at": "2026-08-24T10:16:42.976Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 78,
+      "at": "2026-08-24T10:16:47.032Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 79,
+      "at": "2026-08-24T10:16:51.083Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 80,
+      "at": "2026-08-24T10:16:55.136Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 81,
+      "at": "2026-08-24T10:16:59.187Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 82,
+      "at": "2026-08-24T10:17:03.237Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 83,
+      "at": "2026-08-24T10:17:07.290Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 84,
+      "at": "2026-08-24T10:17:11.342Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 85,
+      "at": "2026-08-24T10:17:15.403Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 86,
+      "at": "2026-08-24T10:17:19.454Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 87,
+      "at": "2026-08-24T10:17:23.580Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 88,
+      "at": "2026-08-24T10:17:27.640Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 89,
+      "at": "2026-08-24T10:17:31.696Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
+    },
+    {
+      "attempt": 90,
+      "at": "2026-08-24T10:17:35.752Z",
+      "status": "http-ok",
+      "matched": false,
+      "bytes": 1847
     }
   ],
-  "checks": [
-    {
-      "name": "live dashboard entry",
-      "status": "pass",
-      "detail": "builder-library-reference-v1.js?v=2"
-    },
-    {
-      "name": "live canonical assets",
-      "status": "pass",
-      "detail": "6 approved photo modules"
-    },
-    {
-      "name": "live UI Library",
-      "status": "pass",
-      "detail": "registry-driven root route"
-    },
-    {
-      "name": "live Library theme/viewport",
-      "status": "pass",
-      "detail": "dark + mobile shared preview"
-    },
-    {
-      "name": "live Block Lab boundary",
-      "status": "pass",
-      "detail": "research-only"
-    }
-  ],
+  "checks": [],
   "status": "fail",
-  "error": "page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('.platform-admin-shell') to be visible\n\n    at verifyLiveBrowser (/home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:148:16)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:182:3",
-  "finishedAt": "2026-08-24T09:23:10.444Z",
-  "sourceSha": "af03482af43e69ab3165d3f79c4c19f5134cfffd",
+  "error": "Error: Cloudflare Pages did not expose the canonical UI Library: latest HTML did not contain builder-library-reference-v1.js?v=2 + module registry\n    at waitForCanonicalLibrary (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:45:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:179:3",
+  "finishedAt": "2026-08-24T10:17:35.908Z",
+  "sourceSha": "1bd4e3a705193dd031e3edc683562455afb30531",
   "sourceRef": "main",
-  "workflowRunId": "32711171043",
-  "workflowRunNumber": "13",
-  "recordedAt": "2026-08-24T09:23:11.088Z"
+  "workflowRunId": "32715502500",
+  "workflowRunNumber": "14",
+  "recordedAt": "2026-08-24T10:17:36.416Z"
 }
