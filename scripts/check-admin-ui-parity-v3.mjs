@@ -32,8 +32,9 @@ try{
   const before=await page.locator('#builderFrame').evaluate(node=>node.getBoundingClientRect().width);
   await page.locator('#builderCanvasWideToggle').click();
   await waitUntil(()=>page.evaluate(()=>document.documentElement.dataset.adminCanvasWide==='true'),'wide canvas flag missing');
+  await waitUntil(()=>page.evaluate(()=>{const shell=document.querySelector('.platform-admin-shell');return shell?Math.abs(shell.getBoundingClientRect().right)<=2:false;}),'wide canvas sidebar transition did not finish');
   const wide=await page.evaluate(()=>({padding:getComputedStyle(document.body).paddingLeft,sidebar:document.querySelector('.platform-admin-shell')?.getBoundingClientRect().right||0,frame:document.querySelector('#builderFrame')?.getBoundingClientRect().width||0}));
-  assert(wide.padding==='0px'&&wide.sidebar<=2&&wide.frame>before+100,`wide canvas did not free the left admin gutter: ${JSON.stringify(wide)}`);
+  assert(wide.padding==='0px'&&Math.abs(wide.sidebar)<=2&&wide.frame>before+100,`wide canvas did not free the left admin gutter: ${JSON.stringify(wide)}`);
   console.log('✓ stable outer ads + wide canvas');
   await page.close();await context.close();
 }finally{await browser.close();}
