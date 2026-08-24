@@ -1,75 +1,68 @@
 {
-  "startedAt": "2026-08-24T01:07:09.733Z",
+  "startedAt": "2026-08-24T00:33:13.335Z",
   "base": "https://photo-ebook.pages.dev",
-  "entryMarker": "builder-entry-audit-v1.js?v=12",
-  "previewMarker": "__platformComponentPreviewV1",
+  "entryMarker": "builder-entry-audit-v1.js?v=11",
+  "runtimeMarker": "__platformGlobalChipRuntimeV4",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-24T01:07:09.734Z",
+      "at": "2026-08-24T00:33:13.335Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 4304
+      "bytes": 4212
     },
     {
       "attempt": 2,
-      "at": "2026-08-24T01:07:13.942Z",
+      "at": "2026-08-24T00:33:17.592Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 4304
+      "bytes": 4212
     },
     {
       "attempt": 3,
-      "at": "2026-08-24T01:07:17.992Z",
-      "status": "http-ok",
-      "matched": false,
-      "bytes": 4304
-    },
-    {
-      "attempt": 4,
-      "at": "2026-08-24T01:07:22.073Z",
+      "at": "2026-08-24T00:33:21.663Z",
       "status": "http-ok",
       "matched": true,
-      "bytes": 4197
+      "bytes": 4304
     }
   ],
   "checks": [
     {
       "name": "live dashboard entry",
       "status": "pass",
-      "detail": "builder-entry-audit-v1.js?v=12"
+      "detail": "builder-entry-audit-v1.js?v=11"
     },
     {
-      "name": "live component preview asset",
+      "name": "live runtime asset",
       "status": "pass",
-      "detail": "__platformComponentPreviewV1"
+      "detail": "__platformGlobalChipRuntimeV4"
     },
     {
-      "name": "live isolated preview boot",
+      "name": "live filter Material parity",
       "status": "pass",
-      "detail": "no full-page sandbox or repair patches"
+      "detail": "rgb(241, 243, 246)"
     },
     {
-      "name": "live filter ownership",
+      "name": "live filter → nav propagation",
       "status": "pass",
-      "detail": "rail scroll + sibling active overlay"
+      "detail": "Material"
     },
     {
-      "name": "live per-chip override",
+      "name": "live filter iOS Liquid parity",
       "status": "pass",
-      "detail": "selected chip can differ from shared family"
+      "detail": "blur(22px) saturate(1.38)"
     },
     {
-      "name": "live bottom sheet state",
+      "name": "live filter → nav propagation",
       "status": "pass",
-      "detail": "one stable sheet across all tabs"
+      "detail": "iOS Liquid"
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-08-24T01:07:39.857Z",
-  "sourceSha": "80dc5a835b3515e07c7b53b2f69164664d7dfc82",
+  "finishedAt": "2026-08-24T00:33:38.213Z",
+  "sourceSha": "bcf60cd5d12b36c22bfc505a08761aa95fd838fa",
   "sourceRef": "main",
-  "workflowRunId": "32678756008",
-  "workflowRunNumber": "7",
-  "recordedAt": "2026-08-24T01:07:39.910Z"
+  "workflowRunId": "32677020160",
+  "workflowRunNumber": "6",
+  "recordedAt": "2026-08-24T00:33:38.274Z"
 }
