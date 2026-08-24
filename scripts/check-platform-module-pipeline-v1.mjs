@@ -53,37 +53,33 @@ async function verifyLibrary(context,publicRef){
   assert(!rootState.sandbox,'Library still imports sandbox runtime');
 
   let frame=await choose(page,'filter-chip-rail');
-  const filter=frame.locator('[data-platform-module="filter-chip-rail"]');
+  const filterSelector='#platformModuleHost > [data-platform-module="filter-chip-rail"]';
+  const filter=frame.locator(filterSelector);
   const filterCount=await filter.count();
   if(filterCount!==1){
-    const diag=await frame.evaluate(()=>({
-      body:(document.body?.innerText||'').slice(0,800),
-      host:(document.querySelector('#platformModuleHost')?.innerHTML||'').slice(0,1200),
-      styleError:document.documentElement.dataset.platformStyleError||'',
-      modules:window.PlatformModuleRegistry?.listFor('library')?.map(item=>({id:item.id,version:item.version,render:String(item.render).slice(0,100)}))||[]
-    }));
-    throw new Error(`generic filter rail count=${filterCount}; ${JSON.stringify(diag)}`);
+    const diag=await frame.evaluate(()=>({body:(document.body?.innerText||'').slice(0,800),host:(document.querySelector('#platformModuleHost')?.innerHTML||'').slice(0,1200),styleError:document.documentElement.dataset.platformStyleError||''}));
+    throw new Error(`canonical filter rail count=${filterCount}; ${JSON.stringify(diag)}`);
   }
   assert(await filter.evaluate(node=>node.classList.contains('collection-tabs')),'generic filter rail is not extracted from the public liquid segmented rail');
-  await waitUntil(()=>frame.locator('.collection-v33-indicator').count().then(n=>n===1),'generic filter liquid indicator missing',5000);
-  const filterStyle=await style(frame,'[data-platform-module="filter-chip-rail"]',['borderRadius','backgroundImage','backdropFilter']);
+  await waitUntil(()=>frame.locator('#platformModuleHost .collection-v33-indicator').count().then(n=>n===1),'generic filter liquid indicator missing',5000);
+  const filterStyle=await style(frame,filterSelector,['borderRadius','backgroundImage','backdropFilter']);
   assert(filterStyle.borderRadius===publicRef.tabsStyle.borderRadius,'generic filter border radius differs from public collection tabs');
   assert(filterStyle.backgroundImage===publicRef.tabsStyle.backgroundImage,'generic filter surface differs from public collection tabs');
-  const indicatorBefore=await frame.locator('.collection-v33-indicator').evaluate(node=>node.getBoundingClientRect().left);
-  await frame.locator('.collection-tab').nth(2).click();await sleep(360);
-  const indicatorAfter=await frame.locator('.collection-v33-indicator').evaluate(node=>node.getBoundingClientRect().left);
+  const indicatorBefore=await frame.locator('#platformModuleHost .collection-v33-indicator').evaluate(node=>node.getBoundingClientRect().left);
+  await frame.locator('#platformModuleHost .collection-tab').nth(2).click();await sleep(360);
+  const indicatorAfter=await frame.locator('#platformModuleHost .collection-v33-indicator').evaluate(node=>node.getBoundingClientRect().left);
   assert(indicatorAfter>indicatorBefore+5,'generic filter active liquid chip did not move');
 
   await page.locator('#kitSettings').click();
   await waitUntil(()=>page.locator('.builder-kit-inspector:not([hidden])').count().then(n=>n===1),'style inspector did not open');
   assert(await page.locator('[data-style-control="family"]').count()===1,'filter style family control was not restored');
   await page.locator('[data-style-control="family"]').selectOption('material-flat');await sleep(120);
-  assert(await frame.locator('[data-platform-module="filter-chip-rail"]').getAttribute('data-module-style-family')==='material-flat','style change did not reach the actual module');
+  assert(await frame.locator(filterSelector).getAttribute('data-module-style-family')==='material-flat','style change did not reach the actual module');
   const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('platformModuleDefaultsV1')||'{}')['filter-chip-rail']);
   assert(saved?.family==='material-flat','Library style change was not saved as the standard module value');
   await page.locator('[data-style-reset]').click();await sleep(120);
-  assert(await frame.locator('[data-platform-module="filter-chip-rail"]').getAttribute('data-module-style-family')===null,'reset did not return generic filter to public liquid baseline');
-  assert(await frame.locator('.collection-v33-indicator').count()===1,'public liquid indicator did not return after reset');
+  assert(await frame.locator(filterSelector).getAttribute('data-module-style-family')===null,'reset did not return generic filter to public liquid baseline');
+  assert(await frame.locator('#platformModuleHost .collection-v33-indicator').count()===1,'public liquid indicator did not return after reset');
   await page.locator('[data-kit-close]').click();
 
   frame=await choose(page,'collection-bottom-sheet');
@@ -126,7 +122,7 @@ async function verifyEditorInheritance(context){
   await page.locator('[data-add-module="filter-chip-rail"]').click();
   await waitUntil(()=>page.locator('[data-platform-editor-module-frame="filter-chip-rail"]').count().then(n=>n===1),'Editor module iframe missing');
   const handle=await page.$('[data-platform-editor-module-frame="filter-chip-rail"]');const frame=await handle.contentFrame();assert(frame,'Editor iframe unavailable');
-  await waitUntil(()=>frame.locator('[data-platform-module="filter-chip-rail"]').getAttribute('data-module-style-family').then(v=>v==='material-flat'),'Editor did not inherit Library standard style',20000);
+  await waitUntil(()=>frame.locator('#platformModuleHost > [data-platform-module="filter-chip-rail"]').getAttribute('data-module-style-family').then(v=>v==='material-flat'),'Editor did not inherit Library standard style',20000);
   await page.evaluate(()=>{const all=JSON.parse(localStorage.getItem('platformModuleDefaultsV1')||'{}');delete all['filter-chip-rail'];localStorage.setItem('platformModuleDefaultsV1',JSON.stringify(all));});
   pass('Block Editor inheritance','new module instances inherit UI Library standard values');
   await page.close();
