@@ -48,6 +48,36 @@
   function readObject(key){try{const value=JSON.parse(localStorage.getItem(key)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}catch{return {};}}
   function writeArray(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
   function writeObject(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
+
+  function openSavedQuestionThroughOwner(id){
+    const key=String(id||'');
+    if(!key)return false;
+    const findOpen=()=>{
+      const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===key);
+      return ownerCard?.querySelector('.history-open')||null;
+    };
+    let ownerOpen=findOpen();
+    if(!ownerOpen){
+      document.getElementById('askHistoryTab')?.click();
+      ownerOpen=findOpen();
+    }
+    if(!ownerOpen)return false;
+    ownerOpen.click();
+    requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
+    return true;
+  }
+
+  if(moduleId==='collection-bottom-sheet'){
+    document.addEventListener('click',event=>{
+      const trigger=event.target.closest?.('.v41-question-open,.collection-question-open');
+      if(!trigger)return;
+      const id=trigger.closest('.collection-item')?.dataset.libraryId||'';
+      if(!openSavedQuestionThroughOwner(id))return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    },true);
+  }
+
   function previewCollectionSource(){
     const VIDEO_IDS='photoRoadmapVideoFavoritesV1',VIDEO_ITEMS='photoRoadmapVideoFavoriteItemsV2',ARTICLE_IDS='photoRoadmapCuratedFavoritesV1',ARTICLE_ITEMS='photoRoadmapCuratedFavoriteItemsV2',QUESTIONS='photoRoadmapQuestionsV2';
     return {
@@ -65,13 +95,7 @@
       },
       openQuestion(id){
         const item=readArray(QUESTIONS).find(entry=>String(entry?.id)===String(id));if(!item)return;
-        const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===String(id));
-        const ownerOpen=ownerCard?.querySelector('.history-open');
-        if(ownerOpen){
-          ownerOpen.click();
-          requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
-          return;
-        }
+        if(openSavedQuestionThroughOwner(id))return;
         const quote=document.getElementById('askQuote'),input=document.getElementById('askInput');
         if(quote)quote.textContent=item.selected_text||'';
         if(input)input.value=item.question||'';
