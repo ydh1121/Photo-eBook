@@ -3,27 +3,23 @@
   window.__platformAdminShellV1=true;
 
   const path=location.pathname;
-  const query=new URLSearchParams(location.search);
-  const isLibrary=path.startsWith('/ui-dashboard')&&query.get('view')==='library';
   const icons={
-    builder:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h7v5H4zM13 5.5h7v13h-7zM4 12.5h7v6H4z"/></svg>',
     library:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>',
     blocks:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h6v6H5zM13 4h6v6h-6zM5 12h6v8H5zM13 12h6v8h-6z"/></svg>',
     editor:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10l4 4v12H5zM15 4v5h4M8 13h8M8 16h6"/></svg>',
     qa:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 9l2 2 4-4M8 15h8"/></svg>'
   };
   const items=[
-    {id:'builder',label:'화면 구성',hint:'더미 화면 배치',href:'/ui-dashboard/'},
-    {id:'library',label:'UI 라이브러리',hint:'공통 UI 검토',href:'/ui-dashboard/?view=library'},
-    {id:'blocks',label:'블록 관리',hint:'블록·변형 검토',href:'/block-lab/'},
-    {id:'editor',label:'페이지 에디터',hint:'콘텐츠 페이지 제작',href:'/editor-lab/'},
-    {id:'qa',label:'QA',hint:'최종 화면 확인',href:'/qa/video-editor/'}
+    {id:'library',label:'UI 라이브러리',hint:'승인된 공통 모듈',href:'/ui-dashboard/'},
+    {id:'blocks',label:'블록 연구실',hint:'신규 블록 연구',href:'/block-lab/'},
+    {id:'editor',label:'블록 에디터',hint:'페이지 조립·저장',href:'/block-editor/'},
+    {id:'qa',label:'QA',hint:'발행 전 확인',href:'/qa/video-editor/'}
   ];
 
   function currentId(){
-    if(path.startsWith('/ui-dashboard'))return isLibrary?'library':'builder';
+    if(path.startsWith('/ui-dashboard'))return'library';
     if(path.startsWith('/block-lab'))return'blocks';
-    if(path.startsWith('/editor-lab'))return'editor';
+    if(path.startsWith('/block-editor')||path.startsWith('/editor-lab'))return'editor';
     if(path.startsWith('/qa/')||path.startsWith('/staging/'))return'qa';
     return'';
   }
@@ -39,7 +35,7 @@
 
   function ensureCss(id){
     appendStyle('/assets/styles/admin/admin-shell-v1.css?v=2','data-admin-shell-style');
-    if(!path.startsWith('/ui-dashboard'))appendStyle('/assets/styles/admin/admin-surface-v1.css?v=2','data-admin-surface-style');
+    if(id!=='library')appendStyle('/assets/styles/admin/admin-surface-v1.css?v=2','data-admin-surface-style');
     if(id==='blocks'||id==='editor')appendStyle('/assets/styles/admin/admin-preview-theme-v1.css?v=1','data-admin-preview-theme-style');
   }
 
@@ -72,16 +68,15 @@
   }
 
   function simplifyLocalUi(id){
-    if(id==='builder')document.title='플랫폼 관리 · 화면 구성';
     if(id==='library')document.title='플랫폼 관리 · UI 라이브러리';
     if(id==='blocks'){
-      document.title='플랫폼 관리 · 블록 관리';
-      const title=document.querySelector('.lab-brand strong');if(title)title.textContent='블록 관리';
-      const count=document.querySelector('#labCount');if(count)count.setAttribute('aria-label','표시 중인 블록 수');
+      document.title='플랫폼 관리 · 블록 연구실';
+      const title=document.querySelector('.lab-brand strong');if(title)title.textContent='블록 연구실';
+      const count=document.querySelector('#labCount');if(count)count.setAttribute('aria-label','연구 중인 블록 수');
     }
     if(id==='editor'){
-      document.title='플랫폼 관리 · 페이지 에디터';
-      const title=document.querySelector('.editor-brand strong');if(title)title.textContent='페이지 에디터';
+      document.title='플랫폼 관리 · 블록 에디터';
+      const title=document.querySelector('.editor-brand strong');if(title)title.textContent='블록 에디터';
       const actions=document.querySelector('.editor-top-actions');
       if(actions&&!actions.querySelector('.admin-utility-menu')){
         const details=document.createElement('details');details.className='admin-utility-menu';
@@ -107,7 +102,7 @@
     document.documentElement.dataset.adminShell='true';
     const shell=document.createElement('aside');
     shell.className='platform-admin-shell';
-    shell.innerHTML=`<div class="platform-admin-shell__brand"><a href="/ui-dashboard/"><span class="platform-admin-shell__mark">P</span><span><strong>플랫폼 관리</strong><small>디자인·콘텐츠 도구</small></span></a></div><nav class="platform-admin-shell__nav" aria-label="관리 화면">${items.map(item=>`<a href="${item.href}" title="${item.label}" ${item.id===id?'aria-current="page"':''}><span class="platform-admin-shell__icon">${icons[item.id]}</span><span class="platform-admin-shell__copy"><strong>${item.label}</strong><small>${item.hint}</small></span></a>`).join('')}</nav><div class="platform-admin-shell__end"><a href="/" target="_blank" rel="noopener"><span>공개 페이지</span><b aria-hidden="true">↗</b></a><small>관리 화면은 검색 노출 제외</small></div>`;
+    shell.innerHTML=`<div class="platform-admin-shell__brand"><a href="/ui-dashboard/"><span class="platform-admin-shell__mark">P</span><span><strong>플랫폼 관리</strong><small>모듈·페이지 도구</small></span></a></div><nav class="platform-admin-shell__nav" aria-label="관리 화면">${items.map(item=>`<a href="${item.href}" title="${item.label}" ${item.id===id?'aria-current="page"':''}><span class="platform-admin-shell__icon">${icons[item.id]}</span><span class="platform-admin-shell__copy"><strong>${item.label}</strong><small>${item.hint}</small></span></a>`).join('')}</nav><div class="platform-admin-shell__end"><a href="/" target="_blank" rel="noopener"><span>공개 페이지</span><b aria-hidden="true">↗</b></a><small>관리 화면은 검색 노출 제외</small></div>`;
     document.body.prepend(shell);
     simplifyLocalUi(id);
     if(id==='blocks'||id==='editor')appendScript('/assets/js/admin/admin-surface-v1.js?v=1','data-admin-surface-script');

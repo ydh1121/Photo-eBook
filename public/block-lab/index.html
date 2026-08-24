@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>플랫폼 관리 · 블록 관리</title>
+  <title>플랫폼 관리 · 블록 연구실</title>
   <link rel="stylesheet" href="/assets/styles/admin/admin-shell-v1.css?v=2" data-admin-shell-style>
   <link rel="stylesheet" href="/assets/styles/block-lab/lab.css?v=1">
   <link rel="stylesheet" href="/assets/styles/block-lab/a11y.css?v=1">
@@ -23,9 +23,9 @@
   <div class="block-lab" data-theme="light" data-preview="fluid">
     <header class="lab-topbar">
       <div class="lab-topbar__inner">
-        <div class="lab-brand"><strong>블록 관리</strong><span id="labCount">28개</span></div>
+        <div class="lab-brand"><strong>블록 연구실</strong><span id="labCount">28개</span></div>
         <div class="lab-controls">
-          <a href="/ui-dashboard/">플랫폼 빌더</a>
+          <a href="/ui-dashboard/">UI 라이브러리</a>
           <select class="lab-filter" id="labCategory" aria-label="블록 분류"><option value="all">전체 블록</option><option value="foundation">기본</option><option value="content">콘텐츠</option><option value="data">비교·데이터</option><option value="media">미디어</option><option value="action">실행</option><option value="resource">자료</option><option value="monetization">광고</option></select>
           <div class="lab-segment" aria-label="테마 미리보기"><button type="button" data-theme-value="light" aria-pressed="true">밝게</button><button type="button" data-theme-value="dark" aria-pressed="false">어둡게</button></div>
           <div class="lab-segment" aria-label="화면 너비 미리보기"><button type="button" data-preview-value="fluid" aria-pressed="true">맞춤</button><button type="button" data-preview-value="mobile" aria-pressed="false">390</button><button type="button" data-preview-value="tablet" aria-pressed="false">768</button><button type="button" data-preview-value="desktop" aria-pressed="false">1180</button></div>
@@ -34,12 +34,12 @@
     </header>
 
     <div class="lab-layout">
-      <aside class="lab-sidebar"><div class="lab-sidebar__intro"><small>Candidate Library V1</small><h1>블록과 변형을 검토합니다</h1><p>블록 전체, variant, 디자인 preset을 구분해 관리합니다.</p></div><nav class="lab-nav" id="labNav" aria-label="블록 목록"></nav></aside>
-      <main class="lab-main"><section class="lab-intro"><span class="lab-intro__tag">검토용</span><h2>재사용할 블록을 검토합니다</h2><p>미리보기를 먼저 확인하고 필요한 경우 판정과 스타일을 조정합니다.</p><div class="lab-intro__notes"><span>공개 페이지 영향 없음</span><span>28개 후보 블록</span></div></section><section class="lab-specimens" id="labSpecimens" aria-live="polite"></section></main>
+      <aside class="lab-sidebar"><div class="lab-sidebar__intro"><small>RESEARCH ONLY</small><h1>신규 블록을 연구합니다</h1><p>구조와 변형, 스타일을 시험하는 공간입니다. 여기의 코드는 라이브러리나 에디터가 직접 사용하지 않습니다.</p></div><nav class="lab-nav" id="labNav" aria-label="연구 블록 목록"></nav></aside>
+      <main class="lab-main"><section class="lab-intro"><span class="lab-intro__tag">연구용</span><h2>블록을 충분히 검토한 뒤 공통 모듈로 승격합니다</h2><p>나와 GPT가 구조와 동작을 확인하고 합의한 블록만 연구실 밖의 공통 모듈 코드로 옮깁니다.</p><div class="lab-intro__notes"><span>공개 페이지 직접 반영 없음</span><span>라이브러리 직접 연결 없음</span></div></section><section class="lab-specimens" id="labSpecimens" aria-live="polite"></section></main>
     </div>
   </div>
 
-  <script src="/assets/js/admin/admin-shell-v1.js?v=2" data-admin-shell-loader></script>
+  <script src="/assets/js/admin/admin-shell-v1.js?v=3" data-admin-shell-loader></script>
   <script src="/assets/js/blocks/block-registry.js?v=2"></script>
   <script src="/data/block-registry/v1/manifest.js?v=3"></script>
   <script src="/data/block-registry/v1/variant-meta.js?v=3"></script>

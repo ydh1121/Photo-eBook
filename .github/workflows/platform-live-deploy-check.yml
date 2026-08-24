@@ -4,9 +4,20 @@ on:
   push:
     branches: [main]
     paths:
+      - 'public/index.html'
+      - 'public/_redirects'
+      - 'public/block-lab/**'
+      - 'public/editor-lab/**'
       - 'public/ui-dashboard/**'
+      - 'public/data/ui-capabilities/**'
+      - 'public/data/block-registry/**'
+      - 'public/assets/js/admin/**'
+      - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/js/editor-lab/**'
+      - 'public/assets/js/blocks/**'
       - 'public/assets/styles/ui-dashboard/**'
+      - 'public/assets/styles/editor-lab/**'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - '.github/workflows/platform-live-deploy-check.yml'
   workflow_dispatch:
@@ -27,7 +38,7 @@ jobs:
         run: node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
-      - name: Verify Cloudflare Pages deployment
+      - name: Verify Cloudflare Pages canonical module pipeline
         env:
           UI_DASHBOARD_LIVE_URL: https://photo-ebook.pages.dev
           LIVE_DEPLOY_ATTEMPTS: '90'

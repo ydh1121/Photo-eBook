@@ -7,6 +7,7 @@
   const status=document.querySelector('#editorMediaStatus');
   const closeButton=document.querySelector('#editorMediaClose');
   const seoImage=document.querySelector('#editorSeoOgImage');
+  const modules=window.PlatformModuleRegistry;
   if(!inspector||!dialog||!list||!search||!status)return;
 
   let target='';
@@ -21,22 +22,19 @@
   function collectLocalAssets(){
     const result=[];
     const seen=new Set();
-    const roots=Array.isArray(window.__BLOCK_LAB_DATA)?window.__BLOCK_LAB_DATA:[];
+    const definitions=modules?.listFor?.('editor')||[];
     function walk(value,context={}){
       if(Array.isArray(value)){value.forEach(item=>walk(item,context));return;}
       if(!value||typeof value!=='object')return;
-      const nextContext={
-        title:String(value.title||context.title||''),
-        alt:String(value.imageAlt||value.alt||context.alt||'')
-      };
+      const nextContext={title:String(value.title||context.title||''),alt:String(value.imageAlt||value.alt||context.alt||'')};
       for(const [key,item] of Object.entries(value)){
         if(isImageKey(key)&&typeof item==='string'&&item&&!seen.has(item)){
           seen.add(item);
-          result.push({assetId:`sample-${result.length+1}`,publicUrl:item,alt:nextContext.alt||nextContext.title,sourceType:'Block Lab sample',status:'sample'});
+          result.push({assetId:`module-${result.length+1}`,publicUrl:item,alt:nextContext.alt||nextContext.title,sourceType:context.sourceType||'공통 모듈',status:'approved'});
         }else walk(item,nextContext);
       }
     }
-    roots.forEach(root=>walk(root.content||root,{title:root.type||''}));
+    definitions.forEach(definition=>walk(modules.editorProps(definition.id),{title:definition.label||definition.id,sourceType:definition.label||'공통 모듈'}));
     return result;
   }
 
@@ -66,9 +64,7 @@
     list.querySelectorAll('[data-media-url]').forEach(button=>button.addEventListener('click',()=>selectAsset(button.dataset.mediaUrl,button.dataset.mediaAlt||'')));
   }
 
-  function findField(encoded){
-    return [...document.querySelectorAll('[data-edit-path]')].find(field=>field.dataset.editPath===encoded)||null;
-  }
+  function findField(encoded){return [...document.querySelectorAll('[data-edit-path]')].find(field=>field.dataset.editPath===encoded)||null;}
 
   function selectAsset(url,alt){
     if(target==='seo-og-image'){
@@ -96,17 +92,17 @@
   async function openPicker(nextTarget){
     target=nextTarget;
     search.value='';
-    status.textContent=getToken()?'미디어 목록 불러오는 중':'브라우저 샘플 이미지';
+    status.textContent=getToken()?'미디어 목록 불러오는 중':'공통 모듈 이미지';
     assets=collectLocalAssets();
     render();
     dialog.showModal();
     try{
       const server=await fetchServerAssets();
       assets=mergeAssets(assets,server);
-      status.textContent=server.length?`등록 이미지 ${server.length}개 + 샘플 ${collectLocalAssets().length}개`:'브라우저 샘플 이미지';
+      status.textContent=server.length?`등록 이미지 ${server.length}개 + 공통 모듈 ${collectLocalAssets().length}개`:'공통 모듈 이미지';
       render();
     }catch{
-      status.textContent='서버 미디어를 불러오지 못해 샘플만 표시합니다.';
+      status.textContent='서버 미디어를 불러오지 못해 공통 모듈 이미지만 표시합니다.';
     }
   }
 

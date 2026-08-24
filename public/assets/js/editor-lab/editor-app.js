@@ -1,8 +1,8 @@
 (function(){
   const registry=window.PlatformBlockRegistry;
   const manifest=window.__PLATFORM_BLOCK_REGISTRY_MANIFEST;
-  const samples=Array.isArray(window.__BLOCK_LAB_DATA)?window.__BLOCK_LAB_DATA:[];
-  if(!registry||!manifest)return;
+  const modules=window.PlatformModuleRegistry;
+  if(!registry||!manifest||!modules)return;
 
   const STORAGE_KEY='platformEditorLabDraftV1';
   const root=document.querySelector('.editor-lab');
@@ -14,9 +14,8 @@
   const searchInput=document.querySelector('#editorLibrarySearch');
   if(!root||!canvas||!library||!inspector)return;
 
-  const sampleMap=new Map(samples.map(item=>[item.type,item]));
   const labels={
-    eyebrow:'상단 라벨',title:'제목',description:'설명',image:'이미지 URL',imageAlt:'이미지 설명',facts:'핵심 정보',items:'항목',label:'라벨',value:'값',note:'메모',source:'출처',tags:'태그',columns:'비교 기준',rows:'행',question:'질문',answer:'답변',pros:'장점',cons:'주의할 점',proLabel:'장점 제목',conLabel:'주의 제목',period:'기간',outcome:'결과',action:'행동',message:'문구',channel:'채널',when:'사용 상황',quote:'인용문',name:'이름',role:'직함',publisher:'발행처',url:'URL',checkedAt:'확인일',supports:'근거 범위',price:'가격',kind:'구분',deliverables:'결과물',points:'핵심 항목',actionLabel:'링크 문구',actionUrl:'링크 URL',primaryLabel:'주요 버튼',primaryUrl:'주요 링크',secondaryLabel:'보조 버튼',secondaryUrl:'보조 링크',category:'분류',meta:'보조 정보',inputs:'입력값',outputLabel:'결과 제목',outputPrefix:'앞 단위',outputSuffix:'뒤 단위',outputNote:'결과 설명',unit:'단위',min:'최솟값',step:'증가 단위',time:'시점',mission:'직접 해보기'
+    eyebrow:'상단 라벨',title:'제목',description:'설명',image:'이미지 URL',imageAlt:'이미지 설명',facts:'핵심 정보',items:'항목',label:'라벨',value:'값',note:'메모',source:'출처',tags:'태그',columns:'비교 기준',rows:'행',question:'질문',answer:'답변',pros:'장점',cons:'주의할 점',proLabel:'장점 제목',conLabel:'주의 제목',period:'기간',outcome:'결과',action:'행동',message:'문구',channel:'채널',when:'사용 상황',quote:'인용문',name:'이름',role:'직함',publisher:'발행처',url:'URL',checkedAt:'확인일',supports:'근거 범위',price:'가격',kind:'구분',deliverables:'결과물',points:'핵심 항목',actionLabel:'링크 문구',actionUrl:'링크 URL',primaryLabel:'주요 버튼',primaryUrl:'주요 링크',secondaryLabel:'보조 버튼',secondaryUrl:'보조 링크',category:'분류',meta:'보조 정보',inputs:'입력값',outputLabel:'결과 제목',outputPrefix:'앞 단위',outputSuffix:'뒤 단위',outputNote:'결과 설명',unit:'단위',min:'최솟값',step:'증가 단위',time:'시점',mission:'직접 해보기',activeId:'선택 항목',ariaLabel:'접근성 이름',domId:'DOM ID',open:'열림',activeTab:'선택 탭',filterItems:'필터 항목',activeFilter:'선택 필터'
   };
 
   let selectedId=null;
@@ -36,23 +35,24 @@
     return {mode:'full',factState:'needs_verification',fields:{},...policy,fields:policy.fields&&typeof policy.fields==='object'&&!Array.isArray(policy.fields)?policy.fields:{}};
   }
 
-  function freshBlock(type){
-    const source=sampleMap.get(type);
-    const def=registry.get(type);
-    const base=source?clone(source):{type,variant:def?.variants?.[0]||'default',content:{title:def?.label||type,description:''}};
-    base.id=uid(type.replace(/[^a-z0-9]+/gi,'_'));
-    base.type=type;
-    base.variant=base.variant||def?.variants?.[0]||'default';
-    base.status='candidate';
-    base.enabled=true;
-    base.aiPolicy=normalizeAiPolicy(base.aiPolicy);
-    base.revision={version:1,updatedAt:new Date().toISOString(),updatedBy:'editor-lab'};
-    return registry.normalize(base);
+  function freshModuleBlock(moduleId){
+    const definition=modules.get(moduleId);
+    if(!definition||!modules.canConsume(moduleId,'editor'))return null;
+    return registry.normalize({
+      id:uid('ui_module'),
+      type:'ui-module',
+      variant:moduleId,
+      status:'approved',
+      enabled:true,
+      content:modules.editorProps(moduleId),
+      aiPolicy:normalizeAiPolicy({mode:'full'}),
+      revision:{version:1,updatedAt:new Date().toISOString(),updatedBy:'editor-lab'}
+    });
   }
 
   function defaultState(){
     return {
-      schema:'platform-editor-lab/v1',
+      schema:'platform-editor-lab/v2',
       pageId:uid('page'),
       industryId:'general',
       slug:'',
@@ -63,7 +63,7 @@
       seo:{},
       brief:{},
       aiStatus:'not_requested',
-      blocks:['hero','section-heading','rich-text'].map(freshBlock),
+      blocks:[],
       updatedAt:new Date().toISOString()
     };
   }
@@ -99,20 +99,35 @@
 
   function mutate(fn,{rerender=true,inspectorToo=true}={}){remember();fn();save();if(rerender)renderCanvas();if(inspectorToo)renderInspector();}
   function selectedBlock(){return state.blocks.find(block=>block.id===selectedId)||null;}
+  function blockLabel(block){return block.type==='ui-module'?(modules.get(block.variant)?.label||block.variant):(registry.get(block.type)?.label||block.type);}
 
   function renderLibrary(){
     const query=String(searchInput?.value||'').trim().toLowerCase();
-    const entries=manifest.blocks.filter(item=>!query||`${item.type} ${item.label} ${item.category}`.toLowerCase().includes(query));
-    library.innerHTML=entries.map(item=>`<button type="button" class="editor-library-item" data-add-block="${escapeHtml(item.type)}"><span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.type)} · ${escapeHtml(item.category)}</small></span><span>${escapeHtml(item.status)}</span></button>`).join('');
+    const entries=modules.listFor('editor').filter(item=>!query||`${item.id} ${item.label} ${item.category} ${item.source}`.toLowerCase().includes(query));
+    library.innerHTML=entries.map(item=>`<button type="button" class="editor-library-item" data-add-module="${escapeHtml(item.id)}"><span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.id)} · ${escapeHtml(item.category)}</small></span><span>${escapeHtml(item.status)}</span></button>`).join('');
     const count=document.querySelector('#editorLibraryCount');if(count)count.textContent=String(entries.length);
-    library.querySelectorAll('[data-add-block]').forEach(button=>button.addEventListener('click',()=>{
-      const block=freshBlock(button.dataset.addBlock);mutate(()=>{state.blocks.push(block);selectedId=block.id;});
+    library.querySelectorAll('[data-add-module]').forEach(button=>button.addEventListener('click',()=>{
+      const block=freshModuleBlock(button.dataset.addModule);if(!block)return;
+      mutate(()=>{state.blocks.push(block);selectedId=block.id;});
       requestAnimationFrame(()=>document.querySelector(`[data-editor-block="${CSS.escape(block.id)}"]`)?.scrollIntoView({behavior:'smooth',block:'center'}));
     }));
   }
 
   function toolbar(block,index){
-    return `<div class="editor-block-toolbar"><span class="editor-block-toolbar__type">${escapeHtml(block.type)}</span><button type="button" data-block-action="up" title="위로" ${index===0?'disabled':''}>↑</button><button type="button" data-block-action="down" title="아래로" ${index===state.blocks.length-1?'disabled':''}>↓</button><button type="button" data-block-action="duplicate" title="복제">복제</button><button type="button" class="editor-block-delete" data-block-action="delete" title="삭제">삭제</button></div>`;
+    return `<div class="editor-block-toolbar"><span class="editor-block-toolbar__type">${escapeHtml(blockLabel(block))}</span><button type="button" data-block-action="up" title="위로" ${index===0?'disabled':''}>↑</button><button type="button" data-block-action="down" title="아래로" ${index===state.blocks.length-1?'disabled':''}>↓</button><button type="button" data-block-action="duplicate" title="복제">복제</button><button type="button" class="editor-block-delete" data-block-action="delete" title="삭제">삭제</button></div>`;
+  }
+
+  function hydrateEditorModules(){
+    canvas.querySelectorAll('[data-platform-editor-module]').forEach(host=>{
+      if(host.dataset.platformEditorHydrated==='true')return;
+      const moduleId=host.dataset.platformEditorModule||'';
+      const blockNode=host.closest('[data-editor-block]');
+      const block=state.blocks.find(item=>item.id===blockNode?.dataset.editorBlock);
+      const definition=modules.get(moduleId);
+      if(!block||!definition||typeof definition.hydrate!=='function')return;
+      host.dataset.platformEditorHydrated='true';
+      try{definition.hydrate(host,block.content||{},{consumer:'editor'},{escapeHtml:modules.escapeHtml,attr:modules.attr,clone:modules.clone,definition});}catch{}
+    });
   }
 
   function renderCanvas(){
@@ -120,7 +135,7 @@
     if(!state.blocks.length)canvas.innerHTML='<div class="editor-empty-canvas"><strong>아직 블록이 없습니다</strong><p>왼쪽 블록 목록에서 필요한 UI를 추가하세요.</p></div>';
     else canvas.innerHTML=state.blocks.map((block,index)=>`<section class="editor-block ${block.id===selectedId?'is-selected':''}" data-editor-block="${escapeHtml(block.id)}" draggable="${state.mode==='edit'?'true':'false'}">${toolbar(block,index)}<div class="editor-render">${registry.render(block,{editor:true})}</div></section>`).join('');
     if(countNode)countNode.textContent=`${state.blocks.length}개 블록`;
-    bindCanvas();if(typeof window.bindBlockLabEnhancements==='function')window.bindBlockLabEnhancements();
+    bindCanvas();hydrateEditorModules();
   }
 
   function bindCanvas(){
@@ -181,13 +196,16 @@
   function renderInspector(){
     const block=selectedBlock();if(!block){inspector.innerHTML='<p class="editor-empty">편집할 블록을 선택하세요.</p>';return;}
     const def=registry.get(block.type);const manifestEntry=registry.getManifestEntry(block.type);
-    inspector.innerHTML=`<div class="editor-inspector-meta"><strong>${escapeHtml(def?.label||block.type)}</strong><span>${escapeHtml(block.type)} · ${escapeHtml(manifestEntry?.status||'unknown')}</span></div><div class="editor-field"><label>Variant</label><select data-edit-variant>${(def?.variants||[]).map(variant=>`<option value="${escapeHtml(variant)}" ${variant===block.variant?'selected':''}>${escapeHtml(variant)}</option>`).join('')}</select></div>${renderAiPolicy(block)}${Object.entries(block.content||{}).map(([key,value])=>renderEditorValue(value,['content',key],key)).join('')}<div class="editor-inspector-actions"><button type="button" data-inspector-action="duplicate">블록 복제</button><button type="button" class="danger" data-inspector-action="delete">블록 삭제</button></div>`;
+    inspector.innerHTML=`<div class="editor-inspector-meta"><strong>${escapeHtml(blockLabel(block))}</strong><span>${escapeHtml(block.type)} · ${escapeHtml(manifestEntry?.status||'unknown')}</span></div><div class="editor-field"><label>Variant</label><select data-edit-variant>${(def?.variants||[]).map(variant=>`<option value="${escapeHtml(variant)}" ${variant===block.variant?'selected':''}>${escapeHtml(modules.get(variant)?.label||variant)}</option>`).join('')}</select></div>${renderAiPolicy(block)}${Object.entries(block.content||{}).map(([key,value])=>renderEditorValue(value,['content',key],key)).join('')}<div class="editor-inspector-actions"><button type="button" data-inspector-action="duplicate">블록 복제</button><button type="button" class="danger" data-inspector-action="delete">블록 삭제</button></div>`;
     bindInspector();
   }
 
   function bindInspector(){
     const block=selectedBlock();if(!block)return;
-    inspector.querySelector('[data-edit-variant]')?.addEventListener('change',event=>mutate(()=>{block.variant=event.target.value;},{inspectorToo:false}));
+    inspector.querySelector('[data-edit-variant]')?.addEventListener('change',event=>mutate(()=>{
+      block.variant=event.target.value;
+      if(block.type==='ui-module')block.content=modules.editorProps(block.variant);
+    }));
     inspector.querySelector('[data-ai-mode]')?.addEventListener('change',event=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);block.aiPolicy.mode=event.target.value;},{inspectorToo:false}));
     inspector.querySelector('[data-ai-fact-state]')?.addEventListener('change',event=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);block.aiPolicy.factState=event.target.value;},{inspectorToo:false}));
     inspector.querySelectorAll('[data-ai-lock-field]').forEach(input=>input.addEventListener('change',()=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);if(input.checked)block.aiPolicy.fields[input.dataset.aiLockField]='locked';else delete block.aiPolicy.fields[input.dataset.aiLockField];},{inspectorToo:false})));

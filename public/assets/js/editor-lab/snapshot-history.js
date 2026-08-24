@@ -18,7 +18,7 @@
 
   const previewDialog=document.createElement('dialog');
   previewDialog.className='editor-snapshot-preview-dialog';
-  previewDialog.innerHTML=`<div class="editor-snapshot-preview-card"><header class="editor-snapshot-preview-head"><div><small>PUBLISH PREVIEW</small><h2 class="editor-snapshot-preview-title">미리보기</h2><p class="editor-snapshot-preview-meta"></p></div><div class="editor-snapshot-preview-controls" aria-label="미리보기 화면 폭"><button type="button" data-snapshot-width="390">390</button><button type="button" data-snapshot-width="768">768</button><button type="button" data-snapshot-width="1180" aria-pressed="true">1180</button><button type="button" class="editor-snapshot-preview-close">닫기</button></div></header><div class="editor-snapshot-preview-stage"><div class="block-lab editor-snapshot-preview-surface" data-theme="light" data-width="1180"></div></div></div>`;
+  previewDialog.innerHTML=`<div class="editor-snapshot-preview-card"><header class="editor-snapshot-preview-head"><div><small>PUBLISH PREVIEW</small><h2 class="editor-snapshot-preview-title">미리보기</h2><p class="editor-snapshot-preview-meta"></p></div><div class="editor-snapshot-preview-controls" aria-label="미리보기 화면 폭"><button type="button" data-snapshot-width="390">390</button><button type="button" data-snapshot-width="768">768</button><button type="button" data-snapshot-width="1180" aria-pressed="true">1180</button><button type="button" class="editor-snapshot-preview-close">닫기</button></div></header><div class="editor-snapshot-preview-stage"><div class="editor-snapshot-preview-surface" data-theme="light" data-width="1180"></div></div></div>`;
   document.body.appendChild(previewDialog);
 
   const status=dialog.querySelector('.editor-snapshot-status');
@@ -93,7 +93,6 @@
     previewSurface.innerHTML=blocks.length?blocks.map(block=>`<section class="editor-snapshot-preview-block" data-block-type="${escapeHtml(block.type||'')}" data-snapshot-block-id="${escapeHtml(block.id||'')}">${registry.render(registry.normalize(block),{editor:false})}</section>`).join(''):'<p class="editor-snapshot-preview-empty">표시할 블록이 없습니다.</p>';
     setPreviewWidth('1180');
     applySnapshotDesign(snapshot);
-    if(typeof window.bindBlockLabEnhancements==='function')window.bindBlockLabEnhancements();
   }
 
   async function previewSnapshot(snapshotId){
