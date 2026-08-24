@@ -1,32 +1,19 @@
-html[data-platform-module-preview="true"]{height:100%;overflow:hidden;background:#eef0f3!important}
-html[data-platform-module-preview="true"][data-theme="dark"]{background:#242830!important}
-html[data-platform-module-preview="true"] body{height:100%;min-height:100%;margin:0!important;overflow:hidden!important;background:inherit!important}
+html[data-platform-module-preview="true"]{height:100%;background:#eef0f3}
+html[data-platform-module-preview="true"][data-theme="dark"]{background:#242830}
+html[data-platform-module-preview="true"] body{height:100%;min-height:100%;margin:0;background:inherit}
 #platformModulePreviewRoot{position:relative;box-sizing:border-box;width:100%;height:100%;min-height:100%;overflow:hidden}
-.platform-module-stage{position:relative;box-sizing:border-box;width:100%;height:100%;min-height:100%;display:grid;place-items:center;overflow:hidden}
-.platform-module-host{position:relative;box-sizing:border-box;max-width:100%}
-.platform-module-stage[data-module="top-chapter-navigation"] .platform-module-host{width:100%;align-self:start;padding-top:54px}
-.platform-module-stage[data-module="top-chapter-navigation"] .nav-placeholder{display:none!important}
-.platform-module-stage[data-module="top-chapter-navigation"] .nav-shell{position:relative!important;top:auto!important;left:auto!important;right:auto!important;margin:0!important;transform:none!important}
-.platform-module-nav-targets{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}
-.platform-module-stage[data-module="horizontal-card-rail"] .platform-module-host{width:min(100%,1220px);padding:18px 0}
-.platform-module-stage[data-module="horizontal-card-rail"] .desktop-rail-window,.platform-module-stage[data-module="horizontal-card-rail"] .scroll-row{max-width:100%}
-.platform-module-stage[data-module="filter-chip-rail"] .platform-module-host{width:min(760px,calc(100% - 36px));overflow:hidden}
-.platform-module-stage[data-module="filter-chip-rail"] .collection-filters{max-width:100%;margin:0!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-x!important}
-.platform-module-stage[data-module="filter-chip-rail"] .collection-filters::-webkit-scrollbar{display:none!important}
-.platform-module-stage[data-module="collection-bottom-sheet"]{place-items:end center}
-.platform-module-stage[data-module="collection-bottom-sheet"] .platform-module-host{width:100%;height:100%}
-.platform-module-stage[data-module="collection-bottom-sheet"] #collectionLayer{display:block!important;position:absolute!important;inset:0!important}
-.platform-module-stage[data-module="collection-bottom-sheet"] #collectionFab{display:none!important}
-.platform-module-stage[data-module="collection-bottom-sheet"] #collectionBackdrop{position:absolute!important;inset:0!important}
-.platform-module-stage[data-module="collection-bottom-sheet"] #collectionSheet{position:absolute!important;left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%) translateY(var(--drag-y,0))!important}
-.platform-module-stage[data-module="device-handoff-accordion"] .platform-module-host{width:min(680px,calc(100% - 36px))}
-.platform-module-stage[data-module="device-handoff-accordion"] .collection-device-module{width:100%}
-.platform-module-stage[data-module="floating-action"] .platform-module-host{width:100%;height:100%}
-.platform-module-stage[data-module="floating-action"] .collection-fab{display:grid!important;position:absolute!important;right:24px!important;bottom:24px!important}
+.platform-module-stage{position:relative;box-sizing:border-box;width:100%;height:100%;min-height:100%;overflow:hidden}
+.platform-module-host{position:relative;box-sizing:border-box;width:100%;min-height:100%}
+.platform-module-context{box-sizing:border-box;width:100%;min-height:100%}
+.platform-module-context--rail{padding-top:42px}
+.platform-module-context--rail>.wide{width:100%}
+.platform-module-context--collection-inner{width:min(760px,100%);margin:0 auto;padding:58px 18px 18px}
+.platform-module-context--device{width:min(760px,100%);margin:0 auto;padding:58px 18px 18px}
+.platform-module-context--device .collection-settings{padding-top:3px}
+.platform-module-preview-chapters{position:absolute;z-index:-1;top:680px;left:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+.platform-module-stage[data-module="collection-bottom-sheet"] .platform-module-host,
+.platform-module-stage[data-module="floating-action"] .platform-module-host{height:100%}
 @media(max-width:560px){
-  .platform-module-stage[data-module="top-chapter-navigation"] .platform-module-host{padding-top:34px}
-  .platform-module-stage[data-module="horizontal-card-rail"]{place-items:start stretch}
-  .platform-module-stage[data-module="horizontal-card-rail"] .platform-module-host{width:100%;padding:12px 0}
-  .platform-module-stage[data-module="filter-chip-rail"] .platform-module-host{width:calc(100% - 24px)}
-  .platform-module-stage[data-module="device-handoff-accordion"] .platform-module-host{width:calc(100% - 24px)}
+  .platform-module-context--rail{padding-top:24px}
+  .platform-module-context--collection-inner,.platform-module-context--device{padding:36px 12px 12px}
 }

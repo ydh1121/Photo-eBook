@@ -11,6 +11,7 @@ on:
       - 'public/index.html'
       - 'public/block-lab/**'
       - 'public/editor-lab/**'
+      - 'public/content-packs/photography/runtime/**'
       - 'public/data/block-registry/**'
       - 'public/data/block-styles/**'
       - 'public/data/ui-capabilities/**'
@@ -19,8 +20,10 @@ on:
       - 'public/staging/**'
       - 'public/ui-dashboard/**'
       - 'public/assets/js/admin/**'
+      - 'public/assets/js/app/**'
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
+      - 'public/assets/js/collection/**'
       - 'public/assets/js/editor-lab/**'
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-capabilities/**'
@@ -29,6 +32,7 @@ on:
       - 'public/assets/js/public-snapshot/**'
       - 'public/assets/styles/blocks/**'
       - 'public/assets/styles/block-lab/**'
+      - 'public/assets/styles/collection/**'
       - 'public/assets/styles/editor-lab/**'
       - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
@@ -58,6 +62,7 @@ on:
       - 'public/index.html'
       - 'public/block-lab/**'
       - 'public/editor-lab/**'
+      - 'public/content-packs/photography/runtime/**'
       - 'public/data/block-registry/**'
       - 'public/data/block-styles/**'
       - 'public/data/ui-capabilities/**'
@@ -66,8 +71,10 @@ on:
       - 'public/staging/**'
       - 'public/ui-dashboard/**'
       - 'public/assets/js/admin/**'
+      - 'public/assets/js/app/**'
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
+      - 'public/assets/js/collection/**'
       - 'public/assets/js/editor-lab/**'
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-capabilities/**'
@@ -76,6 +83,7 @@ on:
       - 'public/assets/js/public-snapshot/**'
       - 'public/assets/styles/blocks/**'
       - 'public/assets/styles/block-lab/**'
+      - 'public/assets/styles/collection/**'
       - 'public/assets/styles/editor-lab/**'
       - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
@@ -119,7 +127,7 @@ jobs:
         run: node scripts/check-platform-qa-seed.mjs
       - name: Check canonical Snapshot V2 HTML
         run: node scripts/check-public-route-v2.mjs
-      - name: Check platform module boundaries
+      - name: Check true public module extraction boundaries
         run: node scripts/check-platform-module-boundaries.mjs
       - name: Check platform JavaScript syntax
         shell: bash
@@ -127,7 +135,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find public/assets/js/admin public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/platform-modules public/assets/js/ui-capabilities public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          done < <(find public/assets/js/admin public/assets/js/app public/assets/js/blocks public/assets/js/block-lab public/assets/js/collection public/assets/js/editor-lab public/assets/js/platform-modules public/assets/js/ui-capabilities public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot public/content-packs/photography/runtime functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find functions -maxdepth 1 -type f -name '*.js' -print0)
@@ -141,7 +149,7 @@ jobs:
           node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
-      - name: Run canonical module pipeline browser QA
+      - name: Compare Library against actual public runtime
         shell: bash
         run: |
           set -euo pipefail
@@ -162,7 +170,7 @@ jobs:
           fi
           export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
           node scripts/check-platform-module-pipeline-v1.mjs
-      - name: Upload canonical module pipeline QA
+      - name: Upload public-module parity QA
         if: always()
         uses: actions/upload-artifact@v4
         with:
