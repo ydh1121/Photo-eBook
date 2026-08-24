@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformModulePreviewV5)return;
-  window.__platformModulePreviewV5=true;
+  if(window.__platformModulePreviewV6)return;
+  window.__platformModulePreviewV6=true;
 
   const params=new URLSearchParams(location.search);
   const registry=window.PlatformModuleRegistry;
@@ -48,10 +48,36 @@
   function readObject(key){try{const value=JSON.parse(localStorage.getItem(key)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}catch{return {};}}
   function writeArray(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
   function writeObject(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
-
+  function questionStateMatches(item){
+    const expected=String(item?.selected_text||'').trim();
+    const actual=String(document.getElementById('askQuote')?.textContent||'').trim();
+    return Boolean(expected&&actual===expected);
+  }
+  function finishQuestionOwnerHandoff(item){
+    const input=document.getElementById('askInput');
+    if(input){
+      input.value=String(item?.question||'').trim();
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    document.getElementById('askMinimize')?.click();
+    window.__photoForceQuestionWrite?.();
+    requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
+  }
+  function openThroughHistoryOwner(item){
+    const key=String(item?.id||'');
+    if(!key)return false;
+    document.getElementById('askHistoryTab')?.click();
+    const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===key);
+    const ownerOpen=ownerCard?.querySelector('.history-open');
+    if(!ownerOpen)return false;
+    ownerOpen.click();
+    if(!questionStateMatches(item))return false;
+    finishQuestionOwnerHandoff(item);
+    return true;
+  }
   function primeQuestionStateThroughOwner(item){
     const text=String(item?.selected_text||'').trim();
-    const question=String(item?.question||'').trim();
     const bubble=document.getElementById('askBubble');
     if(!text||!bubble||!window.getSelection)return false;
 
@@ -61,14 +87,16 @@
       app=document.createElement('div');
       app.id='app';
       app.setAttribute('aria-hidden','true');
-      app.style.cssText='position:fixed;left:-10000px;top:0;width:max-content;max-width:600px;opacity:0.001;pointer-events:none;z-index:-1';
+      app.style.cssText='position:fixed;left:8px;top:8px;width:max-content;max-width:600px;opacity:0;pointer-events:none;z-index:-1;white-space:pre-wrap';
       document.body.appendChild(app);
       createdApp=true;
     }
     const marker=document.createElement('span');
     marker.textContent=text;
+    marker.style.cssText='display:inline-block;font-size:16px;line-height:1.5';
     app.appendChild(marker);
 
+    let primed=false;
     try{
       const range=document.createRange();
       range.selectNodeContents(marker);
@@ -76,45 +104,37 @@
       selection.removeAllRanges();
       selection.addRange(range);
       bubble.click();
-    }catch{
-      marker.remove();
-      if(createdApp)app.remove();
-      return false;
-    }
+      primed=questionStateMatches(item);
+    }catch{}
 
-    document.getElementById('askMinimize')?.click();
-    const input=document.getElementById('askInput');
-    if(input){
-      input.value=question;
-      input.dispatchEvent(new Event('input',{bubbles:true}));
-      input.dispatchEvent(new Event('change',{bubbles:true}));
-    }
     marker.remove();
     if(createdApp)app.remove();
-    requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
+    if(!primed)return false;
+    finishQuestionOwnerHandoff(item);
     return true;
   }
-
   function openSavedQuestionThroughOwner(id){
     const key=String(id||'');
     if(!key)return false;
     const item=readArray('photoRoadmapQuestionsV2').find(entry=>String(entry?.id||'')===key);
     if(!item)return false;
-    if(primeQuestionStateThroughOwner(item))return true;
-
-    const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===key);
-    const ownerOpen=ownerCard?.querySelector('.history-open');
-    if(!ownerOpen)return false;
-    ownerOpen.click();
-    requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
-    return true;
+    return openThroughHistoryOwner(item)||primeQuestionStateThroughOwner(item);
+  }
+  function questionIdFromTrigger(trigger){
+    const card=trigger?.closest?.('.collection-item');
+    const direct=String(card?.dataset.libraryId||trigger?.dataset.questionId||trigger?.dataset.id||'');
+    if(direct)return direct;
+    const text=String(card?.textContent||trigger?.closest?.('[data-library-type="question"]')?.textContent||'').trim();
+    if(!text)return '';
+    const match=readArray('photoRoadmapQuestionsV2').find(item=>text.includes(String(item?.question||'').trim()));
+    return String(match?.id||'');
   }
 
   if(moduleId==='collection-bottom-sheet'){
     document.addEventListener('click',event=>{
       const trigger=event.target.closest?.('.v41-question-open,.collection-question-open');
       if(!trigger)return;
-      const id=trigger.closest('.collection-item')?.dataset.libraryId||'';
+      const id=questionIdFromTrigger(trigger);
       if(!openSavedQuestionThroughOwner(id))return;
       event.preventDefault();
       event.stopImmediatePropagation();
