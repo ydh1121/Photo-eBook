@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformModulePreviewV6)return;
-  window.__platformModulePreviewV6=true;
+  if(window.__platformModulePreviewV7)return;
+  window.__platformModulePreviewV7=true;
 
   const params=new URLSearchParams(location.search);
   const registry=window.PlatformModuleRegistry;
@@ -64,12 +64,15 @@
     window.__photoForceQuestionWrite?.();
     requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
   }
-  function openThroughHistoryOwner(item){
+  function findHistoryOwner(item){
     const key=String(item?.id||'');
-    if(!key)return false;
+    if(!key)return null;
     document.getElementById('askHistoryTab')?.click();
     const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===key);
-    const ownerOpen=ownerCard?.querySelector('.history-open');
+    return ownerCard?.querySelector('.history-open')||null;
+  }
+  function openThroughHistoryOwner(item){
+    const ownerOpen=findHistoryOwner(item);
     if(!ownerOpen)return false;
     ownerOpen.click();
     if(!questionStateMatches(item))return false;
@@ -129,9 +132,31 @@
     const match=readArray('photoRoadmapQuestionsV2').find(item=>text.includes(String(item?.question||'').trim()));
     return String(match?.id||'');
   }
+  function synchronizeQuestionOwnerBeforeSave(){
+    const quote=String(document.getElementById('askQuote')?.textContent||'').trim();
+    const question=String(document.getElementById('askInput')?.value||'').trim();
+    if(!quote||quote==='문장을 선택하면 여기에 표시됩니다.'||!question)return false;
+    const items=readArray('photoRoadmapQuestionsV2');
+    const item=items.find(entry=>String(entry?.selected_text||'').trim()===quote&&String(entry?.question||'').trim()===question)
+      ||items.find(entry=>String(entry?.selected_text||'').trim()===quote);
+    if(!item)return false;
+    const ownerOpen=findHistoryOwner(item);
+    if(!ownerOpen)return false;
+    ownerOpen.click();
+    const input=document.getElementById('askInput');
+    if(input&&input.value!==question){
+      input.value=question;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    window.__photoForceQuestionWrite?.();
+    return questionStateMatches(item);
+  }
 
   if(moduleId==='collection-bottom-sheet'){
     document.addEventListener('click',event=>{
+      const save=event.target.closest?.('#askSave');
+      if(save)synchronizeQuestionOwnerBeforeSave();
       const trigger=event.target.closest?.('.v41-question-open,.collection-question-open');
       if(!trigger)return;
       const id=questionIdFromTrigger(trigger);
