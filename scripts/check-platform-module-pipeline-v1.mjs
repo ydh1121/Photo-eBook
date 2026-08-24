@@ -71,7 +71,7 @@ async function verifyLibrary(context,publicRef){
 
   let frame=await choose(page,'filter-chip-rail');
   const module=frame.locator('[data-platform-module="filter-chip-rail"]');
-  assert(await module.count()===1,'canonical filter module missing');
+  await waitUntil(()=>module.count().then(n=>n===1),'canonical filter module missing',8000);
   const liquid=frame.locator('.platform-filter-chip-source--liquid');
   const flat=frame.locator('.platform-filter-chip-source--flat');
   assert(!(await liquid.isHidden()),'iOS liquid source should be the default');
