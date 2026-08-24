@@ -19,7 +19,7 @@ function browserPath(){return ['/usr/bin/google-chrome','/usr/bin/google-chrome-
 function cacheBust(url){const join=url.includes('?')?'&':'?';return `${url}${join}deploy_check=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
 
 async function fetchText(url){
-  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.0'}});
+  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.1'}});
   if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
   return response.text();
 }
@@ -53,6 +53,23 @@ async function waitLibraryFrame(page,id){
     return Boolean(doc?.documentElement?.dataset.platformModulePreview==='true'&&doc.documentElement.dataset.platformModule===moduleId&&doc.documentElement.dataset.platformModuleConsumer==='library'&&frame.contentWindow?.PlatformModuleRegistry);
   },id,{timeout:30000});
   const handle=await page.$('#builderFrame');const frame=await handle?.contentFrame();assert(frame,`module iframe missing: ${id}`);return frame;
+}
+
+async function selectLibraryModule(page,id){
+  const button=page.locator(`[data-kit-ui="${id}"]`);
+  await button.waitFor({state:'visible',timeout:15000});
+  if(await button.getAttribute('aria-pressed')!=='true')await button.click();
+  return waitLibraryFrame(page,id);
+}
+
+async function waitFrameCount(frame,selector,min,message,timeout=15000){
+  const start=Date.now();
+  while(Date.now()-start<timeout){
+    if(await frame.locator(selector).count()>=min)return;
+    await sleep(80);
+  }
+  const state=await frame.evaluate(()=>({module:document.documentElement.dataset.platformModule||'',html:document.getElementById('platformModulePreviewRoot')?.innerHTML?.slice(0,1200)||''})).catch(()=>({}));
+  throw new Error(`${message}; state=${JSON.stringify(state)}`);
 }
 
 async function verifyLiveAssets(){
@@ -90,14 +107,16 @@ async function verifyLiveBrowser(){
     pass('live UI Library','registry-driven root route');
 
     for(const id of ['top-chapter-navigation','filter-chip-rail','collection-bottom-sheet','device-handoff-accordion']){
-      await page.locator(`[data-kit-ui="${id}"]`).click();
-      const frame=await waitLibraryFrame(page,id);
+      const frame=await selectLibraryModule(page,id);
       const src=await page.locator('#builderFrame').getAttribute('src');
       assert(src?.includes('/ui-dashboard/module-preview/'),`${id}: live Library is not using the shared preview host`);
       assert(!src?.includes('/sandbox/')&&!src?.includes('/reference-preview/'),`${id}: retired preview path is still live`);
-      if(id==='top-chapter-navigation')assert(await frame.locator('.nav-shell[data-platform-module="top-chapter-navigation"] .nav-chip').count()>=8,'live canonical nav missing');
+      if(id==='top-chapter-navigation'){
+        await waitFrameCount(frame,'.nav-shell[data-platform-module="top-chapter-navigation"] .nav-chip',8,'live canonical nav missing');
+      }
       if(id==='filter-chip-rail'){
-        const chips=frame.locator('#collectionFilters .collection-filter');assert(await chips.count()>=4,'live canonical filter chips missing');
+        await waitFrameCount(frame,'#collectionFilters .collection-filter',4,'live canonical filter chips missing');
+        const chips=frame.locator('#collectionFilters .collection-filter');
         const labels=await chips.allTextContents();assert(labels.every(label=>label&&!label.includes('[object Object]')),'live filter normalization regressed');
       }
       if(id==='collection-bottom-sheet'){
@@ -107,11 +126,11 @@ async function verifyLiveBrowser(){
       }
       if(id==='device-handoff-accordion'){
         await page.waitForTimeout(220);
-        assert(await frame.locator('.collection-device-accordion #collectionDeviceLink').count()===1,'live canonical device accordion missing');
+        await waitFrameCount(frame,'.collection-device-accordion #collectionDeviceLink',1,'live canonical device accordion missing');
       }
     }
 
-    await page.locator('[data-kit-ui="top-chapter-navigation"]').click();await waitLibraryFrame(page,'top-chapter-navigation');
+    await selectLibraryModule(page,'top-chapter-navigation');
     await page.locator('[data-kit-theme="dark"]').click();
     await page.waitForFunction(()=>document.querySelector('#builderFrame')?.contentDocument?.documentElement?.dataset.theme==='dark',{timeout:15000});
     await page.locator('[data-kit-viewport="mobile"]').click();
