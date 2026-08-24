@@ -1,12 +1,11 @@
-/* Single-rail filter chip editor: one real rail, compact test controls, no specimen board. */
+/* Single-rail filter chip editor: one real rail, editable samples, global + per-chip inheritance. */
 .builder-kit-workspace[data-active-ui="filter-chip-rail"] .builder-kit-canvas{place-items:center;padding:16px}
 .builder-kit-workspace[data-active-ui="filter-chip-rail"] .builder-kit-frame-shell{width:min(100%,920px)!important;height:300px!important;margin:auto!important}
 .builder-kit-workspace[data-active-ui="filter-chip-rail"][data-viewport="mobile"] .builder-kit-frame-shell{width:min(100%,390px)!important;height:300px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
-.builder-kit-filter-items{max-width:min(100%,540px)}
-.builder-kit-filter-items>input{width:118px;height:27px;padding:0 8px;border:0;border-radius:7px;outline:0;background:#fff;color:#303640;font:inherit;font-size:8.5px;box-shadow:inset 0 0 0 1px rgba(29,42,66,.08)}
-.builder-kit-filter-items>input::placeholder{color:#a0a6ae}
-.builder-kit-filter-items>button{min-width:max-content}
+.builder-kit-filter-items{max-width:min(100%,760px)}
+.builder-kit-filter-items>input,.builder-kit-filter-items>select{height:27px;padding:0 8px;border:0;border-radius:7px;outline:0;background:#fff;color:#303640;font:inherit;font-size:8.5px;box-shadow:inset 0 0 0 1px rgba(29,42,66,.08)}
+.builder-kit-filter-items>input{width:118px}.builder-kit-filter-items>select{width:104px;cursor:pointer}.builder-kit-filter-items>input::placeholder{color:#a0a6ae}.builder-kit-filter-items>button{min-width:max-content}.builder-kit-filter-items>i{max-width:108px;padding:0 5px;color:#737b86;font-size:8px;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:600px){
-  .builder-kit-filter-items>input{width:96px}
+  .builder-kit-filter-items>input{width:96px}.builder-kit-filter-items>select{width:92px}.builder-kit-filter-items>i{display:none}
   .builder-kit-workspace[data-active-ui="filter-chip-rail"] .builder-kit-frame-shell{height:280px!important}
 }

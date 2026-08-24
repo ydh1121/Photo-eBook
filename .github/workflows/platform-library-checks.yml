@@ -40,7 +40,9 @@ on:
       - 'scripts/check-ui-dashboard-browser.mjs'
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'scripts/check-ui-dashboard-browser-v3.mjs'
+      - 'scripts/check-ui-dashboard-browser-v4.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
+      - 'scripts/check-admin-ui-parity-v3.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
@@ -83,7 +85,9 @@ on:
       - 'scripts/check-ui-dashboard-browser.mjs'
       - 'scripts/check-ui-dashboard-browser-v2.mjs'
       - 'scripts/check-ui-dashboard-browser-v3.mjs'
+      - 'scripts/check-ui-dashboard-browser-v4.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
+      - 'scripts/check-admin-ui-parity-v3.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
@@ -129,7 +133,9 @@ jobs:
           node --check scripts/check-ui-dashboard-browser.mjs
           node --check scripts/check-ui-dashboard-browser-v2.mjs
           node --check scripts/check-ui-dashboard-browser-v3.mjs
+          node --check scripts/check-ui-dashboard-browser-v4.mjs
           node --check scripts/check-platform-admin-browser-v1.mjs
+          node --check scripts/check-admin-ui-parity-v3.mjs
           node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
@@ -153,8 +159,9 @@ jobs:
             exit 1
           fi
           export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
-          node scripts/check-ui-dashboard-browser-v3.mjs
+          node scripts/check-ui-dashboard-browser-v4.mjs
           node scripts/check-platform-admin-browser-v1.mjs
+          node scripts/check-admin-ui-parity-v3.mjs
       - name: Upload UI Dashboard browser QA
         if: always()
         uses: actions/upload-artifact@v4
