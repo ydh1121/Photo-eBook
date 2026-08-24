@@ -7,7 +7,7 @@
 
   function escapeHtml(value=''){
     return String(value??'').replace(/[&<>"']/g,char=>({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'
     }[char]));
   }
 
@@ -81,10 +81,16 @@
       if(!definition)throw new Error(`Unknown platform module: ${id}`);
       target.dataset.platformModuleHost=definition.id;
       target.innerHTML=this.render(definition.id,props,context);
-      const cleanup=typeof definition.hydrate==='function'
+      const hydration=typeof definition.hydrate==='function'
         ? definition.hydrate(target,props||{},context,{escapeHtml,attr,clone,definition})
         : null;
-      return {definition,target,cleanup:typeof cleanup==='function'?cleanup:()=>{}};
+      const cleanup=typeof hydration==='function'
+        ? hydration
+        : typeof hydration?.cleanup==='function'
+          ? hydration.cleanup
+          : ()=>{};
+      const api=hydration&&typeof hydration==='object'&&hydration.api?hydration.api:null;
+      return {definition,target,cleanup,api};
     },
     previewProps(id){return clone(definitions.get(String(id||''))?.previewProps||{});},
     editorProps(id){return clone(definitions.get(String(id||''))?.editorProps||{});},
