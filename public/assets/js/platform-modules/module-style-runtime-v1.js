@@ -19,6 +19,7 @@
       [data-module-style-family="material-flat"] :is(.nav-chip,.collection-tab).is-active,[data-module-style-family="ios-flat"] :is(.nav-chip,.collection-tab).is-active{background:var(--module-accent,#437ce7)!important;border-color:var(--module-accent,#437ce7)!important;color:#fff!important;box-shadow:none!important}
       .collection-fab[data-module-style-family="flat"]{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:0 5px 15px rgba(30,55,110,.16)!important}
       .collection-fab[data-module-style-family="liquid"]{-webkit-backdrop-filter:blur(18px) saturate(145%)!important;backdrop-filter:blur(18px) saturate(145%)!important;box-shadow:0 8px 22px rgba(34,76,165,.22),inset 0 1px 0 rgba(255,255,255,.35)!important}
+      [data-platform-module="collection-bottom-sheet"][data-module-disabled="true"] :is(#collectionFab,#collectionBackdrop,#collectionSheet){display:none!important;pointer-events:none!important}
     `;
     document.head.appendChild(style);
     return style;
@@ -29,25 +30,31 @@
     return manifest?.capabilities?.find(item=>item.id===id)?.controls||[];
   }
   function defaults(id){
+    const canonical=window.PlatformModuleRegistry?.get?.(id)?.styleDefaults;
+    if(canonical&&typeof canonical==='object')return {...canonical};
     const result={};
     controlsFor(id).forEach(control=>{result[control.id]=control.default;});
     return result;
   }
   function resetInline(node,names){for(const name of names)node?.style?.removeProperty(name);}
+  function baselineAccent(id){return window.PlatformModuleRegistry?.get?.(id)?.styleDefaults?.accentColor||'';}
+  function hasCustomAccent(id,value){return Boolean(value?.accentColor)&&String(value.accentColor).toLowerCase()!==String(baselineAccent(id)).toLowerCase();}
 
   function reset(id,root=document){
     if(id==='top-chapter-navigation'){
       const shell=$('.nav-shell',root),rail=$('.nav-scroll',root);
       if(shell){shell.hidden=false;resetInline(shell,['position','top','transform']);}
-      if(rail){delete rail.dataset.moduleStyleFamily;resetInline(rail,['gap','padding-left','padding-right','padding-top','padding-bottom','--module-accent','--v36-blue-top','--v36-blue-mid','--v36-blue-bottom']);}
+      if(rail){delete rail.dataset.moduleStyleFamily;resetInline(rail,['gap','padding-left','padding-right','padding-top','padding-bottom','--module-accent','--v36-blue-top','--v36-blue-mid','--v36-blue-bottom','--lg-blue-a','--lg-blue-b','--lg-blue-c']);}
     }else if(id==='filter-chip-rail'){
       const rail=$('[data-platform-module="filter-chip-rail"]',root);
-      if(rail){delete rail.dataset.moduleStyleFamily;resetInline(rail,['gap','padding-left','padding-right','--module-accent','--v36-blue-top','--v36-blue-mid','--v36-blue-bottom']);}
+      if(rail){delete rail.dataset.moduleStyleFamily;resetInline(rail,['gap','padding-left','padding-right','--module-accent','--v36-blue-top','--v36-blue-mid','--v36-blue-bottom','--lg-blue-a','--lg-blue-b','--lg-blue-c']);}
     }else if(id==='horizontal-card-rail'){
       const rail=$('[data-platform-module="horizontal-card-rail"]',root);
       if(rail){delete rail.dataset.builderDesktopDrag;delete rail.dataset.builderDragThreshold;delete rail.dataset.builderClickSuppressMs;resetInline(rail,['padding-left','padding-right','-webkit-mask-image','mask-image']);}
     }else if(id==='collection-bottom-sheet'){
-      const sheet=$('#collectionSheet',root),backdrop=$('#collectionBackdrop',root);
+      const layer=$('[data-platform-module="collection-bottom-sheet"]',root),sheet=$('#collectionSheet',root),backdrop=$('#collectionBackdrop',root),fab=$('#collectionFab',root);
+      if(layer)delete layer.dataset.moduleDisabled;
+      if(fab)fab.hidden=false;
       if(sheet){sheet.hidden=false;resetInline(sheet,['width','height','max-width','border-radius','-webkit-backdrop-filter','backdrop-filter']);$$('.collection-handle-wrap,.collection-tabs,.collection-search,.collection-filters,#collectionDeviceLink',sheet).forEach(node=>node.hidden=false);}
       if(backdrop){resetInline(backdrop,['background','-webkit-backdrop-filter','backdrop-filter']);}
     }else if(id==='device-handoff-accordion'){
@@ -61,10 +68,15 @@
 
   function applyAccent(node,color){
     if(!node||!color)return;
+    const top=`color-mix(in srgb, ${color} 82%, white)`;
+    const bottom=`color-mix(in srgb, ${color} 82%, black)`;
     node.style.setProperty('--module-accent',color);
-    node.style.setProperty('--v36-blue-top',color);
+    node.style.setProperty('--v36-blue-top',top);
     node.style.setProperty('--v36-blue-mid',color);
-    node.style.setProperty('--v36-blue-bottom',color);
+    node.style.setProperty('--v36-blue-bottom',bottom);
+    node.style.setProperty('--lg-blue-a',top);
+    node.style.setProperty('--lg-blue-b',color);
+    node.style.setProperty('--lg-blue-c',bottom);
   }
 
   function apply(id,root=document,config={}){
@@ -76,13 +88,13 @@
       if(value.stickyMode==='static'){shell.style.position='relative';shell.style.top='auto';shell.style.transform='none';}
       else if(value.stickyMode==='sticky'){shell.style.position='sticky';shell.style.top='0';shell.style.transform='none';}
       if(value.chipFamily&&value.chipFamily!=='ios-liquid')rail.dataset.moduleStyleFamily=value.chipFamily;
-      applyAccent(rail,value.accentColor||'#437ce7');
+      if(value.chipFamily!=='ios-liquid'||hasCustomAccent(id,value))applyAccent(rail,value.accentColor||'#437ce7');
       rail.style.gap=`${innerWidth<1024?num(value.mobileChipGap,6):num(value.desktopChipGap,9)}px`;
       const inset=num(value.railInset,5.5);rail.style.paddingTop=`${inset}px`;rail.style.paddingBottom=`${inset}px`;
     }else if(id==='filter-chip-rail'){
       const rail=$('[data-platform-module="filter-chip-rail"]',root);if(!rail)return value;
       if(value.family&&value.family!=='ios-liquid')rail.dataset.moduleStyleFamily=value.family;
-      applyAccent(rail,value.accentColor||'#437ce7');
+      if(value.family!=='ios-liquid'||hasCustomAccent(id,value))applyAccent(rail,value.accentColor||'#4c7fdf');
       rail.style.gap=`${num(value.gap,4)}px`;
       const runway=num(value.runway,4);rail.style.paddingLeft=`${runway}px`;rail.style.paddingRight=`${runway}px`;
       const duration=value.response==='lively'?140:value.response==='calm'?260:190;
@@ -94,8 +106,9 @@
       if(value.rightFade){const width=num(value.rightFadeWidth,112);rail.style.webkitMaskImage=`linear-gradient(to right,#000 0,#000 calc(100% - ${width}px),transparent 100%)`;rail.style.maskImage=rail.style.webkitMaskImage;}
       if(value.scrollbar==='hidden'){rail.style.scrollbarWidth='none';}
     }else if(id==='collection-bottom-sheet'){
-      const sheet=$('#collectionSheet',root),backdrop=$('#collectionBackdrop',root);if(!sheet)return value;
-      if(!bool(value.enabled,true)){sheet.hidden=true;if(backdrop)backdrop.hidden=true;return value;}
+      const layer=$('[data-platform-module="collection-bottom-sheet"]',root),sheet=$('#collectionSheet',root),backdrop=$('#collectionBackdrop',root),fab=$('#collectionFab',root);if(!sheet)return value;
+      if(!bool(value.enabled,true)){if(layer)layer.dataset.moduleDisabled='true';sheet.hidden=true;if(backdrop)backdrop.hidden=true;if(fab)fab.hidden=true;return value;}
+      if(layer)delete layer.dataset.moduleDisabled;if(fab)fab.hidden=false;
       if(backdrop){if(!bool(value.backdrop,true))backdrop.style.background='transparent';const blur=bool(value.backdrop,true)?num(value.backdropBlur,12):0;backdrop.style.backdropFilter=`blur(${blur}px)`;backdrop.style.webkitBackdropFilter=backdrop.style.backdropFilter;}
       sheet.style.width=`min(100%,${num(value.maxWidth,760)}px)`;sheet.style.height=`min(${num(value.maxHeightDvh,84)}dvh,780px)`;const radius=num(value.radiusTop,30);sheet.style.borderRadius=`${radius}px ${radius}px 0 0`;sheet.style.backdropFilter=`blur(${num(value.sheetBlur,26)}px) saturate(${num(value.sheetSaturation,135)}%)`;sheet.style.webkitBackdropFilter=sheet.style.backdropFilter;
       const toggles=[['handle','.collection-handle-wrap'],['tabs','.collection-tabs'],['search','.collection-search'],['filters','.collection-filters'],['deviceHandoff','#collectionDeviceLink']];
