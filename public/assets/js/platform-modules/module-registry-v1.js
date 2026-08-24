@@ -1,0 +1,101 @@
+(function(){
+  if(window.PlatformModuleRegistry)return;
+
+  const definitions=new Map();
+  const VALID_STATUS=new Set(['approved','candidate','deprecated']);
+  const VALID_SOURCE=new Set(['public-extracted','block-lab-approved','platform-core']);
+
+  function escapeHtml(value=''){
+    return String(value??'').replace(/[&<>"']/g,char=>({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+    }[char]));
+  }
+
+  function attr(value=''){return escapeHtml(value);}
+  function clone(value){return value==null?value:JSON.parse(JSON.stringify(value));}
+
+  function normalizeDefinition(input={}){
+    const id=String(input.id||'').trim();
+    if(!id)throw new Error('Platform module id is required.');
+    if(typeof input.render!=='function')throw new Error(`Platform module render() is required: ${id}`);
+    const status=VALID_STATUS.has(input.status)?input.status:'candidate';
+    const source=VALID_SOURCE.has(input.source)?input.source:'platform-core';
+    const consumers=Array.isArray(input.consumers)&&input.consumers.length
+      ? [...new Set(input.consumers.map(String))]
+      : ['library','editor'];
+    return Object.freeze({
+      label:id,
+      category:'ui',
+      version:1,
+      status,
+      source,
+      sourceRoute:'',
+      ownerFiles:[],
+      consumers,
+      previewProps:{},
+      editorProps:{},
+      controls:[],
+      ...input,
+      id,
+      status,
+      source,
+      consumers,
+      ownerFiles:Array.isArray(input.ownerFiles)?[...input.ownerFiles]:[],
+      previewProps:input.previewProps&&typeof input.previewProps==='object'?clone(input.previewProps):{},
+      editorProps:input.editorProps&&typeof input.editorProps==='object'?clone(input.editorProps):{},
+      controls:Array.isArray(input.controls)?[...input.controls]:[]
+    });
+  }
+
+  function canConsume(definition,consumer,{allowCandidate=false}={}){
+    if(!definition)return false;
+    if(definition.status==='deprecated')return false;
+    if(!allowCandidate&&definition.status!=='approved')return false;
+    return definition.consumers.includes(String(consumer||''));
+  }
+
+  const registry={
+    register(input){
+      const definition=normalizeDefinition(input);
+      definitions.set(definition.id,definition);
+      return definition;
+    },
+    get(id){return definitions.get(String(id||''))||null;},
+    list(){return [...definitions.values()];},
+    listFor(consumer,{allowCandidate=false}={}){
+      return [...definitions.values()].filter(def=>canConsume(def,consumer,{allowCandidate}));
+    },
+    canConsume(id,consumer,options){return canConsume(definitions.get(String(id||'')),consumer,options);},
+    render(id,props={},context={}){
+      const definition=definitions.get(String(id||''));
+      if(!definition)throw new Error(`Unknown platform module: ${id}`);
+      const consumer=String(context.consumer||'library');
+      if(!canConsume(definition,consumer,{allowCandidate:Boolean(context.allowCandidate)})){
+        throw new Error(`Platform module is not available for ${consumer}: ${definition.id}`);
+      }
+      return definition.render(props||{},context,{escapeHtml,attr,clone,definition});
+    },
+    mount(target,id,props={},context={}){
+      if(!(target instanceof Element))throw new Error('Platform module mount target is required.');
+      const definition=definitions.get(String(id||''));
+      if(!definition)throw new Error(`Unknown platform module: ${id}`);
+      target.dataset.platformModuleHost=definition.id;
+      target.innerHTML=this.render(definition.id,props,context);
+      const cleanup=typeof definition.hydrate==='function'
+        ? definition.hydrate(target,props||{},context,{escapeHtml,attr,clone,definition})
+        : null;
+      return {definition,target,cleanup:typeof cleanup==='function'?cleanup:()=>{}};
+    },
+    previewProps(id){return clone(definitions.get(String(id||''))?.previewProps||{});},
+    editorProps(id){return clone(definitions.get(String(id||''))?.editorProps||{});},
+    provenance(id){
+      const def=definitions.get(String(id||''));if(!def)return null;
+      return {id:def.id,status:def.status,source:def.source,sourceRoute:def.sourceRoute,ownerFiles:[...def.ownerFiles],consumers:[...def.consumers],version:def.version};
+    },
+    escapeHtml,
+    attr,
+    clone
+  };
+
+  window.PlatformModuleRegistry=registry;
+})();
