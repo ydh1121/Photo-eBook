@@ -1,17 +1,15 @@
 (function(){
-  if(window.__platformEditorModuleFrameBridgeV2)return;
-  window.__platformEditorModuleFrameBridgeV2=true;
+  if(window.__platformEditorModuleFrameBridgeV3)return;
+  window.__platformEditorModuleFrameBridgeV3=true;
 
   const STORAGE_KEY='platformEditorLabDraftV1';
-  const MODULE_DEFAULTS_KEY='platformModuleDefaultsV1';
   const canvas=document.getElementById('editorCanvas');
   const root=document.querySelector('.editor-lab');
   const modules=window.PlatformModuleRegistry;
   if(!canvas||!root)return;
 
   function state(){try{const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');return parsed&&Array.isArray(parsed.blocks)?parsed:null;}catch{return null;}}
-  function moduleDefaults(){try{const value=JSON.parse(localStorage.getItem(MODULE_DEFAULTS_KEY)||'{}');return value&&typeof value==='object'?value:{};}catch{return {};}}
-  function styleFor(moduleId,block){const baseline=modules?.get(moduleId)?.styleDefaults||{};return {...baseline,...(moduleDefaults()[moduleId]||{}),...(block?.styleOverrides||{})};}
+  function styleFor(moduleId,block){const baseline=modules?.get(moduleId)?.styleDefaults||{};return {...baseline,...(block?.styleOverrides&&typeof block.styleOverrides==='object'?block.styleOverrides:{})};}
   function payloadFor(frame){
     const blockId=frame.closest('[data-editor-block]')?.dataset.editorBlock||'';
     const moduleId=frame.dataset.platformEditorModuleFrame||'';

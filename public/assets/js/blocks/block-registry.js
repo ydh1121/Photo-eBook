@@ -2,6 +2,7 @@
   if(window.PlatformBlockRegistry)return;
 
   const definitions=new Map();
+  const EDITOR_STYLE_SNAPSHOT=Symbol.for('platform.module.style.snapshot');
 
   function escapeHtml(value=''){
     return String(value??'').replace(/[&<>"']/g,char=>({
@@ -17,6 +18,12 @@
   }
 
   function normalizeBlock(block={}){
+    const rawContent=block.content&&typeof block.content==='object'&&!Array.isArray(block.content)?block.content:{};
+    const styleSnapshot=rawContent[EDITOR_STYLE_SNAPSHOT];
+    const content={...rawContent};
+    const hasExplicitStyle=Object.prototype.hasOwnProperty.call(block,'styleOverrides');
+    const explicitStyle=block.styleOverrides&&typeof block.styleOverrides==='object'&&!Array.isArray(block.styleOverrides)?block.styleOverrides:{};
+    const snapshotStyle=styleSnapshot&&typeof styleSnapshot==='object'&&!Array.isArray(styleSnapshot)?styleSnapshot:{};
     return {
       id:String(block.id||`block_${Math.random().toString(36).slice(2,10)}`),
       type:String(block.type||''),
@@ -27,8 +34,8 @@
       referenceProfiles:Array.isArray(block.referenceProfiles)?block.referenceProfiles:[],
       layout:block.layout&&typeof block.layout==='object'?block.layout:{},
       stylePresetId:String(block.stylePresetId||''),
-      styleOverrides:block.styleOverrides&&typeof block.styleOverrides==='object'&&!Array.isArray(block.styleOverrides)?block.styleOverrides:{},
-      content:block.content&&typeof block.content==='object'?block.content:{},
+      styleOverrides:hasExplicitStyle?explicitStyle:snapshotStyle,
+      content,
       evidence:Array.isArray(block.evidence)?block.evidence:[],
       aiPolicy:block.aiPolicy&&typeof block.aiPolicy==='object'?block.aiPolicy:{mode:'full'},
       revision:block.revision&&typeof block.revision==='object'?block.revision:{version:1}
