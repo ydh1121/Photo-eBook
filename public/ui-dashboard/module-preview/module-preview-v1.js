@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformModulePreviewV7)return;
-  window.__platformModulePreviewV7=true;
+  if(window.__platformModulePreviewV8)return;
+  window.__platformModulePreviewV8=true;
 
   const params=new URLSearchParams(location.search);
   const registry=window.PlatformModuleRegistry;
@@ -50,6 +50,8 @@
   function writeObject(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
   function questionStateMatches(item){
     const expected=String(item?.selected_text||'').trim();
+    const drawer=window.PhotoQuestionDrawer?.getDraft?.();
+    if(drawer)return Boolean(expected&&String(drawer.selectedText||'').trim()===expected);
     const actual=String(document.getElementById('askQuote')?.textContent||'').trim();
     return Boolean(expected&&actual===expected);
   }
@@ -121,6 +123,11 @@
     if(!key)return false;
     const item=readArray('photoRoadmapQuestionsV2').find(entry=>String(entry?.id||'')===key);
     if(!item)return false;
+    const bridge=window.PhotoQuestionDrawer;
+    if(bridge?.openSavedQuestion?.(key)){
+      finishQuestionOwnerHandoff(item);
+      return questionStateMatches(item);
+    }
     return openThroughHistoryOwner(item)||primeQuestionStateThroughOwner(item);
   }
   function questionIdFromTrigger(trigger){
@@ -136,6 +143,8 @@
     const quote=String(document.getElementById('askQuote')?.textContent||'').trim();
     const question=String(document.getElementById('askInput')?.value||'').trim();
     if(!quote||quote==='문장을 선택하면 여기에 표시됩니다.'||!question)return false;
+    const bridge=window.PhotoQuestionDrawer;
+    if(bridge?.setDraft?.({selectedText:quote,question}))return true;
     const items=readArray('photoRoadmapQuestionsV2');
     const item=items.find(entry=>String(entry?.selected_text||'').trim()===quote&&String(entry?.question||'').trim()===question)
       ||items.find(entry=>String(entry?.selected_text||'').trim()===quote);
@@ -187,7 +196,7 @@
   }
   async function ensureCollectionBase(){
     if(moduleId!=='collection-bottom-sheet')return;
-    await loadScript('/assets/js/app/app-shell.js?v=1');
+    await loadScript('/assets/js/app/app-shell.js?v=2');
     await loadScript('/assets/js/questions/drawer-enhancements.js?v=1');
     window.setupQuestionDrawer?.();
   }
