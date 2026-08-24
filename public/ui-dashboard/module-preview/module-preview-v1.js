@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformModulePreviewV4)return;
-  window.__platformModulePreviewV4=true;
+  if(window.__platformModulePreviewV8)return;
+  window.__platformModulePreviewV8=true;
 
   const params=new URLSearchParams(location.search);
   const registry=window.PlatformModuleRegistry;
@@ -15,6 +15,7 @@
   let props=consumer==='editor'?(registry.editorProps(moduleId)||{}):(registry.previewProps(moduleId)||{});
   let styleConfig=registry.clone(registry.get(moduleId)?.styleDefaults||{});
   let mounted=null;
+  const scriptLoads=new Map();
 
   document.documentElement.dataset.platformModulePreview='true';
   document.documentElement.dataset.platformModule=moduleId;
@@ -34,11 +35,202 @@
     try{styleRuntime?.apply?.(moduleId,root,styleConfig);document.documentElement.removeAttribute('data-platform-style-error');return true;}
     catch(error){document.documentElement.dataset.platformStyleError=String(error?.message||error);post('platform-preview-style-error',{message:String(error?.message||error)});return false;}
   }
-  function mount({announce=false}={}){
-    mounted?.cleanup?.();const host=stageMarkup();if(!host)return;
-    try{mounted=registry.mount(host,moduleId,props,{consumer});}
-    catch(error){host.textContent=error?.message||'모듈을 불러오지 못했습니다.';post('platform-preview-error',{message:String(error?.message||error)});return;}
+  function loadScript(src){
+    if(scriptLoads.has(src))return scriptLoads.get(src);
+    const promise=new Promise((resolve,reject)=>{
+      const existing=[...document.scripts].find(script=>(script.getAttribute('src')||'').split('?')[0]===src.split('?')[0]);
+      if(existing){resolve(existing);return;}
+      const script=document.createElement('script');script.src=src;script.async=false;script.onload=()=>resolve(script);script.onerror=()=>reject(new Error(`스크립트를 불러오지 못했습니다: ${src}`));document.body.appendChild(script);
+    });
+    scriptLoads.set(src,promise);return promise;
+  }
+  function readArray(key){try{const value=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(value)?value:[];}catch{return [];}}
+  function readObject(key){try{const value=JSON.parse(localStorage.getItem(key)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}catch{return {};}}
+  function writeArray(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
+  function writeObject(key,value){try{localStorage.setItem(key,JSON.stringify(value));}catch{}}
+  function questionStateMatches(item){
+    const expected=String(item?.selected_text||'').trim();
+    const drawer=window.PhotoQuestionDrawer?.getDraft?.();
+    if(drawer)return Boolean(expected&&String(drawer.selectedText||'').trim()===expected);
+    const actual=String(document.getElementById('askQuote')?.textContent||'').trim();
+    return Boolean(expected&&actual===expected);
+  }
+  function finishQuestionOwnerHandoff(item){
+    const input=document.getElementById('askInput');
+    if(input){
+      input.value=String(item?.question||'').trim();
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    document.getElementById('askMinimize')?.click();
+    window.__photoForceQuestionWrite?.();
+    requestAnimationFrame(()=>window.__photoForceQuestionWrite?.());
+  }
+  function findHistoryOwner(item){
+    const key=String(item?.id||'');
+    if(!key)return null;
+    document.getElementById('askHistoryTab')?.click();
+    const ownerCard=[...document.querySelectorAll('#historyList .history-item')].find(card=>String(card.dataset.historyId||'')===key);
+    return ownerCard?.querySelector('.history-open')||null;
+  }
+  function openThroughHistoryOwner(item){
+    const ownerOpen=findHistoryOwner(item);
+    if(!ownerOpen)return false;
+    ownerOpen.click();
+    if(!questionStateMatches(item))return false;
+    finishQuestionOwnerHandoff(item);
+    return true;
+  }
+  function primeQuestionStateThroughOwner(item){
+    const text=String(item?.selected_text||'').trim();
+    const bubble=document.getElementById('askBubble');
+    if(!text||!bubble||!window.getSelection)return false;
+
+    let app=document.getElementById('app');
+    let createdApp=false;
+    if(!app){
+      app=document.createElement('div');
+      app.id='app';
+      app.setAttribute('aria-hidden','true');
+      app.style.cssText='position:fixed;left:8px;top:8px;width:max-content;max-width:600px;opacity:0;pointer-events:none;z-index:-1;white-space:pre-wrap';
+      document.body.appendChild(app);
+      createdApp=true;
+    }
+    const marker=document.createElement('span');
+    marker.textContent=text;
+    marker.style.cssText='display:inline-block;font-size:16px;line-height:1.5';
+    app.appendChild(marker);
+
+    let primed=false;
+    try{
+      const range=document.createRange();
+      range.selectNodeContents(marker);
+      const selection=window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      bubble.click();
+      primed=questionStateMatches(item);
+    }catch{}
+
+    marker.remove();
+    if(createdApp)app.remove();
+    if(!primed)return false;
+    finishQuestionOwnerHandoff(item);
+    return true;
+  }
+  function openSavedQuestionThroughOwner(id){
+    const key=String(id||'');
+    if(!key)return false;
+    const item=readArray('photoRoadmapQuestionsV2').find(entry=>String(entry?.id||'')===key);
+    if(!item)return false;
+    const bridge=window.PhotoQuestionDrawer;
+    if(bridge?.openSavedQuestion?.(key)){
+      finishQuestionOwnerHandoff(item);
+      return questionStateMatches(item);
+    }
+    return openThroughHistoryOwner(item)||primeQuestionStateThroughOwner(item);
+  }
+  function questionIdFromTrigger(trigger){
+    const card=trigger?.closest?.('.collection-item');
+    const direct=String(card?.dataset.libraryId||trigger?.dataset.questionId||trigger?.dataset.id||'');
+    if(direct)return direct;
+    const text=String(card?.textContent||trigger?.closest?.('[data-library-type="question"]')?.textContent||'').trim();
+    if(!text)return '';
+    const match=readArray('photoRoadmapQuestionsV2').find(item=>text.includes(String(item?.question||'').trim()));
+    return String(match?.id||'');
+  }
+  function synchronizeQuestionOwnerBeforeSave(){
+    const quote=String(document.getElementById('askQuote')?.textContent||'').trim();
+    const question=String(document.getElementById('askInput')?.value||'').trim();
+    if(!quote||quote==='문장을 선택하면 여기에 표시됩니다.'||!question)return false;
+    const bridge=window.PhotoQuestionDrawer;
+    if(bridge?.setDraft?.({selectedText:quote,question}))return true;
+    const items=readArray('photoRoadmapQuestionsV2');
+    const item=items.find(entry=>String(entry?.selected_text||'').trim()===quote&&String(entry?.question||'').trim()===question)
+      ||items.find(entry=>String(entry?.selected_text||'').trim()===quote);
+    if(!item)return false;
+    const ownerOpen=findHistoryOwner(item);
+    if(!ownerOpen)return false;
+    ownerOpen.click();
+    const input=document.getElementById('askInput');
+    if(input&&input.value!==question){
+      input.value=question;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      input.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    window.__photoForceQuestionWrite?.();
+    return questionStateMatches(item);
+  }
+
+  if(moduleId==='collection-bottom-sheet'){
+    document.addEventListener('click',event=>{
+      const save=event.target.closest?.('#askSave');
+      if(save)synchronizeQuestionOwnerBeforeSave();
+      const trigger=event.target.closest?.('.v41-question-open,.collection-question-open');
+      if(!trigger)return;
+      const id=questionIdFromTrigger(trigger);
+      if(!openSavedQuestionThroughOwner(id))return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    },true);
+  }
+
+  function previewCollectionSource(){
+    const VIDEO_IDS='photoRoadmapVideoFavoritesV1',VIDEO_ITEMS='photoRoadmapVideoFavoriteItemsV2',ARTICLE_IDS='photoRoadmapCuratedFavoritesV1',ARTICLE_ITEMS='photoRoadmapCuratedFavoriteItemsV2',QUESTIONS='photoRoadmapQuestionsV2';
+    return {
+      getItems(){
+        const videos=readObject(VIDEO_ITEMS),articles=readObject(ARTICLE_ITEMS);
+        const videoItems=readArray(VIDEO_IDS).map(id=>videos[id]).filter(Boolean).map(item=>({...item,type:'video'}));
+        const articleItems=readArray(ARTICLE_IDS).map(id=>articles[id]).filter(Boolean).map(item=>({...item,type:'article'}));
+        const questions=readArray(QUESTIONS).map(item=>({...item,type:'question'}));
+        return [...videoItems,...articleItems,...questions];
+      },
+      removeItem(type,id){
+        if(type==='video'){writeArray(VIDEO_IDS,readArray(VIDEO_IDS).filter(value=>String(value)!==String(id)));const items=readObject(VIDEO_ITEMS);delete items[id];writeObject(VIDEO_ITEMS,items);}
+        else if(type==='article'){writeArray(ARTICLE_IDS,readArray(ARTICLE_IDS).filter(value=>String(value)!==String(id)));const items=readObject(ARTICLE_ITEMS);delete items[id];writeObject(ARTICLE_ITEMS,items);}
+        else if(type==='question')writeArray(QUESTIONS,readArray(QUESTIONS).filter(item=>String(item?.id)!==String(id)));
+      },
+      openQuestion(id){openSavedQuestionThroughOwner(id);},
+      openSettings(){}
+    };
+  }
+  async function ensureCollectionBase(){
+    if(moduleId!=='collection-bottom-sheet')return;
+    await loadScript('/assets/js/app/app-shell.js?v=2');
+    await loadScript('/assets/js/questions/drawer-enhancements.js?v=1');
+    window.setupQuestionDrawer?.();
+  }
+  async function ensureCollectionEnhancers(){
+    if(moduleId!=='collection-bottom-sheet')return;
+    await loadScript('/assets/js/collection/bulk-selection.js?v=1');
+    await loadScript('/assets/js/questions/question-actions.js?v=1');
+    await loadScript('/assets/js/questions/question-workspace.js?v=1');
+    window.dispatchEvent(new Event('pageshow'));
+    setTimeout(()=>{window.dispatchEvent(new Event('pageshow'));applyStyle();},180);
+  }
+  function normalizeStyleConfig(value){
+    const next=value&&typeof value==='object'?registry.clone(value):registry.clone(registry.get(moduleId)?.styleDefaults||{});
+    if(moduleId==='filter-chip-rail'&&!['ios-liquid','ios-flat'].includes(next.family))next.family='ios-liquid';
+    return next;
+  }
+  async function mount({announce=false}={}){
+    mounted?.cleanup?.();
+    if(moduleId==='collection-bottom-sheet')await ensureCollectionBase();
+    const host=stageMarkup();if(!host)return;
+    try{
+      const context={consumer};
+      if(moduleId==='collection-bottom-sheet')context.collectionSource=previewCollectionSource();
+      mounted=registry.mount(host,moduleId,props,context);
+      document.documentElement.removeAttribute('data-platform-mount-error');
+    }catch(error){
+      const message=String(error?.message||error);
+      document.documentElement.dataset.platformMountError=message;
+      host.textContent=message||'모듈을 불러오지 못했습니다.';
+      post('platform-preview-error',{message});
+      return;
+    }
     applyStyle();
+    if(moduleId==='collection-bottom-sheet')await ensureCollectionEnhancers();
     requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));applyStyle();});
     if(announce)post('platform-preview-ready',{canonicalModule:true,consumer,provenance:registry.provenance(moduleId),sourceOwner:'photo-public-module-source-v1'});
   }
@@ -49,14 +241,14 @@
 
   root.addEventListener('platform-filter-select',event=>post('platform-filter-chip-selection',{value:event.detail?.value||'all'}));
   root.addEventListener('platform-collection-tab',event=>post('platform-preview-state-change',{state:event.detail?.tab||'all'}));
-  root.addEventListener('platform-collection-render',event=>{if(event.detail?.tab==='settings')setTimeout(()=>{window.dispatchEvent(new Event('pageshow'));applyStyle();},0);});
+  root.addEventListener('platform-collection-render',()=>setTimeout(()=>{window.dispatchEvent(new Event('pageshow'));applyStyle();},0));
 
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin)return;const data=event.data||{};
     if(data.type==='platform-theme'){theme(data.theme);requestAnimationFrame(applyStyle);return;}
-    if(data.type==='platform-module-style'&&data.moduleId===moduleId){styleConfig=data.config&&typeof data.config==='object'?registry.clone(data.config):registry.clone(registry.get(moduleId)?.styleDefaults||{});applyStyle();return;}
+    if(data.type==='platform-module-style'&&data.moduleId===moduleId){styleConfig=normalizeStyleConfig(data.config);applyStyle();return;}
     if(data.type==='platform-module-props'&&data.moduleId===moduleId){props=data.props&&typeof data.props==='object'?registry.clone(data.props):registry.previewProps(moduleId);mount();return;}
-    if(data.type==='platform-editor-module-props'&&consumer==='editor'&&data.moduleId===moduleId){props=data.props&&typeof data.props==='object'?registry.clone(data.props):registry.editorProps(moduleId);styleConfig=data.styleConfig&&typeof data.styleConfig==='object'?registry.clone(data.styleConfig):registry.clone(registry.get(moduleId)?.styleDefaults||{});mount();post('platform-editor-module-ready',{consumer:'editor'});return;}
+    if(data.type==='platform-editor-module-props'&&consumer==='editor'&&data.moduleId===moduleId){props=data.props&&typeof data.props==='object'?registry.clone(data.props):registry.editorProps(moduleId);styleConfig=normalizeStyleConfig(data.styleConfig);mount();post('platform-editor-module-ready',{consumer:'editor'});return;}
     if(data.type==='platform-kit-state'&&data.capabilityId===moduleId){applyState(data.state);return;}
   });
 

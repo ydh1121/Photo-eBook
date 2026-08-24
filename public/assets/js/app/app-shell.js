@@ -262,6 +262,31 @@ function setupQuestionDrawer(){
     return [...map.values()].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
   }
 
+  function setExternalDraft(payload={}){
+    const selectedText=String(payload.selectedText??payload.selected_text??'').trim();
+    const question=String(payload.question??'').trim();
+    setSelectedText(selectedText,false);
+    input.value=question;
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    input.dispatchEvent(new Event('change',{bubbles:true}));
+    setTab('write');
+    return Boolean(state.selectedText&&input.value.trim());
+  }
+
+  function openExternalSavedQuestion(id){
+    const key=String(id||'');
+    const item=mergeHistory().find(row=>String(row?.id||'')===key);
+    if(!item)return false;
+    return setExternalDraft({selectedText:item.selected_text||'',question:item.question||''});
+  }
+
+  window.PhotoQuestionDrawer={
+    version:1,
+    setDraft:setExternalDraft,
+    openSavedQuestion:openExternalSavedQuestion,
+    getDraft(){return {selectedText:state.selectedText,question:String(input.value||'')};}
+  };
+
   function renderHistory(){
     const items=mergeHistory();
     if(!items.length){

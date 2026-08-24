@@ -29,7 +29,10 @@ for(const id of expected)expect(photoModules.includes(`id:'${id}'`),`Missing can
 expect((photoModules.match(/status:'approved'/g)||[]).length>=expected.length,'Photo-extracted modules must be explicitly approved.');
 expect(photoModules.includes("source:'public-extracted'"),'Photo modules must record public-page provenance.');
 expect(photoModules.includes('window.PhotoPublicModuleSource'),'Module definitions must delegate public-owned modules to the extracted public owner.');
-expect(photoModules.includes("class=\"collection-tabs platform-filter-chip-rail\""),'Generic filter chip must be extracted from the public liquid segmented rail, not secondary collection-filter chips.');
+expect(photoModules.includes('platform-filter-chip-source--liquid')&&photoModules.includes('class="collection-tabs'),'Generic filter must expose the actual public iOS liquid segmented source.');
+expect(photoModules.includes('platform-filter-chip-source--flat')&&photoModules.includes('class="collection-filter'),'Generic filter must expose the actual public iOS flat collection-filter source.');
+expect(!photoModules.includes("family:'material-flat'"),'Unapproved Material filter styling must not be registered as a canonical public filter source.');
+for(const owner of ['public/assets/js/collection/bulk-selection.js','public/assets/js/questions/question-workspace.js','public/assets/js/questions/question-actions.js','public/assets/js/app/app-shell.js'])expect(photoModules.includes(owner),`Bottom sheet provenance is missing public interaction owner: ${owner}`);
 expect(photoModules.includes("id:'device-handoff-accordion',label:'아코디언 탭'"),'Device handoff module must be labeled 아코디언 탭 in the module library.');
 expect(photoModules.includes('styleDefaults:'),'Canonical modules must record their public baseline style defaults.');
 for(const forbidden of ['function renderNav','function renderCard','function renderCollection','DEFAULT_CARDS','DEFAULT_FILTERS'])expect(!photoModules.includes(forbidden),`photo-core-modules must not contain a Library imitation renderer: ${forbidden}`);
@@ -57,8 +60,13 @@ expect(dashboardHtml.includes('data-builder-view="library"'),'/ui-dashboard/ mus
 expect(!dashboardHtml.includes('builderOpenBlockPalette'),'Legacy screen composer controls must not remain on the UI Library route.');
 expect(!dashboardHtml.includes('/ui-dashboard/sandbox/'),'UI Library must not boot from the old sandbox.');
 expect(dashboardHtml.includes('/data/ui-capabilities/v1/manifest.js'),'UI Library must load capability metadata for real module style controls.');
+expect(dashboardHtml.includes('/data/ui-capabilities/v1/module-extension-v1.js'),'UI Library must normalize capability metadata from approved module sources.');
 expect(!dashboardHtml.includes('capability-runtime-v3.js')&&!dashboardHtml.includes('global-chip-runtime-v1.js'),'UI Library must not restore sandbox capability emulation.');
 expect(dashboardHtml.includes('/assets/js/platform-modules/photo-public-module-source-v1.js'),'UI Library must load the exact public module owner.');
+
+const capabilityExtension=read('public/data/ui-capabilities/v1/module-extension-v1.js');
+expect(capabilityExtension.includes("family.options=['ios-liquid','ios-flat']"),'Approved filter families must be limited to the two completed public sources.');
+expect(capabilityExtension.includes("preset.config?.family!=='material-flat'"),'Material filter preset must be removed until Block Lab promotion.');
 
 const libraryController=read('public/assets/js/ui-dashboard/builder-library-reference-v1.js');
 expect(libraryController.includes("registry.listFor('library')"),'UI Library catalog must come from approved modules.');
@@ -90,11 +98,16 @@ expect(modulePreview.includes("const consumer=params.get('embed')==='editor'?'ed
 expect(modulePreview.includes('platform-editor-module-props'),'Shared preview host must accept Editor props.');
 expect(modulePreview.includes('platform-module-style'),'Shared preview host must accept standard module style config.');
 expect(modulePreview.includes("sourceOwner:'photo-public-module-source-v1'"),'Preview must identify the actual public source owner.');
+for(const owner of ['/assets/js/app/app-shell.js','/assets/js/collection/bulk-selection.js','/assets/js/questions/question-actions.js','/assets/js/questions/question-workspace.js'])expect(modulePreview.includes(owner),`Collection preview must execute public interaction owner: ${owner}`);
+expect(modulePreview.includes('previewCollectionSource'),'Collection preview must use the same storage-backed item model as the public interaction owners.');
 
 const styleRuntime=read('public/assets/js/platform-modules/module-style-runtime-v1.js');
 expect(styleRuntime.includes("data-module-disabled=\"true\""),'Bottom sheet disable state must suppress its complete module surface.');
 expect(styleRuntime.includes('hasCustomAccent'),'Canonical liquid baseline must not be flattened unless accent is customized.');
 expect(styleRuntime.includes("--lg-blue-a")&&styleRuntime.includes('color-mix'),'Custom liquid accents must retain a gradient hierarchy.');
+expect(styleRuntime.includes('platform-filter-chip-source--flat')&&styleRuntime.includes('platform-filter-chip-source--liquid'),'Style runtime must switch between actual public filter source variants.');
+expect(styleRuntime.includes("value.family==='ios-flat'?'ios-flat':'ios-liquid'"),'Unsupported filter families must fail closed to an approved public source.');
+expect(styleRuntime.includes("['bulkSelection']")||styleRuntime.includes("has(value,'bulkSelection')"),'Bottom sheet style runtime must control the actual bulk-selection feature.');
 
 const editorHtml=read('public/editor-lab/index.html');
 expect(!editorHtml.includes('/assets/js/block-lab/'),'Block Editor must not load Block Lab JavaScript.');
