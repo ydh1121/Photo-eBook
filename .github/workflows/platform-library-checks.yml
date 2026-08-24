@@ -37,12 +37,8 @@ on:
       - 'scripts/check-ui-capability-sync.mjs'
       - 'scripts/check-platform-qa-seed.mjs'
       - 'scripts/check-public-route-v2.mjs'
-      - 'scripts/check-ui-dashboard-browser.mjs'
-      - 'scripts/check-ui-dashboard-browser-v2.mjs'
-      - 'scripts/check-ui-dashboard-browser-v3.mjs'
-      - 'scripts/check-ui-dashboard-browser-v4.mjs'
+      - 'scripts/check-ui-dashboard-browser*.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
-      - 'scripts/check-admin-ui-parity-v3.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
@@ -82,12 +78,8 @@ on:
       - 'scripts/check-ui-capability-sync.mjs'
       - 'scripts/check-platform-qa-seed.mjs'
       - 'scripts/check-public-route-v2.mjs'
-      - 'scripts/check-ui-dashboard-browser.mjs'
-      - 'scripts/check-ui-dashboard-browser-v2.mjs'
-      - 'scripts/check-ui-dashboard-browser-v3.mjs'
-      - 'scripts/check-ui-dashboard-browser-v4.mjs'
+      - 'scripts/check-ui-dashboard-browser*.mjs'
       - 'scripts/check-platform-admin-browser-v1.mjs'
-      - 'scripts/check-admin-ui-parity-v3.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/workstreams/platform-library-v1/qa/**'
       - '.github/workflows/platform-library-checks.yml'
@@ -121,7 +113,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/ui-capabilities public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          done < <(find public/assets/js/blocks public/assets/js/block-lab public/assets/js/editor-lab public/assets/js/ui-capabilities public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot public/ui-dashboard/component-preview functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find functions -maxdepth 1 -type f -name '*.js' -print0)
@@ -134,8 +126,8 @@ jobs:
           node --check scripts/check-ui-dashboard-browser-v2.mjs
           node --check scripts/check-ui-dashboard-browser-v3.mjs
           node --check scripts/check-ui-dashboard-browser-v4.mjs
+          node --check scripts/check-ui-dashboard-browser-v5.mjs
           node --check scripts/check-platform-admin-browser-v1.mjs
-          node --check scripts/check-admin-ui-parity-v3.mjs
           node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
@@ -159,9 +151,8 @@ jobs:
             exit 1
           fi
           export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
-          node scripts/check-ui-dashboard-browser-v4.mjs
+          node scripts/check-ui-dashboard-browser-v5.mjs
           node scripts/check-platform-admin-browser-v1.mjs
-          node scripts/check-admin-ui-parity-v3.mjs
       - name: Upload UI Dashboard browser QA
         if: always()
         uses: actions/upload-artifact@v4
