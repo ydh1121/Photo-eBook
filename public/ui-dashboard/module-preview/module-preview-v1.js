@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformModulePreviewV8)return;
-  window.__platformModulePreviewV8=true;
+  if(window.__platformModulePreviewV9)return;
+  window.__platformModulePreviewV9=true;
 
   const params=new URLSearchParams(location.search);
   const registry=window.PlatformModuleRegistry;
@@ -210,7 +210,7 @@
   }
   function normalizeStyleConfig(value){
     const next=value&&typeof value==='object'?registry.clone(value):registry.clone(registry.get(moduleId)?.styleDefaults||{});
-    if(moduleId==='filter-chip-rail'&&!['ios-liquid','ios-flat'].includes(next.family))next.family='ios-liquid';
+    if(moduleId==='filter-chip-rail'&&!['ios-liquid','ios-flat','material-flat'].includes(next.family))next.family='ios-liquid';
     return next;
   }
   async function mount({announce=false}={}){
@@ -232,7 +232,7 @@
     applyStyle();
     if(moduleId==='collection-bottom-sheet')await ensureCollectionEnhancers();
     requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));applyStyle();});
-    if(announce)post('platform-preview-ready',{canonicalModule:true,consumer,provenance:registry.provenance(moduleId),sourceOwner:'photo-public-module-source-v1'});
+    if(announce)post('platform-preview-ready',{canonicalModule:true,consumer,provenance:registry.provenance(moduleId),sourceOwner:registry.get(moduleId)?.source||'platform-canonical'});
   }
   function applyState(state){
     if(moduleId==='collection-bottom-sheet'){mounted?.api?.setState?.({tab:String(state||'all'),filter:'all'});mounted?.api?.open?.(String(state||'all'));applyStyle();return;}
