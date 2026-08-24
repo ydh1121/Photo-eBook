@@ -64,6 +64,7 @@ async function verifyPublicReference(context){
 
 async function verifyLibrary(context,publicRef){
   const page=await context.newPage();await page.setViewportSize({width:1440,height:1000});
+  const browserErrors=[];page.on('pageerror',error=>browserErrors.push(`pageerror:${error.message}`));page.on('console',message=>{if(message.type()==='error')browserErrors.push(`console:${message.text()}`);});
   await page.goto(`${BASE}/ui-dashboard/`,{waitUntil:'domcontentloaded'});
   await waitUntil(()=>page.evaluate(()=>Boolean(window.PlatformModuleRegistry&&document.querySelectorAll('[data-kit-ui]').length)),'Library did not initialize',25000);
   const ids=await page.evaluate(()=>window.PlatformModuleRegistry.listFor('library').map(x=>x.id));
@@ -71,7 +72,22 @@ async function verifyLibrary(context,publicRef){
 
   let frame=await choose(page,'filter-chip-rail');
   const module=frame.locator('[data-platform-module="filter-chip-rail"]');
-  await waitUntil(()=>module.count().then(n=>n===1),'canonical filter module missing',8000);
+  try{
+    await waitUntil(()=>module.count().then(n=>n===1),'canonical filter module missing',8000);
+  }catch(error){
+    const diag=await frame.evaluate(()=>({
+      module:document.documentElement.dataset.platformModule||'',
+      consumer:document.documentElement.dataset.platformModuleConsumer||'',
+      mountError:document.documentElement.dataset.platformMountError||'',
+      styleError:document.documentElement.dataset.platformStyleError||'',
+      registry:window.PlatformModuleRegistry?.listFor?.('library')?.map(item=>item.id)||[],
+      host:document.querySelector('#platformModuleHost')?.innerHTML||'',
+      root:document.querySelector('#platformModulePreviewRoot')?.innerHTML||'',
+      body:(document.body?.innerText||'').slice(0,1200)
+    }));
+    console.error('FILTER_PREVIEW_DIAGNOSTIC',JSON.stringify({diag,browserErrors},null,2));
+    throw error;
+  }
   const liquid=frame.locator('.platform-filter-chip-source--liquid');
   const flat=frame.locator('.platform-filter-chip-source--flat');
   assert(!(await liquid.isHidden()),'iOS liquid source should be the default');
@@ -125,8 +141,8 @@ async function verifyLibrary(context,publicRef){
 
   await page.locator('#kitSettings').click();
   const bulkControl=page.locator('[data-style-control="bulkSelection"]');assert(await bulkControl.count()===1,'bulk selection style toggle missing');
-  await bulkControl.uncheck();await sleep(120);
-  assert(await frame.locator('.collection-select-toggle').isHidden(),'bulkSelection=false did not hide actual selection UI');
+  await bulkControl.uncheck();await sleep(280);
+  assert(await frame.locator('.collection-select-toggle').isHidden(),'bulkSelection=false did not hide actual selection UI after enhancer refresh');
   await page.locator('[data-style-reset]').click();await page.locator('[data-kit-close]').click();
 
   frame=await choose(page,'horizontal-card-rail');
