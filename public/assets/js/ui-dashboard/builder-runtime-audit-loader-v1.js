@@ -8,6 +8,7 @@
     {src:'/ui-dashboard/sandbox/global-chip-runtime-v1.js?v=4',marker:'globalChipRuntimeV4'},
     {src:'/ui-dashboard/sandbox/filter-chip-live-runtime-v2.js?v=1',marker:'filterChipLiveRuntimeV2'},
     {src:'/ui-dashboard/sandbox/runtime-audit-patch-v1.js?v=4',marker:'runtimeAuditPatchV4'},
+    {src:'/ui-dashboard/sandbox/bottom-sheet-parity-v1.js?v=1',marker:'bottomSheetParityV1'},
     {src:'/ui-dashboard/sandbox/runtime-dynamic-config-guard-v1.js?v=1',marker:'runtimeDynamicConfigGuardV1'}
   ];
 
