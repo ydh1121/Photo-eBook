@@ -6,7 +6,7 @@
   if(!frame||!panelLayer)return;
 
   const STORAGE_KEY='platformBuilderSideAdsV1';
-  const DEFAULTS={enabled:false,width:110,height:430,top:108,gap:40,follow:true};
+  const DEFAULTS={enabled:false,width:110,height:430,top:108,gap:56,follow:true};
   const panels=new Map();
 
   function read(){try{const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');return v&&typeof v==='object'?v:{};}catch{return {};}}
@@ -25,9 +25,8 @@
   }
   function panelMinLeft(){return adminInset()+6;}
 
-  /* This module owns only ad configuration and inspector UI.
-     Geometry/visibility is owned exclusively by builder-side-ad-zone-audit-v1.js
-     so scroll/resize cannot have two writers racing on data-ad-zone-active. */
+  /* This module owns configuration and inspector UI only.
+     Stable outer-gutter geometry is owned by builder-side-ad-zone-audit-v1.js. */
   function mirror(side){
     const node=slot(side);if(!node)return;
     const cfg=config(side);
@@ -58,7 +57,7 @@
     const panel=document.createElement('section');
     panel.className='builder-inspector builder-ad-inspector is-active';
     panel.dataset.adInspector=side;
-    panel.innerHTML=`<header class="builder-inspector__head"><div><small>광고 영역</small><strong>${label(side)} 광고</strong></div><button type="button" data-close-ad-inspector aria-label="닫기">×</button></header><div class="builder-inspector__body"><div class="builder-inspector__actual"><span>배치<b>콘텐츠 외곽 레일</b></span><span>노출<b>메인 히어로 이후 유지</b></span></div><section class="builder-control-group"><strong>표시</strong><div class="builder-control-grid"><label class="builder-control builder-control--boolean"><span>사용</span><input type="checkbox" data-ad-control="enabled" ${cfg.enabled?'checked':''}></label><label class="builder-control builder-control--boolean"><span>스크롤 따라가기</span><input type="checkbox" data-ad-control="follow" ${cfg.follow?'checked':''}></label></div></section><section class="builder-control-group"><strong>크기와 위치</strong><div class="builder-control-grid">${control('폭','width',cfg.width,{min:90,max:220,step:2})}${control('높이','height',cfg.height,{min:180,max:700,step:10})}${control('상단 기준','top',cfg.top,{min:82,max:260,step:2})}${control('콘텐츠 간격','gap',cfg.gap,{min:24,max:80,step:2})}</div></section><section class="builder-inspector__memo"><p>광고는 첫 메인 히어로를 지나면 현재 보이는 본문 콘텐츠의 바깥쪽 여백에 배치됩니다. 챕터 히어로 위에는 겹치지 않습니다.</p></section></div><footer class="builder-inspector__foot"><button type="button" data-ad-reset>초기값</button><button type="button" data-primary data-ad-enable>${cfg.enabled?'광고 끄기':'광고 켜기'}</button></footer>`;
+    panel.innerHTML=`<header class="builder-inspector__head"><div><small>광고 영역</small><strong>${label(side)} 광고</strong></div><button type="button" data-close-ad-inspector aria-label="닫기">×</button></header><div class="builder-inspector__body"><div class="builder-inspector__actual"><span>배치<b>PC 바깥 고정 레일</b></span><span>노출<b>히어로와 무관하게 유지</b></span></div><section class="builder-control-group"><strong>표시</strong><div class="builder-control-grid"><label class="builder-control builder-control--boolean"><span>사용</span><input type="checkbox" data-ad-control="enabled" ${cfg.enabled?'checked':''}></label><label class="builder-control builder-control--boolean"><span>스크롤 따라가기</span><input type="checkbox" data-ad-control="follow" ${cfg.follow?'checked':''}></label></div></section><section class="builder-control-group"><strong>크기와 위치</strong><div class="builder-control-grid">${control('폭','width',cfg.width,{min:90,max:220,step:2})}${control('높이','height',cfg.height,{min:180,max:700,step:10})}${control('상단 기준','top',cfg.top,{min:82,max:260,step:2})}${control('본문 최소 간격','gap',cfg.gap,{min:24,max:160,step:2})}</div></section><section class="builder-inspector__memo"><p>PC 광고는 현재 보이는 챕터가 아니라 페이지의 공통 콘텐츠 폭을 기준으로 좌우 바깥 여백 중앙에 고정됩니다. 히어로를 지나갈 때 숨었다 나타나지 않습니다. 좌측 광고까지 확인하려면 상단의 ‘캔버스 넓게’를 사용하세요.</p></section></div><footer class="builder-inspector__foot"><button type="button" data-ad-reset>초기값</button><button type="button" data-primary data-ad-enable>${cfg.enabled?'광고 끄기':'광고 켜기'}</button></footer>`;
     panel.style.left=side==='left'?`${adminInset()+16}px`:'auto';
     panel.style.right=side==='right'?'16px':'auto';
     panel.style.top='86px';
@@ -69,21 +68,15 @@
     focus(side);
   }
 
-  function notifyGeometry(){
-    document.dispatchEvent(new CustomEvent('platform-builder-side-ad-config-change'));
-  }
+  function notifyGeometry(){document.dispatchEvent(new CustomEvent('platform-builder-side-ad-config-change'));}
 
   function bindPanel(panel,side){
     panel.querySelector('[data-close-ad-inspector]')?.addEventListener('click',()=>close(side));
     panel.querySelector('[data-ad-reset]')?.addEventListener('click',()=>{
-      save(side,{...DEFAULTS});
-      mirror(side);
-      notifyGeometry();
-      refresh(side);
+      save(side,{...DEFAULTS});mirror(side);notifyGeometry();refresh(side);
     });
     panel.querySelector('[data-ad-enable]')?.addEventListener('click',()=>{
-      const next=config(side);next.enabled=!next.enabled;save(side,next);
-      mirror(side);notifyGeometry();refresh(side);
+      const next=config(side);next.enabled=!next.enabled;save(side,next);mirror(side);notifyGeometry();refresh(side);
     });
     panel.querySelectorAll('[data-ad-control]').forEach(input=>input.addEventListener('input',()=>{
       const key=input.dataset.adControl,next=config(side);
