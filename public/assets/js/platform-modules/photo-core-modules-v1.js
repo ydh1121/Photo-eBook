@@ -27,29 +27,32 @@
   }
 
   function normalizeNav(items){
-    return (Array.isArray(items)&&items.length?items:DEFAULT_NAV).map((item,index)=>({
+    const source=Array.isArray(items)&&items.length?items:DEFAULT_NAV;
+    return source.map((item,index)=>({
       id:String(item?.id||item?.target||`chapter-${index}`),
       label:String(item?.label||item?.['칩']||item?.title||`메뉴 ${index+1}`)
     }));
   }
 
+  function normalizeFilters(items){
+    const source=Array.isArray(items)?items:DEFAULT_FILTERS;
+    return source.map((item,index)=>{
+      if(item&&typeof item==='object')return {id:String(item.id||item.value||`filter-${index}`),label:String(item.label||item.value||`필터 ${index+1}`),family:String(item.family||'inherit')};
+      return {id:`filter-${index}`,label:String(item),family:'inherit'};
+    });
+  }
+
   function renderNav(props={},context={}){
     const items=normalizeNav(props.items);
+    const activeIndex=Math.max(0,Math.min(items.length-1,Number(props.activeIndex||0)));
     const nav=`<div class="nav-placeholder" aria-hidden="true"></div><div class="nav-shell" data-platform-module="top-chapter-navigation">
       <nav class="nav-scroll" aria-label="${attr(props.ariaLabel||'챕터')}">
-        ${items.map((item,index)=>`<button class="nav-chip ${index===Number(props.activeIndex||0)?'is-active':''}" data-target="${attr(item.id)}">${esc(item.label)}</button>`).join('')}
+        ${items.map((item,index)=>`<button class="nav-chip ${index===activeIndex?'is-active':''}" data-target="${attr(item.id)}">${esc(item.label)}</button>`).join('')}
       </nav>
       <div class="read-progress"><div class="read-progress__bar"></div></div>
     </div>`;
     if(context.consumer==='public')return nav;
     return `${nav}<div class="platform-module-nav-targets" aria-hidden="true">${items.map(item=>`<section id="${attr(item.id)}" class="chapter" data-chapter="${attr(item.id)}"></section>`).join('')}</div>`;
-  }
-
-  function normalizeFilters(items){
-    return (Array.isArray(items)&&items.length?items:DEFAULT_FILTERS).map((item,index)=>{
-      if(item&&typeof item==='object')return {id:String(item.id||item.value||`filter-${index}`),label:String(item.label||item.value||`필터 ${index+1}`),family:String(item.family||'inherit')};
-      return {id:`filter-${index}`,label:String(item),family:'inherit'};
-    });
   }
 
   function renderFilterButtons(items,activeId){
@@ -90,9 +93,7 @@
   }
 
   function renderDeviceRow(props={}){
-    const button=`<button class="collection-setting-row" id="collectionDeviceLink" type="button" aria-expanded="false"><span><strong>${esc(props.title||'다른 기기에서 이어보기')}</strong><small>${esc(props.description||'저장한 질문을 다른 기기에서도 확인할 수 있게 연결합니다.')}</small></span><b>›</b></button>`;
-    if(props.wrap===false)return button;
-    return `<div class="collection-device-module" data-platform-module="device-handoff-accordion">${button}</div>`;
+    return `<button class="collection-setting-row" id="collectionDeviceLink" data-platform-module="device-handoff-accordion" type="button" aria-expanded="false"><span><strong>${esc(props.title||'다른 기기에서 이어보기')}</strong><small>${esc(props.description||'저장한 질문을 다른 기기에서도 확인할 수 있게 연결합니다.')}</small></span><b>›</b></button>`;
   }
 
   function renderFab(props={}){
@@ -102,7 +103,7 @@
   function renderCollectionShell(props={}){
     const activeTab=String(props.activeTab||'all');
     const tabs=[['all','전체'],['video','영상'],['article','읽을거리'],['question','질문'],['settings','설정']];
-    const filterMarkup=renderFilterRail({items:props.filterItems||DEFAULT_FILTERS,activeId:props.activeFilter||'all'});
+    const filterMarkup=renderFilterRail({items:Array.isArray(props.filterItems)?props.filterItems:DEFAULT_FILTERS,activeId:props.activeFilter||'all'});
     const defaultBody='<div class="collection-empty"><div class="collection-empty__icon">'+collectionIcon()+'</div><strong>아직 저장한 항목이 없습니다.</strong><p>관심 있는 영상과 글, 질문을 저장해 두면 여기서 한 번에 찾을 수 있습니다.</p></div>';
     const bodyMarkup=has(props,'bodyHtml')?String(props.bodyHtml||''):defaultBody;
     return `<div id="collectionLayer" data-platform-module="collection-bottom-sheet">
@@ -137,41 +138,17 @@
     if(props.open!==false)open();
   }
 
-  registry.register({
-    id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:1,
-    ownerFiles:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/navigation/chapter-navigation.js','public/assets/styles/desktop/nav-corrections.css'],
-    previewProps:{items:DEFAULT_NAV},editorProps:{items:DEFAULT_NAV},render:renderNav,
-    hydrate(host,props,context){if(context.consumer==='library'&&typeof window.setupNavigation==='function')requestAnimationFrame(()=>window.setupNavigation());}
-  });
+  const publicOwners={
+    nav:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/navigation/chapter-navigation.js','public/assets/styles/desktop/nav-corrections.css'],
+    card:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/desktop/rail-drag.js','public/assets/styles/collection/horizontal-rails.css'],
+    collection:['public/assets/js/collection/collection-hub.js','public/assets/styles/collection/hub.css'],
+    device:['public/assets/js/collection/device-handoff.js','public/assets/styles/collection/device-accordion.css']
+  };
 
-  registry.register({
-    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:1,
-    ownerFiles:['public/assets/js/collection/collection-hub.js','public/assets/styles/collection/hub.css'],
-    previewProps:{items:DEFAULT_FILTERS,activeId:'all'},editorProps:{items:DEFAULT_FILTERS,activeId:'all',domId:false},render:renderFilterRail,hydrate:hydrateFilterRail
-  });
-
-  registry.register({
-    id:'horizontal-card-rail',label:'가로 카드',category:'content',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['library','editor'],version:1,
-    ownerFiles:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/desktop/rail-drag.js','public/assets/styles/collection/horizontal-rails.css'],
-    previewProps:{items:DEFAULT_CARDS},editorProps:{items:DEFAULT_CARDS},render:renderCardRail
-  });
-
-  registry.register({
-    id:'collection-bottom-sheet',label:'하단 팝업',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:1,
-    ownerFiles:['public/assets/js/collection/collection-hub.js','public/assets/styles/collection/hub.css'],
-    previewProps:{open:true,activeTab:'all',filterItems:DEFAULT_FILTERS},editorProps:{open:true,activeTab:'all',filterItems:DEFAULT_FILTERS},render:renderCollectionShell,hydrate:hydrateCollectionPreview
-  });
-
-  registry.register({
-    id:'device-handoff-accordion',label:'다른 기기',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:1,
-    ownerFiles:['public/assets/js/collection/device-handoff.js','public/assets/styles/collection/device-accordion.css'],
-    previewProps:{},editorProps:{},render:renderDeviceRow,
-    hydrate(host,props,context){if(context.consumer==='library'&&typeof window.dispatchEvent==='function')setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}
-  });
-
-  registry.register({
-    id:'floating-action',label:'플로팅 버튼',category:'action',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['library','editor'],version:1,
-    ownerFiles:['public/assets/js/collection/collection-hub.js','public/assets/styles/collection/hub.css'],
-    previewProps:{domId:'collectionFabPreview'},editorProps:{domId:'collectionFabPreview'},render:renderFab
-  });
+  registry.register({id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:2,ownerFiles:publicOwners.nav,previewProps:{items:DEFAULT_NAV},editorProps:{items:DEFAULT_NAV},render:renderNav,hydrate(host,props,context){if(context.consumer==='library'&&typeof window.setupNavigation==='function')requestAnimationFrame(()=>window.setupNavigation());}});
+  registry.register({id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:2,ownerFiles:publicOwners.collection,previewProps:{items:DEFAULT_FILTERS,activeId:'all'},editorProps:{items:DEFAULT_FILTERS,activeId:'all',domId:false},render:renderFilterRail,hydrate:hydrateFilterRail});
+  registry.register({id:'horizontal-card-rail',label:'가로 카드',category:'content',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:2,ownerFiles:publicOwners.card,previewProps:{items:DEFAULT_CARDS},editorProps:{items:DEFAULT_CARDS},render:renderCardRail});
+  registry.register({id:'collection-bottom-sheet',label:'하단 팝업',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:2,ownerFiles:publicOwners.collection,previewProps:{open:true,activeTab:'all',filterItems:DEFAULT_FILTERS},editorProps:{open:true,activeTab:'all',filterItems:DEFAULT_FILTERS},render:renderCollectionShell,hydrate:hydrateCollectionPreview});
+  registry.register({id:'device-handoff-accordion',label:'다른 기기',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:2,ownerFiles:publicOwners.device,previewProps:{},editorProps:{},render:renderDeviceRow,hydrate(host,props,context){if(context.consumer==='library'&&typeof window.dispatchEvent==='function')setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}});
+  registry.register({id:'floating-action',label:'플로팅 버튼',category:'action',status:'approved',source:'public-extracted',sourceRoute:'/',consumers:['public','library','editor'],version:2,ownerFiles:publicOwners.collection,previewProps:{domId:'collectionFabPreview'},editorProps:{domId:'collectionFabPreview'},render:renderFab});
 })();
