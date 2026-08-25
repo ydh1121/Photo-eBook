@@ -1,7 +1,9 @@
-/* v1: canonical liquid controller for nav, collection tabs, and theme controls.
+/* v2: canonical liquid controller for nav, collection tabs, and theme controls.
    Loaded immediately after the base markup helpers so first paint never depends
    on a late enhancement race. This file intentionally owns these selectors and
-   prevents the retired script-27 controller from attaching a second owner. */
+   prevents the retired script-27 controller from attaching a second owner.
+   Navigation mount detection is DOM-owner based so the same controller survives
+   Public, Library, and Editor remounts without preview-only interaction code. */
 (function(){
   if(window.__photoCanonicalLiquidInstalled)return;
   window.__photoCanonicalLiquidInstalled=true;
@@ -17,6 +19,7 @@
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
   const controllers=new WeakMap();
+  let navMountRaf=0;
 
   function currentThemeChoice(){
     const dom=document.documentElement.dataset.themeChoice;
@@ -242,15 +245,27 @@
     return true;
   }
 
-  function watchInitialNav(){
-    if(installNav())return;
-    const app=$('#app');
-    if(!app)return;
-    const observer=new MutationObserver(()=>{
-      if(installNav())observer.disconnect();
+  function nodeContainsNav(node){
+    return Boolean(node?.nodeType===1&&(node.matches?.('.nav-scroll')||node.querySelector?.('.nav-scroll')));
+  }
+
+  function scheduleNavInstall(){
+    if(navMountRaf)return;
+    navMountRaf=requestAnimationFrame(()=>{navMountRaf=0;installNav();});
+  }
+
+  function watchNavigationMounts(){
+    installNav();
+    const body=document.body;
+    if(!body||body.dataset.canonicalLiquidNavWatch==='true')return;
+    body.dataset.canonicalLiquidNavWatch='true';
+    const observer=new MutationObserver(records=>{
+      for(const record of records){
+        if([...record.addedNodes].some(nodeContainsNav)){scheduleNavInstall();return;}
+      }
     });
-    observer.observe(app,{childList:true,subtree:false,attributes:true,attributeFilter:['hidden']});
-    [80,220,520,1100,2200].forEach(delay=>setTimeout(()=>{if(installNav())observer.disconnect();},delay));
+    observer.observe(body,{childList:true,subtree:true});
+    [80,220,520,1100,2200].forEach(delay=>setTimeout(installNav,delay));
   }
 
   document.addEventListener('click',event=>{
@@ -280,6 +295,6 @@
   },{passive:true});
 
   installTheme();
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',watchInitialNav,{once:true});
-  else watchInitialNav();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',watchNavigationMounts,{once:true});
+  else watchNavigationMounts();
 })();
