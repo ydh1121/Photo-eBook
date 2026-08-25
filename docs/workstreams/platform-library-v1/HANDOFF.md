@@ -3,7 +3,7 @@
 Updated: 2026-08-26 KST
 Active implementation branch: `fix/canonical-top-nav-liquid-motion-v1`
 Production branch: `main`
-Status: `Photography top-nav canonical motion parity repair / PR QA pending`
+Status: `Photography top-nav canonical motion parity green / merge pending`
 
 ## Resume order
 
@@ -26,59 +26,50 @@ The Library must not merely reproduce its appearance. The accepted top-nav runti
 
 Library, Editor and Public must use those same owners. Preview-only interaction code is forbidden.
 
-## Regression found
+## Regression found and fixed
 
-The Library top-nav used the shared renderer, so it was not a second HTML design copy. Two runtime parity defects still made it behave like a visual-only approximation:
+The Library already used the shared renderer, but two runtime parity defects made the result behave like a visual-only approximation:
 
-1. `liquid-controller.js` bootstrapped the first nav and then stopped watching. `module-preview-v1.js` can remount the module after parent props sync, replacing that nav DOM. The replacement `.nav-scroll` could therefore lose `__photoLiquidController` and the moving liquid indicator owner.
-2. `PlatformModuleStyleRuntime` applied generic motion variables even when Library controls were still at their defaults. Those defaults overrode Photography Public's distance-aware BREEZE transition.
+1. `module-preview-v1.js` can remount the module after parent props sync. The old `liquid-controller.js` did not reliably attach to the replacement `.nav-scroll`, so the Library could lose the real liquid/BREEZE owner.
+2. `PlatformModuleStyleRuntime` applied generic motion variables even when the Library controls were at their defaults, overriding Photography Public's distance-aware BREEZE transition.
 
-Registry provenance also omitted the liquid/native-pan owners, and CI path coverage omitted `assets/js/ui`, `navigation`, and `desktop`, so the complete interaction owner was not being guarded.
+Registry provenance also omitted the liquid/native-pan owners, and CI coverage omitted the relevant UI/navigation/desktop runtime paths.
 
-## Changes on current branch
+## Changes
 
 - `public/assets/js/ui/liquid-controller.js`
-  - canonical owner now watches for newly mounted `.nav-scroll` nodes anywhere in the shared runtime DOM
-  - same controller reattaches after Library/Editor module remounts
-  - no Library-specific selector or imitation motion was added
+  - watches newly mounted `.nav-scroll` nodes across the shared runtime
+  - reattaches the same canonical controller after Library/Editor remounts
+  - no Library-only motion implementation added
 - `public/assets/js/platform-modules/module-style-runtime-v1.js`
   - default top-nav motion preserves Photography Public BREEZE
-  - response/overshoot/durationScale override only after the user changes a motion control
-  - typography settings now use canonical inline `!important` values so they can override Photography baseline CSS when explicitly edited
+  - motion override applies only after response/overshoot/durationScale is changed
+  - explicit typography edits now override Photography `!important` baseline correctly
 - `public/assets/js/platform-modules/photo-core-modules-v1.js`
-  - top-nav `ownerFiles` now records liquid controller, native pan, mobile nav, desktop nav rails/corrections
-- `public/index.html`
-  - canonical liquid owner cache marker -> `v=2`
-- `public/ui-dashboard/module-preview/index.html`
-  - canonical liquid owner -> `v=2`
-  - module definitions -> `v=9`
-  - style runtime -> `v=6`
-- `public/ui-dashboard/index.html`
-  - module definitions -> `v=9`
-- `scripts/check-top-nav-runtime-parity.mjs`
-  - Photography Public and Library both must own a live canonical liquid controller
-  - native pan must match
-  - Library remount must recover the same controller
-  - default Library easing must match Photography BREEZE
-- `scripts/check-platform-module-boundaries.mjs`
-  - complete top-nav owner set is now statically required
-- `.github/workflows/platform-library-checks.yml`
-  - UI/navigation/desktop JS and CSS owners now trigger checks
-  - those JS directories are included in syntax checks
-  - focused top-nav parity runs before the full v3 module pipeline
+  - complete top-nav ownerFiles include liquid controller, native pan, mobile nav and desktop nav runtime
+- Public and module-preview cache markers load `liquid-controller.js?v=2`
+- focused `scripts/check-top-nav-runtime-parity.mjs` added
+- static boundary and Actions path/syntax coverage expanded to the complete interaction owner set
+- stale full-pipeline selectors corrected; Editor interaction QA now uses actual Preview mode because Edit mode intentionally disables iframe pointer events
 
-## Existing CI blocker being repaired in same branch
+## Verified in PR #27
 
-The last main `Platform Library Checks` failed before reaching later assertions with:
+`Platform Library Checks` run #363 is green at code head `fc5b25b7a15d4d7daf205e64aa165644fb625685` before this documentation-only update.
 
-`top-nav font size is a no-op`
-
-The reason was Photography CSS using `!important` while `PlatformModuleStyleRuntime.applyTypography()` wrote normal inline declarations. The current branch changes those explicit Library/Editor style overrides to inline important declarations. Reset still removes the inline properties and returns to the Photography baseline.
+Verified behavior:
+- Photography Public and Library both have live canonical liquid controllers
+- Library remount recovers the same controller
+- native pan behavior matches
+- default Library easing matches Photography BREEZE
+- top-nav typography/progress controls affect canonical nodes
+- filter families, card controls and bottom-sheet controls affect canonical nodes
+- Block Editor snapshots Library defaults and canonical interaction works in Editor Preview mode
+- full `Compare Library against actual public runtime` passed
 
 ## Exact next action
 
-1. Create a PR from `fix/canonical-top-nav-liquid-motion-v1` to `main`.
-2. Run `Platform Library Checks`.
-3. Fix focused top-nav parity first if it fails.
-4. Continue through the existing full v3 module pipeline until green.
-5. Merge only after static + Chromium checks are green, then verify Cloudflare live behavior.
+1. Confirm the documentation-only head rerun remains green.
+2. Merge PR #27 into `main`.
+3. Confirm main `Platform Library Checks` and `Platform Live Deploy Check`.
+4. Verify Cloudflare live Photography/Public and Library top-nav BREEZE/native-pan behavior.
+5. Continue PC/mobile/light/dark visual QA and remaining no-op control audit.
