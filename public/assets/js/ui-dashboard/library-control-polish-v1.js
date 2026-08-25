@@ -60,6 +60,24 @@
     }
   }
 
+  function syncDesktopPreviewGap(){
+    const workspace=document.querySelector('.builder-kit-workspace');
+    if(workspace?.dataset?.activeUi!=='top-chapter-navigation'||workspace.dataset.viewport!=='desktop')return;
+    const frame=document.getElementById('builderFrame');
+    const definition=window.PlatformModuleRegistry?.get?.('top-chapter-navigation');
+    if(!frame?.contentWindow||!definition)return;
+    const saved=readStyles()['top-chapter-navigation']||{};
+    const config={...(definition.styleDefaults||{}),...saved};
+    /* The admin sidebars can make a PC preview iframe narrower than the public
+       1024px breakpoint. The PC button is an explicit simulation choice, so the
+       preview maps the desktop spacing value into the compact runtime branch.
+       Nothing is persisted and Public keeps its real-width breakpoint logic. */
+    config.mobileChipGap=config.desktopChipGap;
+    frame.contentWindow.postMessage({type:'platform-module-style',moduleId:'top-chapter-navigation',config},location.origin);
+  }
+
+  function queueDesktopPreviewGap(){requestAnimationFrame(syncDesktopPreviewGap);}
+
   function sync(){
     syncSelectorFamilies(document);
     const inspector=document.querySelector('.builder-kit-inspector:not([hidden])');
@@ -68,9 +86,23 @@
     syncFilterApplicability(inspector);
   }
 
+  document.addEventListener('input',event=>{
+    if(event.target?.matches?.('[data-style-control]'))queueDesktopPreviewGap();
+  },true);
+
   document.addEventListener('change',event=>{
     if(event.target?.matches?.('select[data-style-control="family"],select[data-style-control="chipFamily"]'))requestAnimationFrame(sync);
+    if(event.target?.matches?.('[data-style-control]'))queueDesktopPreviewGap();
   },true);
+
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('[data-kit-viewport]'))queueDesktopPreviewGap();
+  },true);
+
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin)return;
+    if(event.data?.type==='platform-preview-ready'&&event.data?.moduleId==='top-chapter-navigation')queueDesktopPreviewGap();
+  });
 
   const observer=new MutationObserver(sync);
   observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden']});
