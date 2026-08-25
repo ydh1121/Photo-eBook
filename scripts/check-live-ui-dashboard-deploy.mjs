@@ -154,7 +154,7 @@ async function verifyLiveBrowser(){
       styles:[...document.querySelectorAll('link[rel="stylesheet"]')].map(node=>node.getAttribute('href')||''),
       ids:window.PlatformModuleRegistry.listFor('editor').map(item=>item.id)
     }));
-    assert(editor.title.includes('페이지 에디터'),'live Page Editor role label is stale');
+    assert(editor.title.includes('블록 에디터'),'live Block Editor role label is stale');
     assert(!editor.scripts.some(src=>src.includes('/assets/js/block-lab/')),'live Block Editor loads Block Lab JS');
     assert(!editor.styles.some(src=>src.includes('/assets/styles/block-lab/')),'live Block Editor loads Block Lab CSS');
     assert(expected.every(id=>editor.ids.includes(id)),'live Block Editor approved module set mismatch');
