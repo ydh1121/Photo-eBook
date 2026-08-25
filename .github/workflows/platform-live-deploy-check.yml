@@ -17,9 +17,16 @@ on:
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/js/editor-lab/**'
       - 'public/assets/js/blocks/**'
+      - 'public/assets/js/desktop/**'
+      - 'public/assets/js/navigation/**'
+      - 'public/assets/js/ui/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/editor-lab/**'
+      - 'public/assets/styles/desktop/**'
+      - 'public/assets/styles/navigation/**'
+      - 'public/assets/styles/ui/**'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
+      - 'scripts/check-top-nav-runtime-parity.mjs'
       - '.github/workflows/platform-live-deploy-check.yml'
   workflow_dispatch:
 
@@ -36,7 +43,9 @@ jobs:
         with:
           node-version: '22'
       - name: Check deploy script syntax
-        run: node --check scripts/check-live-ui-dashboard-deploy.mjs
+        run: |
+          node --check scripts/check-live-ui-dashboard-deploy.mjs
+          node --check scripts/check-top-nav-runtime-parity.mjs
       - name: Install browser dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Verify Cloudflare Pages canonical module pipeline
@@ -44,7 +53,38 @@ jobs:
           UI_DASHBOARD_LIVE_URL: https://photo-ebook.pages.dev
           LIVE_DEPLOY_ATTEMPTS: '90'
           LIVE_DEPLOY_INTERVAL_MS: '4000'
-        run: node scripts/check-live-ui-dashboard-deploy.mjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/check-live-ui-dashboard-deploy.mjs
+
+          parity_status=pass
+          if ! UI_DASHBOARD_BASE_URL="$UI_DASHBOARD_LIVE_URL" node scripts/check-top-nav-runtime-parity.mjs; then
+            parity_status=fail
+          fi
+
+          TOP_NAV_PARITY_STATUS="$parity_status" node <<'NODE'
+          const fs=require('node:fs');
+          const target='artifacts/platform-live-deploy/report.json';
+          const report=JSON.parse(fs.readFileSync(target,'utf8'));
+          const ok=process.env.TOP_NAV_PARITY_STATUS==='pass';
+          report.checks=Array.isArray(report.checks)?report.checks:[];
+          report.checks.push({
+            name:'live top-nav runtime parity',
+            status:ok?'pass':'fail',
+            detail:ok
+              ?'Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing'
+              :'focused Photography/Public ↔ Library runtime parity failed'
+          });
+          if(!ok){
+            report.status='fail';
+            report.error=[report.error,'live top-nav runtime parity failed'].filter(Boolean).join('\n');
+          }
+          report.finishedAt=new Date().toISOString();
+          fs.writeFileSync(target,JSON.stringify(report,null,2)+'\n');
+          NODE
+
+          test "$parity_status" = pass
       - name: Record live deployment result
         if: always()
         shell: bash
