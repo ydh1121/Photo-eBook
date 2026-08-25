@@ -39,6 +39,7 @@ on:
       - 'public/assets/styles/desktop/**'
       - 'public/assets/styles/editor-lab/**'
       - 'public/assets/styles/navigation/**'
+      - 'public/assets/styles/platform-modules/**'
       - 'public/assets/styles/ui/**'
       - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
@@ -55,10 +56,12 @@ on:
       - 'scripts/check-platform-module-boundaries.mjs'
       - 'scripts/check-platform-module-pipeline-v1.mjs'
       - 'scripts/check-platform-module-pipeline-v3.mjs'
+      - 'scripts/check-library-setting-runtime-exhaustive-v1.mjs'
       - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/library/platform-modules/**'
       - 'docs/workstreams/platform-library-v1/**'
+      - 'AGENTS.md'
       - '.github/workflows/platform-library-checks.yml'
       - '.github/workflows/platform-live-deploy-check.yml'
   pull_request:
@@ -98,6 +101,7 @@ on:
       - 'public/assets/styles/desktop/**'
       - 'public/assets/styles/editor-lab/**'
       - 'public/assets/styles/navigation/**'
+      - 'public/assets/styles/platform-modules/**'
       - 'public/assets/styles/ui/**'
       - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
@@ -114,10 +118,12 @@ on:
       - 'scripts/check-platform-module-boundaries.mjs'
       - 'scripts/check-platform-module-pipeline-v1.mjs'
       - 'scripts/check-platform-module-pipeline-v3.mjs'
+      - 'scripts/check-library-setting-runtime-exhaustive-v1.mjs'
       - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/library/platform-modules/**'
       - 'docs/workstreams/platform-library-v1/**'
+      - 'AGENTS.md'
       - '.github/workflows/platform-library-checks.yml'
       - '.github/workflows/platform-live-deploy-check.yml'
 
@@ -127,7 +133,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 16
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -163,6 +169,7 @@ jobs:
           node --check scripts/check-platform-module-boundaries.mjs
           node --check scripts/check-platform-module-pipeline-v1.mjs
           node --check scripts/check-platform-module-pipeline-v3.mjs
+          node --check scripts/check-library-setting-runtime-exhaustive-v1.mjs
           node --check scripts/check-top-nav-runtime-parity.mjs
           node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser QA dependency
@@ -189,11 +196,14 @@ jobs:
           export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
           node scripts/check-top-nav-runtime-parity.mjs
           node scripts/check-platform-module-pipeline-v1.mjs
+          node scripts/check-library-setting-runtime-exhaustive-v1.mjs
       - name: Upload public-module parity QA
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: platform-module-pipeline-qa
-          path: artifacts/platform-module-pipeline
+          path: |
+            artifacts/platform-module-pipeline
+            artifacts/library-setting-runtime-exhaustive
           if-no-files-found: ignore
           retention-days: 7
