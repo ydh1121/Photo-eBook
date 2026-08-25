@@ -161,7 +161,12 @@
       applyTypography($$('button',source),value,{size:14,weight:680,spacing:-.28});$$('button',source).forEach(button=>{button.style.transitionDuration=`${m.duration}ms`;button.style.transitionTimingFunction=m.easing;});
       if(family==='ios-liquid'){
         if(hasCustomAccent(id,value))applyAccent(liquid,value.accentColor||'#4c7fdf');
-        const opacity=Math.max(20,Math.min(100,num(value.surfaceOpacity,54)))/100,lower=Math.max(.16,opacity*.74);liquid.style.background=`linear-gradient(180deg,rgba(249,251,254,${opacity}),rgba(237,242,249,${lower}))`;liquid.style.backdropFilter=`blur(${num(value.blur,15)}px) saturate(125%)`;liquid.style.webkitBackdropFilter=liquid.style.backdropFilter;requestAnimationFrame(()=>liquid.__photoLiquidController?.update?.({instant:true}));
+        const opacity=Math.max(20,Math.min(100,num(value.surfaceOpacity,54)))/100,lower=Math.max(.16,opacity*.74);
+        liquid.style.setProperty('background',`linear-gradient(180deg,rgba(249,251,254,${opacity}),rgba(237,242,249,${lower}))`,'important');
+        const filter=`blur(${num(value.blur,15)}px) saturate(125%)`;
+        liquid.style.setProperty('backdrop-filter',filter,'important');
+        liquid.style.setProperty('-webkit-backdrop-filter',filter,'important');
+        requestAnimationFrame(()=>liquid.__photoLiquidController?.update?.({instant:true}));
       }else if(family==='ios-flat'){
         const opacity=Math.max(20,Math.min(100,num(value.surfaceOpacity,92)))/100;iosFlat.style.background=`rgba(235,238,244,${opacity})`;iosFlat.style.backdropFilter=`blur(${num(value.blur,8)}px) saturate(115%)`;iosFlat.style.webkitBackdropFilter=iosFlat.style.backdropFilter;
       }else{
