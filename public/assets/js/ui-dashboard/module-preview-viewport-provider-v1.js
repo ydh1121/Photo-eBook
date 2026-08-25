@@ -9,8 +9,8 @@
         const library=window.parent.document.querySelector('.builder-kit-workspace')?.dataset?.viewport;
         if(library==='desktop'||library==='mobile')return library;
         const editor=window.parent.document.querySelector('.editor-lab')?.dataset?.preview;
-        if(editor==='mobile')return'mobile';
-        if(editor==='desktop'||editor==='tablet')return'desktop';
+        if(editor==='desktop')return'desktop';
+        if(editor==='tablet'||editor==='mobile')return'mobile';
       }catch{}
     }
     return window.innerWidth<1024?'mobile':'desktop';
