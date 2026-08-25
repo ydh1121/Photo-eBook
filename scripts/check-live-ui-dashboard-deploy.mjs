@@ -115,8 +115,9 @@ async function verifyLiveBrowser(){
         await waitFrameCount(frame,'.nav-shell[data-platform-module="top-chapter-navigation"] .nav-chip',8,'live canonical nav missing');
       }
       if(id==='filter-chip-rail'){
-        await waitFrameCount(frame,'#collectionFilters .collection-filter',4,'live canonical filter chips missing');
-        const chips=frame.locator('#collectionFilters .collection-filter');
+        const chipsSelector='.platform-filter-chip-module .platform-filter-chip-source:not([hidden]) [data-platform-filter-id]';
+        await waitFrameCount(frame,chipsSelector,4,'live canonical filter chips missing');
+        const chips=frame.locator(chipsSelector);
         const labels=await chips.allTextContents();assert(labels.every(label=>label&&!label.includes('[object Object]')),'live filter normalization regressed');
       }
       if(id==='collection-bottom-sheet'){
