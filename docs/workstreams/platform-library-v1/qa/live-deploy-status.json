@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-25T16:57:33.768Z",
+  "startedAt": "2026-08-25T17:00:23.912Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-25T16:57:33.768Z",
+      "at": "2026-08-25T17:00:23.913Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 2183
@@ -37,14 +37,28 @@
       "name": "live Block Lab boundary",
       "status": "pass",
       "detail": "research-only"
+    },
+    {
+      "name": "live Block Editor boundary",
+      "status": "pass",
+      "detail": "approved modules only"
+    },
+    {
+      "name": "live public migration",
+      "status": "pass",
+      "detail": "top navigation uses canonical module; remaining public adapters can migrate incrementally"
+    },
+    {
+      "name": "live top-nav runtime parity",
+      "status": "pass",
+      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
     }
   ],
-  "status": "fail",
-  "error": "Error: live Page Editor role label is stale\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:16:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:157:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:183:3",
-  "finishedAt": "2026-08-25T16:57:45.749Z",
-  "sourceSha": "5f75379ccfac9570dbac8426947970c625904685",
+  "status": "pass",
+  "finishedAt": "2026-08-25T17:00:49.716Z",
+  "sourceSha": "a77195ba5d4222d32f0a0eefb2275642201e14cb",
   "sourceRef": "main",
-  "workflowRunId": "32875019556",
-  "workflowRunNumber": "29",
-  "recordedAt": "2026-08-25T16:57:46.301Z"
+  "workflowRunId": "32875297085",
+  "workflowRunNumber": "30",
+  "recordedAt": "2026-08-25T17:00:51.297Z"
 }
