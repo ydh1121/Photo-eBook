@@ -12,7 +12,7 @@
   function relabel(root=document){
     root.querySelectorAll('select[data-style-control] option').forEach(option=>{
       const label=LABELS[option.value];
-      if(label)option.textContent=label;
+      if(label&&option.textContent!==label)option.textContent=label;
     });
   }
 
@@ -21,11 +21,13 @@
     const blur=root.querySelector('input[data-style-control="blur"]');
     if(!family||!blur)return;
     const material=family.value==='material-flat';
-    blur.disabled=material;
+    if(blur.disabled!==material)blur.disabled=material;
     const label=blur.closest('.builder-control');
     if(label){
-      label.dataset.controlUnavailable=String(material);
-      label.title=material?'Material 스타일은 배경 블러를 사용하지 않습니다.':'';
+      const unavailable=String(material);
+      if(label.dataset.controlUnavailable!==unavailable)label.dataset.controlUnavailable=unavailable;
+      const title=material?'Material 스타일은 배경 블러를 사용하지 않습니다.':'';
+      if(label.title!==title)label.title=title;
     }
   }
 
