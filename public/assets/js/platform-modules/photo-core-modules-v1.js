@@ -6,7 +6,15 @@
 
   const shared=['public/assets/js/platform-modules/photo-public-module-source-v1.js'];
   const origin={
-    nav:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/navigation/chapter-navigation.js','public/assets/styles/desktop/nav-corrections.css'],
+    nav:[
+      'public/content-packs/photography/runtime/chapter-renderers.js',
+      'public/assets/js/navigation/chapter-navigation.js',
+      'public/assets/js/ui/liquid-controller.js',
+      'public/assets/styles/navigation/mobile-nav-curated.css',
+      'public/assets/styles/navigation/native-pan-fab-clearance.css',
+      'public/assets/styles/desktop/nav-rails.css',
+      'public/assets/styles/desktop/nav-corrections.css'
+    ],
     card:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/desktop/rail-drag.js','public/assets/styles/collection/horizontal-rails.css'],
     collection:[
       'public/assets/js/collection/collection-hub.js',
@@ -42,7 +50,6 @@
   function renderButtons(items,activeId,className){
     return items.map((item,index)=>`<button type="button" class="${className} ${item.id===activeId||(!activeId&&index===0)?'is-active':''}" data-platform-filter-id="${attr(item.id)}" aria-pressed="${item.id===activeId||(!activeId&&index===0)?'true':'false'}">${esc(item.label)}</button>`).join('');
   }
-
   function renderGenericFilterRail(props={}){
     const items=normalizeGenericFilterItems(props.items||props.options);
     const activeId=String(props.activeId||items[0]?.id||'all');
@@ -56,7 +63,6 @@
       <div class="platform-filter-chip-source platform-filter-chip-source--material-flat" role="group" aria-label="${label}" hidden>${materialButtons}</div>
     </div>`;
   }
-
   function hydrateGenericFilterRail(host){
     const module=host.matches?.('[data-platform-module="filter-chip-rail"]')?host:host.querySelector('[data-platform-module="filter-chip-rail"]');
     if(!module||module.dataset.platformFilterBound==='true')return;

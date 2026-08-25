@@ -66,10 +66,10 @@
   function hasCustomAccent(id,value){return Boolean(value?.accentColor)&&String(value.accentColor).toLowerCase()!==String(baselineAccent(id)).toLowerCase();}
   function applyTypography(nodes,value,{size=14,weight=680,spacing=-.28}={}){
     nodes.forEach(node=>{
-      node.style.fontFamily=fontStack(value.fontFamily);
-      node.style.fontSize=`${num(value.fontSize,size)}px`;
-      node.style.fontWeight=String(num(value.fontWeight,weight));
-      node.style.letterSpacing=`${num(value.letterSpacing,spacing)}px`;
+      node.style.setProperty('font-family',fontStack(value.fontFamily),'important');
+      node.style.setProperty('font-size',`${num(value.fontSize,size)}px`,'important');
+      node.style.setProperty('font-weight',String(num(value.fontWeight,weight)),'important');
+      node.style.setProperty('letter-spacing',`${num(value.letterSpacing,spacing)}px`,'important');
     });
   }
 
@@ -120,7 +120,8 @@
 
   function apply(id,root=document,config={}){
     ensureStyle();reset(id,root);
-    const value={...defaults(id),...(config||{})};
+    const baseline=defaults(id);
+    const value={...baseline,...(config||{})};
     if(id==='top-chapter-navigation'){
       const shell=$('.nav-shell',root),rail=$('.nav-scroll',root);if(!shell||!rail)return value;
       if(has(value,'enabled'))shell.hidden=!bool(value.enabled,true);
@@ -136,7 +137,9 @@
       rail.style.setProperty('--module-progress-color',value.progressColor||'#4081ef');
       rail.style.setProperty('--module-progress-start',`${Math.max(0,Math.min(100,num(value.progressOpacityStart,24)))}%`);
       rail.style.setProperty('--module-progress-end',`${Math.max(0,Math.min(100,num(value.progressOpacityEnd,16)))}%`);
-      const m=motion(value.response,value.overshoot,value.durationScale);rail.dataset.moduleMotion='true';rail.style.setProperty('--module-motion-duration',`${m.duration}ms`);rail.style.setProperty('--module-motion-ease',m.easing);
+      const customMotion=value.response!==baseline.response||value.overshoot!==baseline.overshoot||num(value.durationScale,1)!==num(baseline.durationScale,1);
+      if(customMotion){const m=motion(value.response,value.overshoot,value.durationScale);rail.dataset.moduleMotion='true';rail.style.setProperty('--module-motion-duration',`${m.duration}ms`);rail.style.setProperty('--module-motion-ease',m.easing);}
+      else{delete rail.dataset.moduleMotion;rail.style.removeProperty('--module-motion-duration');rail.style.removeProperty('--module-motion-ease');}
     }else if(id==='filter-chip-rail'){
       const module=$('[data-platform-module="filter-chip-rail"]',root),liquid=$('.platform-filter-chip-source--liquid',root),iosFlat=$('.platform-filter-chip-source--ios-flat',root),material=$('.platform-filter-chip-source--material-flat',root);
       if(!module||!liquid||!iosFlat||!material)return value;

@@ -29,12 +29,29 @@ expect(modules.includes("new CustomEvent('platform-filter-select'"),'Filter modu
 expect(modules.includes("fontFamily:'system-sans'")&&modules.includes('fontSize:15')&&modules.includes('fontSize:14'),'Navigation/filter typography defaults must be persisted in module definitions.');
 expect(!modules.includes("source:'platform-canonical'"),'Unsupported provenance aliases must not be used.');
 for(const forbidden of ['function renderNav','function renderCard','function renderCollection','DEFAULT_CARDS','DEFAULT_FILTERS'])expect(!modules.includes(forbidden),`Library imitation renderer leaked into module definitions: ${forbidden}`);
+for(const owner of [
+  'public/assets/js/navigation/chapter-navigation.js',
+  'public/assets/js/ui/liquid-controller.js',
+  'public/assets/styles/navigation/mobile-nav-curated.css',
+  'public/assets/styles/navigation/native-pan-fab-clearance.css',
+  'public/assets/styles/desktop/nav-rails.css',
+  'public/assets/styles/desktop/nav-corrections.css'
+])expect(modules.includes(owner),`Top navigation provenance is missing photography runtime owner: ${owner}`);
 
 const source=read('public/assets/js/platform-modules/photo-public-module-source-v1.js');
 for(const marker of ['renderNavigation','renderHorizontalCardRail','renderCollectionShell','hydrateCollection','renderDeviceHandoff','renderFab'])expect(source.includes(marker),`Missing public-derived module owner: ${marker}`);
 expect(source.includes('if(delta>86)shut()'),'Bottom sheet must retain drag-dismiss behavior.');
 expect(source.includes("if(tab==='video')return ['all',...new Set"),'Video filter derivation must remain data-driven.');
 expect(source.includes("if(tab==='article')return ['all',...new Set"),'Article filter derivation must remain data-driven.');
+
+const liquidController=read('public/assets/js/ui/liquid-controller.js');
+expect(liquidController.includes("const BREEZE='cubic-bezier(0.34, 1.56, 0.64, 1)'"),'Photography Breeze easing must remain the canonical top-nav motion baseline.');
+expect(liquidController.includes('watchNavigationMounts'),'Canonical liquid owner must survive Library/Editor DOM remounts.');
+expect(liquidController.includes("node.matches?.('.nav-scroll')||node.querySelector?.('.nav-scroll')"),'Canonical liquid owner must detect newly mounted top navigation without a preview-only hook.');
+
+const nativePan=read('public/assets/styles/navigation/native-pan-fab-clearance.css');
+expect(nativePan.includes('-webkit-overflow-scrolling:touch!important'),'Photography top nav must retain native touch momentum.');
+expect(nativePan.includes('touch-action:pan-x pan-y!important'),'Photography top nav must retain native pan ownership.');
 
 const filterCss=read('public/assets/styles/platform-modules/filter-chip-rail-v1.css');
 for(const marker of ['platform-filter-chip-source--liquid','platform-filter-chip-source--ios-flat','platform-filter-chip-source--material-flat','--platform-filter-font-family'])expect(filterCss.includes(marker),`Filter CSS missing runtime family/typography contract: ${marker}`);
@@ -45,6 +62,8 @@ for(const marker of ['FONT_STACKS','fontFamily','fontSize','fontWeight','letterS
 expect(styleRuntime.includes("allowed=['ios-liquid','ios-flat','material-flat']"),'Filter style runtime must support exactly the three canonical families.');
 expect(styleRuntime.includes("['themeSelector','.theme-setting-card']"),'Bottom sheet theme-selector control must affect the real node.');
 expect(styleRuntime.includes('data-module-scrollbar'),'Card scrollbar control must affect the real horizontal rail.');
+expect(styleRuntime.includes("node.style.setProperty('font-size'"),'Typography controls must override the photography baseline CSS on canonical nodes.');
+expect(styleRuntime.includes('const customMotion='),'Library default top-nav settings must preserve the photography Breeze motion until the user changes motion controls.');
 
 const extension=read('public/data/ui-capabilities/v1/module-extension-v1.js');
 expect(extension.includes("family.options=['ios-liquid','ios-flat','material-flat']"),'Library must expose all three canonical filter families.');
@@ -59,6 +78,10 @@ const preview=read('public/ui-dashboard/module-preview/index.html');
 expect(!preview.includes('/ui-dashboard/sandbox/'),'Shared preview must have zero sandbox dependencies.');
 expect(preview.includes('/assets/styles/platform-modules/filter-chip-rail-v1.css'),'Preview must use the shared filter stylesheet.');
 expect(preview.includes('/assets/js/platform-modules/module-style-runtime-v1.js'),'Preview must use the canonical style runtime.');
+expect(preview.includes('/assets/js/ui/liquid-controller.js?v=2'),'Library/Editor preview must load the same canonical liquid owner as Photography Public.');
+
+const publicIndex=read('public/index.html');
+expect(publicIndex.includes('/assets/js/ui/liquid-controller.js?v=2'),'Photography Public must load the current canonical liquid owner.');
 
 const previewJs=read('public/ui-dashboard/module-preview/module-preview-v1.js');
 expect(previewJs.includes("const consumer=params.get('embed')==='editor'?'editor':'library'"),'Library and Editor must share one preview host.');

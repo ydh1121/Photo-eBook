@@ -76,7 +76,7 @@ async function library(context){
   assert(JSON.stringify(options)===JSON.stringify(['ios-liquid','ios-flat','material-flat']),'filter family list mismatch');
   for(const id of ['fontFamily','fontSize','fontWeight','letterSpacing'])assert(await page.locator(`[data-style-control="${id}"]`).count()===1,`filter typography control missing: ${id}`);
 
-  const module=frame.locator('[data-platform-module="filter-chip-rail"]');
+  const module=frame.locator('.platform-filter-chip-module[data-platform-module="filter-chip-rail"]');
   const liquid=frame.locator('.platform-filter-chip-source--liquid');
   const iosFlat=frame.locator('.platform-filter-chip-source--ios-flat');
   const material=frame.locator('.platform-filter-chip-source--material-flat');
@@ -149,6 +149,8 @@ async function editor(context){
   const frame=page.frameLocator('[data-platform-editor-module-frame="filter-chip-rail"]');
   await wait(()=>frame.locator('.platform-filter-chip-source--material-flat:not([hidden])').count().then(Boolean),'Editor did not render snapshotted Material family');
   const button=frame.locator('.platform-filter-chip-source--material-flat [data-platform-filter-id]').nth(1);
+  await page.locator('[data-editor-mode="preview"]').click();
+  await wait(()=>page.locator('.editor-lab').evaluate(node=>node.dataset.mode==='preview'),'Editor preview mode did not activate');
   await button.click();
   assert(await button.getAttribute('aria-pressed')==='true','Editor module interaction is not live');
   await shot(page,'editor-runtime-module-contract');

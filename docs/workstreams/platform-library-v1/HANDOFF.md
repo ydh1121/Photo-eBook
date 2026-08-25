@@ -1,10 +1,9 @@
 # Platform Library V1 Handoff
 
-Updated: 2026-08-25 KST
-Active implementation branch: `fix/library-font-style-contract-v1`
+Updated: 2026-08-26 KST
+Active implementation branch: `fix/canonical-top-nav-liquid-motion-v1`
 Production branch: `main`
-Main at branch start: `a14d56707463b16b0ad97e4f7db47390d91eda5e`
-Status: `typography + filter redesign + setting-runtime audit implemented / PR QA pending`
+Status: `Photography top-nav canonical motion parity green / merge pending`
 
 ## Resume order
 
@@ -12,111 +11,65 @@ Status: `typography + filter redesign + setting-runtime audit implemented / PR Q
 2. `docs/library/platform-modules/CANONICAL-MODULE-PIPELINE.md`
 3. `docs/workstreams/platform-library-v1/TASKS.md`
 4. this file
-5. branch `fix/library-font-style-contract-v1`
+5. branch `fix/canonical-top-nav-liquid-motion-v1`
 
-## Permanent product rule added
+## Product source of truth
 
-The repository now explicitly requires:
+Photography Public page `/` is the completed reference for `top-chapter-navigation`.
 
-`Library → Editor → Public`
+The Library must not merely reproduce its appearance. The accepted top-nav runtime includes:
+- shared `PhotoPublicModuleSource.navigation.render`
+- `chapter-navigation.js` active chapter/navigation behavior
+- `liquid-controller.js` canonical BREEZE liquid indicator motion
+- mobile/native pan behavior from navigation CSS
+- desktop nav rail geometry/surface CSS
 
-An approved UI module cannot be accepted because it only looks correct in `/ui-dashboard/`.
+Library, Editor and Public must use those same owners. Preview-only interaction code is forbidden.
 
-- Library/Editor/Public use the same module ID and canonical render/hydrate owner.
-- Preview-only copies are forbidden.
-- Every visible Library setting must have a measurable canonical runtime effect or be removed/disabled.
-- New Editor instances snapshot current Library defaults.
-- Existing Editor instances do not reread mutable Library defaults.
-- Published pages mount `ui-module` through `PlatformModuleRegistry` and `PlatformModuleStyleRuntime`, never through admin preview/sandbox/iframe.
-- Interaction and style effects are checked in Chromium.
+## Regression found and fixed
 
-This rule is in `AGENTS.md`, not only in the workstream.
+The Library already used the shared renderer, but two runtime parity defects made the result behave like a visual-only approximation:
 
-## Current branch changes
+1. `module-preview-v1.js` can remount the module after parent props sync. The old `liquid-controller.js` did not reliably attach to the replacement `.nav-scroll`, so the Library could lose the real liquid/BREEZE owner.
+2. `PlatformModuleStyleRuntime` applied generic motion variables even when the Library controls were at their defaults, overriding Photography Public's distance-aware BREEZE transition.
 
-### Typography
+Registry provenance also omitted the liquid/native-pan owners, and CI coverage omitted the relevant UI/navigation/desktop runtime paths.
 
-Top navigation and generic filter now expose canonical:
-- font family
-- font size
-- font weight
-- letter spacing
+## Changes
 
-Font families:
-- system sans
-- Apple sans
-- Korean sans
-- rounded sans
+- `public/assets/js/ui/liquid-controller.js`
+  - watches newly mounted `.nav-scroll` nodes across the shared runtime
+  - reattaches the same canonical controller after Library/Editor remounts
+  - no Library-only motion implementation added
+- `public/assets/js/platform-modules/module-style-runtime-v1.js`
+  - default top-nav motion preserves Photography Public BREEZE
+  - motion override applies only after response/overshoot/durationScale is changed
+  - explicit typography edits now override Photography `!important` baseline correctly
+- `public/assets/js/platform-modules/photo-core-modules-v1.js`
+  - complete top-nav ownerFiles include liquid controller, native pan, mobile nav and desktop nav runtime
+- Public and module-preview cache markers load `liquid-controller.js?v=2`
+- focused `scripts/check-top-nav-runtime-parity.mjs` added
+- static boundary and Actions path/syntax coverage expanded to the complete interaction owner set
+- stale full-pipeline selectors corrected; Editor interaction QA now uses actual Preview mode because Edit mode intentionally disables iframe pointer events
 
-The runtime applies these values directly to real `.nav-chip` and filter button nodes.
+## Verified in PR #27
 
-### Filter families
+`Platform Library Checks` run #363 is green at code head `fc5b25b7a15d4d7daf205e64aa165644fb625685` before this documentation-only update.
 
-One canonical `filter-chip-rail` module has three real runtime families:
-- `ios-liquid`
-- `ios-flat`
-- `material-flat`
-
-`filter-chip-rail` provenance is now valid `platform-core` rather than the invalid alias `platform-canonical` or the false claim `public-extracted`.
-
-Design direction:
-- iOS Liquid keeps the production liquid controller.
-- iOS Flat is a quiet neutral segmented runway with a raised white active segment.
-- Material is an independent tonal/outlined chip group with a small accent dot.
-
-All families use the same live selection logic, ARIA state and `platform-filter-select` event.
-
-### Setting runtime audit
-
-`module-style-runtime-v1.js` now implements previously dead or incomplete controls:
-- top nav progress enable/mode/color/opacity
-- top nav response/overshoot/duration scale
-- nav/filter typography
-- card left fade
-- card visible/hidden scrollbar
-- bottom sheet theme selector
-- bottom sheet backdrop visibility
-- accordion response
-- FAB family and motion
-
-Material does not use backdrop blur. The Library control polish runtime disables that setting while Material is selected rather than presenting a no-op control.
-
-### QA
-
-Static owner/consumer contract:
-`scripts/check-platform-module-boundaries.mjs`
-
-Browser E2E:
-`scripts/check-platform-module-pipeline-v3.mjs`
-
-The v3 browser QA verifies:
-- nav typography changes computed styles
-- nav progress settings change actual runtime state
-- all 3 filter families switch real runtime sources
-- filter click updates state + ARIA
-- filter typography/accent changes actual nodes
-- menu add reaches the canonical renderer
-- card scrollbar + left fade change actual rail
-- bottom sheet theme selector changes actual UI
-- new Editor filter instance snapshots Library family + typography defaults
-- Editor filter remains interactive
-
-## Important latest production history
-
-PR #22 merged earlier at `dd19291c20e2958540215c00c9cf3f629927daed`.
-
-PR #23 `Canonicalize filter chip families and restore collection bulk actions` merged at:
-`02548083159ee1a9035a11d6c8a151216dd7d579`
-
-The live-deploy status bot then advanced main to:
-`a14d56707463b16b0ad97e4f7db47390d91eda5e`
-
-PR #23's old `Platform Library Checks` failed because its static checker still encoded the obsolete two-family/Material-forbidden contract. This branch replaces that stale checker rather than weakening the new architecture.
+Verified behavior:
+- Photography Public and Library both have live canonical liquid controllers
+- Library remount recovers the same controller
+- native pan behavior matches
+- default Library easing matches Photography BREEZE
+- top-nav typography/progress controls affect canonical nodes
+- filter families, card controls and bottom-sheet controls affect canonical nodes
+- Block Editor snapshots Library defaults and canonical interaction works in Editor Preview mode
+- full `Compare Library against actual public runtime` passed
 
 ## Exact next action
 
-1. Create PR from `fix/library-font-style-contract-v1` to `main`.
-2. Run `Platform Library Checks`.
-3. Fix any static or Chromium failure based on actual reusable runtime behavior.
-4. Review screenshots/artifact for top-nav typography, iOS Flat, Material and representative settings.
-5. Merge to main when requested/appropriate and verify Cloudflare live deployment.
+1. Confirm the documentation-only head rerun remains green.
+2. Merge PR #27 into `main`.
+3. Confirm main `Platform Library Checks` and `Platform Live Deploy Check`.
+4. Verify Cloudflare live Photography/Public and Library top-nav BREEZE/native-pan behavior.
+5. Continue PC/mobile/light/dark visual QA and remaining no-op control audit.
