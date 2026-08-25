@@ -1,43 +1,53 @@
 /* Canonical reusable filter-chip module.
-   This stylesheet is shared by Library, Editor and public snapshots. */
+   Shared by Library, Block Editor and published pages. */
 .platform-filter-chip-module{
   --platform-filter-accent:#4c7fdf;
   --platform-filter-gap:8px;
   --platform-filter-runway:4px;
+  --platform-filter-surface-opacity:1;
+  --platform-filter-duration:195ms;
+  --platform-filter-ease:cubic-bezier(.22,1.18,.3,1);
+  --platform-filter-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  --platform-filter-font-size:14px;
+  --platform-filter-font-weight:680;
+  --platform-filter-letter-spacing:-.28px;
+  --platform-material-fill-opacity:1;
   width:100%;
   min-width:0;
 }
 .platform-filter-chip-source[hidden]{display:none!important}
-.platform-filter-chip-source{
-  box-sizing:border-box;
-  max-width:100%;
-}
+.platform-filter-chip-source{box-sizing:border-box;max-width:100%}
 .platform-filter-chip-source button{
-  font:inherit;
+  font-family:var(--platform-filter-font-family);
+  font-size:var(--platform-filter-font-size);
+  font-weight:var(--platform-filter-font-weight);
+  letter-spacing:var(--platform-filter-letter-spacing);
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
+  transition:background-color var(--platform-filter-duration) var(--platform-filter-ease),color var(--platform-filter-duration) var(--platform-filter-ease),border-color var(--platform-filter-duration) var(--platform-filter-ease),box-shadow var(--platform-filter-duration) var(--platform-filter-ease),transform var(--platform-filter-duration) var(--platform-filter-ease);
 }
 
 /* iOS Liquid keeps the production liquid-controller owner. */
-.platform-filter-chip-source--liquid{
-  margin-inline:auto;
-}
+.platform-filter-chip-source--liquid{margin-inline:auto}
+.platform-filter-chip-source--liquid .collection-tab{font-family:var(--platform-filter-font-family)!important;font-size:var(--platform-filter-font-size)!important;font-weight:var(--platform-filter-font-weight)!important;letter-spacing:var(--platform-filter-letter-spacing)!important}
 
-/* iOS Flat is a true segmented control: one flat runway, no blur, no detached pills. */
+/* iOS Flat: calm segmented control. The selected segment is a raised white
+   surface instead of a saturated blue pill. This keeps it visibly different
+   from Liquid while retaining native horizontal overflow. */
 .platform-filter-chip-source--ios-flat{
   display:flex;
   align-items:center;
   width:max-content;
-  min-width:min(100%,420px);
+  min-width:min(100%,440px);
   max-width:100%;
   gap:var(--platform-filter-gap);
   padding:var(--platform-filter-runway);
   overflow-x:auto;
   overflow-y:hidden;
-  border:1px solid rgba(30,42,62,.075);
-  border-radius:20px;
-  background:rgba(241,243,247,.98);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  border:1px solid rgba(24,34,52,.055);
+  border-radius:999px;
+  background:rgba(235,238,244,.92);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 4px 14px rgba(25,35,55,.035);
   scrollbar-width:none;
   overscroll-behavior-x:contain;
   -webkit-overflow-scrolling:touch;
@@ -46,24 +56,26 @@
 .platform-filter-chip-source--ios-flat .platform-filter-button{
   flex:0 0 auto;
   min-height:40px;
-  padding:0 16px;
-  border:0;
-  border-radius:15px;
+  padding:0 17px;
+  border:1px solid transparent;
+  border-radius:999px;
   background:transparent;
-  color:#4e5664;
-  font-size:14px;
-  font-weight:690;
+  color:#656b76;
   line-height:1;
   white-space:nowrap;
   box-shadow:none;
 }
+.platform-filter-chip-source--ios-flat .platform-filter-button:hover{color:#343944}
 .platform-filter-chip-source--ios-flat .platform-filter-button.is-active{
-  background:var(--platform-filter-accent);
-  color:#fff;
-  box-shadow:0 2px 8px color-mix(in srgb,var(--platform-filter-accent) 24%,transparent);
+  border-color:rgba(255,255,255,.88);
+  background:rgba(255,255,255,.96);
+  color:color-mix(in srgb,var(--platform-filter-accent) 82%,#20242b);
+  box-shadow:0 1px 1px rgba(24,34,52,.04),0 5px 14px rgba(24,34,52,.09),inset 0 1px 0 #fff;
 }
+.platform-filter-chip-source--ios-flat .platform-filter-button:active{transform:scale(.975)}
 
-/* Material Flat is a real chip group, not a recolored iOS segmented control. */
+/* Material 3-inspired tonal chips: independent outlined chips, subtle tonal
+   selection and a compact accent dot. No iOS runway or filled blue capsule. */
 .platform-filter-chip-source--material-flat{
   display:flex;
   align-items:center;
@@ -73,55 +85,69 @@
   padding-inline:var(--platform-filter-runway);
 }
 .platform-filter-chip-source--material-flat .platform-filter-button{
+  position:relative;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  gap:6px;
-  min-height:36px;
-  padding:0 14px;
-  border:1px solid rgba(65,72,83,.22);
-  border-radius:10px;
-  background:#f8f9fb;
-  color:#343a45;
-  font-size:13px;
-  font-weight:650;
+  gap:8px;
+  min-height:38px;
+  padding:0 15px;
+  border:1px solid rgba(71,78,91,.18);
+  border-radius:999px;
+  background:color-mix(in srgb,#f8f9fb calc(var(--platform-material-fill-opacity) * 100%),transparent);
+  color:#414650;
   line-height:1;
   white-space:nowrap;
-  box-shadow:none;
+  box-shadow:0 1px 2px rgba(31,39,52,.025);
+}
+.platform-filter-chip-source--material-flat .platform-filter-button:hover{
+  border-color:rgba(71,78,91,.27);
+  background:#f2f4f7;
 }
 .platform-filter-chip-source--material-flat .platform-filter-button.is-active{
-  border-color:color-mix(in srgb,var(--platform-filter-accent) 42%,transparent);
-  background:color-mix(in srgb,var(--platform-filter-accent) 14%,#fff);
-  color:color-mix(in srgb,var(--platform-filter-accent) 78%,#111);
+  border-color:color-mix(in srgb,var(--platform-filter-accent) 22%,rgba(71,78,91,.16));
+  background:color-mix(in srgb,var(--platform-filter-accent) 11%,#f7f9fc);
+  color:color-mix(in srgb,var(--platform-filter-accent) 64%,#20242b);
+  box-shadow:0 2px 6px color-mix(in srgb,var(--platform-filter-accent) 8%,transparent);
 }
 .platform-filter-chip-source--material-flat .platform-filter-button.is-active::before{
-  content:'✓';
-  display:inline-block;
-  font-size:13px;
-  font-weight:800;
-  line-height:1;
+  content:'';
+  width:6px;
+  height:6px;
+  flex:0 0 6px;
+  border-radius:50%;
+  background:var(--platform-filter-accent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--platform-filter-accent) 10%,transparent);
 }
+.platform-filter-chip-source--material-flat .platform-filter-button:active{transform:scale(.97)}
 
 html[data-theme="dark"] .platform-filter-chip-source--ios-flat{
-  border-color:rgba(255,255,255,.08);
-  background:#20242b;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.065);
+  background:rgba(32,36,43,.94);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 4px 14px rgba(0,0,0,.14);
 }
-html[data-theme="dark"] .platform-filter-chip-source--ios-flat .platform-filter-button{color:#c5cbd6}
+html[data-theme="dark"] .platform-filter-chip-source--ios-flat .platform-filter-button{color:#aeb5c0}
+html[data-theme="dark"] .platform-filter-chip-source--ios-flat .platform-filter-button.is-active{
+  border-color:rgba(255,255,255,.075);
+  background:#303641;
+  color:#f4f7fb;
+  box-shadow:0 4px 12px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045);
+}
 html[data-theme="dark"] .platform-filter-chip-source--material-flat .platform-filter-button{
-  border-color:rgba(255,255,255,.17);
-  background:#1b2027;
-  color:#d7dce5;
+  border-color:rgba(255,255,255,.14);
+  background:#1c2128;
+  color:#c4cad4;
 }
+html[data-theme="dark"] .platform-filter-chip-source--material-flat .platform-filter-button:hover{background:#232932}
 html[data-theme="dark"] .platform-filter-chip-source--material-flat .platform-filter-button.is-active{
-  border-color:color-mix(in srgb,var(--platform-filter-accent) 55%,transparent);
-  background:color-mix(in srgb,var(--platform-filter-accent) 24%,#171b21);
-  color:#f5f8ff;
+  border-color:color-mix(in srgb,var(--platform-filter-accent) 35%,rgba(255,255,255,.1));
+  background:color-mix(in srgb,var(--platform-filter-accent) 17%,#1d232b);
+  color:#f2f5fb;
 }
 
 @media(max-width:560px){
-  .platform-filter-chip-source--ios-flat{width:100%;min-width:0;border-radius:18px}
-  .platform-filter-chip-source--ios-flat .platform-filter-button{min-height:38px;padding-inline:14px;font-size:13px}
+  .platform-filter-chip-source--ios-flat{width:100%;min-width:0}
+  .platform-filter-chip-source--ios-flat .platform-filter-button{min-height:38px;padding-inline:14px}
   .platform-filter-chip-source--material-flat{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
   .platform-filter-chip-source--material-flat::-webkit-scrollbar{display:none}
 }
