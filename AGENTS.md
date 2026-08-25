@@ -86,3 +86,26 @@ Reject results that are not a believable standalone photograph/final visual for 
 ## Binary handling
 
 New work uses the approved PNG master and `scripts/image/png-to-webp.py`. Do not use tar/base64 staging, orphan-blob recovery, or one-off importer workflows as the normal production path.
+
+## Reusable UI module contract
+
+Any work that changes `/ui-dashboard/`, `PlatformModuleRegistry`, Block Editor UI modules, public module adapters, or public Snapshot rendering MUST prove that the result is a reusable runtime module rather than a preview-only imitation.
+
+The required product path is:
+
+`Library → Editor → Public`
+
+For every approved module or approved style family:
+
+1. Library, Editor, and Public must consume the same module ID and the same canonical `render()/hydrate()` owner through `PlatformModuleRegistry`.
+2. A Library preview may own only framing, viewport isolation, theme simulation, and QA controls. It must not own a second visual implementation of the component.
+3. Do not add preview-only HTML/CSS/JS that merely copies the production appearance. If a selector, style family, state, or interaction is intended to ship, its owner must live in shared module/runtime code that Public can load.
+4. Every visible Library setting must either change the canonical runtime immediately or be removed/disabled from the UI. No visible no-op controls are allowed.
+5. Library default changes are only defaults for newly inserted Editor instances. Editor instances must persist a snapshot of content/style props and must not reread mutable Library defaults later.
+6. Published pages must render `ui-module` blocks directly through `PlatformModuleRegistry` and `PlatformModuleStyleRuntime`; using `/ui-dashboard/`, `module-preview`, sandbox, or an admin iframe in Public is forbidden.
+7. Interaction QA must exercise the actual behavior, not only compare appearance. Examples include horizontal scrolling, sticky navigation, filter selection events, bottom-sheet drag/selection/delete, accordion state, and FAB actions.
+8. Style QA must verify that each exposed control has a measurable runtime effect. Typography controls must affect actual component text nodes; layout controls must affect the actual scroller/sheet/rail; state controls must affect the real interaction owner.
+9. Any new module promoted from Block Lab must be extracted to shared canonical code before Library or Editor can consume it. Library/Editor must never import Block Lab runtime/data/style directly.
+10. Before merging a UI-module change, run both the static module-boundary check and Chromium end-to-end module pipeline check. A green result is required unless the repository owner explicitly asks for a main-only visual verification; in that case the known failing check and reason must be recorded and repaired immediately after visual verification.
+
+A change fails this contract if it looks correct in `/ui-dashboard/` but cannot be inserted in Block Editor and rendered with the same behavior on a published page.

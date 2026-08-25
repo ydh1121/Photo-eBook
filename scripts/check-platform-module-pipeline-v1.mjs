@@ -1,1 +1,1 @@
-import './check-platform-module-pipeline-v2.mjs';
+import './check-platform-module-pipeline-v3.mjs';

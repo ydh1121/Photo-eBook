@@ -1,8 +1,8 @@
 (function(){
   const registry=window.PlatformModuleRegistry;
   const source=window.PhotoPublicModuleSource;
-  if(!registry||!source||window.__photoCorePlatformModulesV5)return;
-  window.__photoCorePlatformModulesV5=true;
+  if(!registry||!source||window.__photoCorePlatformModulesV6)return;
+  window.__photoCorePlatformModulesV6=true;
 
   const shared=['public/assets/js/platform-modules/photo-public-module-source-v1.js'];
   const origin={
@@ -84,15 +84,15 @@
   }
 
   registry.register({
-    id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:5,
+    id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:6,
     ownerFiles:[...shared,...origin.nav],previewProps:{items:source.fixtures.nav},editorProps:{items:source.fixtures.nav},
-    styleDefaults:{enabled:true,stickyMode:'deferred-sticky',chipFamily:'ios-liquid',accentColor:'#437ce7',progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef',progressOpacityStart:24,progressOpacityEnd:16,mobileChipGap:6,desktopChipGap:9,railInset:5.5,response:'standard',overshoot:'high',durationScale:1.1,safariSafety:true},
+    styleDefaults:{enabled:true,stickyMode:'deferred-sticky',chipFamily:'ios-liquid',accentColor:'#437ce7',fontFamily:'system-sans',fontSize:15,fontWeight:680,letterSpacing:-.38,progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef',progressOpacityStart:24,progressOpacityEnd:16,mobileChipGap:6,desktopChipGap:9,railInset:5.5,response:'standard',overshoot:'high',durationScale:1.1,safariSafety:true},
     render:source.navigation.render,hydrate:source.navigation.hydrate
   });
   registry.register({
-    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-canonical',sourceRoute:'/',consumers,version:6,
+    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-core',sourceRoute:'/',consumers,version:7,
     ownerFiles:[...origin.liquid,...origin.filterFamilies],previewProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},editorProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},
-    styleDefaults:{family:'ios-liquid',accentColor:'#4c7fdf',surfaceOpacity:54,blur:15,response:'standard',overshoot:'medium',gap:8,runway:4},
+    styleDefaults:{family:'ios-liquid',accentColor:'#4c7fdf',fontFamily:'system-sans',fontSize:14,fontWeight:680,letterSpacing:-.28,surfaceOpacity:54,blur:15,response:'standard',overshoot:'medium',gap:8,runway:4},
     render:renderGenericFilterRail,hydrate:hydrateGenericFilterRail
   });
   registry.register({

@@ -1,147 +1,122 @@
 # Platform Library V1 Handoff
 
-Updated: 2026-08-24 KST
-Active implementation branch: `refactor/canonical-library-pipeline-v1`
+Updated: 2026-08-25 KST
+Active implementation branch: `fix/library-font-style-contract-v1`
 Production branch: `main`
-Branch base main: `721dcc2cd2f0802a9a231ade5f007d973ae31d36`
-Status: `canonical module pipeline implemented / PR + branch QA pending`
+Main at branch start: `a14d56707463b16b0ad97e4f7db47390d91eda5e`
+Status: `typography + filter redesign + setting-runtime audit implemented / PR QA pending`
 
 ## Resume order
 
-1. `AGENTS.md`
+1. `AGENTS.md` — especially `Reusable UI module contract`
 2. `docs/library/platform-modules/CANONICAL-MODULE-PIPELINE.md`
-3. `docs/library/admin-ui/ADMIN-SHELL.md`
-4. `docs/library/ui-capabilities/VISUAL-BUILDER.md`
-5. `docs/workstreams/platform-library-v1/TASKS.md`
-6. this file
-7. branch `refactor/canonical-library-pipeline-v1`
+3. `docs/workstreams/platform-library-v1/TASKS.md`
+4. this file
+5. branch `fix/library-font-style-contract-v1`
 
-## User-confirmed architecture
+## Permanent product rule added
 
-The prior architecture was based on a wrong assumption that `/ui-dashboard/` should be a broad sandbox/page-composer product.
+The repository now explicitly requires:
 
-The user clarified the actual product flow:
+`Library → Editor → Public`
 
-- Public page = source/reference of modules already completed in production.
-- UI Library = approved reusable UI Kit.
-- `/block-lab/` = the only research lab.
-- Block Editor = creates, classifies and stores pages using approved modules.
+An approved UI module cannot be accepted because it only looks correct in `/ui-dashboard/`.
 
-Flows:
+- Library/Editor/Public use the same module ID and canonical render/hydrate owner.
+- Preview-only copies are forbidden.
+- Every visible Library setting must have a measurable canonical runtime effect or be removed/disabled.
+- New Editor instances snapshot current Library defaults.
+- Existing Editor instances do not reread mutable Library defaults.
+- Published pages mount `ui-module` through `PlatformModuleRegistry` and `PlatformModuleStyleRuntime`, never through admin preview/sandbox/iframe.
+- Interaction and style effects are checked in Chromium.
 
-`Public complete module → common module extraction → Library → Block Editor → Public`
+This rule is in `AGENTS.md`, not only in the workstream.
 
-`Block Lab → user + GPT discussion → common module promotion → Library → Block Editor → Public`
+## Current branch changes
 
-Do not restore the old `화면 구성 → sandbox extraction` concept as a first-class product workflow.
+### Typography
 
-## Implemented architecture
+Top navigation and generic filter now expose canonical:
+- font family
+- font size
+- font weight
+- letter spacing
 
-### PlatformModuleRegistry
+Font families:
+- system sans
+- Apple sans
+- Korean sans
+- rounded sans
 
-New owner:
-`public/assets/js/platform-modules/module-registry-v1.js`
+The runtime applies these values directly to real `.nav-chip` and filter button nodes.
 
-It records:
-- `approved / candidate / deprecated`
-- `public-extracted / block-lab-approved / platform-core`
-- allowed consumers
-- owner files and version
-- shared render/hydrate implementation
+### Filter families
 
-Normal Library/Editor/Public consumption is approved-only.
+One canonical `filter-chip-rail` module has three real runtime families:
+- `ios-liquid`
+- `ios-flat`
+- `material-flat`
 
-### First public-extracted module set
+`filter-chip-rail` provenance is now valid `platform-core` rather than the invalid alias `platform-canonical` or the false claim `public-extracted`.
 
-Owner:
-`public/assets/js/platform-modules/photo-core-modules-v1.js`
+Design direction:
+- iOS Liquid keeps the production liquid controller.
+- iOS Flat is a quiet neutral segmented runway with a raised white active segment.
+- Material is an independent tonal/outlined chip group with a small accent dot.
 
-Six modules:
-- top-chapter-navigation
-- filter-chip-rail
-- horizontal-card-rail
-- collection-bottom-sheet
-- device-handoff-accordion
-- floating-action
+All families use the same live selection logic, ARIA state and `platform-filter-select` event.
 
-They preserve the public Photography DOM/class vocabulary and existing CSS/interaction owners.
+### Setting runtime audit
 
-Public top navigation is already routed through `public-module-adapters-v1.js`. Do not claim the other five public render paths have already migrated; those can move incrementally after the common pipeline is stable.
+`module-style-runtime-v1.js` now implements previously dead or incomplete controls:
+- top nav progress enable/mode/color/opacity
+- top nav response/overshoot/duration scale
+- nav/filter typography
+- card left fade
+- card visible/hidden scrollbar
+- bottom sheet theme selector
+- bottom sheet backdrop visibility
+- accordion response
+- FAB family and motion
 
-### UI Library
+Material does not use backdrop blur. The Library control polish runtime disables that setting while Material is selected rather than presenting a no-op control.
 
-`/ui-dashboard/` is now Library-only.
+### QA
 
-- no screen-composer toolbar
-- no sandbox boot
-- no `?view=library` requirement
-- catalog comes from `PlatformModuleRegistry.listFor('library')`
-- shared preview route is `/ui-dashboard/module-preview/`
-- Library and Editor use the same preview/render owner
-- filter sample migration still prevents `[object Object]`
-
-### Block Lab
-
-`/block-lab/` is explicitly `블록 연구실 / RESEARCH ONLY`.
-
-It keeps candidate research runtime internally. Library/Editor must not import its JS/CSS/data.
-
-Promotion means extracting an approved canonical module with source `block-lab-approved`, not sharing the research renderer.
-
-### Block Editor
-
-Canonical route: `/block-editor/`
-Compatibility route: `/editor-lab/`
-
-- insertion list from `PlatformModuleRegistry.listFor('editor')`
-- no Block Lab JS/CSS/sample data
-- saved instance shape: `type: ui-module`, `variant: module id`, `content: props`
-- module rendering uses the same `/ui-dashboard/module-preview/?embed=editor` host as Library
-
-### Admin shell
-
-Four roles only:
-1. UI 라이브러리
-2. 블록 연구실
-3. 블록 에디터
-4. QA
-
-Legacy `화면 구성` role is removed.
-
-## QA state
-
-New static check:
+Static owner/consumer contract:
 `scripts/check-platform-module-boundaries.mjs`
 
-New browser check:
-`scripts/check-platform-module-pipeline-v1.mjs`
+Browser E2E:
+`scripts/check-platform-module-pipeline-v3.mjs`
 
-PR workflow has been rewritten to run the canonical module checks instead of the old reference-fixture/browser suite.
+The v3 browser QA verifies:
+- nav typography changes computed styles
+- nav progress settings change actual runtime state
+- all 3 filter families switch real runtime sources
+- filter click updates state + ARIA
+- filter typography/accent changes actual nodes
+- menu add reaches the canonical renderer
+- card scrollbar + left fade change actual rail
+- bottom sheet theme selector changes actual UI
+- new Editor filter instance snapshots Library family + typography defaults
+- Editor filter remains interactive
 
-Live checker and live workflow have also been rewritten for:
-- canonical `/ui-dashboard/`
-- shared module preview
-- Block Lab research boundary
-- Block Editor approved-only boundary
-- public canonical top navigation
+## Important latest production history
 
-These checks have not yet run in a PR at the time of this handoff. Do not call the branch green until Actions proves it.
+PR #22 merged earlier at `dd19291c20e2958540215c00c9cf3f629927daed`.
 
-## Legacy cleanup
+PR #23 `Canonicalize filter chip families and restore collection bulk actions` merged at:
+`02548083159ee1a9035a11d6c8a151216dd7d579`
 
-Old `reference-preview` and obsolete reference QA files may still exist physically. They are no longer active product dependencies.
+The live-deploy status bot then advanced main to:
+`a14d56707463b16b0ad97e4f7db47390d91eda5e`
 
-Before deleting:
-1. search active source/workflow references;
-2. delete only files with no active dependency;
-3. keep the old `/ui-dashboard/sandbox/` files until their remaining QA/staging dependencies are classified. The sandbox is no longer a product role even if some historical fixtures remain.
+PR #23's old `Platform Library Checks` failed because its static checker still encoded the obsolete two-family/Material-forbidden contract. This branch replaces that stale checker rather than weakening the new architecture.
 
 ## Exact next action
 
-1. Search for `reference-preview` and old reference QA active references.
-2. Delete safe dead reference-preview files and remove dead workflow/path references if any.
-3. Create a PR from `refactor/canonical-library-pipeline-v1` to `main`.
-4. Inspect `Platform Library Checks` jobs/logs and fix every failure on the branch.
-5. Review browser QA screenshots/artifacts.
-6. Merge only after green QA and no visible regression.
-7. Confirm the rewritten Cloudflare live deployment check records `pass` on main.
+1. Create PR from `fix/library-font-style-contract-v1` to `main`.
+2. Run `Platform Library Checks`.
+3. Fix any static or Chromium failure based on actual reusable runtime behavior.
+4. Review screenshots/artifact for top-nav typography, iOS Flat, Material and representative settings.
+5. Merge to main when requested/appropriate and verify Cloudflare live deployment.
