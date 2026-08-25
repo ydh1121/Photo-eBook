@@ -36,8 +36,9 @@
 }
 
 /* iOS Liquid keeps the production liquid-controller owner. The shared module
-   only owns rail geometry so Library controls cannot become visual no-ops. */
-.platform-filter-chip-source--liquid{
+   owns rail geometry explicitly so the generic .collection-tabs baseline
+   cannot override Library/Editor/Public module settings. */
+.platform-filter-chip-module .platform-filter-chip-source--liquid{
   margin:0 auto;
   gap:var(--platform-filter-gap)!important;
   padding-left:var(--platform-filter-runway)!important;
@@ -49,8 +50,8 @@
   overscroll-behavior-x:contain;
   -webkit-overflow-scrolling:touch;
 }
-.platform-filter-chip-source--liquid::-webkit-scrollbar{display:none}
-.platform-filter-chip-source--liquid .collection-tab{
+.platform-filter-chip-module .platform-filter-chip-source--liquid::-webkit-scrollbar{display:none}
+.platform-filter-chip-module .platform-filter-chip-source--liquid .collection-tab{
   flex:0 0 auto!important;
   min-width:62px;
   max-width:none;
