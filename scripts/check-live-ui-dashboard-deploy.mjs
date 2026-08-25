@@ -145,7 +145,7 @@ async function verifyLiveBrowser(){
     assert(await page.locator('text=RESEARCH ONLY').count()>=1,'live Block Lab research boundary missing');
     pass('live Block Lab boundary','research-only');
 
-    await page.goto(cacheBust(`${BASE}/block-editor/`),{waitUntil:'domcontentloaded',timeout:45000});
+    await page.goto(cacheBust(`${BASE}/editor-lab/`),{waitUntil:'domcontentloaded',timeout:45000});
     await page.waitForSelector('.editor-lab',{timeout:20000});
     await page.waitForFunction(()=>Boolean(window.PlatformModuleRegistry&&document.querySelectorAll('[data-add-module]').length),{timeout:25000});
     const editor=await page.evaluate(()=>({
