@@ -1,5 +1,5 @@
 /* Canonical reusable filter-chip module.
-   Shared by Library, Block Editor, published pages and portable exports. */
+   Shared by Library, Block Editor and published pages. Portable exports use the same owner. */
 .platform-filter-chip-module{
   --platform-filter-accent:#4c7fdf;
   --platform-filter-gap:8px;
