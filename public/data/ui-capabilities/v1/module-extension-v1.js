@@ -25,27 +25,28 @@
     capability.owners=[...definition.ownerFiles];
   }
 
-  /* The public Photography page has two completed filter sources:
-     - .collection-tabs/.collection-tab: iOS liquid segmented control
-     - .collection-filters/.collection-filter: iOS flat pills
-     Material never existed as a completed public source, so it must not be
-     advertised as an approved Library style. It can return through Block Lab
-     after an explicit research/promotion cycle. */
+  /* filter-chip-rail now has three canonical runtime families. They are mounted
+     by the same registry module in Library, Editor and public snapshots. */
   const filter=manifest.capabilities.find(item=>item.id==='filter-chip-rail');
   if(filter){
     const family=(filter.controls||[]).find(control=>control.id==='family');
     if(family){
       family.default='ios-liquid';
-      family.options=['ios-liquid','ios-flat'];
+      family.options=['ios-liquid','ios-flat','material-flat'];
     }
     const surface=(filter.controls||[]).find(control=>control.id==='surfaceOpacity');
     if(surface)surface.default=54;
     const blur=(filter.controls||[]).find(control=>control.id==='blur');
     if(blur)blur.default=15;
-    filter.presets=(filter.presets||[]).filter(preset=>preset.config?.family!=='material-flat'&&preset.id!=='material-flat-neutral');
-    const flat=filter.presets.find(preset=>preset.config?.family==='ios-flat');
-    if(flat)flat.config={...flat.config,surfaceOpacity:100,blur:0};
-    const liquid=filter.presets.find(preset=>preset.config?.family==='ios-liquid');
-    if(liquid)liquid.config={...liquid.config,surfaceOpacity:54,blur:15};
+
+    const defaults={
+      'ios-liquid':{surfaceOpacity:54,blur:15,gap:8,runway:4},
+      'ios-flat':{surfaceOpacity:100,blur:0,gap:6,runway:4},
+      'material-flat':{surfaceOpacity:100,blur:0,gap:8,runway:0}
+    };
+    (filter.presets||[]).forEach(preset=>{
+      const familyId=preset.config?.family;
+      if(defaults[familyId])preset.config={...preset.config,...defaults[familyId]};
+    });
   }
 })();

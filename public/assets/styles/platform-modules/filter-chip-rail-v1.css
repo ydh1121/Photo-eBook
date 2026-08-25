@@ -1,0 +1,127 @@
+/* Canonical reusable filter-chip module.
+   This stylesheet is shared by Library, Editor and public snapshots. */
+.platform-filter-chip-module{
+  --platform-filter-accent:#4c7fdf;
+  --platform-filter-gap:8px;
+  --platform-filter-runway:4px;
+  width:100%;
+  min-width:0;
+}
+.platform-filter-chip-source[hidden]{display:none!important}
+.platform-filter-chip-source{
+  box-sizing:border-box;
+  max-width:100%;
+}
+.platform-filter-chip-source button{
+  font:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* iOS Liquid keeps the production liquid-controller owner. */
+.platform-filter-chip-source--liquid{
+  margin-inline:auto;
+}
+
+/* iOS Flat is a true segmented control: one flat runway, no blur, no detached pills. */
+.platform-filter-chip-source--ios-flat{
+  display:flex;
+  align-items:center;
+  width:max-content;
+  min-width:min(100%,420px);
+  max-width:100%;
+  gap:var(--platform-filter-gap);
+  padding:var(--platform-filter-runway);
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid rgba(30,42,62,.075);
+  border-radius:20px;
+  background:rgba(241,243,247,.98);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+  scrollbar-width:none;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.platform-filter-chip-source--ios-flat::-webkit-scrollbar{display:none}
+.platform-filter-chip-source--ios-flat .platform-filter-button{
+  flex:0 0 auto;
+  min-height:40px;
+  padding:0 16px;
+  border:0;
+  border-radius:15px;
+  background:transparent;
+  color:#4e5664;
+  font-size:14px;
+  font-weight:690;
+  line-height:1;
+  white-space:nowrap;
+  box-shadow:none;
+}
+.platform-filter-chip-source--ios-flat .platform-filter-button.is-active{
+  background:var(--platform-filter-accent);
+  color:#fff;
+  box-shadow:0 2px 8px color-mix(in srgb,var(--platform-filter-accent) 24%,transparent);
+}
+
+/* Material Flat is a real chip group, not a recolored iOS segmented control. */
+.platform-filter-chip-source--material-flat{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  width:100%;
+  gap:var(--platform-filter-gap);
+  padding-inline:var(--platform-filter-runway);
+}
+.platform-filter-chip-source--material-flat .platform-filter-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:36px;
+  padding:0 14px;
+  border:1px solid rgba(65,72,83,.22);
+  border-radius:10px;
+  background:#f8f9fb;
+  color:#343a45;
+  font-size:13px;
+  font-weight:650;
+  line-height:1;
+  white-space:nowrap;
+  box-shadow:none;
+}
+.platform-filter-chip-source--material-flat .platform-filter-button.is-active{
+  border-color:color-mix(in srgb,var(--platform-filter-accent) 42%,transparent);
+  background:color-mix(in srgb,var(--platform-filter-accent) 14%,#fff);
+  color:color-mix(in srgb,var(--platform-filter-accent) 78%,#111);
+}
+.platform-filter-chip-source--material-flat .platform-filter-button.is-active::before{
+  content:'✓';
+  display:inline-block;
+  font-size:13px;
+  font-weight:800;
+  line-height:1;
+}
+
+html[data-theme="dark"] .platform-filter-chip-source--ios-flat{
+  border-color:rgba(255,255,255,.08);
+  background:#20242b;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+html[data-theme="dark"] .platform-filter-chip-source--ios-flat .platform-filter-button{color:#c5cbd6}
+html[data-theme="dark"] .platform-filter-chip-source--material-flat .platform-filter-button{
+  border-color:rgba(255,255,255,.17);
+  background:#1b2027;
+  color:#d7dce5;
+}
+html[data-theme="dark"] .platform-filter-chip-source--material-flat .platform-filter-button.is-active{
+  border-color:color-mix(in srgb,var(--platform-filter-accent) 55%,transparent);
+  background:color-mix(in srgb,var(--platform-filter-accent) 24%,#171b21);
+  color:#f5f8ff;
+}
+
+@media(max-width:560px){
+  .platform-filter-chip-source--ios-flat{width:100%;min-width:0;border-radius:18px}
+  .platform-filter-chip-source--ios-flat .platform-filter-button{min-height:38px;padding-inline:14px;font-size:13px}
+  .platform-filter-chip-source--material-flat{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .platform-filter-chip-source--material-flat::-webkit-scrollbar{display:none}
+}
