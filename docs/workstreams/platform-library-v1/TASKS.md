@@ -1,10 +1,9 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / reusable module style contract hardening`
+Status: `active / photography canonical runtime parity repair`
 Production branch: `main`
-Current production main at branch start: `a14d56707463b16b0ad97e4f7db47390d91eda5e`
-Current implementation branch: `fix/library-font-style-contract-v1`
+Current implementation branch: `fix/canonical-top-nav-liquid-motion-v1`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -35,6 +34,20 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] `device-handoff-accordion` / 표시명 `아코디언 탭`
 [x] `floating-action`
 
+## Top navigation photography parity
+
+[x] Library 상단 메뉴 HTML이 `PhotoPublicModuleSource.navigation.render`를 사용하는지 확인.
+[x] Library hydration이 사진 페이지의 `setupNavigation()` owner를 사용하는지 확인.
+[x] 사진 페이지의 실제 liquid motion owner가 `public/assets/js/ui/liquid-controller.js`임을 확인.
+[x] 사진 페이지의 실제 native pan owner가 `native-pan-fab-clearance.css`임을 확인.
+[x] Registry `ownerFiles`에 liquid controller / native pan / mobile nav / desktop nav runtime을 명시.
+[x] Library module remount 뒤 새 `.nav-scroll`에 canonical liquid controller가 다시 연결되도록 shared owner 수정.
+[x] Library 기본 style config가 사진 페이지의 BREEZE easing을 덮어쓰지 않도록 수정.
+[x] motion control을 사용자가 실제 변경한 경우에만 style runtime override 적용.
+[x] Public과 module preview 모두 `liquid-controller.js?v=2`를 로드하도록 cache marker 갱신.
+[x] focused Chromium QA `check-top-nav-runtime-parity.mjs` 추가.
+[-] PR Actions에서 Public ↔ Library controller/native-pan/BREEZE parity 실제 검증.
+
 ## Typography
 
 [x] 상단 메뉴에 font family 설정 추가.
@@ -43,7 +56,8 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] typography 값은 module style defaults에 저장되는 canonical 설정이다.
 [x] typography 값은 preview DOM이 아니라 실제 nav/filter button node에 적용한다.
 [x] Library font family 옵션에 한국어 표시명 polish runtime 추가.
-[-] Chromium QA에서 computed font size/weight/spacing 변화 검증.
+[x] 사진 페이지 CSS의 `!important` baseline을 canonical style runtime이 실제 override할 수 있도록 수정.
+[-] Chromium QA에서 computed font size/weight/spacing 변화 재검증.
 
 ## Filter style families
 
@@ -60,9 +74,10 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## Library settings runtime audit
 
-[x] top nav: enabled / stickyMode / chipFamily / accent / typography.
+[x] top nav: enabled / stickyMode / typography.
 [x] top nav: progressEnabled / progressMode / progressColor / opacity controls 연결.
-[x] top nav: response / overshoot / durationScale를 실제 indicator transition에 연결.
+[x] top nav: response / overshoot / durationScale는 사용자 변경 시 실제 indicator transition override.
+[x] top nav: 기본 motion은 Photography Public의 canonical BREEZE owner를 그대로 유지.
 [x] card rail: desktop drag / threshold / click suppression 연결 유지.
 [x] card rail: leftShadowGuard / leftFade / rightFade / fade width / right padding 연결.
 [x] card rail: scrollbar hidden/auto 실제 rail에 연결.
@@ -91,24 +106,21 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## QA / CI
 
-[x] 오래된 2-family/Material 금지 static assertion 제거 방향으로 boundary check 교체.
-[x] `scripts/check-platform-module-pipeline-v3.mjs` 추가.
-[x] v3 QA에서 nav typography actual computed style 검사.
-[x] v3 QA에서 iOS Flat / Material source switch 및 live selection 검사.
-[x] v3 QA에서 filter menu add + typography + accent 검사.
-[x] v3 QA에서 card scrollbar + left fade 검사.
-[x] v3 QA에서 bottom-sheet theme selector 검사.
-[x] v3 QA에서 Editor 신규 filter instance가 Library family/typography defaults를 snapshot하는지 검사.
-[x] v3 QA에서 Editor filter interaction이 실제 동작하는지 검사.
-[-] PR 생성 후 Actions 실행.
-[ ] CI 오류 수정.
+[x] `scripts/check-platform-module-pipeline-v3.mjs`로 reusable module runtime 설정 검사.
+[x] `scripts/check-top-nav-runtime-parity.mjs`로 Photography Public ↔ Library 상단 메뉴 owner/motion/native-pan 검사 추가.
+[x] Actions path filter에 `public/assets/js/ui/**`, `navigation/**`, `desktop/**` 및 대응 style owner 추가.
+[x] JS syntax 검사에도 canonical UI/navigation/desktop owner 디렉터리 추가.
+[x] static boundary check가 top-nav complete owner set과 remount-safe liquid owner를 강제하도록 확장.
+[-] 현재 브랜치 PR 생성 및 Actions 실행.
+[ ] focused top-nav parity green.
+[ ] 전체 `Compare Library against actual public runtime` green.
 [ ] QA screenshots 확인.
-[ ] 필요 시 main merge 후 Cloudflare live visual verification.
+[ ] main merge 후 Cloudflare live visual verification.
 
 ## Exact next action
 
-1. branch diff를 점검하고 PR 생성.
-2. `Platform Library Checks`를 실행한다.
-3. static/Chromium failure를 실제 runtime 기준으로 수정한다.
-4. green 후 Library screenshots에서 top-nav typography, iOS Flat, Material, bottom-sheet를 확인한다.
-5. owner가 main 확인을 요청하면 merge하고 Cloudflare live verification을 확인한다.
+1. `fix/canonical-top-nav-liquid-motion-v1` PR을 생성한다.
+2. `Platform Library Checks`에서 focused top-nav parity를 먼저 확인한다.
+3. 이어지는 v3 pipeline failure가 있으면 실제 Photography canonical runtime 기준으로 수정한다.
+4. 전체 green 후 main에 병합한다.
+5. Cloudflare live에서 상단 메뉴 BREEZE/native-pan과 Library 설정값을 확인한다.
