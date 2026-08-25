@@ -1,647 +1,647 @@
 {
-  "startedAt": "2026-08-24T17:04:02.025Z",
+  "startedAt": "2026-08-25T07:42:24.651Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js?v=2",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-24T17:04:02.025Z",
+      "at": "2026-08-25T07:42:24.651Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2011
+      "bytes": 2089
     },
     {
       "attempt": 2,
-      "at": "2026-08-24T17:04:06.315Z",
+      "at": "2026-08-25T07:42:28.785Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2011
+      "bytes": 2089
     },
     {
       "attempt": 3,
-      "at": "2026-08-24T17:04:10.389Z",
+      "at": "2026-08-25T07:42:32.832Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2011
+      "bytes": 2089
     },
     {
       "attempt": 4,
-      "at": "2026-08-24T17:04:14.460Z",
+      "at": "2026-08-25T07:42:36.872Z",
       "status": "http-ok",
       "matched": false,
       "bytes": 2089
     },
     {
       "attempt": 5,
-      "at": "2026-08-24T17:04:18.949Z",
+      "at": "2026-08-25T07:42:40.906Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 6,
-      "at": "2026-08-24T17:04:23.021Z",
+      "at": "2026-08-25T07:42:45.178Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 7,
-      "at": "2026-08-24T17:04:27.067Z",
+      "at": "2026-08-25T07:42:49.234Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 8,
-      "at": "2026-08-24T17:04:31.199Z",
+      "at": "2026-08-25T07:42:53.266Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 9,
-      "at": "2026-08-24T17:04:35.273Z",
+      "at": "2026-08-25T07:42:57.307Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 10,
-      "at": "2026-08-24T17:04:39.331Z",
+      "at": "2026-08-25T07:43:01.340Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 11,
-      "at": "2026-08-24T17:04:43.374Z",
+      "at": "2026-08-25T07:43:05.373Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 12,
-      "at": "2026-08-24T17:04:47.461Z",
+      "at": "2026-08-25T07:43:09.404Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 13,
-      "at": "2026-08-24T17:04:51.524Z",
+      "at": "2026-08-25T07:43:13.432Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 14,
-      "at": "2026-08-24T17:04:55.559Z",
+      "at": "2026-08-25T07:43:17.456Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 15,
-      "at": "2026-08-24T17:04:59.613Z",
+      "at": "2026-08-25T07:43:21.483Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 16,
-      "at": "2026-08-24T17:05:03.674Z",
+      "at": "2026-08-25T07:43:25.509Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 17,
-      "at": "2026-08-24T17:05:07.801Z",
+      "at": "2026-08-25T07:43:29.538Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 18,
-      "at": "2026-08-24T17:05:11.899Z",
+      "at": "2026-08-25T07:43:33.566Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 19,
-      "at": "2026-08-24T17:05:15.955Z",
+      "at": "2026-08-25T07:43:37.598Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 20,
-      "at": "2026-08-24T17:05:20.000Z",
+      "at": "2026-08-25T07:43:41.624Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 21,
-      "at": "2026-08-24T17:05:24.060Z",
+      "at": "2026-08-25T07:43:45.650Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 22,
-      "at": "2026-08-24T17:05:28.127Z",
+      "at": "2026-08-25T07:43:49.685Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 23,
-      "at": "2026-08-24T17:05:32.173Z",
+      "at": "2026-08-25T07:43:53.713Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 24,
-      "at": "2026-08-24T17:05:36.273Z",
+      "at": "2026-08-25T07:43:57.740Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 25,
-      "at": "2026-08-24T17:05:40.310Z",
+      "at": "2026-08-25T07:44:01.773Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 26,
-      "at": "2026-08-24T17:05:44.377Z",
+      "at": "2026-08-25T07:44:05.801Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 27,
-      "at": "2026-08-24T17:05:48.431Z",
+      "at": "2026-08-25T07:44:09.842Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 28,
-      "at": "2026-08-24T17:05:52.491Z",
+      "at": "2026-08-25T07:44:13.870Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 29,
-      "at": "2026-08-24T17:05:56.608Z",
+      "at": "2026-08-25T07:44:17.900Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 30,
-      "at": "2026-08-24T17:06:00.662Z",
+      "at": "2026-08-25T07:44:21.927Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 31,
-      "at": "2026-08-24T17:06:04.747Z",
+      "at": "2026-08-25T07:44:25.951Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 32,
-      "at": "2026-08-24T17:06:08.805Z",
+      "at": "2026-08-25T07:44:29.983Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 33,
-      "at": "2026-08-24T17:06:12.866Z",
+      "at": "2026-08-25T07:44:34.013Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 34,
-      "at": "2026-08-24T17:06:16.914Z",
+      "at": "2026-08-25T07:44:38.041Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 35,
-      "at": "2026-08-24T17:06:21.004Z",
+      "at": "2026-08-25T07:44:42.068Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 36,
-      "at": "2026-08-24T17:06:25.083Z",
+      "at": "2026-08-25T07:44:46.094Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 37,
-      "at": "2026-08-24T17:06:29.139Z",
+      "at": "2026-08-25T07:44:50.121Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 38,
-      "at": "2026-08-24T17:06:33.206Z",
+      "at": "2026-08-25T07:44:54.147Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 39,
-      "at": "2026-08-24T17:06:37.265Z",
+      "at": "2026-08-25T07:44:58.172Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 40,
-      "at": "2026-08-24T17:06:41.307Z",
+      "at": "2026-08-25T07:45:02.199Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 41,
-      "at": "2026-08-24T17:06:45.365Z",
+      "at": "2026-08-25T07:45:06.231Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 42,
-      "at": "2026-08-24T17:06:49.405Z",
+      "at": "2026-08-25T07:45:10.263Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 43,
-      "at": "2026-08-24T17:06:53.447Z",
+      "at": "2026-08-25T07:45:14.286Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 44,
-      "at": "2026-08-24T17:06:57.488Z",
+      "at": "2026-08-25T07:45:18.313Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 45,
-      "at": "2026-08-24T17:07:01.568Z",
+      "at": "2026-08-25T07:45:22.339Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 46,
-      "at": "2026-08-24T17:07:05.632Z",
+      "at": "2026-08-25T07:45:26.366Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 47,
-      "at": "2026-08-24T17:07:09.686Z",
+      "at": "2026-08-25T07:45:30.395Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 48,
-      "at": "2026-08-24T17:07:13.731Z",
+      "at": "2026-08-25T07:45:34.429Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 49,
-      "at": "2026-08-24T17:07:17.773Z",
+      "at": "2026-08-25T07:45:38.463Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 50,
-      "at": "2026-08-24T17:07:21.814Z",
+      "at": "2026-08-25T07:45:42.492Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 51,
-      "at": "2026-08-24T17:07:25.863Z",
+      "at": "2026-08-25T07:45:46.518Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 52,
-      "at": "2026-08-24T17:07:29.927Z",
+      "at": "2026-08-25T07:45:50.544Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 53,
-      "at": "2026-08-24T17:07:33.978Z",
+      "at": "2026-08-25T07:45:54.571Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 54,
-      "at": "2026-08-24T17:07:38.081Z",
+      "at": "2026-08-25T07:45:58.598Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 55,
-      "at": "2026-08-24T17:07:42.153Z",
+      "at": "2026-08-25T07:46:02.632Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 56,
-      "at": "2026-08-24T17:07:46.216Z",
+      "at": "2026-08-25T07:46:06.664Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 57,
-      "at": "2026-08-24T17:07:50.256Z",
+      "at": "2026-08-25T07:46:10.694Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 58,
-      "at": "2026-08-24T17:07:54.299Z",
+      "at": "2026-08-25T07:46:14.721Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 59,
-      "at": "2026-08-24T17:07:58.346Z",
+      "at": "2026-08-25T07:46:18.746Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 60,
-      "at": "2026-08-24T17:08:02.386Z",
+      "at": "2026-08-25T07:46:22.773Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 61,
-      "at": "2026-08-24T17:08:06.441Z",
+      "at": "2026-08-25T07:46:26.797Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 62,
-      "at": "2026-08-24T17:08:10.484Z",
+      "at": "2026-08-25T07:46:30.826Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 63,
-      "at": "2026-08-24T17:08:14.553Z",
+      "at": "2026-08-25T07:46:34.856Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 64,
-      "at": "2026-08-24T17:08:18.593Z",
+      "at": "2026-08-25T07:46:38.883Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 65,
-      "at": "2026-08-24T17:08:22.677Z",
+      "at": "2026-08-25T07:46:42.913Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 66,
-      "at": "2026-08-24T17:08:26.734Z",
+      "at": "2026-08-25T07:46:46.940Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 67,
-      "at": "2026-08-24T17:08:30.783Z",
+      "at": "2026-08-25T07:46:50.969Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 68,
-      "at": "2026-08-24T17:08:34.827Z",
+      "at": "2026-08-25T07:46:54.994Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 69,
-      "at": "2026-08-24T17:08:38.896Z",
+      "at": "2026-08-25T07:46:59.027Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 70,
-      "at": "2026-08-24T17:08:43.063Z",
+      "at": "2026-08-25T07:47:03.054Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 71,
-      "at": "2026-08-24T17:08:47.109Z",
+      "at": "2026-08-25T07:47:07.083Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 72,
-      "at": "2026-08-24T17:08:51.149Z",
+      "at": "2026-08-25T07:47:11.112Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 73,
-      "at": "2026-08-24T17:08:55.188Z",
+      "at": "2026-08-25T07:47:15.143Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 74,
-      "at": "2026-08-24T17:08:59.247Z",
+      "at": "2026-08-25T07:47:19.170Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 75,
-      "at": "2026-08-24T17:09:03.296Z",
+      "at": "2026-08-25T07:47:23.197Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 76,
-      "at": "2026-08-24T17:09:07.377Z",
+      "at": "2026-08-25T07:47:27.222Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 77,
-      "at": "2026-08-24T17:09:11.442Z",
+      "at": "2026-08-25T07:47:31.264Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 78,
-      "at": "2026-08-24T17:09:15.496Z",
+      "at": "2026-08-25T07:47:35.290Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 79,
-      "at": "2026-08-24T17:09:19.555Z",
+      "at": "2026-08-25T07:47:39.319Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 80,
-      "at": "2026-08-24T17:09:23.620Z",
+      "at": "2026-08-25T07:47:43.345Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 81,
-      "at": "2026-08-24T17:09:27.667Z",
+      "at": "2026-08-25T07:47:47.373Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 82,
-      "at": "2026-08-24T17:09:31.745Z",
+      "at": "2026-08-25T07:47:51.401Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 83,
-      "at": "2026-08-24T17:09:35.797Z",
+      "at": "2026-08-25T07:47:55.451Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 84,
-      "at": "2026-08-24T17:09:39.838Z",
+      "at": "2026-08-25T07:47:59.477Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 85,
-      "at": "2026-08-24T17:09:43.880Z",
+      "at": "2026-08-25T07:48:03.506Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 86,
-      "at": "2026-08-24T17:09:47.934Z",
+      "at": "2026-08-25T07:48:07.536Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 87,
-      "at": "2026-08-24T17:09:51.985Z",
+      "at": "2026-08-25T07:48:11.566Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 88,
-      "at": "2026-08-24T17:09:56.037Z",
+      "at": "2026-08-25T07:48:15.597Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 89,
-      "at": "2026-08-24T17:10:00.085Z",
+      "at": "2026-08-25T07:48:19.626Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     },
     {
       "attempt": 90,
-      "at": "2026-08-24T17:10:04.134Z",
+      "at": "2026-08-25T07:48:23.653Z",
       "status": "http-ok",
       "matched": false,
-      "bytes": 2089
+      "bytes": 2100
     }
   ],
   "checks": [],
   "status": "fail",
   "error": "Error: Cloudflare Pages did not expose the canonical UI Library: latest HTML did not contain builder-library-reference-v1.js?v=2 + module registry\n    at waitForCanonicalLibrary (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:45:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:179:3",
-  "finishedAt": "2026-08-24T17:10:04.199Z",
-  "sourceSha": "dd19291c20e2958540215c00c9cf3f629927daed",
+  "finishedAt": "2026-08-25T07:48:23.679Z",
+  "sourceSha": "02548083159ee1a9035a11d6c8a151216dd7d579",
   "sourceRef": "main",
-  "workflowRunId": "32754446084",
-  "workflowRunNumber": "20",
-  "recordedAt": "2026-08-24T17:10:04.733Z"
+  "workflowRunId": "32822886339",
+  "workflowRunNumber": "21",
+  "recordedAt": "2026-08-25T07:48:23.982Z"
 }
