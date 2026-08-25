@@ -125,13 +125,22 @@
     if(id==='top-chapter-navigation'){
       const shell=$('.nav-shell',root),rail=$('.nav-scroll',root);if(!shell||!rail)return value;
       if(has(value,'enabled'))shell.hidden=!bool(value.enabled,true);
-      if(value.stickyMode==='static'){shell.style.position='relative';shell.style.top='auto';shell.style.transform='none';}
-      else if(value.stickyMode==='sticky'){shell.style.position='sticky';shell.style.top='0';shell.style.transform='none';}
+      if(value.stickyMode==='static'){
+        shell.style.setProperty('position','relative','important');
+        shell.style.setProperty('top','auto','important');
+        shell.style.setProperty('transform','none','important');
+      }else if(value.stickyMode==='sticky'){
+        shell.style.setProperty('position','sticky','important');
+        shell.style.setProperty('top','0','important');
+        shell.style.setProperty('transform','none','important');
+      }
       if(value.chipFamily&&value.chipFamily!=='ios-liquid')rail.dataset.moduleStyleFamily=value.chipFamily;
       if(value.chipFamily!=='ios-liquid'||hasCustomAccent(id,value))applyAccent(rail,value.accentColor||'#437ce7');
       applyTypography($$('.nav-chip',rail),value,{size:15,weight:680,spacing:-.38});
-      rail.style.gap=`${innerWidth<1024?num(value.mobileChipGap,6):num(value.desktopChipGap,9)}px`;
-      const inset=num(value.railInset,5.5);rail.style.paddingTop=`${inset}px`;rail.style.paddingBottom=`${inset}px`;
+      rail.style.setProperty('gap',`${innerWidth<1024?num(value.mobileChipGap,6):num(value.desktopChipGap,9)}px`,'important');
+      const inset=num(value.railInset,5.5);
+      rail.style.setProperty('padding-top',`${inset}px`,'important');
+      rail.style.setProperty('padding-bottom',`${inset}px`,'important');
       rail.dataset.moduleProgressEnabled=String(bool(value.progressEnabled,true));
       rail.dataset.moduleProgressMode=value.progressMode==='line'?'line':'chapter-wash';
       rail.style.setProperty('--module-progress-color',value.progressColor||'#4081ef');
