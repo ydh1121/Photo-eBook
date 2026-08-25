@@ -66,10 +66,10 @@
   function hasCustomAccent(id,value){return Boolean(value?.accentColor)&&String(value.accentColor).toLowerCase()!==String(baselineAccent(id)).toLowerCase();}
   function applyTypography(nodes,value,{size=14,weight=680,spacing=-.28}={}){
     nodes.forEach(node=>{
-      node.style.fontFamily=fontStack(value.fontFamily);
-      node.style.fontSize=`${num(value.fontSize,size)}px`;
-      node.style.fontWeight=String(num(value.fontWeight,weight));
-      node.style.letterSpacing=`${num(value.letterSpacing,spacing)}px`;
+      node.style.setProperty('font-family',fontStack(value.fontFamily),'important');
+      node.style.setProperty('font-size',`${num(value.fontSize,size)}px`,'important');
+      node.style.setProperty('font-weight',String(num(value.fontWeight,weight)),'important');
+      node.style.setProperty('letter-spacing',`${num(value.letterSpacing,spacing)}px`,'important');
     });
   }
 
