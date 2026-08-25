@@ -76,7 +76,7 @@ async function library(context){
   assert(JSON.stringify(options)===JSON.stringify(['ios-liquid','ios-flat','material-flat']),'filter family list mismatch');
   for(const id of ['fontFamily','fontSize','fontWeight','letterSpacing'])assert(await page.locator(`[data-style-control="${id}"]`).count()===1,`filter typography control missing: ${id}`);
 
-  const module=frame.locator('[data-platform-module="filter-chip-rail"]');
+  const module=frame.locator('.platform-filter-chip-module[data-platform-module="filter-chip-rail"]');
   const liquid=frame.locator('.platform-filter-chip-source--liquid');
   const iosFlat=frame.locator('.platform-filter-chip-source--ios-flat');
   const material=frame.locator('.platform-filter-chip-source--material-flat');
