@@ -24,8 +24,11 @@ on:
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/collection/**'
+      - 'public/assets/js/desktop/**'
       - 'public/assets/js/editor-lab/**'
+      - 'public/assets/js/navigation/**'
       - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui/**'
       - 'public/assets/js/ui-capabilities/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/js/qa-page/**'
@@ -33,7 +36,10 @@ on:
       - 'public/assets/styles/blocks/**'
       - 'public/assets/styles/block-lab/**'
       - 'public/assets/styles/collection/**'
+      - 'public/assets/styles/desktop/**'
       - 'public/assets/styles/editor-lab/**'
+      - 'public/assets/styles/navigation/**'
+      - 'public/assets/styles/ui/**'
       - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/public-snapshot/**'
@@ -48,6 +54,8 @@ on:
       - 'scripts/check-public-route-v2.mjs'
       - 'scripts/check-platform-module-boundaries.mjs'
       - 'scripts/check-platform-module-pipeline-v1.mjs'
+      - 'scripts/check-platform-module-pipeline-v3.mjs'
+      - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/library/platform-modules/**'
       - 'docs/workstreams/platform-library-v1/**'
@@ -75,8 +83,11 @@ on:
       - 'public/assets/js/blocks/**'
       - 'public/assets/js/block-lab/**'
       - 'public/assets/js/collection/**'
+      - 'public/assets/js/desktop/**'
       - 'public/assets/js/editor-lab/**'
+      - 'public/assets/js/navigation/**'
       - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui/**'
       - 'public/assets/js/ui-capabilities/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/js/qa-page/**'
@@ -84,7 +95,10 @@ on:
       - 'public/assets/styles/blocks/**'
       - 'public/assets/styles/block-lab/**'
       - 'public/assets/styles/collection/**'
+      - 'public/assets/styles/desktop/**'
       - 'public/assets/styles/editor-lab/**'
+      - 'public/assets/styles/navigation/**'
+      - 'public/assets/styles/ui/**'
       - 'public/assets/styles/ui-capabilities/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/public-snapshot/**'
@@ -99,6 +113,8 @@ on:
       - 'scripts/check-public-route-v2.mjs'
       - 'scripts/check-platform-module-boundaries.mjs'
       - 'scripts/check-platform-module-pipeline-v1.mjs'
+      - 'scripts/check-platform-module-pipeline-v3.mjs'
+      - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/library/platform-modules/**'
       - 'docs/workstreams/platform-library-v1/**'
@@ -135,7 +151,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             node --check "$file"
-          done < <(find public/assets/js/admin public/assets/js/app public/assets/js/blocks public/assets/js/block-lab public/assets/js/collection public/assets/js/editor-lab public/assets/js/platform-modules public/assets/js/ui-capabilities public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot public/content-packs/photography/runtime functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          done < <(find public/assets/js/admin public/assets/js/app public/assets/js/blocks public/assets/js/block-lab public/assets/js/collection public/assets/js/desktop public/assets/js/editor-lab public/assets/js/navigation public/assets/js/platform-modules public/assets/js/ui public/assets/js/ui-capabilities public/assets/js/ui-dashboard public/assets/js/qa-page public/assets/js/public-snapshot public/content-packs/photography/runtime functions/api/editor functions/api/public functions/lib -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find functions -maxdepth 1 -type f -name '*.js' -print0)
@@ -146,6 +162,8 @@ jobs:
           node --check scripts/check-public-route-v2.mjs
           node --check scripts/check-platform-module-boundaries.mjs
           node --check scripts/check-platform-module-pipeline-v1.mjs
+          node --check scripts/check-platform-module-pipeline-v3.mjs
+          node --check scripts/check-top-nav-runtime-parity.mjs
           node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
@@ -169,6 +187,7 @@ jobs:
             exit 1
           fi
           export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
+          node scripts/check-top-nav-runtime-parity.mjs
           node scripts/check-platform-module-pipeline-v1.mjs
       - name: Upload public-module parity QA
         if: always()
