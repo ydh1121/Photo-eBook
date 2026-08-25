@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-25T16:45:17.754Z",
+  "startedAt": "2026-08-25T16:48:19.548Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-25T16:45:17.754Z",
+      "at": "2026-08-25T16:48:19.548Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 2183
@@ -27,14 +27,24 @@
       "name": "live UI Library",
       "status": "pass",
       "detail": "registry-driven root route"
+    },
+    {
+      "name": "live Library theme/viewport",
+      "status": "pass",
+      "detail": "dark + mobile shared preview"
+    },
+    {
+      "name": "live Block Lab boundary",
+      "status": "pass",
+      "detail": "research-only"
     }
   ],
   "status": "fail",
-  "error": "Error: live canonical filter chips missing; state={\"module\":\"filter-chip-rail\",\"html\":\"<section class=\\\"platform-module-stage\\\" data-module=\\\"filter-chip-rail\\\"><div class=\\\"platform-module-context platform-module-context--segmented\\\"><div class=\\\"platform-module-host\\\" id=\\\"platformModuleHost\\\" data-platform-module-host=\\\"filter-chip-rail\\\"><div class=\\\"platform-filter-chip-module\\\" data-platform-module=\\\"filter-chip-rail\\\" data-platform-filter-family=\\\"ios-liquid\\\" data-platform-filter-bound=\\\"true\\\" style=\\\"--platform-filter-accent: #4c7fdf; --platform-filter-gap: 8px; --platform-filter-runway: 4px; --platform-filter-surface-opacity: 0.54; --platform-filter-font-family: -apple-system,BlinkMacSystemFont,&quot;SF Pro Text&quot;,&quot;Apple SD Gothic Neo&quot;,&quot;Noto Sans KR&quot;,system-ui,sans-serif; --platform-filter-font-size: 14px; --platform-filter-font-weight: 680; --platform-filter-letter-spacing: -0.28px; --platform-filter-duration: 195ms; --platform-filter-ease: cubic-bezier(.22,1.18,.3,1);\\\">\\n      <div class=\\\"collection-tabs platform-filter-chip-source platform-filter-chip-source--liquid v33-liquid-ready v41-skin-ready v39-liquid-ready\\\" role=\\\"group\\\" aria-label=\\\"필터\\\" style=\\\"background: linear-gradient(rgba(249, 251, 254, 0.54), rgba(237, 242, 249, 0.4)); backdrop-filter: blu\"}\n    at waitFrameCount (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:72:9)\n    at async verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:118:9)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:182:3",
-  "finishedAt": "2026-08-25T16:45:46.090Z",
-  "sourceSha": "bdedd272f0e819ff19ec8e8521195937ab21cf08",
+  "error": "page.waitForSelector: Timeout 20000ms exceeded.\nCall log:\n  - waiting for locator('.platform-admin-shell') to be visible\n\n    at verifyLiveBrowser (/home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:149:16)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:183:3",
+  "finishedAt": "2026-08-25T16:48:53.253Z",
+  "sourceSha": "78a1cf2fc91e949c0361570518eec7a2b740616d",
   "sourceRef": "main",
-  "workflowRunId": "32873823526",
-  "workflowRunNumber": "26",
-  "recordedAt": "2026-08-25T16:45:46.777Z"
+  "workflowRunId": "32874120111",
+  "workflowRunNumber": "27",
+  "recordedAt": "2026-08-25T16:48:53.869Z"
 }
