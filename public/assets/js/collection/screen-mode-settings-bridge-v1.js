@@ -5,7 +5,7 @@
 
   const THEME_KEY='photoRoadmapThemeV1';
   const STYLE_HREF='/assets/styles/platform-modules/screen-mode-segmented-v1.css?v=2';
-  const EXTENSION_SRC='/assets/js/platform-modules/portable-primitives-extension-v2.js?v=1';
+  const EXTENSION_SRC='/assets/js/platform-modules/portable-primitives-extension-v2.js?v=2';
   const COMPOSITION_SRC='/assets/js/platform-modules/portable-primitives-composition-v3.js?v=2';
   let definitionPromise=null;
   let mountCleanup=null;
