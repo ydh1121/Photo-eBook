@@ -161,9 +161,11 @@
       const openButton=event.target.closest?.('[data-bottom-sheet-open]');if(openButton){setOpen(true);return;}
       const closeButton=event.target.closest?.('[data-bottom-sheet-close]');if(closeButton){if(closeButton.classList.contains('platform-bottom-sheet__backdrop')&&props.dismissOnBackdrop===false)return;setOpen(false);return;}
       const actionButton=event.target.closest?.('[data-bottom-sheet-action]');if(!actionButton)return;
+      const slot=actionButton.dataset.bottomSheetAction||'';
       const action={type:actionButton.dataset.actionType||'none',value:actionButton.dataset.actionValue||'',newTab:actionButton.dataset.actionNewTab==='true'};
+      if(slot==='secondary'&&action.type==='none'){setOpen(false);return;}
       const runtime=window.PlatformModuleActionRuntime;
-      if(runtime?.execute)runtime.execute(actionButton,action,context);else actionButton.dispatchEvent(new CustomEvent('platform-bottom-sheet-action',{bubbles:true,detail:{slot:actionButton.dataset.bottomSheetAction||'',action}}));
+      if(runtime?.execute)runtime.execute(module,action,context);else module.dispatchEvent(new CustomEvent('platform-bottom-sheet-action',{bubbles:true,detail:{slot,action}}));
     };
     module.addEventListener('click',click);
     const api={open(){return setOpen(true);},close(){return setOpen(false);},toggle(){return setOpen(module.dataset.open!=='true');},isOpen(){return module.dataset.open==='true';}};
@@ -185,7 +187,7 @@
 
   registry.register({
     id:'accordion',label:'아코디언',category:'content',status:'approved',source:'block-lab-approved',sourceRoute:'/block-lab/',consumers,version:1,
-    ownerFiles:[ownerJs,ownerCss,'public/assets/js/blocks/block-renderers-extended.js'],
+    ownerFiles:[ownerJs,ownerCss],
     previewProps:{title:'자주 묻는 질문',description:'Block Lab의 FAQ/Accordion 후보를 범용 모듈로 승격했습니다.',singleOpen:true,openFirst:true,items:[
       {id:'q1',question:'이 모듈은 어디에 사용할 수 있나요?',answer:'FAQ, 상세 설명, 정책 안내처럼 접고 펼치는 구조가 필요한 곳에 사용할 수 있습니다.'},
       {id:'q2',question:'한 번에 여러 항목을 열 수 있나요?',answer:'singleOpen 값을 끄면 여러 항목을 동시에 열 수 있습니다.'},
