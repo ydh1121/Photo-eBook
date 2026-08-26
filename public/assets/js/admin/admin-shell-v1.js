@@ -161,7 +161,7 @@
     bindAdminTheme(shell);
     simplifyLocalUi(id);
     if(id==='blocks'||id==='editor')appendScript('/assets/js/admin/admin-surface-v1.js?v=1','data-admin-surface-script');
-    appendScript('/assets/js/admin/admin-persistent-workspace-v1.js?v=1','data-admin-persistent-workspace-script');
+    appendScript('/assets/js/admin/admin-persistent-workspace-v1.js?v=2','data-admin-persistent-workspace-script');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
