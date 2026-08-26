@@ -25,43 +25,72 @@ async function setStyle(page,id,value){await openInspector(page);const control=p
 try{
   const page=await browser.newPage({viewport:{width:1500,height:1000}});
   await page.goto(`${BASE}/ui-dashboard/?view=library`,{waitUntil:'domcontentloaded'});
-  await page.evaluate(()=>{for(const key of ['platformModuleDefaultsV1','platformModuleContentDefaultsV1','platformLibraryStateV3','platformLibrarySidebarV1'])localStorage.removeItem(key);});
+  await page.evaluate(()=>{for(const key of ['platformModuleDefaultsV1','platformModuleContentDefaultsV1','platformLibraryStateV3','platformLibrarySidebarV1','platformLibrarySidebarV2','platformAdminThemeV1','platformAdminSidebarWidthV1','platformLibraryThemeV3','platformLibraryViewportV3'])localStorage.removeItem(key);});
   await page.reload({waitUntil:'domcontentloaded'});
   await wait(()=>page.locator('.platform-admin-shell__module-tree').count().then(Boolean),'Library module tree missing');
+  await wait(()=>page.locator('.builder-kit-preview-toolbar').count().then(Boolean),'Library preview toolbar missing');
   await page.waitForFunction(()=>Boolean(window.PlatformModuleRegistry));
 
   const tree=await page.evaluate(()=>{
     const ids=window.PlatformModuleRegistry.listFor('library').map(item=>item.id);
     const buttons=[...document.querySelectorAll('.platform-admin-shell__module-tree [data-kit-ui]')].map(node=>node.dataset.kitUi);
     const top=[...document.querySelectorAll('#builderLibraryFilters [data-kit-ui]')].map(node=>node.dataset.kitUi);
-    const groups=[...document.querySelectorAll('[data-module-tree-group]')].map(group=>({id:group.dataset.moduleTreeGroup,items:[...group.querySelectorAll('[data-kit-ui]')].map(node=>node.dataset.kitUi)}));
-    return {ids,buttons,top,groups,duplicates:buttons.length-new Set(buttons).size};
+    const groups=[...document.querySelectorAll('[data-module-tree-group]')].filter(group=>!group.hidden).map(group=>({id:group.dataset.moduleTreeGroup,items:[...group.querySelectorAll('[data-kit-ui]')].map(node=>node.dataset.kitUi),hasIcon:Boolean(group.querySelector('summary svg')),open:group.open}));
+    const toolbar={theme:Boolean(document.querySelector('.builder-kit-preview-toolbar #kitTheme')),viewport:Boolean(document.querySelector('.builder-kit-preview-toolbar #kitViewport')),settings:Boolean(document.querySelector('.builder-kit-preview-toolbar #kitSettings'))};
+    return {ids,buttons,top,groups,toolbar,duplicates:buttons.length-new Set(buttons).size};
   });
   assert(tree.ids.length===10,`Expected 10 approved Library modules, got ${tree.ids.length}`);
   assert(tree.buttons.length===tree.ids.length&&tree.ids.every(id=>tree.buttons.includes(id)),'Tree is not driven by all Registry Library entries');
   assert(tree.top.length===0,'Old top horizontal module catalog still owns module buttons');
   assert(tree.duplicates===0,'Module buttons were cloned instead of moved');
+  assert(tree.groups.every(group=>group.hasIcon),'A Library hierarchy group is missing its icon');
+  assert(tree.toolbar.theme&&tree.toolbar.viewport&&tree.toolbar.settings,'Preview theme/viewport/style controls are not grouped above the canvas');
   const expectedGroups={navigation:['top-chapter-navigation','filter-chip-rail'],'horizontal-content':['horizontal-card-rail','horizontal-rail'],accordion:['device-handoff-accordion','accordion'],'bottom-popup':['collection-bottom-sheet','bottom-sheet'],action:['floating-action'],display:['screen-mode-selector']};
   for(const [id,items] of Object.entries(expectedGroups)){
     const group=tree.groups.find(item=>item.id===id);assert(group,`Missing tree group ${id}`);assert(group.items.join('|')===items.join('|'),`Tree group ${id} mismatch: ${group.items.join('|')}`);
   }
-  pass('Registry-driven Library tree',`${tree.ids.length} real Registry buttons moved into 6 hierarchy groups`);
+  pass('Registry-driven Library tree',`${tree.ids.length} real Registry buttons in 6 icon hierarchy groups; preview controls grouped above canvas`);
 
-  const sidebarBefore=await page.locator('.platform-admin-shell').evaluate(node=>node.getBoundingClientRect().width);
+  await wait(()=>page.evaluate(()=>document.querySelector('#builderFrame')?.contentDocument?.documentElement?.dataset.theme==='light'),'Default Library preview did not stay light');
+  const previewThemeBefore=await page.evaluate(()=>localStorage.getItem('platformLibraryThemeV3'));
+  await page.locator('[data-admin-theme-value="dark"]').click();
+  await wait(()=>page.locator('html').evaluate(node=>node.dataset.adminThemeResolved==='dark'),'Admin dark theme did not apply');
+  const adminIsolation=await page.evaluate(()=>({admin:document.documentElement.dataset.adminTheme,previewStored:localStorage.getItem('platformLibraryThemeV3'),frameTheme:document.querySelector('#builderFrame')?.contentDocument?.documentElement?.dataset.theme}));
+  assert(adminIsolation.admin==='dark','Admin theme choice did not persist');
+  assert(adminIsolation.previewStored===previewThemeBefore,'Admin theme mutated Library preview theme storage');
+  assert(adminIsolation.frameTheme==='light','Admin dark theme leaked into Library preview iframe');
+  await page.locator('[data-kit-theme="dark"]').click();
+  await wait(()=>page.evaluate(()=>document.querySelector('#builderFrame')?.contentDocument?.documentElement?.dataset.theme==='dark'),'Preview dark control did not change iframe');
+  assert(await page.locator('html').evaluate(node=>node.dataset.adminThemeResolved)==='dark','Preview theme mutated admin theme');
+  await page.locator('[data-kit-theme="light"]').click();
+  await wait(()=>page.evaluate(()=>document.querySelector('#builderFrame')?.contentDocument?.documentElement?.dataset.theme==='light'),'Preview did not return to light');
+  pass('Admin / preview theme isolation','admin dark is independent from Library target light/dark controls');
+
+  const shell=page.locator('.platform-admin-shell');
+  const sidebarBefore=await shell.evaluate(node=>node.getBoundingClientRect().width);
   await page.locator('[data-library-tree-collapse]').click();
   await wait(()=>page.locator('html').evaluate(node=>node.dataset.adminSidebarCollapsed==='true'),'Sidebar did not collapse by button');
+  await sleep(260);
+  const collapsedRect=await shell.evaluate(node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};});
+  assert(collapsedRect.width>230,`Collapsed shell width was crushed: ${collapsedRect.width}`);
+  assert(collapsedRect.right<=0,`Collapsed shell still leaks into viewport: ${JSON.stringify(collapsedRect)}`);
   assert(await page.locator('.platform-admin-shell__reopen').isVisible(),'Sidebar reopen affordance missing');
   await page.locator('.platform-admin-shell__reopen').click();
   await wait(()=>page.locator('html').evaluate(node=>node.dataset.adminSidebarCollapsed==='false'),'Sidebar did not reopen');
+  await sleep(220);
+  const reopenedLeft=await shell.evaluate(node=>node.getBoundingClientRect().left);
+  assert(Math.abs(reopenedLeft)<2,`Sidebar did not return to viewport edge: ${reopenedLeft}`);
   const resize=page.locator('.platform-admin-shell__resize-handle');
-  await resize.evaluate(node=>{
-    const fire=(type,x)=>node.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:91,pointerType:'mouse',button:0,buttons:type==='pointerup'?0:1,clientX:x,clientY:180}));
-    fire('pointerdown',260);fire('pointermove',320);fire('pointerup',320);
-  });
-  await sleep(100);
-  const sidebarAfter=await page.locator('.platform-admin-shell').evaluate(node=>node.getBoundingClientRect().width);
+  await resize.evaluate((node,start)=>{
+    const fire=(type,x,buttons)=>node.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:91,pointerType:'mouse',button:0,buttons,clientX:x,clientY:180}));
+    fire('pointerdown',start,1);fire('pointermove',start+60,1);fire('pointerup',start+60,0);
+  },Math.round(sidebarBefore));
+  await sleep(140);
+  const sidebarAfter=await shell.evaluate(node=>node.getBoundingClientRect().width);
   assert(sidebarAfter>sidebarBefore+20,`Sidebar drag resize did not change width: ${sidebarBefore} -> ${sidebarAfter}`);
-  pass('Collapsible/resizable sidebar',`button collapse/reopen + drag ${Math.round(sidebarBefore)}→${Math.round(sidebarAfter)}px`);
+  const sharedWidth=Number(await page.evaluate(()=>localStorage.getItem('platformAdminSidebarWidthV1')));
+  assert(Math.abs(sharedWidth-sidebarAfter)<3,`Shared admin width was not persisted: ${sharedWidth} vs ${sidebarAfter}`);
+  pass('Collapsible/resizable sidebar',`full offscreen collapse + reopen + drag ${Math.round(sidebarBefore)}→${Math.round(sidebarAfter)}px`);
 
   let frame=await frameFor(page,'horizontal-rail');
   await openInspector(page);
@@ -111,16 +140,35 @@ try{
   pass('Canonical ownership','no Block Lab runtime imports; shared popup/filter owners declared');
 
   const libraryIds=tree.ids;
+
+  /* Cross-route shell continuity: admin dark and sidebar width persist, while
+     each target preview/canvas keeps its own light theme state. */
+  await page.goto(`${BASE}/block-lab/`,{waitUntil:'domcontentloaded'});
+  await wait(()=>page.locator('.platform-admin-shell').count().then(Boolean),'Block Lab admin shell missing');
+  await wait(()=>page.locator('html').evaluate(node=>node.dataset.adminThemeResolved==='dark'),'Admin theme did not persist to Block Lab');
+  const blockState=await page.evaluate(()=>({width:document.querySelector('.platform-admin-shell')?.getBoundingClientRect().width,active:document.querySelector('.platform-admin-shell__nav a[aria-current="page"]')?.getAttribute('href'),preview:document.querySelector('.block-lab')?.dataset.theme,themeButtons:document.querySelectorAll('[data-admin-theme-value]').length}));
+  assert(Math.abs((blockState.width||0)-sharedWidth)<3,`Block Lab admin shell width drifted: ${blockState.width} vs ${sharedWidth}`);
+  assert(blockState.active==='/block-lab/','Block Lab active admin nav missing');
+  assert(blockState.preview==='light','Admin dark theme changed Block Lab preview theme');
+  assert(blockState.themeButtons===3,'Block Lab admin theme controls missing');
+
   await page.goto(`${BASE}/editor-lab/`,{waitUntil:'domcontentloaded'});
   await wait(()=>page.evaluate(()=>Boolean(window.PlatformModuleRegistry)),'Editor Registry missing');
   await wait(()=>page.locator('[data-add-module]').count().then(count=>count>=libraryIds.length),'Editor module catalog did not include all Library modules');
+  await wait(()=>page.locator('html').evaluate(node=>node.dataset.adminThemeResolved==='dark'),'Admin theme did not persist to Editor');
   const editorIds=await page.evaluate(()=>window.PlatformModuleRegistry.listFor('editor').map(item=>item.id));
   assert(libraryIds.every(id=>editorIds.includes(id)),`Library/Editor Registry drift: editor=${editorIds.join(',')}`);
+  const editorState=await page.evaluate(()=>({width:document.querySelector('.platform-admin-shell')?.getBoundingClientRect().width,active:document.querySelector('.platform-admin-shell__nav a[aria-current="page"]')?.getAttribute('href'),preview:document.querySelector('.editor-lab')?.dataset.theme,themeButtons:document.querySelectorAll('[data-admin-theme-value]').length}));
+  assert(Math.abs((editorState.width||0)-sharedWidth)<3,`Editor admin shell width drifted: ${editorState.width} vs ${sharedWidth}`);
+  assert(editorState.active==='/block-editor/','Editor active admin nav missing');
+  assert(editorState.preview==='light','Admin dark theme changed Editor preview theme');
+  assert(editorState.themeButtons===3,'Editor admin theme controls missing');
   pass('Library → Editor Registry parity',`${libraryIds.length} approved module IDs available to Editor`);
+  pass('Cross-route admin shell continuity',`admin dark + ${Math.round(sharedWidth)}px shell persist across Library → Block Lab → Editor while target themes stay light`);
 
   report.status='pass';report.finishedAt=new Date().toISOString();
   fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify(report,null,2)+'\n');
-  await page.screenshot({path:path.join(OUT,'library-tree.png'),fullPage:true});
+  await page.screenshot({path:path.join(OUT,'admin-shell-editor-dark.png'),fullPage:true});
   console.log(`Library architecture/tree QA OK: ${report.checks.length} checks.`);
   await page.close();
 }catch(error){
