@@ -38,6 +38,7 @@ html[data-admin-shell="true"] body{background:var(--admin-ui-bg)!important;color
 .platform-admin-shell__end{border-color:var(--admin-ui-line)!important}
 .platform-admin-shell__end>a,.admin-utility-menu>summary,.admin-utility-menu__panel{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel)!important;color:var(--admin-ui-text)!important}
 .admin-utility-menu__panel{box-shadow:var(--admin-ui-shadow)!important}
+html[data-library-module-tree="true"] .platform-admin-shell__nav{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto auto auto!important;min-height:0!important;flex:1 1 auto!important;align-content:stretch!important}
 
 .platform-admin-theme{display:grid;gap:6px;padding:3px 1px 5px}
 .platform-admin-theme>span{padding:0 3px;color:var(--admin-ui-muted);font-size:8px;font-weight:760;letter-spacing:-.01em}
