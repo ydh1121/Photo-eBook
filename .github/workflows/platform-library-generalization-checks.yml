@@ -1,0 +1,65 @@
+name: Platform Library Generalization Checks
+
+on:
+  pull_request:
+    paths:
+      - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'public/data/ui-capabilities/**'
+      - 'public/ui-dashboard/**'
+      - 'scripts/check-library-generalization-batch1-v1.mjs'
+      - '.github/workflows/platform-library-generalization-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'public/data/ui-capabilities/**'
+      - 'public/ui-dashboard/**'
+      - 'scripts/check-library-generalization-batch1-v1.mjs'
+      - '.github/workflows/platform-library-generalization-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  generalization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check focused JavaScript syntax
+        run: |
+          node --check public/assets/js/platform-modules/module-action-runtime-v1.js
+          node --check public/assets/js/platform-modules/photo-core-modules-v1.js
+          node --check public/assets/js/ui-dashboard/library-content-editor-v2.js
+          node --check public/data/ui-capabilities/v1/module-extension-v1.js
+          node --check scripts/check-library-generalization-batch1-v1.mjs
+      - name: Install browser QA dependency
+        run: npm install --no-save --no-package-lock playwright@1.55.0
+      - name: Verify reusable content and action contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory public >/tmp/photo-ebook-generalization-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ui-dashboard/ >/dev/null; then break; fi
+            sleep .3
+          done
+          export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
+          node scripts/check-library-generalization-batch1-v1.mjs
+      - name: Upload generalization QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-library-generalization-qa
+          path: artifacts/library-generalization-batch1
+          if-no-files-found: ignore
+          retention-days: 7
