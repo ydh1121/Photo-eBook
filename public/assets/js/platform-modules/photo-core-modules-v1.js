@@ -67,6 +67,23 @@
     const module=host.matches?.('[data-platform-module="filter-chip-rail"]')?host:host.querySelector('[data-platform-module="filter-chip-rail"]');
     if(!module||module.dataset.platformFilterBound==='true')return;
     module.dataset.platformFilterBound='true';
+
+    function revealActive(id,{behavior='smooth'}={}){
+      const source=[...module.querySelectorAll('.platform-filter-chip-source')].find(node=>!node.hidden);
+      const button=source?.querySelector(`[data-platform-filter-id="${CSS.escape(String(id||'all'))}"]`);
+      if(!source||!button||source.scrollWidth<=source.clientWidth+1)return;
+      const edge=8;
+      const left=button.offsetLeft;
+      const right=left+button.offsetWidth;
+      const visibleLeft=source.scrollLeft+edge;
+      const visibleRight=source.scrollLeft+source.clientWidth-edge;
+      let next=source.scrollLeft;
+      if(left<visibleLeft)next=Math.max(0,left-edge);
+      else if(right>visibleRight)next=Math.min(source.scrollWidth-source.clientWidth,right-source.clientWidth+edge);
+      if(Math.abs(next-source.scrollLeft)>1)source.scrollTo({left:next,behavior});
+    }
+    module.__platformFilterRevealActive=options=>revealActive(module.dataset.platformFilterValue||module.querySelector('[aria-pressed="true"]')?.dataset.platformFilterId||'all',options||{});
+
     function sync(id){
       module.querySelectorAll('[data-platform-filter-id]').forEach(button=>{
         const active=button.dataset.platformFilterId===id;
@@ -74,19 +91,22 @@
         button.setAttribute('aria-pressed',String(active));
       });
       const liquid=module.querySelector('.platform-filter-chip-source--liquid');
-      requestAnimationFrame(()=>liquid?.__photoLiquidController?.update?.({instant:false}));
+      requestAnimationFrame(()=>{
+        liquid?.__photoLiquidController?.update?.({instant:false});
+        revealActive(id);
+      });
     }
     const click=event=>{
       const button=event.target.closest?.('[data-platform-filter-id]');
       if(!button||!module.contains(button))return;
       const id=button.dataset.platformFilterId||'all';
-      sync(id);
       module.dataset.platformFilterValue=id;
+      sync(id);
       module.dispatchEvent(new CustomEvent('platform-filter-select',{bubbles:true,detail:{value:id,button}}));
     };
     module.addEventListener('click',click);
     setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);
-    return ()=>module.removeEventListener('click',click);
+    return ()=>{delete module.__platformFilterRevealActive;module.removeEventListener('click',click);};
   }
 
   registry.register({
@@ -96,7 +116,7 @@
     render:source.navigation.render,hydrate:source.navigation.hydrate
   });
   registry.register({
-    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-core',sourceRoute:'/',consumers,version:7,
+    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-core',sourceRoute:'/',consumers,version:8,
     ownerFiles:[...origin.liquid,...origin.filterFamilies],previewProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},editorProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},
     styleDefaults:{family:'ios-liquid',accentColor:'#4c7fdf',fontFamily:'system-sans',fontSize:14,fontWeight:680,letterSpacing:-.28,surfaceOpacity:54,blur:15,response:'standard',overshoot:'medium',gap:8,runway:4},
     render:renderGenericFilterRail,hydrate:hydrateGenericFilterRail

@@ -1,7 +1,7 @@
-/* v7: desktop delegated mouse-grab rails with builder-live tuning support. */
+/* v8: delegated mouse-grab rails with canonical preview viewport support. */
 (function(){
-  if(window.__photoDesktopPassV7Installed)return;
-  window.__photoDesktopPassV7Installed=true;
+  if(window.__photoDesktopPassV8Installed)return;
+  window.__photoDesktopPassV8Installed=true;
 
   const $=(selector,root=document)=>root.querySelector(selector);
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
@@ -17,6 +17,12 @@
   let suppressUntil=0;
   let prepareRaf=0;
 
+  function desktopActive(){
+    try{
+      if(typeof window.PlatformModuleViewportMode==='function')return window.PlatformModuleViewportMode()==='desktop';
+    }catch{}
+    return desktop.matches;
+  }
   function railFrom(target){return target?.closest?.(RAIL_SELECTOR)||null;}
   function dragEnabled(rail){return rail?.dataset.builderDesktopDrag!=='false';}
   function dragThreshold(rail){const n=Number(rail?.dataset.builderDragThreshold);return Number.isFinite(n)?Math.max(1,n):5;}
@@ -30,7 +36,7 @@
   }
 
   function ensureRailWindow(rail){
-    if(!rail||!rail.isConnected||!desktop.matches)return null;
+    if(!rail||!rail.isConnected||!desktopActive())return null;
     let wrapper=rail.parentElement?.classList.contains('desktop-rail-window')?rail.parentElement:null;
     if(!wrapper){
       const parent=rail.parentNode;
@@ -45,7 +51,7 @@
   }
 
   function prepareRail(rail){
-    if(!rail||!desktop.matches)return;
+    if(!rail||!desktopActive())return;
     ensureRailWindow(rail);
     if(dragEnabled(rail))$$('img,a',rail).forEach(node=>{try{node.draggable=false;}catch{}});
   }
@@ -59,31 +65,31 @@
     });
   }
   function repairDesktopActions(){
-    if(!desktop.matches)return;
+    if(!desktopActive())return;
     $$('#askOpenChatGPT,.v34-chatgpt-open').forEach(button=>{
       if('disabled'in button)button.disabled=false;
       button.removeAttribute('disabled');button.removeAttribute('aria-disabled');
     });
   }
-  function prepareDesktop(){if(!desktop.matches){unwrapRailWindows();return;}prepareRailContent();repairDesktopActions();}
+  function prepareDesktop(){if(!desktopActive()){unwrapRailWindows();return;}prepareRailContent();repairDesktopActions();}
   function schedulePrepare(){if(prepareRaf)return;prepareRaf=requestAnimationFrame(()=>{prepareRaf=0;prepareDesktop();});}
 
   document.addEventListener('dragstart',event=>{
-    if(!desktop.matches)return;const rail=railFrom(event.target);if(!rail||!dragEnabled(rail))return;event.preventDefault();
+    if(!desktopActive())return;const rail=railFrom(event.target);if(!rail||!dragEnabled(rail))return;event.preventDefault();
   },true);
   document.addEventListener('selectstart',event=>{
-    if(!desktop.matches)return;const rail=railFrom(event.target);if(!rail||!dragEnabled(rail))return;event.preventDefault();
+    if(!desktopActive())return;const rail=railFrom(event.target);if(!rail||!dragEnabled(rail))return;event.preventDefault();
   },true);
 
   document.addEventListener('pointerdown',event=>{
-    if(!desktop.matches||event.pointerType!=='mouse'||event.button!==0)return;
+    if(!desktopActive()||event.pointerType!=='mouse'||event.button!==0)return;
     const rail=railFrom(event.target);if(!rail||!dragEnabled(rail))return;
     if(event.target.closest?.('input,textarea,select,option,[contenteditable="true"]'))return;
     activeRail=rail;pointerId=event.pointerId;startX=event.clientX;startScroll=rail.scrollLeft;dragging=false;suppressRail=null;suppressUntil=0;rail.classList.add('is-desktop-pointerdown');
   },true);
 
   document.addEventListener('pointermove',event=>{
-    if(!desktop.matches||!activeRail||pointerId===null||event.pointerId!==pointerId)return;
+    if(!desktopActive()||!activeRail||pointerId===null||event.pointerId!==pointerId)return;
     if(!dragEnabled(activeRail)){activeRail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');activeRail=null;pointerId=null;dragging=false;return;}
     const dx=event.clientX-startX;
     if(!dragging&&Math.abs(dx)<dragThreshold(activeRail))return;
@@ -104,7 +110,7 @@
     if(!activeRail||pointerId===null||event.pointerId!==pointerId)return;
     const rail=activeRail;rail.classList.remove('is-desktop-pointerdown','is-desktop-dragging');activeRail=null;pointerId=null;dragging=false;syncRailEdgeState(rail);
   },true);
-  document.addEventListener('scroll',event=>{if(!desktop.matches)return;const rail=railFrom(event.target);if(rail)syncRailEdgeState(rail);},true);
+  document.addEventListener('scroll',event=>{if(!desktopActive())return;const rail=railFrom(event.target);if(rail)syncRailEdgeState(rail);},true);
   document.addEventListener('click',event=>{
     if(!suppressRail||performance.now()>suppressUntil){suppressRail=null;return;}
     const rail=railFrom(event.target);if(rail!==suppressRail)return;event.preventDefault();event.stopImmediatePropagation();suppressRail=null;
@@ -122,8 +128,6 @@
   document.addEventListener('click',event=>{
     const deviceLink=event.target.closest?.('#collectionDeviceLink');
     if(deviceLink){
-      /* The current device-handoff compat owns this row. Do not run the retired
-         close-sheet -> question-modal path when that runtime is installed. */
       if(window.__photoDesktopRailPolishV1Installed)return;
       event.preventDefault();event.stopImmediatePropagation();openDeviceSync();return;
     }
@@ -132,10 +136,10 @@
 
   function nodeMayContainRail(node){return node?.nodeType===1&&(node.matches?.(RAIL_SELECTOR)||node.querySelector?.(RAIL_SELECTOR));}
   function watchDynamicRails(){
-    const app=$('#app');if(!app||app.dataset.desktopRailWatchV7==='true')return;app.dataset.desktopRailWatchV7='true';
-    new MutationObserver(records=>{if(!desktop.matches)return;for(const record of records){if([...record.addedNodes].some(nodeMayContainRail)){schedulePrepare();return;}}}).observe(app,{childList:true,subtree:true});
+    const root=$('#app')||document.body;if(!root||root.dataset.desktopRailWatchV8==='true')return;root.dataset.desktopRailWatchV8='true';
+    new MutationObserver(records=>{if(!desktopActive())return;for(const record of records){if([...record.addedNodes].some(nodeMayContainRail)){schedulePrepare();return;}}}).observe(root,{childList:true,subtree:true});
   }
   function init(){watchDynamicRails();prepareDesktop();[120,420].forEach(delay=>setTimeout(schedulePrepare,delay));}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-  window.addEventListener('pageshow',()=>setTimeout(init,100),{passive:true});window.addEventListener('resize',schedulePrepare,{passive:true});desktop.addEventListener?.('change',()=>{if(!desktop.matches)unwrapRailWindows();schedulePrepare();});
+  window.addEventListener('pageshow',()=>setTimeout(init,100),{passive:true});window.addEventListener('resize',schedulePrepare,{passive:true});desktop.addEventListener?.('change',()=>{if(!desktopActive())unwrapRailWindows();schedulePrepare();});
 })();
