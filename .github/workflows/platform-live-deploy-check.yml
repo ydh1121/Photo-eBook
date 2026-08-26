@@ -20,6 +20,7 @@ on:
       - 'public/assets/js/desktop/**'
       - 'public/assets/js/navigation/**'
       - 'public/assets/js/ui/**'
+      - 'public/assets/styles/platform-modules/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/editor-lab/**'
       - 'public/assets/styles/desktop/**'
@@ -27,6 +28,7 @@ on:
       - 'public/assets/styles/ui/**'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'scripts/check-top-nav-runtime-parity.mjs'
+      - 'scripts/check-library-runtime-feedback-v1.mjs'
       - '.github/workflows/platform-live-deploy-check.yml'
   workflow_dispatch:
 
@@ -46,6 +48,7 @@ jobs:
         run: |
           node --check scripts/check-live-ui-dashboard-deploy.mjs
           node --check scripts/check-top-nav-runtime-parity.mjs
+          node --check scripts/check-library-runtime-feedback-v1.mjs
       - name: Install browser dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Verify Cloudflare Pages canonical module pipeline
@@ -63,28 +66,46 @@ jobs:
             parity_status=fail
           fi
 
-          TOP_NAV_PARITY_STATUS="$parity_status" node <<'NODE'
+          feedback_status=pass
+          if ! UI_DASHBOARD_BASE_URL="$UI_DASHBOARD_LIVE_URL" node scripts/check-library-runtime-feedback-v1.mjs; then
+            feedback_status=fail
+          fi
+
+          TOP_NAV_PARITY_STATUS="$parity_status" LIBRARY_FEEDBACK_STATUS="$feedback_status" node <<'NODE'
           const fs=require('node:fs');
           const target='artifacts/platform-live-deploy/report.json';
           const report=JSON.parse(fs.readFileSync(target,'utf8'));
-          const ok=process.env.TOP_NAV_PARITY_STATUS==='pass';
+          const parityOk=process.env.TOP_NAV_PARITY_STATUS==='pass';
+          const feedbackOk=process.env.LIBRARY_FEEDBACK_STATUS==='pass';
           report.checks=Array.isArray(report.checks)?report.checks:[];
           report.checks.push({
             name:'live top-nav runtime parity',
-            status:ok?'pass':'fail',
-            detail:ok
+            status:parityOk?'pass':'fail',
+            detail:parityOk
               ?'Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing'
               :'focused Photography/Public ↔ Library runtime parity failed'
           });
-          if(!ok){
+          report.checks.push({
+            name:'live Library runtime feedback gate',
+            status:feedbackOk?'pass':'fail',
+            detail:feedbackOk
+              ?'top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages'
+              :'focused Library runtime feedback checks failed on live Pages'
+          });
+          if(!parityOk||!feedbackOk){
             report.status='fail';
-            report.error=[report.error,'live top-nav runtime parity failed'].filter(Boolean).join('\n');
+            report.error=[
+              report.error,
+              !parityOk?'live top-nav runtime parity failed':'',
+              !feedbackOk?'live Library runtime feedback gate failed':''
+            ].filter(Boolean).join('\n');
           }
           report.finishedAt=new Date().toISOString();
           fs.writeFileSync(target,JSON.stringify(report,null,2)+'\n');
           NODE
 
           test "$parity_status" = pass
+          test "$feedback_status" = pass
       - name: Record live deployment result
         if: always()
         shell: bash
@@ -131,6 +152,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: platform-live-deploy
-          path: artifacts/platform-live-deploy
+          path: |
+            artifacts/platform-live-deploy
+            artifacts/library-runtime-feedback-v1
           if-no-files-found: ignore
           retention-days: 7
