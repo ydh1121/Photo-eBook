@@ -22,7 +22,12 @@
   width:100%;
   min-width:0;
   max-width:100%;
+  touch-action:pan-x;
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
 }
+.platform-filter-chip-source.is-dragging{cursor:grabbing}
 .platform-filter-chip-source button{
   box-sizing:border-box;
   max-width:none;
@@ -34,6 +39,7 @@
   -webkit-tap-highlight-color:transparent;
   transition:background-color var(--platform-filter-duration) var(--platform-filter-ease),color var(--platform-filter-duration) var(--platform-filter-ease),border-color var(--platform-filter-duration) var(--platform-filter-ease),border-radius var(--platform-filter-duration) var(--platform-filter-ease),box-shadow var(--platform-filter-duration) var(--platform-filter-ease),transform var(--platform-filter-duration) var(--platform-filter-ease);
 }
+.platform-filter-chip-source.is-dragging button{cursor:grabbing}
 
 /* iOS Liquid keeps the production liquid-controller owner. The shared module
    owns rail geometry explicitly so the generic .collection-tabs baseline
