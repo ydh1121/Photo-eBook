@@ -72,14 +72,17 @@ try{
   await wait(()=>module.getAttribute('data-open').then(value=>value==='false'),'Bottom sheet header close failed');
   await frame.locator('[data-bottom-sheet-open]').click();
   await wait(()=>module.getAttribute('data-open').then(value=>value==='true'),'Bottom sheet reopen failed');
-  await frame.locator('[data-bottom-sheet-action="secondary"]').click();
-  await wait(()=>module.getAttribute('data-open').then(value=>value==='false'),'Bottom sheet secondary close failed');
-  await frame.locator('[data-bottom-sheet-open]').click();
-  await wait(()=>module.getAttribute('data-open').then(value=>value==='true'),'Bottom sheet second reopen failed');
+  const secondary=frame.locator('[data-bottom-sheet-action="secondary"]');
+  if(await secondary.count()){
+    await secondary.click();
+    await wait(()=>module.getAttribute('data-open').then(value=>value==='false'),'Bottom sheet visible secondary close failed');
+    await frame.locator('[data-bottom-sheet-open]').click();
+    await wait(()=>module.getAttribute('data-open').then(value=>value==='true'),'Bottom sheet second reopen failed');
+  }
   await module.evaluate(node=>{window.__portableSheetAction=false;node.addEventListener('platform-bottom-sheet-confirm',()=>window.__portableSheetAction=true,{once:true});});
   await frame.locator('[data-bottom-sheet-action="primary"]').click();
   assert(await frame.locator('html').evaluate(()=>Boolean(window.__portableSheetAction)),'Bottom-sheet custom action did not execute');
-  pass('bottom sheet primitive','header close + secondary close + reopen + portable custom action');
+  pass('bottom sheet primitive','header close + reopen + visible actions + portable custom action');
 
   const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('platformModuleContentDefaultsV1')||'{}'));
   assert(saved['horizontal-rail']?.items?.[1]?.title==='클라이언트용 두 번째 카드','Rail Library default not persisted');

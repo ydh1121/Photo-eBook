@@ -1,4 +1,4 @@
-name: Platform Library Family Controls Checks
+name: Platform Library Architecture Checks
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - 'public/editor-lab/**'
       - 'public/data/ui-capabilities/**'
       - 'public/data/block-registry/**'
+      - 'public/data/platform-modules/**'
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/styles/platform-modules/**'
@@ -20,6 +21,7 @@ on:
       - 'public/editor-lab/**'
       - 'public/data/ui-capabilities/**'
       - 'public/data/block-registry/**'
+      - 'public/data/platform-modules/**'
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/styles/platform-modules/**'
@@ -28,7 +30,7 @@ on:
       - '.github/workflows/platform-library-family-controls-checks.yml'
 
 jobs:
-  verify-family-controls:
+  verify-library-architecture:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -39,19 +41,22 @@ jobs:
       - name: Check focused JavaScript syntax
         run: |
           node --check public/assets/js/platform-modules/portable-primitives-extension-v2.js
+          node --check public/assets/js/platform-modules/portable-primitives-composition-v3.js
           node --check public/assets/js/platform-modules/module-style-runtime-portable-v1.js
           node --check public/assets/js/platform-modules/filter-chip-rail-edge-repair-v1.js
-          node --check public/assets/js/ui-dashboard/library-module-family-tabs-v1.js
+          node --check public/assets/js/ui-dashboard/library-module-tree-v1.js
+          node --check public/assets/js/ui-dashboard/module-preview-context-isolation-v1.js
+          node --check public/data/platform-modules/v1/library-taxonomy.js
           node --check public/data/ui-capabilities/v1/library-family-extension-v1.js
           node --check public/data/block-registry/v1/editor-module-extension-v1.js
           node --check scripts/check-library-module-family-controls-v1.mjs
       - name: Install browser dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
-      - name: Verify grouped Library module families
+      - name: Verify Library tree and canonical module ownership
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m http.server 4173 --directory public >/tmp/photo-ebook-family-http.log 2>&1 &
+          python3 -m http.server 4173 --directory public >/tmp/photo-ebook-architecture-http.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           for attempt in $(seq 1 30); do
@@ -59,11 +64,11 @@ jobs:
             sleep .3
           done
           UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-library-module-family-controls-v1.mjs
-      - name: Upload family controls QA
+      - name: Upload architecture QA
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: platform-library-family-controls
+          name: platform-library-architecture
           path: artifacts/library-module-family-controls-v1
           if-no-files-found: ignore
           retention-days: 7

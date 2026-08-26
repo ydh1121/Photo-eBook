@@ -4,28 +4,23 @@
   if(!manifest||!Array.isArray(manifest.blocks)||!modules)return;
 
   /* Editor's block manifest is assembled synchronously during parser startup.
-     Load the same shared Registry extension used by Library before collecting
-     ui-module variants, rather than duplicating portable module definitions. */
-  if(!window.__platformPortablePrimitivesExtensionV2){
+     Load the same shared Registry extensions used by Library before collecting
+     ui-module variants. This wiring file does not own component markup/skin. */
+  function loadSharedOnce(flag,url,label){
+    if(window[flag])return;
     try{
       const request=new XMLHttpRequest();
-      request.open('GET','/assets/js/platform-modules/portable-primitives-extension-v2.js?v=1',false);
+      request.open('GET',url,false);
       request.send(null);
       if(request.status===0||(request.status>=200&&request.status<300)){
-        (0,eval)(`${request.responseText}\n//# sourceURL=portable-primitives-extension-v2.js`);
+        (0,eval)(`${request.responseText}\n//# sourceURL=${url.split('?')[0]}`);
       }
-    }catch(error){console.warn('Portable Registry extension load failed.',error);}
+    }catch(error){console.warn(`${label} load failed.`,error);}
   }
-  if(!window.__platformFilterChipEdgeRepairV1){
-    try{
-      const request=new XMLHttpRequest();
-      request.open('GET','/assets/js/platform-modules/filter-chip-rail-edge-repair-v1.js?v=1',false);
-      request.send(null);
-      if(request.status===0||(request.status>=200&&request.status<300)){
-        (0,eval)(`${request.responseText}\n//# sourceURL=filter-chip-rail-edge-repair-v1.js`);
-      }
-    }catch(error){console.warn('Filter edge Registry repair load failed.',error);}
-  }
+
+  loadSharedOnce('__platformPortablePrimitivesExtensionV2','/assets/js/platform-modules/portable-primitives-extension-v2.js?v=1','Portable Registry extension');
+  loadSharedOnce('__platformPortablePrimitivesCompositionV3','/assets/js/platform-modules/portable-primitives-composition-v3.js?v=1','Portable canonical composition');
+  loadSharedOnce('__platformFilterChipEdgeRepairV1','/assets/js/platform-modules/filter-chip-rail-edge-repair-v1.js?v=1','Filter edge Registry repair');
 
   if(manifest.blocks.some(item=>item.type==='ui-module'))return;
   const variants=modules.listFor('editor').map(item=>item.id);
