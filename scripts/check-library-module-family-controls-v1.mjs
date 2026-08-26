@@ -84,16 +84,17 @@ try{
   pass('Standalone screen-mode segmented owner',`${modeSkin.buttons} segments, radius ${modeSkin.radius}`);
 
   frame=await frameFor(page,'collection-bottom-sheet');await sleep(180);
-  const photoPopup=await frame.evaluate(()=>{const panel=document.querySelector('.collection-sheet'),close=document.querySelector('.collection-close'),handle=document.querySelector('.collection-handle'),wrap=document.querySelector('.collection-handle-wrap');const pr=panel.getBoundingClientRect(),cr=close?.getBoundingClientRect(),hr=handle?.getBoundingClientRect(),wr=wrap?.getBoundingClientRect();return {radius:getComputedStyle(panel).borderTopLeftRadius,closeW:cr?.width,closeH:cr?.height,closeTop:cr?.top-pr.top,handleW:hr?.width,handleH:hr?.height,handleWrapH:wr?.height};});
+  const photoPopup=await frame.evaluate(()=>{const panel=document.querySelector('.collection-sheet'),close=document.querySelector('.collection-close'),handle=document.querySelector('.collection-handle'),wrap=document.querySelector('.collection-handle-wrap');const pr=panel.getBoundingClientRect(),cr=close?.getBoundingClientRect(),hr=handle?.getBoundingClientRect(),wr=wrap?.getBoundingClientRect();return {radius:getComputedStyle(panel).borderTopLeftRadius,closeW:cr?.width,closeH:cr?.height,closeTop:cr?.top-pr.top,closeRight:pr.right-cr?.right,handleW:hr?.width,handleH:hr?.height,handleWrapH:wr?.height};});
   frame=await frameFor(page,'bottom-sheet');
-  const genericPopup=await frame.evaluate(()=>{const panel=document.querySelector('.platform-bottom-sheet__panel'),close=document.querySelector('.platform-bottom-sheet__head>button'),handle=document.querySelector('.platform-bottom-sheet__handle'),wrap=document.querySelector('.platform-bottom-sheet__handle-wrap');const pr=panel.getBoundingClientRect(),cr=close?.getBoundingClientRect(),hr=handle?.getBoundingClientRect(),wr=wrap?.getBoundingClientRect();return {radius:getComputedStyle(panel).borderTopLeftRadius,closeW:cr?.width,closeH:cr?.height,closeTop:cr?.top-pr.top,handleW:hr?.width,handleH:hr?.height,handleWrapH:wr?.height};});
+  const genericPopup=await frame.evaluate(()=>{const panel=document.querySelector('.platform-bottom-sheet__panel'),close=document.querySelector('.platform-bottom-sheet__head>button'),handle=document.querySelector('.platform-bottom-sheet__handle'),wrap=document.querySelector('.platform-bottom-sheet__handle-wrap');const pr=panel.getBoundingClientRect(),cr=close?.getBoundingClientRect(),hr=handle?.getBoundingClientRect(),wr=wrap?.getBoundingClientRect();return {radius:getComputedStyle(panel).borderTopLeftRadius,closeW:cr?.width,closeH:cr?.height,closeTop:cr?.top-pr.top,closeRight:pr.right-cr?.right,handleW:hr?.width,handleH:hr?.height,handleWrapH:wr?.height};});
   report.popupGeometry={photoPopup,genericPopup};
   assert(genericPopup.radius===photoPopup.radius,'Bottom popup radius drift');
   for(const key of ['closeW','closeH','handleW','handleH','handleWrapH'])assert(Math.abs((genericPopup[key]||0)-(photoPopup[key]||0))<1,`Bottom popup ${key} drift: ${JSON.stringify(report.popupGeometry)}`);
   assert(Math.abs((genericPopup.closeTop||0)-(photoPopup.closeTop||0))<3,`Bottom popup close Y drift: ${JSON.stringify(report.popupGeometry)}`);
+  assert(Math.abs((genericPopup.closeRight||0)-(photoPopup.closeRight||0))<3,`Bottom popup close X drift: ${JSON.stringify(report.popupGeometry)}`);
   await frame.locator('[data-bottom-sheet-drag-handle]').evaluate(node=>{const fire=(type,y,buttons)=>node.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:77,pointerType:'mouse',button:0,buttons,clientY:y,clientX:100}));fire('pointerdown',100,1);fire('pointermove',205,1);fire('pointerup',205,0);});
   await wait(()=>frame.locator('#platformModuleHost [data-platform-module="bottom-sheet"]').evaluate(node=>node.dataset.open==='false'),'Generic bottom sheet did not close by handle drag');
-  pass('Bottom-sheet Photography parity',`close ${genericPopup.closeW}×${genericPopup.closeH}, handle ${genericPopup.handleW}×${genericPopup.handleH}, drag close`);
+  pass('Bottom-sheet Photography parity',`close ${genericPopup.closeW}×${genericPopup.closeH}, top/right ${genericPopup.closeTop}/${genericPopup.closeRight}, handle ${genericPopup.handleW}×${genericPopup.handleH}, drag close`);
 
   const ownership=await page.evaluate(()=>window.PlatformModuleRegistry.listFor('library').map(def=>({id:def.id,owners:def.ownerFiles,render:typeof def.render})));
   assert(ownership.every(item=>item.render==='function'&&!item.owners.some(file=>file.includes('/block-lab/'))),'Approved module ownership violation');
@@ -120,6 +121,19 @@ try{
   await wait(()=>page.evaluate(()=>location.pathname==='/ui-dashboard/'&&document.querySelector('.platform-admin-workspace-host')?.hidden===true),'Library did not restore native workspace');
   assert(await page.locator('.platform-admin-shell').evaluate(node=>node.dataset.qaIdentity)==='persistent','Admin shell reloaded while returning to Library');
   pass('Persistent admin tool routing','Library → Block Lab → Editor → QA → Library without parent document reload');
+
+  const direct=await browser.newPage({viewport:{width:1500,height:1000}});
+  await direct.goto(`${BASE}/block-lab/`,{waitUntil:'domcontentloaded'});
+  await wait(()=>direct.locator('.platform-admin-shell__module-tree').count().then(Boolean),'Direct Block Lab entry did not normalize to the Library host',30000);
+  await wait(()=>direct.locator('.platform-admin-workspace-host:not([hidden]) iframe').count().then(Boolean),'Direct Block Lab entry did not restore its embedded workspace',30000);
+  const directHandle=await direct.$('.platform-admin-workspace-host iframe');const directChild=await directHandle?.contentFrame();assert(directChild,'Direct Block Lab workspace frame missing');
+  await wait(()=>directChild.locator('.block-lab').count().then(Boolean),'Direct Block Lab workspace did not render',25000);
+  assert(await directChild.locator('.platform-admin-shell').count()===0,'Direct Block Lab workspace mounted a duplicate admin shell');
+  await direct.locator('.platform-admin-shell__nav a[href="/ui-dashboard/"]').click();
+  await wait(()=>direct.evaluate(()=>location.pathname==='/ui-dashboard/'&&document.querySelector('.platform-admin-workspace-host')?.hidden===true),'Direct-entry session could not return to native Library');
+  assert(await direct.locator('.platform-admin-shell__module-tree [data-kit-ui]').count()===tree.ids.length,'Library tree was lost after direct non-Library entry');
+  pass('Direct-entry Library host normalization',`/block-lab/ restores ${tree.ids.length}-module Library tree without a parent reload loop`);
+  await direct.close();
 
   report.status='pass';report.finishedAt=new Date().toISOString();
   fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify(report,null,2)+'\n');
