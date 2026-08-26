@@ -1,8 +1,8 @@
-/* v2: persistent major-tool navigation for the shared admin shell.
+/* v3: persistent major-tool navigation with Library as the stable admin host.
    Tool runtimes stay isolated in same-origin workspaces; no module/editor runtime is cloned. */
 (function(){
-  if(window.__platformAdminPersistentWorkspaceV2)return;
-  window.__platformAdminPersistentWorkspaceV2=true;
+  if(window.__platformAdminPersistentWorkspaceV3)return;
+  window.__platformAdminPersistentWorkspaceV3=true;
 
   const params=new URLSearchParams(location.search);
   const embedded=params.get('adminEmbed')==='1';
@@ -14,6 +14,28 @@
     editor:{path:'/editor-lab/',title:'블록 에디터'},
     qa:{path:'/qa/video-editor/',title:'QA'}
   };
+
+  function idFromPath(pathname){
+    if(pathname.startsWith('/ui-dashboard'))return'library';
+    if(pathname.startsWith('/block-lab'))return'blocks';
+    if(pathname.startsWith('/block-editor')||pathname.startsWith('/editor-lab'))return'editor';
+    if(pathname.startsWith('/qa/')||pathname.startsWith('/staging/'))return'qa';
+    return'';
+  }
+
+  const baseId=idFromPath(location.pathname);
+  const requestedTool=routes[params.get('adminTool')]?params.get('adminTool'):'';
+
+  /* Keep one durable host document for the management UI. Direct entry to
+     Block Lab / Editor / QA is normalized once to the Library host, then the
+     requested tool is restored inside the persistent same-origin workspace.
+     Subsequent major-menu changes do not reload the parent document. */
+  if(!embedded&&baseId&&baseId!=='library'){
+    const url=new URL('/ui-dashboard/',location.origin);
+    url.searchParams.set('adminTool',baseId);
+    location.replace(url.pathname+url.search+location.hash);
+    return;
+  }
 
   function appendStyle(href,attr){
     if(document.querySelector(`link[${attr}]`))return;
@@ -41,14 +63,6 @@
     return;
   }
 
-  function idFromPath(pathname){
-    if(pathname.startsWith('/ui-dashboard'))return'library';
-    if(pathname.startsWith('/block-lab'))return'blocks';
-    if(pathname.startsWith('/block-editor')||pathname.startsWith('/editor-lab'))return'editor';
-    if(pathname.startsWith('/qa/')||pathname.startsWith('/staging/'))return'qa';
-    return'';
-  }
-  const baseId=idFromPath(location.pathname);
   let host=null,frame=null;
 
   function sanitizeEmbeddedDocument(){
@@ -106,7 +120,7 @@
     const route=routes[id];if(!route)return;
     const parts=ensureHost();
     setCurrent(id);
-    if(id===baseId){
+    if(id==='library'){
       parts.host.hidden=true;
       parts.host.removeAttribute('aria-busy');
       if(parts.frame.getAttribute('src')&&parts.frame.getAttribute('src')!=='about:blank')parts.frame.src='about:blank';
@@ -133,12 +147,21 @@
       showRoute(id,{push:true});
     }));
     shell.addEventListener('click',event=>{if(event.target.closest('[data-admin-theme-value]'))queueMicrotask(syncFrameTheme);});
-    window.addEventListener('popstate',()=>showRoute(idFromPath(location.pathname)||baseId,{push:false}));
-    setCurrent(idFromPath(location.pathname)||baseId);
+    window.addEventListener('popstate',()=>showRoute(idFromPath(location.pathname)||'library',{push:false}));
+    setCurrent(idFromPath(location.pathname)||'library');
     return true;
   }
 
-  function mount(){return bind(document.querySelector('.platform-admin-shell'));}
+  function mount(){
+    if(!bind(document.querySelector('.platform-admin-shell')))return false;
+    if(requestedTool&&requestedTool!=='library'){
+      showRoute(requestedTool,{push:false});
+      history.replaceState({adminWorkspace:requestedTool},'',routes[requestedTool].path);
+    }else if(params.has('adminTool')){
+      history.replaceState({adminWorkspace:'library'},'',routes.library.path);
+    }
+    return true;
+  }
   if(!mount()){
     const observer=new MutationObserver(()=>{if(mount())observer.disconnect();});
     observer.observe(document.documentElement,{subtree:true,childList:true});
