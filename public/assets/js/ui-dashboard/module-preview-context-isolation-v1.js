@@ -1,7 +1,18 @@
-/* v1: preview framing isolation only. Never implements module component UI. */
+/* v2: preview framing isolation plus canonical nested-module bridge loading. */
 (function(){
-  if(window.__platformModulePreviewContextIsolationV1)return;
-  window.__platformModulePreviewContextIsolationV1=true;
+  if(window.__platformModulePreviewContextIsolationV2)return;
+  window.__platformModulePreviewContextIsolationV2=true;
+
+  function ensureScreenModeBridge(){
+    if(document.querySelector('script[data-screen-mode-settings-bridge]'))return;
+    const script=document.createElement('script');
+    script.src='/assets/js/collection/screen-mode-settings-bridge-v1.js?v=1';
+    script.async=false;
+    script.dataset.screenModeSettingsBridge='true';
+    document.body.appendChild(script);
+  }
+  ensureScreenModeBridge();
+
   const moduleId=new URLSearchParams(location.search).get('module')||'';
   if(moduleId!=='device-handoff-accordion')return;
 
