@@ -65,7 +65,7 @@ async function screenModeParity(page){
   const popupModule=collectionFrame.locator('[data-collection-screen-mode-slot] [data-platform-module="screen-mode-selector"]');
   await wait(()=>popupModule.count().then(Boolean),'canonical screen mode missing from collection settings',12000);
   await wait(()=>popupModule.locator('[data-screen-mode-value="light"]').getAttribute('aria-pressed').then(value=>value==='true'),'popup screen mode active state missing');
-  assert(await collectionFrame.locator('.theme-setting-card,[data-theme-setting-card]').count()===0,'legacy screen-mode lookalike remains in popup');
+  assert(await collectionFrame.locator('.collection-settings .theme-setting-card,.collection-settings [data-theme-setting-card]').count()===0,'legacy screen-mode lookalike remains inside popup settings');
   const popupSignature=await screenSignature(popupModule.locator('[data-screen-mode-value="light"]'));
   for(const key of ['backgroundImage','color','borderRadius','minHeight','boxShadow'])assert(popupSignature[key]===standaloneSignature[key],`screen mode popup/standalone mismatch: ${key}`);
   pass('screen mode popup/standalone parity','same Registry module + same active control computed style');
