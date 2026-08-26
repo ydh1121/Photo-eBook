@@ -4,6 +4,7 @@
 
   const path=location.pathname;
   const ADMIN_THEME_KEY='platformAdminThemeV1';
+  const ADMIN_SIDEBAR_WIDTH_KEY='platformAdminSidebarWidthV1';
   const systemDark=matchMedia('(prefers-color-scheme: dark)');
   const icons={
     library:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>',
@@ -43,6 +44,16 @@
     if(id!=='library')appendStyle('/assets/styles/admin/admin-surface-v1.css?v=2','data-admin-surface-style');
     if(id==='blocks'||id==='editor')appendStyle('/assets/styles/admin/admin-preview-theme-v1.css?v=1','data-admin-preview-theme-style');
     appendStyle('/assets/styles/admin/admin-unified-v2.css?v=1','data-admin-unified-style');
+  }
+
+  function readAdminSidebarWidth(){
+    try{return Math.max(236,Math.min(390,Number(localStorage.getItem(ADMIN_SIDEBAR_WIDTH_KEY))||256));}catch{return 256;}
+  }
+  function applyAdminSidebarWidth(){
+    const width=readAdminSidebarWidth();
+    document.documentElement.style.setProperty('--admin-sidebar-w',`${width}px`);
+    document.documentElement.style.setProperty('--library-admin-sidebar-w',`${width}px`);
+    return width;
   }
 
   function normalizeAdminTheme(value){return ['light','dark','system'].includes(value)?value:'light';}
@@ -128,6 +139,7 @@
     ensureCss(id);
     document.documentElement.dataset.adminShell='true';
     document.documentElement.dataset.adminSection=id||'unknown';
+    applyAdminSidebarWidth();
     const shell=document.createElement('aside');
     shell.className='platform-admin-shell';
     shell.innerHTML=`<div class="platform-admin-shell__brand"><a href="/ui-dashboard/"><span class="platform-admin-shell__mark">P</span><span><strong>플랫폼 관리</strong><small>모듈·페이지 도구</small></span></a></div><nav class="platform-admin-shell__nav" aria-label="관리 화면">${items.map(item=>`<a href="${item.href}" title="${item.label}" ${item.id===id?'aria-current="page"':''}><span class="platform-admin-shell__icon">${icons[item.id]}</span><span class="platform-admin-shell__copy"><strong>${item.label}</strong><small>${item.hint}</small></span></a>`).join('')}</nav><div class="platform-admin-shell__end"><div class="platform-admin-theme"><span>관리 화면</span><div role="group" aria-label="관리 화면 테마"><button type="button" data-admin-theme-value="light" aria-label="관리 화면 밝게" title="밝게">${icons.sun}</button><button type="button" data-admin-theme-value="dark" aria-label="관리 화면 어둡게" title="어둡게">${icons.moon}</button><button type="button" data-admin-theme-value="system" aria-label="관리 화면 시스템 설정" title="시스템">${icons.system}</button></div></div><a href="/" target="_blank" rel="noopener"><span>공개 페이지</span><b aria-hidden="true">↗</b></a><small>관리 화면은 검색 노출 제외</small></div>`;
