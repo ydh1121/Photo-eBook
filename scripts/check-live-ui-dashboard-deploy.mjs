@@ -10,7 +10,9 @@ const INTERVAL=Math.max(500,Number(process.env.LIVE_DEPLOY_INTERVAL_MS||4000));
 const OUT=path.resolve('artifacts/platform-live-deploy');
 fs.mkdirSync(OUT,{recursive:true});
 
-const expected=['top-chapter-navigation','filter-chip-rail','horizontal-card-rail','collection-bottom-sheet','device-handoff-accordion','floating-action'];
+const expectedPhoto=['top-chapter-navigation','filter-chip-rail','horizontal-card-rail','collection-bottom-sheet','device-handoff-accordion','floating-action'];
+const expectedPortable=['horizontal-rail','accordion','bottom-sheet'];
+const expectedLibrary=[...expectedPhoto,...expectedPortable];
 const report={startedAt:new Date().toISOString(),base:BASE,entryMarker:ENTRY_MARKER,registryMarker:REGISTRY_MARKER,attempts:[],checks:[]};
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function assert(value,message){if(!value)throw new Error(message);}
@@ -19,7 +21,7 @@ function browserPath(){return ['/usr/bin/google-chrome','/usr/bin/google-chrome-
 function cacheBust(url){const join=url.includes('?')?'&':'?';return `${url}${join}deploy_check=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
 
 async function fetchText(url){
-  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.1'}});
+  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.2'}});
   if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
   return response.text();
 }
@@ -75,10 +77,16 @@ async function waitFrameCount(frame,selector,min,message,timeout=15000){
 async function verifyLiveAssets(){
   const registry=await fetchText(`${BASE}/assets/js/platform-modules/module-registry-v1.js`);
   assert(registry.includes(REGISTRY_MARKER),`live module registry is stale; missing ${REGISTRY_MARKER}`);
-  const modules=await fetchText(`${BASE}/assets/js/platform-modules/photo-core-modules-v1.js`);
-  expected.forEach(id=>assert(modules.includes(`id:'${id}'`),`live canonical module asset is missing ${id}`));
-  assert(modules.includes("source:'public-extracted'"),'live module provenance is missing');
-  pass('live canonical assets',`${expected.length} approved photo modules`);
+
+  const photoModules=await fetchText(`${BASE}/assets/js/platform-modules/photo-core-modules-v1.js`);
+  expectedPhoto.forEach(id=>assert(photoModules.includes(`id:'${id}'`),`live canonical photo module asset is missing ${id}`));
+  assert(photoModules.includes("source:'public-extracted'"),'live photo module provenance is missing');
+
+  const portableModules=await fetchText(`${BASE}/assets/js/platform-modules/portable-primitives-v1.js`);
+  expectedPortable.forEach(id=>assert(portableModules.includes(`id:'${id}'`),`live portable primitive asset is missing ${id}`));
+  assert(portableModules.includes("const consumers=['library','editor']"),'live portable consumer boundary is stale');
+
+  pass('live canonical assets',`${expectedPhoto.length} Photography/Public + ${expectedPortable.length} portable Library/Editor modules`);
 }
 
 async function verifyLiveBrowser(){
@@ -93,20 +101,21 @@ async function verifyLiveBrowser(){
     const library=await page.evaluate(()=>({
       view:document.querySelector('.builder-shell')?.dataset.builderView,
       ids:window.PlatformModuleRegistry.listFor('library').map(item=>item.id),
-      entries:window.PlatformModuleRegistry.listFor('library').map(item=>({id:item.id,status:item.status,source:item.source})),
+      entries:window.PlatformModuleRegistry.listFor('library').map(item=>({id:item.id,status:item.status,source:item.source,consumers:item.consumers})),
       buttons:[...document.querySelectorAll('[data-kit-ui]')].map(node=>node.dataset.kitUi),
       legacyComposer:Boolean(document.querySelector('#builderOpenBlockPalette,.builder-toolbar')),
       overflow:document.documentElement.scrollWidth-innerWidth
     }));
     assert(library.view==='library','live /ui-dashboard/ is not the canonical UI Library');
     assert(!library.legacyComposer,'legacy screen composer controls are still live');
-    assert(library.ids.length===expected.length&&expected.every(id=>library.ids.includes(id)),'live approved Library module set mismatch');
+    assert(library.ids.length===expectedLibrary.length&&expectedLibrary.every(id=>library.ids.includes(id)),`live approved Library module set mismatch: ${library.ids.join(', ')}`);
     assert(library.buttons.join('|')===library.ids.join('|'),'live Library selector is not registry-driven');
     assert(library.entries.every(item=>item.status==='approved'),'non-approved module leaked into live Library');
+    assert(expectedPortable.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('library')&&item.consumers.includes('editor')&&!item.consumers.includes('public'))),'portable primitive consumer boundary regressed');
     assert(library.overflow<=2,`live Library outer overflow ${library.overflow}px`);
-    pass('live UI Library','registry-driven root route');
+    pass('live UI Library',`registry-driven root route with ${library.ids.length} approved modules`);
 
-    for(const id of ['top-chapter-navigation','filter-chip-rail','collection-bottom-sheet','device-handoff-accordion']){
+    for(const id of ['top-chapter-navigation','filter-chip-rail','collection-bottom-sheet','device-handoff-accordion','horizontal-rail','accordion','bottom-sheet']){
       const frame=await selectLibraryModule(page,id);
       const src=await page.locator('#builderFrame').getAttribute('src');
       assert(src?.includes('/ui-dashboard/module-preview/'),`${id}: live Library is not using the shared preview host`);
@@ -129,6 +138,9 @@ async function verifyLiveBrowser(){
         await page.waitForTimeout(220);
         await waitFrameCount(frame,'.collection-device-accordion #collectionDeviceLink',1,'live canonical device accordion missing');
       }
+      if(id==='horizontal-rail')await waitFrameCount(frame,'.platform-horizontal-rail__card',3,'live portable horizontal rail missing');
+      if(id==='accordion')await waitFrameCount(frame,'.platform-accordion__item',2,'live portable accordion missing');
+      if(id==='bottom-sheet')await waitFrameCount(frame,'.platform-bottom-sheet[data-platform-module="bottom-sheet"]',1,'live portable bottom sheet missing');
     }
 
     await selectLibraryModule(page,'top-chapter-navigation');
@@ -157,8 +169,8 @@ async function verifyLiveBrowser(){
     assert(editor.title.includes('블록 에디터'),'live Block Editor role label is stale');
     assert(!editor.scripts.some(src=>src.includes('/assets/js/block-lab/')),'live Block Editor loads Block Lab JS');
     assert(!editor.styles.some(src=>src.includes('/assets/styles/block-lab/')),'live Block Editor loads Block Lab CSS');
-    assert(expected.every(id=>editor.ids.includes(id)),'live Block Editor approved module set mismatch');
-    pass('live Block Editor boundary','approved modules only');
+    assert(expectedLibrary.every(id=>editor.ids.includes(id)),`live Block Editor approved module set mismatch: ${editor.ids.join(', ')}`);
+    pass('live Block Editor boundary',`${expectedLibrary.length} approved modules only`);
 
     await page.goto(cacheBust(`${BASE}/`),{waitUntil:'domcontentloaded',timeout:45000});
     await page.waitForFunction(()=>Boolean(window.PlatformModuleRegistry),{timeout:20000});
@@ -167,10 +179,11 @@ async function verifyLiveBrowser(){
       modules:window.PlatformModuleRegistry.listFor('public').map(item=>({id:item.id,status:item.status})),
       nav:document.querySelectorAll('.nav-shell[data-platform-module="top-chapter-navigation"] .nav-chip').length
     }));
-    assert(expected.every(id=>publicState.modules.some(item=>item.id===id&&item.status==='approved')),'live public consumer cannot resolve approved common modules');
+    assert(expectedPhoto.every(id=>publicState.modules.some(item=>item.id===id&&item.status==='approved')),'live public consumer cannot resolve approved Photography common modules');
+    assert(expectedPortable.every(id=>!publicState.modules.some(item=>item.id===id)),'portable primitive leaked into Photography Public consumer');
     assert(publicState.nav>=8,'live public top navigation is not using canonical module');
     await page.screenshot({path:path.join(OUT,'live-public-canonical-nav.png'),fullPage:false});
-    pass('live public migration','top navigation uses canonical module; remaining public adapters can migrate incrementally');
+    pass('live public migration','Photography top navigation canonical; portable primitive Public boundary remains closed');
 
     await context.close();
   }finally{await browser.close();}
