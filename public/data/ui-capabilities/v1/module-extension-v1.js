@@ -17,20 +17,12 @@
   for(const definition of modules.listFor('library')){
     let capability=manifest.capabilities.find(item=>item.id===definition.id);
     if(!capability){
-      capability={
-        id:definition.id,
-        label:definition.label,
-        category:definition.category||'ui',
-        status:'approved',
-        source:definition.source,
-        owners:[...definition.ownerFiles],
-        controls:[],
-        presets:[]
-      };
+      capability={id:definition.id,label:definition.label,category:definition.category||'ui',status:'approved',source:definition.source,owners:[...definition.ownerFiles],controls:[],presets:[]};
       manifest.capabilities.push(capability);
       continue;
     }
     capability.label=definition.label||capability.label;
+    capability.category=definition.category||capability.category;
     capability.status='approved';
     capability.source=definition.source;
     capability.owners=[...definition.ownerFiles];
@@ -44,33 +36,35 @@
     ensureControl(topNav,{id:'letterSpacing',label:'자간',type:'range',default:-.38,min:-1.2,max:.6,step:.02,unit:'px',group:'typography'},{after:'fontWeight'});
   }
 
-  /* The filter rail is one canonical module with three runtime families.
-     All three are mounted through the same Registry contract in Library, Editor,
-     and published pages; only the visual source changes. */
   const filter=manifest.capabilities.find(item=>item.id==='filter-chip-rail');
   if(filter){
     const family=(filter.controls||[]).find(control=>control.id==='family');
-    if(family){
-      family.default='ios-liquid';
-      family.options=['ios-liquid','ios-flat','material-flat'];
-    }
+    if(family)family.options=['ios-liquid','ios-flat','material-flat'];
     ensureControl(filter,{id:'fontFamily',label:'폰트',type:'enum',default:'system-sans',options:FONT_OPTIONS},{after:'accentColor'});
     ensureControl(filter,{id:'fontSize',label:'글자 크기',type:'range',default:14,min:10,max:19,step:.5,unit:'px'},{after:'fontFamily'});
     ensureControl(filter,{id:'fontWeight',label:'글자 굵기',type:'range',default:680,min:400,max:800,step:10},{after:'fontSize'});
     ensureControl(filter,{id:'letterSpacing',label:'자간',type:'range',default:-.28,min:-1.2,max:.6,step:.02,unit:'px'},{after:'fontWeight'});
-    const surface=(filter.controls||[]).find(control=>control.id==='surfaceOpacity');
-    if(surface)surface.default=54;
-    const blur=(filter.controls||[]).find(control=>control.id==='blur');
-    if(blur)blur.default=15;
-
-    const defaults={
+    const defaultsByFamily={
       'ios-liquid':{surfaceOpacity:54,blur:15,gap:8,runway:4},
       'ios-flat':{surfaceOpacity:92,blur:8,gap:3,runway:4},
       'material-flat':{surfaceOpacity:100,blur:0,gap:8,runway:0}
     };
     (filter.presets||[]).forEach(preset=>{
       const familyId=preset.config?.family;
-      if(defaults[familyId])preset.config={...preset.config,...defaults[familyId],fontFamily:preset.config?.fontFamily||'system-sans',fontSize:preset.config?.fontSize||14,fontWeight:preset.config?.fontWeight||680,letterSpacing:preset.config?.letterSpacing??-.28};
+      if(defaultsByFamily[familyId])preset.config={...preset.config,...defaultsByFamily[familyId],fontFamily:preset.config?.fontFamily||'system-sans',fontSize:preset.config?.fontSize||14,fontWeight:preset.config?.fontWeight||680,letterSpacing:preset.config?.letterSpacing??-.28};
     });
   }
+
+  /* Registry is the runtime source of truth. Capability metadata only describes
+     how to edit it, so matching controls inherit their default from Registry. */
+  for(const definition of modules.listFor('library')){
+    const capability=manifest.capabilities.find(item=>item.id===definition.id);
+    const defaults=definition.styleDefaults&&typeof definition.styleDefaults==='object'?definition.styleDefaults:{};
+    for(const control of capability?.controls||[]){
+      if(Object.prototype.hasOwnProperty.call(defaults,control.id))control.default=defaults[control.id];
+    }
+  }
+
+  manifest.runtimeSource='PlatformModuleRegistry';
+  manifest.runtimeSyncedAt=new Date().toISOString();
 })();
