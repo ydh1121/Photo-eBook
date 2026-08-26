@@ -79,9 +79,12 @@ try{
   const deviceText=await frame.locator('#platformModuleHost [data-platform-module="device-handoff-accordion"]').innerText();assert(!deviceText.includes('화면 모드'),'Device accordion still owns screen mode');
 
   frame=await frameFor(page,'screen-mode-selector');
+  await wait(()=>page.locator('#builderFrameStatus').isHidden(),'Screen-mode preview did not reach ready state');
+  await sleep(250);
   assert(await frame.locator('.platform-screen-mode-composed [data-platform-module="filter-chip-rail"]').count()===1,'Screen mode is not composed from canonical filter-chip module');
   assert(await frame.locator('.platform-screen-mode__options').count()===0,'Retired duplicate screen-mode segmented skin is still rendered');
   await frame.locator('[data-platform-filter-id="dark"]').first().click();
+  await wait(()=>frame.locator('#platformModuleHost [data-platform-module="screen-mode-selector"]').evaluate(node=>node.dataset.screenMode==='dark'),'Composed screen mode did not consume filter selection');
   await wait(()=>frame.locator('html').evaluate(node=>node.dataset.theme==='dark'),'Composed screen mode did not change runtime theme');
   pass('Screen mode canonical composition','actual filter-chip-rail module drives light/dark/system');
 
