@@ -4,17 +4,17 @@ Status: active architecture contract
 
 ## 역할
 
-플랫폼은 네 개의 역할을 분리한다.
+플랫폼은 다섯 개의 역할을 분리한다.
 
-1. 공개 페이지
-   - 현재까지 실제 화면에서 완성되고 검증된 모듈의 reference source다.
-   - 완성된 구조를 공통 모듈로 추출할 수 있다.
-   - 연구 코드나 관리 화면 코드를 직접 읽지 않는다.
+1. Canonical Module Registry
+   - 승인된 재사용 UI 모듈의 영구 source of truth다.
+   - `PlatformModuleRegistry`의 module id, render/hydrate owner, ownerFiles, version과 consumer 계약이 기준이다.
+   - 특정 완성 페이지를 영구 upstream으로 삼지 않는다.
 
 2. UI 라이브러리 `/ui-dashboard/`
    - 승인된 공통 모듈만 보여주는 UI Kit다.
    - 연구 공간이 아니다.
-   - `PlatformModuleRegistry.listFor('library')`가 유일한 목록 source다.
+   - `PlatformModuleRegistry.listFor('library')`가 유일한 모듈 목록 source다.
    - 모듈 분류/트리 UI는 Registry 엔트리를 조직할 뿐 별도 component 구현을 만들지 않는다.
 
 3. 블록 연구실 `/block-lab/`
@@ -22,23 +22,36 @@ Status: active architecture contract
    - 사용자와 GPT가 논의하고 검토하는 candidate surface다.
    - 연구실의 JS, CSS, sample data를 라이브러리나 블록 에디터가 직접 import하지 않는다.
 
-4. 블록 에디터 `/block-editor/`
-   - 승인된 공통 모듈만 조립해 신규 페이지를 만든다.
+4. 블록 에디터 `/editor-lab/`
+   - 승인된 공통 모듈만 조립해 페이지를 만든다.
    - 페이지에는 연구 block type이 아니라 canonical `module id + content/style/state snapshot`을 저장한다.
    - 완성된 모듈 인스턴스를 재사용 preset으로 저장할 수 있는 계층을 둔다.
-   - 완성된 페이지를 분류하고 저장하며, 발행 전 QA로 넘긴다.
+   - 완성된 페이지를 Completed Page로 분류하고 저장하며, 발행 전 QA로 넘긴다.
+
+5. Completed / Published Pages
+   - 블록 에디터가 저장한 page snapshot의 consumer다.
+   - 완료 페이지 목록에서 열람/편집/복제할 수 있어야 한다.
+   - Public runtime은 Registry의 approved module을 직접 mount한다.
+   - 완료 페이지는 Library의 upstream이 아니다.
 
 ## 정식 흐름
 
-공개 페이지에서 출발하는 모듈:
+Block Lab에서 출발하는 신규 모듈:
 
-`공개 페이지 완성형 → 공통 모듈 코드 추출 → approved/public-extracted → UI 라이브러리 → 블록 에디터 인스턴스 커스텀 → 저장된 완성 모듈/preset → 새 공개 페이지`
+`블록 연구실 candidate → 사용자 + GPT 검토 → canonical 공통 모듈로 승격 → approved/block-lab-approved → UI 라이브러리 → 블록 에디터 인스턴스 커스텀 → 저장된 완성 모듈/preset → Completed Page → Public/Portable Export`
 
-블록 연구실에서 출발하는 모듈:
+기존 완성 페이지에서 처음 추출하는 모듈:
 
-`블록 연구실 candidate → 사용자 + GPT 검토 → 공통 모듈 코드로 승격 → approved/block-lab-approved → UI 라이브러리 → 블록 에디터 인스턴스 커스텀 → 저장된 완성 모듈/preset → 새 공개 페이지`
+`기존 완성 페이지를 일회성 bootstrap reference로 분석 → canonical 공통 모듈 코드 추출 → approved/public-extracted provenance 기록 → UI 라이브러리 → 블록 에디터 → Completed Page`
 
-UI 라이브러리에서 직접 공개 페이지로 설정을 밀어 넣지 않는다. 공개 화면은 블록 에디터가 저장한 승인 모듈 기반 페이지와 발행 QA를 통과한 결과를 소비한다.
+중요:
+
+- 기존 완성 페이지는 추출 시점의 비교/검증 기준일 뿐 영구적인 Library source가 아니다.
+- canonical extraction이 끝난 뒤 Library의 source of truth는 `PlatformModuleRegistry`다.
+- `source: public-extracted`는 최초 출처를 기록하는 provenance 값이지 live dependency/upstream 의미가 아니다.
+- 특정 페이지의 DOM/CSS/runtime 변경이 Library 모듈을 자동 갱신하는 흐름을 만들지 않는다.
+- Photography는 초기 추출 작업이 끝난 뒤 최종적으로 Block Editor의 Completed Page registry에 등록되어 다른 완성 페이지와 같은 방식으로 관리되어야 한다.
+- UI 라이브러리에서 직접 공개 페이지로 설정을 밀어 넣지 않는다. 공개 화면은 블록 에디터가 저장한 승인 모듈 기반 page snapshot과 발행 QA를 통과한 결과를 소비한다.
 
 ## Canonical Registry
 
@@ -60,17 +73,20 @@ Owner:
 - `render()`
 - 필요한 경우 `hydrate()`
 
+`source`와 `sourceRoute`는 provenance/추출 이력이다. canonical module의 runtime dependency를 뜻하지 않는다.
+
 일반 consumer는 `approved`만 사용할 수 있다. Candidate를 Library, Editor, Public에 노출하려면 명시적으로 promotion을 거쳐야 한다.
 
-## Public extraction 규칙
+## 기존 완성 페이지 bootstrap extraction 규칙
 
-공개 페이지에서 이미 완성된 모듈은 외형을 다시 그리지 않는다.
+기존 페이지에서 이미 완성된 모듈을 처음 canonicalize할 때는 외형을 다시 그리지 않는다.
 
-1. 현재 공개 DOM class/id, CSS owner, interaction owner를 확인한다.
-2. 동일 구조를 공통 `render()`로 옮긴다.
-3. 기존 공개 renderer를 adapter로 공통 모듈에 연결한다.
-4. Library와 Editor도 같은 모듈 ID를 소비한다.
-5. 기존 공개 화면과 geometry, typography, surface, interaction parity를 검증한다.
+1. 현재 완성 페이지 DOM class/id, CSS owner, interaction owner를 확인한다.
+2. 재사용 가능한 구조를 공통 `render()/hydrate()` owner로 추출한다.
+3. 기존 페이지는 전환 기간 동안 adapter로 canonical module을 소비하게 할 수 있다.
+4. Library와 Editor도 같은 module ID와 owner를 소비한다.
+5. 기존 페이지와 geometry, typography, surface, interaction parity를 검증한다.
+6. parity가 확보되면 기존 페이지를 영구 source로 유지하지 않고 Completed Page snapshot으로 이관하는 것이 최종 상태다.
 
 새 모듈이 canonical이 된 뒤에는 공개 페이지와 Library/Editor에 별도 복제품을 만들지 않는다.
 
@@ -86,7 +102,7 @@ Block Lab의 후보가 승인되더라도 연구실 파일을 다른 surface가 
 4. source를 `block-lab-approved`, status를 `approved`로 등록한다.
 5. Library에서 독립 UI Kit 검증을 한다.
 6. Block Editor에서 동일 module id와 props로 조립되는지 검증한다.
-7. 신규 페이지 QA 후 Public consumer에 연결한다.
+7. 신규 페이지 QA 후 Completed Page/Public consumer에 연결한다.
 
 `Block Lab data → Editor` 또는 `Block Lab renderer → Library` 직접 연결은 금지한다.
 
@@ -102,7 +118,7 @@ Route:
 
 이 호스트는 `PlatformModuleRegistry`의 동일 `render()/hydrate()`를 실행한다. Library 전용 모사 renderer나 Editor 전용 복제품을 만들지 않는다.
 
-Preview용 CSS는 배경, 정렬, viewport 격리만 소유한다. 실제 component skin은 공통/공개 owner가 소유한다.
+Preview용 CSS는 배경, 정렬, viewport 격리만 소유한다. 실제 component skin은 canonical shared owner가 소유한다.
 
 Preview는 최종적으로 선택된 모듈의 `ownerFiles` dependency만 읽는 구조로 수렴한다. 광범위한 특정 분야 runtime을 모든 모듈에 미리 로드해 다른 page-context UI가 섞이는 상태는 허용하지 않는다.
 
@@ -154,15 +170,35 @@ Block Editor가 저장하는 공통 UI 인스턴스의 최소 구조:
 - preset을 새 페이지에 삽입하면 같은 Registry module을 새 instance로 생성한다.
 - 향후 Portable Export도 preset이 아니라 Registry owner dependency를 따라 실제 코드 파일을 수집한다.
 
+## Completed Page contract
+
+완성 페이지는 특정 분야 runtime을 Library의 upstream으로 보관하는 장치가 아니다.
+
+최소 역할:
+
+- page id / title / route / status / metadata
+- canonical `ui-module` instance 배열
+- content/style/state snapshot
+- SEO/GEO/page hierarchy metadata
+- published revision / updated revision
+
+Photography는 첫 completed page migration 대상이다.
+
+최종 관리자 흐름:
+
+`블록 에디터 → 완료 페이지 목록 → Photography 선택 → 동일 canonical module owner로 렌더/편집/복제 → 발행`
+
+Photography 원본 페이지는 migration/parity QA가 완료된 뒤 Library source라는 역할을 갖지 않는다.
+
 ## 공개 페이지 발행
 
 Public은 Registry에서 `approved`이며 `public` consumer가 허용된 모듈만 사용할 수 있다.
 
 발행 순서:
 
-`Editor draft → page validation → module status check → responsive/theme/interaction QA → publish → live deployment verification`
+`Editor draft → page validation → module status check → responsive/theme/interaction QA → Completed Page revision → publish → live deployment verification`
 
-공개 페이지의 현재 완성형을 공통 모듈로 추출하는 과정은 단계적으로 진행할 수 있다. 이미 adapter가 연결된 모듈과 아직 legacy owner가 직접 렌더링하는 모듈을 구분해서 기록한다.
+전환 기간 동안 현재 Photography legacy composition이 존재할 수 있으나 이는 migration source/QA fixture일 뿐 최종 아키텍처의 upstream이 아니다.
 
 ## Portable Export
 
@@ -174,6 +210,8 @@ Public은 Registry에서 `approved`이며 `public` consumer가 허용된 모듈�
 
 ## 금지 사항
 
+- 특정 공개/완성 페이지를 Library의 영구 source/upstream으로 유지
+- 특정 페이지 DOM/CSS/runtime 변경을 Library module에 자동 전파
 - Library에서 `/block-lab/` runtime/data 직접 import
 - Editor에서 `/block-lab/` runtime/data/style 직접 import
 - Public에서 Block Lab/Editor/Library runtime import
@@ -184,9 +222,9 @@ Public은 Registry에서 `approved`이며 `public` consumer가 허용된 모듈�
 - Library를 연구실처럼 사용
 - Block Lab을 완성 모듈 catalog처럼 사용
 
-## 현재 첫 추출 세트
+## 현재 bootstrap 추출 세트
 
-Photography 공개 페이지에서 시작한 첫 canonical set:
+Photography 페이지를 초기 reference로 사용해 추출한 첫 canonical set:
 
 - `top-chapter-navigation`
 - `filter-chip-rail`
@@ -194,6 +232,8 @@ Photography 공개 페이지에서 시작한 첫 canonical set:
 - `collection-bottom-sheet`
 - `device-handoff-accordion`
 - `floating-action`
+
+이 목록의 `public-extracted`는 역사적 provenance다. Photography를 계속 원천으로 조회해야 한다는 의미가 아니다.
 
 Block Lab에서 승격한 portable set:
 
@@ -205,4 +245,4 @@ Platform 공통 composition:
 
 - `screen-mode-selector`
 
-이 세트가 Library와 Editor에서 동일 Registry를 통해 동작하는 것을 안정화한 뒤, Public consumer 승인과 Portable Export dependency packaging을 단계적으로 진행한다.
+이 세트가 Library와 Editor에서 동일 Registry를 통해 안정화된 뒤, Photography completed-page migration → completed-page registry/edit/duplicate → Public consumer 정리 → Portable Export dependency packaging 순서로 진행한다.
