@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-26T16:31:53.131Z",
+  "startedAt": "2026-08-26T19:01:12.228Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-26T16:31:53.131Z",
+      "at": "2026-08-26T19:01:12.228Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3383
@@ -35,11 +35,11 @@
     }
   ],
   "status": "fail",
-  "error": "Error: live Block Lab role label is stale\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:164:5)\n    at runNextTicks (node:internal/process/task_queues:64:5)\n    at process.processImmediate (node:internal/timers:452:9)\n    at process.callbackTrampoline (node:internal/async_hooks:130:17)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:204:3",
-  "finishedAt": "2026-08-26T16:31:59.574Z",
-  "sourceSha": "9c731a8237f8e04ab543f4e96e5dec57fe6eff3f",
+  "error": "Error: live Block Lab role label is stale\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:164:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:204:3",
+  "finishedAt": "2026-08-26T19:01:26.490Z",
+  "sourceSha": "52fc063d59462aa59fe4d880485090d6150dd4db",
   "sourceRef": "main",
-  "workflowRunId": "32988884490",
-  "workflowRunNumber": "42",
-  "recordedAt": "2026-08-26T16:32:00.037Z"
+  "workflowRunId": "33002873028",
+  "workflowRunNumber": "43",
+  "recordedAt": "2026-08-26T19:01:27.989Z"
 }
