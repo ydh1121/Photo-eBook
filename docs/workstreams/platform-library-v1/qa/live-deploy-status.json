@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-26T08:37:50.933Z",
+  "startedAt": "2026-08-26T08:45:28.222Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-26T08:37:50.933Z",
+      "at": "2026-08-26T08:45:28.222Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 2765
@@ -21,15 +21,49 @@
     {
       "name": "live canonical assets",
       "status": "pass",
-      "detail": "6 approved photo modules"
+      "detail": "6 Photography/Public + 3 portable Library/Editor modules"
+    },
+    {
+      "name": "live UI Library",
+      "status": "pass",
+      "detail": "registry-driven root route with 9 approved modules"
+    },
+    {
+      "name": "live Library theme/viewport",
+      "status": "pass",
+      "detail": "dark + mobile shared preview"
+    },
+    {
+      "name": "live Block Lab boundary",
+      "status": "pass",
+      "detail": "research-only"
+    },
+    {
+      "name": "live Block Editor boundary",
+      "status": "pass",
+      "detail": "9 approved modules only"
+    },
+    {
+      "name": "live public migration",
+      "status": "pass",
+      "detail": "Photography top navigation canonical; portable primitive Public boundary remains closed"
+    },
+    {
+      "name": "live top-nav runtime parity",
+      "status": "pass",
+      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
+    },
+    {
+      "name": "live Library runtime feedback gate",
+      "status": "pass",
+      "detail": "top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages"
     }
   ],
-  "status": "fail",
-  "error": "Error: live approved Library module set mismatch\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:16:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:103:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:183:3",
-  "finishedAt": "2026-08-26T08:38:21.963Z",
-  "sourceSha": "12e3deb7996c46647a589e9bc7bb7ff43683cd44",
+  "status": "pass",
+  "finishedAt": "2026-08-26T08:45:55.356Z",
+  "sourceSha": "7153464f7acbefdc49d67bb4cb243f38577a3138",
   "sourceRef": "main",
-  "workflowRunId": "32948720123",
-  "workflowRunNumber": "36",
-  "recordedAt": "2026-08-26T08:38:22.381Z"
+  "workflowRunId": "32949387548",
+  "workflowRunNumber": "37",
+  "recordedAt": "2026-08-26T08:45:55.790Z"
 }
