@@ -1,8 +1,8 @@
 (function(){
   const registry=window.PlatformModuleRegistry;
   const source=window.PhotoPublicModuleSource;
-  if(!registry||!source||window.__photoCorePlatformModulesV6)return;
-  window.__photoCorePlatformModulesV6=true;
+  if(!registry||!source||window.__photoCorePlatformModulesV7)return;
+  window.__photoCorePlatformModulesV7=true;
 
   const shared=['public/assets/js/platform-modules/photo-public-module-source-v1.js'];
   const origin={
@@ -31,7 +31,8 @@
     ],
     liquid:['public/assets/js/ui/liquid-controller.js','public/assets/styles/ui/liquid-flat-canonical.css','public/assets/styles/ui/liquid-skin.css','public/assets/styles/ui/pill-hierarchy.css'],
     filterFamilies:['public/assets/styles/platform-modules/filter-chip-rail-v1.css'],
-    device:['public/assets/js/collection/device-handoff.js','public/assets/styles/collection/device-accordion.css']
+    device:['public/assets/js/collection/device-handoff.js','public/assets/styles/collection/device-accordion.css'],
+    action:['public/assets/js/platform-modules/module-action-runtime-v1.js','public/assets/styles/collection/hub.css']
   };
   const consumers=['public','library','editor'];
   const esc=registry.escapeHtml;
@@ -139,7 +140,12 @@
     hydrate(){setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}
   });
   registry.register({
-    id:'floating-action',label:'플로팅 버튼',category:'action',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:5,
-    ownerFiles:[...shared,...origin.collection],previewProps:{domId:'collectionFabPreview'},editorProps:{domId:'collectionFabPreview'},styleDefaults:{family:'glass',accentColor:'#315fc9',response:'standard',overshoot:'low'},render:source.floatingAction.render
+    id:'floating-action',label:'플로팅 버튼',category:'action',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:6,
+    ownerFiles:[...shared,...origin.action],
+    previewProps:{domId:'collectionFabPreview',ariaLabel:'플로팅 버튼',action:{type:'none',value:'',newTab:false}},
+    editorProps:{domId:'collectionFabPreview',ariaLabel:'플로팅 버튼',action:{type:'none',value:'',newTab:false}},
+    styleDefaults:{family:'glass',accentColor:'#315fc9',response:'standard',overshoot:'low'},
+    render:source.floatingAction.render,
+    hydrate(host,props={},context={}){return window.PlatformModuleActionRuntime?.bind?.(host,props,context);}
   });
 })();

@@ -1,7 +1,10 @@
 /* Keep Library comparison controls usable while the settings inspector is open.
    This owns admin workspace geometry only; it never styles module content. */
 @media (min-width:981px){
-  .builder-kit-inspector.builder-library-audit-inspector{
-    top:88px;
+  .builder-kit-inspector.builder-library-audit-inspector{top:88px}
+  .builder-kit-workspace{transition:width .18s ease,margin-right .18s ease}
+  body:has(.builder-kit-inspector:not([hidden])) .builder-kit-workspace{
+    width:calc(100% - 382px);
+    margin-right:382px;
   }
 }
