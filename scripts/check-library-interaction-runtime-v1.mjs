@@ -57,7 +57,7 @@ async function filterFlow(page){
 
 async function cardFlow(page){
   await closeInspector(page);await moduleFrame(page,'horizontal-card-rail');await viewport(page,'desktop');await page.evaluate(()=>{const f=document.querySelector('#builderFrame'),s=document.querySelector('#builderCanvasShell');if(f)f.style.width='760px';if(s)s.style.width='760px';});
-  const frame=page.frameLocator('#builderFrame'),rail=frame.locator('[data-platform-module="horizontal-card-rail"]');await wait(()=>rail.evaluate(n=>n.scrollWidth>n.clientWidth),'card rail overflow missing');assert(await frame.locator('html').evaluate(()=>window.PlatformModuleViewportMode?.())==='desktop','preview provider is not desktop');
+  const frame=page.frameLocator('#builderFrame'),rail=frame.locator('main .scroll-row[data-platform-module="horizontal-card-rail"]');await wait(()=>rail.evaluate(n=>n.scrollWidth>n.clientWidth),'card rail overflow missing');assert(await frame.locator('html').evaluate(()=>window.PlatformModuleViewportMode?.())==='desktop','preview provider is not desktop');
   const moved=await rail.evaluate(async n=>{const t=n.querySelector('.market-card')||n;n.scrollLeft=0;const c={bubbles:true,cancelable:true,pointerId:41,pointerType:'mouse',button:0,buttons:1,clientY:80};t.dispatchEvent(new PointerEvent('pointerdown',{...c,clientX:520}));document.dispatchEvent(new PointerEvent('pointermove',{...c,clientX:260}));document.dispatchEvent(new PointerEvent('pointerup',{...c,buttons:0,clientX:260}));await new Promise(r=>setTimeout(r,40));return n.scrollLeft;});assert(moved>80,`desktop card drag failed: ${moved}`);pass('horizontal card desktop drag',`scrollLeft ${Math.round(moved)}`);
 }
 
