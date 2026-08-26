@@ -5,9 +5,13 @@ on:
     paths:
       - 'public/ui-dashboard/**'
       - 'public/editor-lab/**'
+      - 'public/block-lab/**'
+      - 'public/qa/**'
       - 'public/data/ui-capabilities/**'
       - 'public/data/block-registry/**'
       - 'public/data/platform-modules/**'
+      - 'public/assets/js/admin/**'
+      - 'public/assets/styles/admin/**'
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/styles/platform-modules/**'
@@ -19,9 +23,13 @@ on:
     paths:
       - 'public/ui-dashboard/**'
       - 'public/editor-lab/**'
+      - 'public/block-lab/**'
+      - 'public/qa/**'
       - 'public/data/ui-capabilities/**'
       - 'public/data/block-registry/**'
       - 'public/data/platform-modules/**'
+      - 'public/assets/js/admin/**'
+      - 'public/assets/styles/admin/**'
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/styles/platform-modules/**'
@@ -40,6 +48,7 @@ jobs:
           node-version: '22'
       - name: Check focused JavaScript syntax
         run: |
+          node --check public/assets/js/admin/admin-shell-v1.js
           node --check public/assets/js/platform-modules/portable-primitives-extension-v2.js
           node --check public/assets/js/platform-modules/portable-primitives-composition-v3.js
           node --check public/assets/js/platform-modules/module-style-runtime-portable-v1.js
