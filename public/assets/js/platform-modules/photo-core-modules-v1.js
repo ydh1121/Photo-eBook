@@ -14,7 +14,8 @@
       'public/assets/styles/navigation/mobile-nav-curated.css',
       'public/assets/styles/navigation/native-pan-fab-clearance.css',
       'public/assets/styles/desktop/nav-rails.css',
-      'public/assets/styles/desktop/nav-corrections.css'
+      'public/assets/styles/desktop/nav-corrections.css',
+      'public/assets/styles/platform-modules/top-nav-style-families-v1.css'
     ],
     card:['public/content-packs/photography/runtime/chapter-renderers.js','public/assets/js/desktop/rail-drag.js','public/assets/styles/collection/horizontal-rails.css'],
     collection:[
@@ -158,7 +159,7 @@
   }
 
   registry.register({
-    id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:6,
+    id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:7,
     ownerFiles:[moduleOwner,...shared,...origin.nav],previewProps:{items:source.fixtures.nav},editorProps:{items:source.fixtures.nav},
     styleDefaults:{enabled:true,stickyMode:'deferred-sticky',chipFamily:'ios-liquid',accentColor:'#437ce7',fontFamily:'system-sans',fontSize:15,fontWeight:680,letterSpacing:-.38,progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef',progressOpacityStart:24,progressOpacityEnd:16,mobileChipGap:6,desktopChipGap:9,railInset:5.5,response:'standard',overshoot:'high',durationScale:1.1,safariSafety:true},
     render:source.navigation.render,hydrate:source.navigation.hydrate
