@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-26T13:45:44.101Z",
+  "startedAt": "2026-08-26T16:31:53.131Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-26T13:45:44.101Z",
+      "at": "2026-08-26T16:31:53.131Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3383
@@ -27,14 +27,19 @@
       "name": "live UI Library",
       "status": "pass",
       "detail": "registry-driven root route with 10 approved modules"
+    },
+    {
+      "name": "live Library theme/viewport",
+      "status": "pass",
+      "detail": "dark + mobile shared preview"
     }
   ],
   "status": "fail",
-  "error": "Error: live standalone screen mode missing; state={\"module\":\"screen-mode-selector\",\"html\":\"<section class=\\\"platform-module-stage\\\" data-module=\\\"screen-mode-selector\\\"><div class=\\\"platform-module-context\\\"><div class=\\\"platform-module-host\\\" id=\\\"platformModuleHost\\\" data-platform-module-host=\\\"screen-mode-selector\\\"><section class=\\\"platform-screen-mode-composed\\\" data-platform-module=\\\"screen-mode-selector\\\" data-screen-mode=\\\"light\\\" data-platform-screen-mode-bound-v3=\\\"true\\\">\\n      <header class=\\\"platform-screen-mode-composed__head\\\"><strong>화면 모드</strong><p>화이트, 다크 또는 기기 설정에 맞춰 표시합니다.</p></header>\\n      <div class=\\\"platform-screen-mode-composed__filter\\\" data-screen-mode-filter-host=\\\"\\\" data-platform-module-host=\\\"filter-chip-rail\\\"><div class=\\\"platform-filter-chip-module\\\" data-platform-module=\\\"filter-chip-rail\\\" data-platform-filter-family=\\\"ios-liquid\\\" data-platform-filter-bound=\\\"true\\\">\\n      <div class=\\\"collection-tabs platform-filter-chip-source platform-filter-chip-source--liquid v33-liquid-ready v41-skin-ready v39-liquid-ready\\\" role=\\\"group\\\" aria-label=\\\"화면 모드\\\" data-platform-filter-drag-bound=\\\"true\\\"><span class=\\\"collection-v33-indicator\\\" aria-hidden=\\\"true\\\" data-x=\\\"4\\\" data-y=\\\"4\\\" data-w=\\\"54\\\" data-h=\\\"44\\\" data-ready=\\\"true\\\" style=\\\"transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1\"}\n    at waitFrameCount (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:76:9)\n    at async verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:151:38)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:204:3",
-  "finishedAt": "2026-08-26T13:46:10.921Z",
-  "sourceSha": "17d6def6b27144927900b11c471f61e06e099d6b",
+  "error": "Error: live Block Lab role label is stale\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:164:5)\n    at runNextTicks (node:internal/process/task_queues:64:5)\n    at process.processImmediate (node:internal/timers:452:9)\n    at process.callbackTrampoline (node:internal/async_hooks:130:17)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:204:3",
+  "finishedAt": "2026-08-26T16:31:59.574Z",
+  "sourceSha": "9c731a8237f8e04ab543f4e96e5dec57fe6eff3f",
   "sourceRef": "main",
-  "workflowRunId": "32976117498",
-  "workflowRunNumber": "41",
-  "recordedAt": "2026-08-26T13:46:11.236Z"
+  "workflowRunId": "32988884490",
+  "workflowRunNumber": "42",
+  "recordedAt": "2026-08-26T16:32:00.037Z"
 }
