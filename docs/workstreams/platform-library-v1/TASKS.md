@@ -1,10 +1,10 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / canonical Library runtime completeness + portable module contract`
+Status: `active / runtime live green + full visual matrix next`
 Production branch: `main`
-Current implementation branch: `fix/library-complete-runtime-controls-v1`
-Current PR: `#39`
+Current implementation branch: `main`
+Latest runtime PRs: `#39`, `#40` merged
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -59,6 +59,7 @@ Portable primitive set promoted in PR #38:
 [x] `chipFamily`의 iOS Flat / Material이 실제 shared CSS surface/geometry/state를 바꾼다.
 [x] later-loaded liquid baseline이 non-liquid family를 다시 덮지 못하도록 module-scoped canonical selector로 수정.
 [x] family CSS를 Registry `ownerFiles`에 포함해 Public Snapshot dependency loader에서도 같은 owner를 사용할 수 있게 함.
+[x] live Pages에서 liquid → iOS Flat → Material의 computed skin 차이를 Chromium으로 확인.
 [-] PC/mobile/light/dark 전체 visual matrix 재검수.
 
 ## Filter style families / horizontal interaction
@@ -72,7 +73,7 @@ Portable primitive set promoted in PR #38:
 [x] Library selector에 현재 family를 표시하고 변경 즉시 동기화한다.
 [x] 모바일은 browser-native `pan-x`를 사용한다.
 [x] PC는 canonical `filter-chip-rail` hydrate owner가 mouse drag + drag 후 click suppression을 제공한다.
-[x] focused Chromium에서 long menu overflow + PC pointer drag + mobile pan-x를 실제 검사한다.
+[x] live Pages에서 PC pointer drag 190px + mobile native pan-x를 Chromium으로 확인.
 [-] 세 family PC/mobile/light/dark 전체 visual matrix 재검수.
 
 ## Library content completeness
@@ -81,9 +82,11 @@ Portable primitive set promoted in PR #38:
 [x] 범용 필터칩 메뉴 추가·삭제·순서변경 및 선택 상태 보존.
 [x] `horizontal-rail` canonical 카드가 지원하는 `eyebrow/title/description/tags/meta/image/imageAlt/actionLabel/actionUrl`을 Library에서 보존·편집한다.
 [x] `horizontal-rail` 순서변경 시 tags/meta/image/action 필드가 삭제되지 않는다.
+[x] live Pages에서 badges/meta/action이 편집·재정렬 후 유지되는지 Chromium으로 확인.
 [x] `accordion`의 `singleOpen/openFirst/openIds/item meta`를 Library에서 편집한다.
 [x] `bottom-sheet`의 initial open/show launcher/launcher label/backdrop dismiss/primary+secondary action을 Library에서 편집한다.
 [x] Library preview frame의 장식용 box-shadow를 제거해 모듈 자체 surface와 preview frame을 혼동하지 않게 했다.
+[x] live Pages에서 preview iframe의 인위적 shadow가 없는지 확인.
 [-] 승인 모듈 전체에서 Registry가 지원하지만 Library editor에 빠진 content/state 필드가 더 없는지 계속 전수검사한다.
 
 ## Library settings runtime audit
@@ -92,7 +95,8 @@ Portable primitive set promoted in PR #38:
 [x] `SETTING-RUNTIME-AUDIT-V1.md`에 owner/effect 단위 기록.
 [x] locked control은 UI에서 disabled인지 별도 검사.
 [x] exhaustive Chromium setting gate가 모든 기존 style control을 non-default 값으로 바꿔 measurable effect를 검사한다.
-[x] 별도 `check-library-runtime-feedback-v1.mjs`가 사용자 실검수에서 발견된 family/drag/content-preservation 문제를 실제 DOM으로 검사한다.
+[x] `check-library-runtime-feedback-v1.mjs`가 family/drag/content-preservation 문제를 실제 DOM으로 검사한다.
+[x] 위 focused gate를 `photo-ebook.pages.dev` live workflow에도 연결했다.
 [ ] 향후 새 visible control 추가 시 exhaustive gate에도 반드시 추가한다.
 [-] PC/mobile/light/dark visual QA에서 추가 no-op이 발견되면 canonical runtime 구현 또는 UI 제거/disabled 처리한다.
 
@@ -144,15 +148,20 @@ Portable primitive set promoted in PR #38:
 [x] `scripts/check-library-setting-runtime-exhaustive-v2.mjs` visible setting runtime exhaustive 검사.
 [x] `scripts/check-portable-primitives-batch2-v1.mjs` portable 3종 Registry/interaction/Editor snapshot 검사.
 [x] `scripts/check-library-runtime-feedback-v1.mjs` family skin, filter drag, rail content preservation, primitive control completeness 검사.
-[x] PR #39 head `ba718fda...`에서 `Platform Library Generalization Checks` run #11 green.
-[x] PR #39 head `ba718fda...`에서 `Platform Library Checks` run #426 green.
-[-] PR #39 병합 후 main workflows + Cloudflare live 검증.
+[x] PR #39 merged: `12e3deb7996c46647a589e9bc7bb7ff43683cd44`.
+[x] PR #40 merged: `7153464f7acbefdc49d67bb4cb243f38577a3138`.
+[x] main `Platform Library Generalization Checks` run #14: PASS.
+[x] main `Platform Library Checks` run #429 after PR #39: PASS.
+[x] main `Platform Library Checks` run #431 after PR #40: PASS.
+[x] `Platform Live Deploy Check` run #37 (`32949387548`): PASS.
+[x] live QA now distinguishes 6 Photography/Public modules from 3 portable Library/Editor-only modules.
+[x] live focused feedback gate: 7 checks PASS.
+[x] live status bot commit: `a0383b91aeda69d0386a1422915b47cb65227f09`.
 
 ## Exact next action
 
-1. PR #39의 문서 업데이트 커밋 후 CI green을 다시 확인한다.
-2. PR #39를 main에 병합한다.
-3. main의 `Platform Library Checks`, `Platform Library Generalization Checks`, `Platform Live Deploy Check`를 확인한다.
-4. live `/ui-dashboard/`에서 상단 메뉴 family 실제 변경, filter PC/mobile horizontal interaction, ghost frame 제거, horizontal-rail badge/meta/action reorder 보존을 검증한다.
-5. 이 runtime-completeness 배치가 live green이면 전체 승인 모듈 PC/mobile/light/dark visual matrix를 계속하고, 이후 SEO/GEO page metadata wiring으로 진행한다.
-6. Photography 최종 Public의 새 primitive 연결/기능 변경은 사용자 승인 전 진행하지 않는다.
+1. 전체 9개 승인 모듈을 PC/mobile × light/dark 기준으로 실제 visual matrix 검수한다. filter/top-nav style family variant도 별도 포함한다.
+2. 각 모듈의 Registry props/state/style controls와 Library inspector를 다시 1:1 대조해 빠진 content/state control 또는 no-op이 있으면 canonical owner에서 구현하거나 UI에서 제거/disabled 처리한다.
+3. visual/runtime audit가 안정되면 SEO/GEO page metadata를 Editor/page model/runtime에 실제 연결한다.
+4. 이후 completed-page registry → exact-runtime edit/duplicate → dependency-aware export → portable new-project smoke test 순서로 진행한다.
+5. Photography 최종 Public의 새 primitive 연결 또는 최종 경험 변경은 사용자 승인 전 진행하지 않는다.
