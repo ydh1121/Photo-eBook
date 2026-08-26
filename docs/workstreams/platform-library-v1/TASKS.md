@@ -1,10 +1,10 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / architecture correction + Library tree merge candidate`
+Status: `active / unified admin shell + Library navigation UX`
 Production branch: `main`
-Current implementation branch: `fix/library-tree-shared-primitives-audit-v1`
-Latest production runtime PRs: `#39`, `#40` merged
+Current implementation branch: `fix/admin-shell-library-navigation-v2`
+Latest production runtime PR: `#43` merged (`431ed3360039f3b10662f151587b6ca7c45340a9`), live verification record `444ead0a3ef94855697b147c06aeece1bbd42e38`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -55,18 +55,40 @@ Platform composition:
 [x] portable 3종과 screen-mode를 Photography 현재 Public에 자동 연결하지 않는다.
 [ ] 사용자 승인 후 필요한 Completed Page/Public consumer 및 Portable Export dependency manifest까지 확장한다.
 
-## Current branch UI / architecture remediation
+## Library hierarchy / admin shell
 
-[-] 상단 가로 module chip catalog를 Registry-driven 좌측 hierarchy tree로 교체.
-[-] tree는 실제 `[data-kit-ui]` Registry selector button을 이동/재조정하며 별도 module catalog clone을 만들지 않음.
-[-] sidebar button collapse/reopen 구현.
-[-] sidebar drag resize + 좁은 폭 drag collapse 구현.
-[-] mobile/narrow admin drawer 경로 구현.
-[-] `bottom-sheet`와 `collection-bottom-sheet`가 shared bottom-popup shell owner를 소비하도록 중복 skin 제거.
-[-] `screen-mode-selector`가 별도 segmented skin 대신 canonical `filter-chip-rail`을 composition하도록 변경.
-[-] `horizontal-rail` bottom paint runway를 canonical CSS에 추가해 그림자 clipping 수정.
-[-] device-handoff preview에 섞이는 unrelated screen-mode page-context UI 격리.
-[-] focused Chromium architecture gate + 기존 regression CI 통과 후 병합.
+[x] 상단 가로 module chip catalog를 Registry-driven 좌측 hierarchy tree로 교체.
+[x] tree는 실제 `[data-kit-ui]` Registry selector button을 이동/재조정하며 별도 module catalog clone을 만들지 않음.
+[x] 메뉴 / 탐색, 가로 콘텐츠, 아코디언, 하단 팝업, 버튼 / 액션, 화면 / 표시의 계층 taxonomy 적용.
+[x] group별 SVG icon과 펼침/접힘/active 시각 위계 추가.
+[x] group open/closed 상태 저장.
+[x] 모듈 수가 많아져도 tree body만 세로 스크롤하도록 남은 shell 높이에 배치.
+[x] sidebar button collapse/reopen 구현.
+[x] collapse 시 shell 실제 폭과 page offset 변수를 분리해 텍스트가 좁은 폭으로 삐져나오는 버그 수정.
+[x] reopen affordance를 좌측 중앙 고정 handle로 변경.
+[x] sidebar drag resize + 좁은 폭 drag collapse 구현.
+[x] sidebar 폭을 `platformAdminSidebarWidthV1`로 저장해 Library / Block Lab / Editor 간 공유.
+[x] mobile/narrow admin drawer 경로 유지.
+[-] 새 hierarchy/collapse/resize를 Chromium architecture gate로 회귀 검증.
+
+## Admin theme / preview-state separation
+
+[x] 관리 화면 전용 테마 상태 `platformAdminThemeV1` 추가: light / dark / system.
+[x] 관리 화면 테마는 `data-admin-theme` / `data-admin-theme-resolved`와 admin CSS token만 변경.
+[x] Library 편집 대상 테마 `platformLibraryThemeV3`와 관리 화면 테마를 분리.
+[x] 관리 화면이 dark여도 Library iframe의 기본 편집 대상은 light로 유지 가능.
+[x] Library preview theme/viewport/`스타일 / 상태` 실제 owner DOM을 canvas 바로 위 한 toolbar로 이동; 복제 UI 생성 금지.
+[x] Block Lab `data-theme`, Editor `data-theme`, QA preview theme는 admin theme과 독립 유지.
+[x] `admin-unified-v2.css`로 Library / Block Lab / Editor / QA의 공통 management chrome token과 topbar 표현을 통일.
+[-] Library admin dark → preview light 유지, preview dark → admin dark 유지, 대메뉴 이동 상태 유지까지 Chromium으로 검증.
+
+## Shared primitive remediation from PR #43
+
+[x] `bottom-sheet`와 `collection-bottom-sheet`가 shared bottom-popup shell owner를 소비하도록 중복 skin 제거.
+[x] `screen-mode-selector`가 별도 segmented skin 대신 canonical `filter-chip-rail`을 composition하도록 변경.
+[x] `horizontal-rail` bottom paint runway를 canonical CSS에 추가해 그림자 clipping 수정.
+[x] device-handoff preview에 섞이는 unrelated screen-mode page-context UI 격리.
+[x] Photography는 bootstrap-only이며 Completed Page migration이 최종 상태라는 architecture audit 문서화.
 
 ## Top navigation migration parity
 
@@ -175,16 +197,15 @@ Platform composition:
 [x] `scripts/check-library-setting-runtime-exhaustive-v2.mjs` visible setting runtime exhaustive 검사.
 [x] `scripts/check-portable-primitives-batch2-v1.mjs` portable Registry/interaction/Editor snapshot 검사.
 [x] `scripts/check-library-runtime-feedback-v1.mjs` family skin/filter drag/rail content/primitive controls 검사.
-[x] main `Platform Library Generalization Checks` run #14 PASS.
-[x] main `Platform Library Checks` run #431 PASS.
-[x] `Platform Live Deploy Check` run #37 (`32949387548`) PASS.
-[-] current branch focused family/architecture checks 실행 및 결과 확인.
-[-] current branch 전체 PR CI 확인 후 merge.
+[x] `scripts/check-library-module-family-controls-v1.mjs`를 tree/collapse/shared shell/composition + admin-theme/preview isolation/cross-route shell continuity 검사로 확장.
+[x] Architecture workflow가 `public/assets/js/admin/**`, `public/assets/styles/admin/**`, Block Lab, QA 변경도 감시하도록 확장.
+[x] PR #43 merge 및 live verification record 확인.
+[-] current branch architecture + 전체 PR CI 확인.
 
 ## Exact next action
 
-1. 현재 브랜치의 좌측 module tree/shared popup/screen-mode composition/rail paint 수정에 대해 focused Chromium + 전체 PR CI를 통과시킨다.
-2. CI green이면 main에 병합하고 Cloudflare live verification을 확인한다.
+1. `fix/admin-shell-library-navigation-v2`에서 architecture Chromium gate와 기존 Library/Generalization 회귀 CI를 통과시킨다.
+2. CI green이면 PR을 main에 병합하고 Cloudflare live에서 좌측 tree/collapse, preview toolbar, admin-theme isolation, Block Lab/Editor shell continuity를 확인한다.
 3. 전체 10개 승인 모듈을 PC/mobile × light/dark visual matrix로 검수한다. filter/top-nav family variant도 별도 포함한다.
 4. visible setting/content/state 전수 audit를 끝낸다.
 5. Completed Page registry/list를 구현하고 Photography를 첫 page snapshot으로 migration한다.
