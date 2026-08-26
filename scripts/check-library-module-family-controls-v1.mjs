@@ -77,6 +77,7 @@ try{
   assert(await frame.locator('.theme-setting-card,[data-theme-setting-card]').count()===0,'Screen mode context leaked into device accordion');
 
   frame=await frameFor(page,'screen-mode-selector');
+  await wait(()=>frame.locator('.platform-screen-mode__options').evaluate(node=>{const style=getComputedStyle(node);return style.display==='grid'&&parseFloat(style.borderRadius)>=17;}),'Screen mode segmented style did not settle');
   const modeSkin=await frame.locator('.platform-screen-mode__options').evaluate(node=>({display:getComputedStyle(node).display,radius:getComputedStyle(node).borderRadius,bg:getComputedStyle(node).backgroundColor,buttons:node.querySelectorAll('[data-screen-mode-value]').length}));
   assert(modeSkin.display==='grid'&&modeSkin.buttons===3&&parseFloat(modeSkin.radius)>=17,`Screen mode segmented skin missing: ${JSON.stringify(modeSkin)}`);
   await frame.locator('[data-screen-mode-value="dark"]').click();
