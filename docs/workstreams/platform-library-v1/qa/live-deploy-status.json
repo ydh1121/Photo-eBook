@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-26T08:45:28.222Z",
+  "startedAt": "2026-08-26T09:38:20.025Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-26T08:45:28.222Z",
+      "at": "2026-08-26T09:38:20.025Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 2765
@@ -17,53 +17,14 @@
       "name": "live dashboard entry",
       "status": "pass",
       "detail": "builder-library-reference-v1.js"
-    },
-    {
-      "name": "live canonical assets",
-      "status": "pass",
-      "detail": "6 Photography/Public + 3 portable Library/Editor modules"
-    },
-    {
-      "name": "live UI Library",
-      "status": "pass",
-      "detail": "registry-driven root route with 9 approved modules"
-    },
-    {
-      "name": "live Library theme/viewport",
-      "status": "pass",
-      "detail": "dark + mobile shared preview"
-    },
-    {
-      "name": "live Block Lab boundary",
-      "status": "pass",
-      "detail": "research-only"
-    },
-    {
-      "name": "live Block Editor boundary",
-      "status": "pass",
-      "detail": "9 approved modules only"
-    },
-    {
-      "name": "live public migration",
-      "status": "pass",
-      "detail": "Photography top navigation canonical; portable primitive Public boundary remains closed"
-    },
-    {
-      "name": "live top-nav runtime parity",
-      "status": "pass",
-      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
-    },
-    {
-      "name": "live Library runtime feedback gate",
-      "status": "pass",
-      "detail": "top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages"
     }
   ],
-  "status": "pass",
-  "finishedAt": "2026-08-26T08:45:55.356Z",
-  "sourceSha": "7153464f7acbefdc49d67bb4cb243f38577a3138",
+  "status": "fail",
+  "error": "Error: 404 Not Found\n    at fetchText (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:27:25)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async verifyLiveAssets (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:91:19)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:203:3",
+  "finishedAt": "2026-08-26T09:38:20.462Z",
+  "sourceSha": "aa6c7a3ef57b42b07a813df569f6e4b3860902a1",
   "sourceRef": "main",
-  "workflowRunId": "32949387548",
-  "workflowRunNumber": "37",
-  "recordedAt": "2026-08-26T08:45:55.790Z"
+  "workflowRunId": "32954049678",
+  "workflowRunNumber": "38",
+  "recordedAt": "2026-08-26T09:38:20.946Z"
 }
