@@ -90,14 +90,23 @@ try{
   assert(saved['bottom-sheet']?.title==='클라이언트용 하단 시트','Bottom-sheet Library default not persisted');
   pass('Library default persistence','portable content defaults saved for new Editor instances');
 
-  await page.goto(`${BASE}/editor-lab/`,{waitUntil:'domcontentloaded'});
-  await wait(()=>page.evaluate(()=>Boolean(window.PlatformModuleRegistry?.get('bottom-sheet')&&window.PlatformBlockRegistry?.get('ui-module'))),'Editor portable Registry unavailable');
-  const editorContract=await page.evaluate(()=>({modules:window.PlatformModuleRegistry.listFor('editor').map(item=>item.id),variants:window.PlatformBlockRegistry.get('ui-module')?.variants||[],rail:window.PlatformModuleRegistry.editorProps('horizontal-rail'),accordion:window.PlatformModuleRegistry.editorProps('accordion'),sheet:window.PlatformModuleRegistry.editorProps('bottom-sheet')}));
+  /* Keep the Library document mounted and inspect the real Editor workspace
+     through the same major-menu route used by the management UI. */
+  await wait(()=>page.locator('.platform-admin-shell').evaluate(node=>node.dataset.persistentWorkspaceBound==='true'),'Persistent admin host did not bind');
+  await page.locator('.platform-admin-shell__nav a[href="/editor-lab/"]').click();
+  await wait(()=>page.evaluate(()=>location.pathname==='/editor-lab/'),'Editor route did not update');
+  await wait(()=>page.locator('.platform-admin-workspace-host:not([hidden]) iframe').count().then(Boolean),'Editor workspace missing');
+  const workspaceHandle=await page.$('.platform-admin-workspace-host iframe');
+  const tool=await workspaceHandle?.contentFrame();
+  assert(tool,'Editor workspace frame unavailable');
+  await wait(()=>tool.evaluate(()=>Boolean(window.PlatformModuleRegistry?.get('bottom-sheet')&&window.PlatformBlockRegistry?.get('ui-module'))),'Editor portable Registry unavailable');
+  const editorContract=await tool.evaluate(()=>({modules:window.PlatformModuleRegistry.listFor('editor').map(item=>item.id),variants:window.PlatformBlockRegistry.get('ui-module')?.variants||[],rail:window.PlatformModuleRegistry.editorProps('horizontal-rail'),accordion:window.PlatformModuleRegistry.editorProps('accordion'),sheet:window.PlatformModuleRegistry.editorProps('bottom-sheet')}));
   for(const id of ['horizontal-rail','accordion','bottom-sheet']){assert(editorContract.modules.includes(id),`Editor Registry missing ${id}`);assert(editorContract.variants.includes(id),`UI module variant missing ${id}`);}
   assert(editorContract.rail.items?.[1]?.title==='클라이언트용 두 번째 카드','Editor rail did not snapshot Library default');
   assert(editorContract.accordion.items?.[1]?.question==='수정된 두 번째 질문','Editor accordion did not snapshot Library default');
   assert(editorContract.sheet.title==='클라이언트용 하단 시트','Editor sheet did not snapshot Library default');
-  pass('Page Editor exposure','same Registry definitions + Library default snapshot');
+  assert(await tool.locator('.platform-admin-shell').count()===0,'Editor embedded a duplicate admin shell');
+  pass('Page Editor exposure','same Registry definitions + Library default snapshot through persistent host');
 
   await page.goto(`${BASE}/`,{waitUntil:'domcontentloaded'});
   const publicLinked=await page.locator('script[src*="portable-primitives-v1.js"]').count();
