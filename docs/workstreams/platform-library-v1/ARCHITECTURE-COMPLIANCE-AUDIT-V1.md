@@ -1,15 +1,21 @@
 # Platform Library Architecture Compliance Audit V1
 
 Status: active audit
-Scope: Block Lab → approved Library module → Block Editor instance customization → saved completed module/preset → published page → Portable Export
+Scope: Block Lab → approved canonical module → UI Library → Block Editor customization → saved module/preset → Completed Page → Public/Portable Export
 
 ## Target workflow
 
 The canonical technical workflow is:
 
-`Block Lab candidate → user/GPT review → approved canonical module → UI Library → Block Editor instance customization → saved completed module/preset → published page → Portable Export/new project`
+`Block Lab candidate → user/GPT review → approved canonical module → UI Library → Block Editor instance customization → saved completed module/preset → Completed Page registry → published page → Portable Export/new project`
 
-The Library is a catalog and live configuration surface for approved reusable runtime modules. It is not a second implementation surface.
+Existing finished pages may be used only as bootstrap extraction references. They are not permanent Library upstreams.
+
+Photography-specific rule:
+
+`Photography legacy page → one-time canonical extraction/parity QA → Photography Completed Page migration → managed from Block Editor completed-page list`
+
+After extraction, `source: public-extracted` means historical provenance only. Library source of truth is `PlatformModuleRegistry`.
 
 ## Compliance rules
 
@@ -23,41 +29,46 @@ The Library is a catalog and live configuration surface for approved reusable ru
 8. Editor customization must snapshot module content/style/state into the instance. Later Library default changes must not mutate existing instances.
 9. A saved completed module/preset must reference `moduleId + version + content/style/state snapshot`; it must not store copied rendered HTML/CSS.
 10. Portable Export must collect the Registry definition owner files and transitive dependencies for only the modules actually used.
+11. No finished page may remain a permanent Library source/upstream after canonical extraction.
+12. Photography must ultimately exist as a Completed Page entry that can be opened, edited, duplicated and published from the Editor management flow.
 
 ## Current findings
 
 ### Compliant
 
 - `PlatformModuleRegistry` owns approved module IDs, render/hydrate, provenance and consumer boundaries.
-- Photography modules use shared Registry definitions across Library/Editor/Public.
+- Photography-derived modules use shared Registry definitions across Library/Editor/Public. Their `public-extracted` metadata is historical provenance, not a live source contract.
 - Library preview and Editor preview use the shared module preview host and Registry mount path rather than separate per-surface component markup.
 - Public Snapshot V2 mounts `ui-module` blocks with `PlatformModuleRegistry.mount()` and applies `PlatformModuleStyleRuntime`; it does not render Library/admin iframes.
 - Block Lab-promoted `horizontal-rail`, `accordion`, and `bottom-sheet` live under shared `public/assets/js/platform-modules/` owners and do not import Block Lab runtime.
 - Library content/style defaults are snapshotted when a new Editor module instance is created.
 - Existing exhaustive setting/interaction gates prevent visible no-op controls for the currently audited module set.
 
-### Transitional / incomplete, not yet a contract violation if kept closed
+### Transitional / incomplete
 
-- Portable primitives currently expose Library/Editor consumers but are intentionally not yet Public consumers. They cannot be called end-to-end portable until Public + export dependency packaging is approved and implemented.
+- Photography still exists as the legacy live composition used for migration/parity QA. It has not yet been registered as a first-class Completed Page in the Editor management layer.
+- Completed-page registry/list/edit/duplicate data model is not implemented yet.
+- Portable primitives currently expose Library/Editor consumers but are intentionally not yet Public consumers.
 - `Portable Export` dependency manifest/bundle generator is not implemented yet.
-- The explicit `saved completed module/preset` layer is not yet implemented as a first-class data model. The Editor can save page/module instances, but reusable completed presets need a canonical registry/storage contract.
-- The current Library module catalog is flat at Registry level. Hierarchical navigation is an admin organization concern and must remain separate from module ownership.
+- The explicit reusable saved module/preset layer is not yet implemented as a first-class data model.
+- Shared module-preview still preloads a broad Photography runtime set; it should become dependency-driven by `ownerFiles`.
 
-### Violations / technical debt to remove
+### Remediation implemented on current branch, pending CI/live verification
 
-- The generic `bottom-sheet` visual shell was independently restyled to resemble the Photography collection sheet instead of consuming an extracted shared bottom-popup shell owner. This creates duplicated visual ownership. Replace it with shared shell/control primitives used by both modules while preserving the Photography appearance.
-- `screen-mode-selector` currently owns a new standalone visual implementation instead of consuming an extracted canonical segmented-control/theme-mode owner. Replace its skin with a shared platform segmented-control owner derived from the finished Photography control.
-- The Library top horizontal module selector does not scale to dozens of modules. It is not an ownership violation, but it is an information architecture dead end and should be replaced by a Registry-driven hierarchical tree integrated into the admin sidebar.
-- The `horizontal-rail` scroller clips part of card shadow paint at the bottom because the scrolling track owns insufficient vertical paint runway. The fix belongs in the canonical rail CSS, not the Library preview.
-- The device-handoff preview still receives legacy screen-mode UI from Photography runtime during hydration. Screen mode must be removed from the device-handoff module composition and remain a separate module.
+- Generic `bottom-sheet` now consumes a shared bottom-popup shell owner instead of keeping its own Photography-lookalike shell skin.
+- `screen-mode-selector` now composes the canonical `filter-chip-rail` module rather than owning a second segmented-control implementation.
+- Library top horizontal module catalog is replaced by a Registry-driven hierarchical tree integrated into the admin sidebar.
+- Sidebar supports collapse/reopen and drag resize/collapse behavior, with a narrow-screen drawer path.
+- `horizontal-rail` gets canonical vertical paint runway so card shadows are not clipped by the scroller.
+- Device-handoff preview isolation removes unrelated screen-mode page-context UI.
+- Architecture QA is being updated to verify Registry tree reuse, shared composition, rail paint and Library↔Editor module parity.
 
 ## Required next implementation
 
-1. Extract shared bottom-popup shell/control styling and make `collection-bottom-sheet` + `bottom-sheet` consume it without changing the Photography public appearance.
-2. Extract shared segmented-control/theme-mode styling and make `screen-mode-selector` consume that owner.
-3. Replace Library top module chips with a Registry-driven hierarchical tree mounted inside the admin sidebar; move the real Registry selector buttons instead of cloning them.
-4. Add desktop sidebar collapse button + drag resize/collapse behavior and a reopen affordance. Keep a responsive drawer path for narrow admin screens.
-5. Fix canonical horizontal-rail vertical shadow runway.
-6. Remove legacy screen-mode composition from device-handoff preview.
-7. Add architecture CI that fails if approved Library modules import Block Lab runtime, if Library-only component implementation appears in module preview code, or if Editor/Public module IDs drift from Registry contracts.
-8. Define `saved completed module/preset` schema after the Library architecture stabilizes.
+1. Run focused architecture Chromium QA and all existing module regression workflows for this branch.
+2. Merge only if the Registry-driven tree, shared popup owner, canonical screen-mode composition, rail paint and Editor module parity are green.
+3. Complete the PC/mobile × light/dark visual matrix and exhaustive content/state/style control audit.
+4. Implement Completed Page registry/list/edit/duplicate data model.
+5. Migrate Photography into that registry as the first Completed Page without making Photography a Library upstream.
+6. Remove remaining bootstrap-only Photography coupling from shared preview/dependency loading once migration is proven.
+7. Implement saved module/preset schema and dependency-aware Portable Export.
