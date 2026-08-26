@@ -1,7 +1,7 @@
-/* v2: mount the approved screen-mode-selector Registry module inside Photography settings. */
+/* v3: mount the approved screen-mode-selector Registry module inside Photography settings and remove every legacy wrapper. */
 (function(){
-  if(window.__photoScreenModeSettingsBridgeV2)return;
-  window.__photoScreenModeSettingsBridgeV2=true;
+  if(window.__photoScreenModeSettingsBridgeV3)return;
+  window.__photoScreenModeSettingsBridgeV3=true;
 
   const THEME_KEY='photoRoadmapThemeV1';
   const STYLE_HREF='/assets/styles/platform-modules/screen-mode-segmented-v1.css?v=2';
@@ -48,8 +48,20 @@
     return definitionPromise;
   }
   function pruneLegacy(settings,slot){
-    settings.querySelectorAll('.theme-setting-card,[data-theme-setting-card]').forEach(node=>{
-      if(node===slot||slot?.contains(node)||node.querySelector?.('[data-platform-module="screen-mode-selector"]'))return;
+    const canonicalSelector='[data-platform-module="screen-mode-selector"]';
+    [...settings.querySelectorAll('.theme-setting-card,[data-theme-setting-card]')].forEach(node=>{
+      if(node===slot){
+        node.classList.remove('theme-setting-card');
+        node.removeAttribute('data-theme-setting-card');
+        return;
+      }
+      if(node.contains(slot)){
+        node.insertAdjacentElement('beforebegin',slot);
+        node.remove();
+        return;
+      }
+      const canonical=node.querySelector?.(canonicalSelector);
+      if(canonical&&!slot.querySelector(canonicalSelector))slot.appendChild(canonical);
       node.remove();
     });
   }
@@ -69,7 +81,10 @@
       if(summary)summary.insertAdjacentElement('afterend',slot);else settings.prepend(slot);
     }
     pruneLegacy(settings,slot);
-    if(slot.dataset.screenModeCanonicalMounted==='true'&&slot.querySelector('[data-platform-module="screen-mode-selector"]'))return true;
+    if(slot.dataset.screenModeCanonicalMounted==='true'&&slot.querySelector('[data-platform-module="screen-mode-selector"]')){
+      pruneLegacy(settings,slot);
+      return true;
+    }
     try{mountCleanup?.();}catch{}
     const mounted=registry.mount(slot,'screen-mode-selector',{
       title:'화면 모드',
@@ -78,6 +93,9 @@
     },{consumer:'public',canonicalPlacement:'collection-settings'});
     mountCleanup=mounted?.cleanup||null;
     slot.dataset.screenModeCanonicalMounted='true';
+    pruneLegacy(settings,slot);
+    requestAnimationFrame(()=>pruneLegacy(settings,slot));
+    setTimeout(()=>pruneLegacy(settings,slot),120);
     return true;
   }
   function schedule(){
