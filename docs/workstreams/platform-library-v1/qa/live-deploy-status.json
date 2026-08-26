@@ -1,15 +1,15 @@
 {
-  "startedAt": "2026-08-26T07:25:08.423Z",
+  "startedAt": "2026-08-26T08:37:50.933Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-26T07:25:08.423Z",
+      "at": "2026-08-26T08:37:50.933Z",
       "status": "http-ok",
       "matched": true,
-      "bytes": 2483
+      "bytes": 2765
     }
   ],
   "checks": [
@@ -22,43 +22,14 @@
       "name": "live canonical assets",
       "status": "pass",
       "detail": "6 approved photo modules"
-    },
-    {
-      "name": "live UI Library",
-      "status": "pass",
-      "detail": "registry-driven root route"
-    },
-    {
-      "name": "live Library theme/viewport",
-      "status": "pass",
-      "detail": "dark + mobile shared preview"
-    },
-    {
-      "name": "live Block Lab boundary",
-      "status": "pass",
-      "detail": "research-only"
-    },
-    {
-      "name": "live Block Editor boundary",
-      "status": "pass",
-      "detail": "approved modules only"
-    },
-    {
-      "name": "live public migration",
-      "status": "pass",
-      "detail": "top navigation uses canonical module; remaining public adapters can migrate incrementally"
-    },
-    {
-      "name": "live top-nav runtime parity",
-      "status": "pass",
-      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
     }
   ],
-  "status": "pass",
-  "finishedAt": "2026-08-26T07:25:24.411Z",
-  "sourceSha": "fe33b1b85c0c73b7e6b992acaaf7c41ebcabaf0f",
+  "status": "fail",
+  "error": "Error: live approved Library module set mismatch\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:16:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:103:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:183:3",
+  "finishedAt": "2026-08-26T08:38:21.963Z",
+  "sourceSha": "12e3deb7996c46647a589e9bc7bb7ff43683cd44",
   "sourceRef": "main",
-  "workflowRunId": "32942647196",
-  "workflowRunNumber": "35",
-  "recordedAt": "2026-08-26T07:25:24.748Z"
+  "workflowRunId": "32948720123",
+  "workflowRunNumber": "36",
+  "recordedAt": "2026-08-26T08:38:22.381Z"
 }
