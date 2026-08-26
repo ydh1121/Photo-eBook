@@ -8,7 +8,10 @@
     'filter-chip-rail':{desktop:300,mobile:280},
     'collection-bottom-sheet':{desktop:940,mobile:860},
     'device-handoff-accordion':{desktop:740,mobile:740},
-    'floating-action':{desktop:430,mobile:430}
+    'floating-action':{desktop:430,mobile:430},
+    'horizontal-rail':{desktop:650,mobile:610},
+    'accordion':{desktop:680,mobile:640},
+    'bottom-sheet':{desktop:820,mobile:780}
   };
 
   function apply(){
