@@ -1,7 +1,7 @@
-/* v3: mount the approved screen-mode-selector Registry module inside Photography settings and remove every legacy wrapper. */
+/* v4: mount the approved screen-mode-selector Registry module inside Photography settings and synchronously remove every legacy wrapper. */
 (function(){
-  if(window.__photoScreenModeSettingsBridgeV3)return;
-  window.__photoScreenModeSettingsBridgeV3=true;
+  if(window.__photoScreenModeSettingsBridgeV4)return;
+  window.__photoScreenModeSettingsBridgeV4=true;
 
   const THEME_KEY='photoRoadmapThemeV1';
   const STYLE_HREF='/assets/styles/platform-modules/screen-mode-segmented-v1.css?v=2';
@@ -48,6 +48,7 @@
     return definitionPromise;
   }
   function pruneLegacy(settings,slot){
+    if(!settings||!slot)return;
     const canonicalSelector='[data-platform-module="screen-mode-selector"]';
     [...settings.querySelectorAll('.theme-setting-card,[data-theme-setting-card]')].forEach(node=>{
       if(node===slot){
@@ -65,6 +66,9 @@
       node.remove();
     });
   }
+  function currentSettings(){return document.getElementById('collectionBody')?.querySelector('.collection-settings')||null;}
+  function currentSlot(settings=currentSettings()){return settings?.querySelector('[data-collection-screen-mode-slot]')||null;}
+  function pruneCurrent(){const settings=currentSettings(),slot=currentSlot(settings);if(settings&&slot)pruneLegacy(settings,slot);return {settings,slot};}
   async function mountCanonical(){
     scheduled=0;
     const body=document.getElementById('collectionBody');
@@ -94,8 +98,8 @@
     mountCleanup=mounted?.cleanup||null;
     slot.dataset.screenModeCanonicalMounted='true';
     pruneLegacy(settings,slot);
-    requestAnimationFrame(()=>pruneLegacy(settings,slot));
-    setTimeout(()=>pruneLegacy(settings,slot),120);
+    requestAnimationFrame(()=>pruneCurrent());
+    setTimeout(()=>pruneCurrent(),120);
     return true;
   }
   function schedule(){
@@ -107,14 +111,18 @@
     if(!body||observer)return;
     observer=new MutationObserver(()=>{
       const settings=body.querySelector('.collection-settings');
-      if(settings)schedule();
+      if(!settings)return;
+      const slot=settings.querySelector('[data-collection-screen-mode-slot]');
+      if(slot)pruneLegacy(settings,slot);
+      if(!slot?.querySelector('[data-platform-module="screen-mode-selector"]'))schedule();
     });
     observer.observe(body,{childList:true,subtree:true});
+    pruneCurrent();
   }
 
   ensureStyle();
   document.addEventListener('platform-collection-render',event=>{
-    if(event.detail?.tab==='settings'){observeCollection();schedule();}
+    if(event.detail?.tab==='settings'){observeCollection();pruneCurrent();schedule();}
   });
   document.addEventListener('platform-screen-mode-change',event=>{
     const module=event.target?.closest?.('[data-platform-module="screen-mode-selector"]');
@@ -123,6 +131,6 @@
     try{localStorage.setItem(THEME_KEY,mode);}catch{}
     window.dispatchEvent(new CustomEvent('photo-theme-change',{detail:{mode,resolved:event.detail?.resolved||mode}}));
   });
-  window.addEventListener('pageshow',()=>setTimeout(()=>{observeCollection();schedule();},100),{passive:true});
-  [0,120,360,900].forEach(delay=>setTimeout(()=>{observeCollection();schedule();},delay));
+  window.addEventListener('pageshow',()=>setTimeout(()=>{observeCollection();pruneCurrent();schedule();},100),{passive:true});
+  [0,120,360,900].forEach(delay=>setTimeout(()=>{observeCollection();pruneCurrent();schedule();},delay));
 })();
