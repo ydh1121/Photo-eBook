@@ -1,0 +1,4 @@
+/* v1: keep each family as the horizontal scroller while allowing its outer
+   surface/shadow to paint outside the canonical module wrapper. */
+.platform-filter-chip-module{overflow:visible!important}
+.platform-filter-chip-module>.platform-filter-chip-source{max-width:100%}

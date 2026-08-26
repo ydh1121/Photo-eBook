@@ -1,0 +1,69 @@
+name: Platform Library Family Controls Checks
+
+on:
+  pull_request:
+    paths:
+      - 'public/ui-dashboard/**'
+      - 'public/editor-lab/**'
+      - 'public/data/ui-capabilities/**'
+      - 'public/data/block-registry/**'
+      - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/platform-modules/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'scripts/check-library-module-family-controls-v1.mjs'
+      - '.github/workflows/platform-library-family-controls-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/ui-dashboard/**'
+      - 'public/editor-lab/**'
+      - 'public/data/ui-capabilities/**'
+      - 'public/data/block-registry/**'
+      - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/platform-modules/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'scripts/check-library-module-family-controls-v1.mjs'
+      - '.github/workflows/platform-library-family-controls-checks.yml'
+
+jobs:
+  verify-family-controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check focused JavaScript syntax
+        run: |
+          node --check public/assets/js/platform-modules/portable-primitives-extension-v2.js
+          node --check public/assets/js/platform-modules/module-style-runtime-portable-v1.js
+          node --check public/assets/js/platform-modules/filter-chip-rail-edge-repair-v1.js
+          node --check public/assets/js/ui-dashboard/library-module-family-tabs-v1.js
+          node --check public/data/ui-capabilities/v1/library-family-extension-v1.js
+          node --check public/data/block-registry/v1/editor-module-extension-v1.js
+          node --check scripts/check-library-module-family-controls-v1.mjs
+      - name: Install browser dependency
+        run: npm install --no-save --no-package-lock playwright@1.55.0
+      - name: Verify grouped Library module families
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory public >/tmp/photo-ebook-family-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ui-dashboard/ >/dev/null; then break; fi
+            sleep .3
+          done
+          UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-library-module-family-controls-v1.mjs
+      - name: Upload family controls QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-library-family-controls
+          path: artifacts/library-module-family-controls-v1
+          if-no-files-found: ignore
+          retention-days: 7
