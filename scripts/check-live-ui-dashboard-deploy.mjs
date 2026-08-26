@@ -12,7 +12,9 @@ fs.mkdirSync(OUT,{recursive:true});
 
 const expectedPhoto=['top-chapter-navigation','filter-chip-rail','horizontal-card-rail','collection-bottom-sheet','device-handoff-accordion','floating-action'];
 const expectedPortable=['horizontal-rail','accordion','bottom-sheet'];
-const expectedLibrary=[...expectedPhoto,...expectedPortable];
+const expectedLibraryOnly=['screen-mode-selector'];
+const expectedNonPublic=[...expectedPortable,...expectedLibraryOnly];
+const expectedLibrary=[...expectedPhoto,...expectedPortable,...expectedLibraryOnly];
 const report={startedAt:new Date().toISOString(),base:BASE,entryMarker:ENTRY_MARKER,registryMarker:REGISTRY_MARKER,attempts:[],checks:[]};
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function assert(value,message){if(!value)throw new Error(message);}
@@ -21,7 +23,7 @@ function browserPath(){return ['/usr/bin/google-chrome','/usr/bin/google-chrome-
 function cacheBust(url){const join=url.includes('?')?'&':'?';return `${url}${join}deploy_check=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
 
 async function fetchText(url){
-  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.2'}});
+  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.3'}});
   if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
   return response.text();
 }
@@ -86,7 +88,11 @@ async function verifyLiveAssets(){
   expectedPortable.forEach(id=>assert(portableModules.includes(`id:'${id}'`),`live portable primitive asset is missing ${id}`));
   assert(portableModules.includes("const consumers=['library','editor']"),'live portable consumer boundary is stale');
 
-  pass('live canonical assets',`${expectedPhoto.length} Photography/Public + ${expectedPortable.length} portable Library/Editor modules`);
+  const extension=await fetchText(`${BASE}/assets/js/platform-modules/portable-primitives-extension-v2.js`);
+  assert(extension.includes("id:'screen-mode-selector'"),'live screen-mode module extension is missing');
+  assert(extension.includes("label:'기기 연결 아코디언'")&&extension.includes("label:'범용 하단 시트'"),'live family label extension is stale');
+
+  pass('live canonical assets',`${expectedPhoto.length} Photography/Public + ${expectedNonPublic.length} Library/Editor-only modules`);
 }
 
 async function verifyLiveBrowser(){
@@ -101,7 +107,7 @@ async function verifyLiveBrowser(){
     const library=await page.evaluate(()=>({
       view:document.querySelector('.builder-shell')?.dataset.builderView,
       ids:window.PlatformModuleRegistry.listFor('library').map(item=>item.id),
-      entries:window.PlatformModuleRegistry.listFor('library').map(item=>({id:item.id,status:item.status,source:item.source,consumers:item.consumers})),
+      entries:window.PlatformModuleRegistry.listFor('library').map(item=>({id:item.id,status:item.status,source:item.source,consumers:item.consumers,label:item.label})),
       buttons:[...document.querySelectorAll('[data-kit-ui]')].map(node=>node.dataset.kitUi),
       legacyComposer:Boolean(document.querySelector('#builderOpenBlockPalette,.builder-toolbar')),
       overflow:document.documentElement.scrollWidth-innerWidth
@@ -109,13 +115,14 @@ async function verifyLiveBrowser(){
     assert(library.view==='library','live /ui-dashboard/ is not the canonical UI Library');
     assert(!library.legacyComposer,'legacy screen composer controls are still live');
     assert(library.ids.length===expectedLibrary.length&&expectedLibrary.every(id=>library.ids.includes(id)),`live approved Library module set mismatch: ${library.ids.join(', ')}`);
-    assert(library.buttons.join('|')===library.ids.join('|'),'live Library selector is not registry-driven');
+    assert(library.buttons.length===library.ids.length&&library.ids.every(id=>library.buttons.includes(id)),'live Library selector is not Registry-driven');
+    assert(new Set(library.buttons).size===library.buttons.length,'live Library selector contains duplicate module buttons');
     assert(library.entries.every(item=>item.status==='approved'),'non-approved module leaked into live Library');
-    assert(expectedPortable.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('library')&&item.consumers.includes('editor')&&!item.consumers.includes('public'))),'portable primitive consumer boundary regressed');
+    assert(expectedNonPublic.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('library')&&item.consumers.includes('editor')&&!item.consumers.includes('public'))),'Library/Editor-only consumer boundary regressed');
     assert(library.overflow<=2,`live Library outer overflow ${library.overflow}px`);
     pass('live UI Library',`registry-driven root route with ${library.ids.length} approved modules`);
 
-    for(const id of ['top-chapter-navigation','filter-chip-rail','collection-bottom-sheet','device-handoff-accordion','horizontal-rail','accordion','bottom-sheet']){
+    for(const id of ['top-chapter-navigation','filter-chip-rail','collection-bottom-sheet','device-handoff-accordion','horizontal-rail','accordion','bottom-sheet','screen-mode-selector']){
       const frame=await selectLibraryModule(page,id);
       const src=await page.locator('#builderFrame').getAttribute('src');
       assert(src?.includes('/ui-dashboard/module-preview/'),`${id}: live Library is not using the shared preview host`);
@@ -141,6 +148,7 @@ async function verifyLiveBrowser(){
       if(id==='horizontal-rail')await waitFrameCount(frame,'.platform-horizontal-rail__card',3,'live portable horizontal rail missing');
       if(id==='accordion')await waitFrameCount(frame,'.platform-accordion__item',2,'live portable accordion missing');
       if(id==='bottom-sheet')await waitFrameCount(frame,'.platform-bottom-sheet[data-platform-module="bottom-sheet"]',1,'live portable bottom sheet missing');
+      if(id==='screen-mode-selector')await waitFrameCount(frame,'.platform-screen-mode [data-screen-mode-value]',3,'live standalone screen mode missing');
     }
 
     await selectLibraryModule(page,'top-chapter-navigation');
@@ -180,10 +188,10 @@ async function verifyLiveBrowser(){
       nav:document.querySelectorAll('.nav-shell[data-platform-module="top-chapter-navigation"] .nav-chip').length
     }));
     assert(expectedPhoto.every(id=>publicState.modules.some(item=>item.id===id&&item.status==='approved')),'live public consumer cannot resolve approved Photography common modules');
-    assert(expectedPortable.every(id=>!publicState.modules.some(item=>item.id===id)),'portable primitive leaked into Photography Public consumer');
+    assert(expectedNonPublic.every(id=>!publicState.modules.some(item=>item.id===id)),'Library/Editor-only module leaked into Photography Public consumer');
     assert(publicState.nav>=8,'live public top navigation is not using canonical module');
     await page.screenshot({path:path.join(OUT,'live-public-canonical-nav.png'),fullPage:false});
-    pass('live public migration','Photography top navigation canonical; portable primitive Public boundary remains closed');
+    pass('live public migration','Photography top navigation canonical; Library/Editor-only boundary remains closed');
 
     await context.close();
   }finally{await browser.close();}
