@@ -29,6 +29,7 @@ on:
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-library-runtime-feedback-v1.mjs'
+      - 'scripts/check-library-module-family-controls-v1.mjs'
       - '.github/workflows/platform-live-deploy-check.yml'
   workflow_dispatch:
 
@@ -38,7 +39,7 @@ permissions:
 jobs:
   verify-live-pages:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -49,6 +50,7 @@ jobs:
           node --check scripts/check-live-ui-dashboard-deploy.mjs
           node --check scripts/check-top-nav-runtime-parity.mjs
           node --check scripts/check-library-runtime-feedback-v1.mjs
+          node --check scripts/check-library-module-family-controls-v1.mjs
       - name: Install browser dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Verify Cloudflare Pages canonical module pipeline
@@ -71,12 +73,18 @@ jobs:
             feedback_status=fail
           fi
 
-          TOP_NAV_PARITY_STATUS="$parity_status" LIBRARY_FEEDBACK_STATUS="$feedback_status" node <<'NODE'
+          family_status=pass
+          if ! UI_DASHBOARD_BASE_URL="$UI_DASHBOARD_LIVE_URL" node scripts/check-library-module-family-controls-v1.mjs; then
+            family_status=fail
+          fi
+
+          TOP_NAV_PARITY_STATUS="$parity_status" LIBRARY_FEEDBACK_STATUS="$feedback_status" LIBRARY_FAMILY_STATUS="$family_status" node <<'NODE'
           const fs=require('node:fs');
           const target='artifacts/platform-live-deploy/report.json';
           const report=JSON.parse(fs.readFileSync(target,'utf8'));
           const parityOk=process.env.TOP_NAV_PARITY_STATUS==='pass';
           const feedbackOk=process.env.LIBRARY_FEEDBACK_STATUS==='pass';
+          const familyOk=process.env.LIBRARY_FAMILY_STATUS==='pass';
           report.checks=Array.isArray(report.checks)?report.checks:[];
           report.checks.push({
             name:'live top-nav runtime parity',
@@ -92,12 +100,20 @@ jobs:
               ?'top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages'
               :'focused Library runtime feedback checks failed on live Pages'
           });
-          if(!parityOk||!feedbackOk){
+          report.checks.push({
+            name:'live Library module family gate',
+            status:familyOk?'pass':'fail',
+            detail:familyOk
+              ?'grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages'
+              :'grouped Library module family checks failed on live Pages'
+          });
+          if(!parityOk||!feedbackOk||!familyOk){
             report.status='fail';
             report.error=[
               report.error,
               !parityOk?'live top-nav runtime parity failed':'',
-              !feedbackOk?'live Library runtime feedback gate failed':''
+              !feedbackOk?'live Library runtime feedback gate failed':'',
+              !familyOk?'live Library module family gate failed':''
             ].filter(Boolean).join('\n');
           }
           report.finishedAt=new Date().toISOString();
@@ -106,6 +122,7 @@ jobs:
 
           test "$parity_status" = pass
           test "$feedback_status" = pass
+          test "$family_status" = pass
       - name: Record live deployment result
         if: always()
         shell: bash
@@ -155,5 +172,6 @@ jobs:
           path: |
             artifacts/platform-live-deploy
             artifacts/library-runtime-feedback-v1
+            artifacts/library-module-family-controls-v1
           if-no-files-found: ignore
           retention-days: 7
