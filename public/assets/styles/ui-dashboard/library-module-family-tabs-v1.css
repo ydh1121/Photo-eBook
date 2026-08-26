@@ -1,0 +1,9 @@
+/* v1: parent + child hierarchy for related Library modules. */
+.builder-kit-family-group{display:flex;align-items:center;gap:3px;flex:0 0 auto;padding:3px;border:1px solid #e0e4e9;border-radius:999px;background:#f5f6f8}
+.builder-kit-family-group>.builder-kit-family-parent{min-height:26px;padding:0 9px;border:0;border-radius:999px;background:transparent;color:#4b535d;font-size:8.8px;font-weight:820}
+.builder-kit-family-group>.builder-kit-family-parent[aria-pressed="true"]{background:#202226;color:#fff}
+.builder-kit-family-children{display:flex;align-items:center;gap:2px}
+.builder-kit-family-children>[data-kit-ui]{min-height:26px;padding:0 8px;border:0;border-radius:999px;background:transparent;color:#747c86;font-size:8.1px;font-weight:730}
+.builder-kit-family-children>[data-kit-ui][aria-pressed="true"]{background:#fff;color:#202226;box-shadow:0 1px 5px rgba(25,35,55,.09)}
+.builder-kit-family-group[data-active="true"]{border-color:#cfd5dd;background:#eef0f4}
+@media(max-width:600px){.builder-kit-family-group>.builder-kit-family-parent{padding-inline:7px}.builder-kit-family-children>[data-kit-ui]{padding-inline:6px}}
