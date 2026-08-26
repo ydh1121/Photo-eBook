@@ -1,8 +1,8 @@
-/* v1: persistent major-tool navigation for the shared admin shell.
+/* v2: persistent major-tool navigation for the shared admin shell.
    Tool runtimes stay isolated in same-origin workspaces; no module/editor runtime is cloned. */
 (function(){
-  if(window.__platformAdminPersistentWorkspaceV1)return;
-  window.__platformAdminPersistentWorkspaceV1=true;
+  if(window.__platformAdminPersistentWorkspaceV2)return;
+  window.__platformAdminPersistentWorkspaceV2=true;
 
   const params=new URLSearchParams(location.search);
   const embedded=params.get('adminEmbed')==='1';
@@ -26,16 +26,16 @@
   function normalizeTheme(value){return ['light','dark','system'].includes(value)?value:'light';}
   function readTheme(){try{return normalizeTheme(localStorage.getItem(THEME_KEY)||'light');}catch{return'light';}}
   function resolvedTheme(value){return value==='system'?(systemDark.matches?'dark':'light'):value;}
-  function applyEmbeddedTheme(){
+  function applyEmbeddedTheme(root=document.documentElement){
     const theme=readTheme(),resolved=resolvedTheme(theme);
-    document.documentElement.dataset.adminTheme=theme;
-    document.documentElement.dataset.adminThemeResolved=resolved;
+    root.dataset.adminTheme=theme;
+    root.dataset.adminThemeResolved=resolved;
   }
 
   if(embedded){
-    /* Stop admin-shell-v1.js from mounting a second shell inside the workspace. */
     window.__platformAdminShellV1=true;
     document.documentElement.dataset.adminEmbedded='true';
+    delete document.documentElement.dataset.adminShell;
     applyEmbeddedTheme();
     systemDark.addEventListener?.('change',()=>{if(readTheme()==='system')applyEmbeddedTheme();});
     return;
@@ -51,6 +51,20 @@
   const baseId=idFromPath(location.pathname);
   let host=null,frame=null;
 
+  function sanitizeEmbeddedDocument(){
+    const doc=frame?.contentDocument;if(!doc)return;
+    try{
+      doc.querySelectorAll('.platform-admin-shell,.platform-admin-shell__reopen,.platform-admin-shell__resize-handle').forEach(node=>node.remove());
+      const root=doc.documentElement;
+      root.dataset.adminEmbedded='true';
+      delete root.dataset.adminShell;
+      root.style.removeProperty('--admin-sidebar-w');
+      doc.body?.style.removeProperty('padding-left');
+      doc.body?.style.removeProperty('padding-top');
+      applyEmbeddedTheme(root);
+    }catch{}
+  }
+
   function ensureHost(){
     if(host&&frame)return {host,frame};
     host=document.createElement('section');
@@ -63,6 +77,7 @@
     host.appendChild(frame);
     document.body.appendChild(host);
     frame.addEventListener('load',()=>{
+      sanitizeEmbeddedDocument();
       host?.removeAttribute('aria-busy');
       syncFrameTheme();
     });
@@ -71,12 +86,7 @@
 
   function syncFrameTheme(){
     if(!frame?.contentDocument)return;
-    try{
-      const theme=readTheme(),resolved=resolvedTheme(theme);
-      const root=frame.contentDocument.documentElement;
-      root.dataset.adminTheme=theme;
-      root.dataset.adminThemeResolved=resolved;
-    }catch{}
+    try{applyEmbeddedTheme(frame.contentDocument.documentElement);}catch{}
   }
 
   function setCurrent(id){
@@ -99,7 +109,7 @@
     if(id===baseId){
       parts.host.hidden=true;
       parts.host.removeAttribute('aria-busy');
-      if(parts.frame.src&&parts.frame.src!=='about:blank')parts.frame.src='about:blank';
+      if(parts.frame.getAttribute('src')&&parts.frame.getAttribute('src')!=='about:blank')parts.frame.src='about:blank';
     }else{
       parts.host.hidden=false;
       parts.host.setAttribute('aria-busy','true');
@@ -118,28 +128,17 @@
       if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
       const url=new URL(link.href,location.href);
       if(url.origin!==location.origin)return;
-      let id=idFromPath(url.pathname);
-      if(!id)return;
+      const id=idFromPath(url.pathname);if(!id)return;
       event.preventDefault();
       showRoute(id,{push:true});
     }));
-    shell.addEventListener('click',event=>{
-      if(!event.target.closest('[data-admin-theme-value]'))return;
-      queueMicrotask(syncFrameTheme);
-    });
-    window.addEventListener('popstate',()=>{
-      const id=idFromPath(location.pathname)||baseId;
-      showRoute(id,{push:false});
-    });
+    shell.addEventListener('click',event=>{if(event.target.closest('[data-admin-theme-value]'))queueMicrotask(syncFrameTheme);});
+    window.addEventListener('popstate',()=>showRoute(idFromPath(location.pathname)||baseId,{push:false}));
     setCurrent(idFromPath(location.pathname)||baseId);
     return true;
   }
 
-  function mount(){
-    const shell=document.querySelector('.platform-admin-shell');
-    if(bind(shell))return true;
-    return false;
-  }
+  function mount(){return bind(document.querySelector('.platform-admin-shell'));}
   if(!mount()){
     const observer=new MutationObserver(()=>{if(mount())observer.disconnect();});
     observer.observe(document.documentElement,{subtree:true,childList:true});
