@@ -1,9 +1,10 @@
 # Platform Library V1 Tasks
 
 Workstream: `platform-library-v1`
-Status: `active / exhaustive Library setting audit + portable module contract`
+Status: `active / canonical Library runtime completeness + portable module contract`
 Production branch: `main`
-Current implementation branch: `fix/library-runtime-audit-portability-v1`
+Current implementation branch: `fix/library-complete-runtime-controls-v1`
+Current PR: `#39`
 
 Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
@@ -24,11 +25,13 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] 기존 Editor 인스턴스는 mutable Library 기본값을 다시 읽지 않는다.
 [x] Public Snapshot은 admin iframe 없이 `PlatformModuleRegistry.mount()`로 `ui-module`을 직접 렌더한다.
 [x] Public Snapshot은 저장된 style overrides를 `PlatformModuleStyleRuntime`으로 실제 적용한다.
-[x] Library/Editor/Public가 동일 module id + render/hydrate owner를 사용하도록 정적 검사한다.
+[x] Photography 추출 모듈은 Library/Editor/Public에서 같은 module id + render/hydrate owner를 사용한다.
+[x] Block Lab 승격 primitive는 연구실 runtime을 직접 import하지 않고 shared canonical owner로 분리한다.
 [-] Portable Export도 같은 module id/render/hydrate/style owner를 포함하도록 dependency manifest 계약 추가.
 
-## Current module set
+## Current approved module set
 
+Photography / shared public set:
 [x] `top-chapter-navigation`
 [x] `filter-chip-rail`
 [x] `horizontal-card-rail`
@@ -36,63 +39,62 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [x] `device-handoff-accordion` / 표시명 `아코디언 탭`
 [x] `floating-action`
 
+Portable primitive set promoted in PR #38:
+[x] `horizontal-rail`
+[x] `accordion`
+[x] `bottom-sheet`
+[x] Library와 Editor가 동일 Registry render/hydrate owner를 사용한다.
+[x] Photography 최종 Public에는 위 3개 primitive를 자동 연결하지 않는다.
+[ ] 사용자 승인 후 Public consumer 및 Portable Export dependency manifest까지 확장한다.
+
 ## Top navigation photography parity
 
-[x] Library 상단 메뉴 HTML이 `PhotoPublicModuleSource.navigation.render`를 사용하는지 확인.
-[x] Library hydration이 사진 페이지의 `setupNavigation()` owner를 사용하는지 확인.
-[x] 사진 페이지의 실제 liquid motion owner가 `public/assets/js/ui/liquid-controller.js`임을 확인.
-[x] 사진 페이지의 실제 native pan owner가 `native-pan-fab-clearance.css`임을 확인.
-[x] Registry `ownerFiles`에 liquid controller / native pan / mobile nav / desktop nav runtime을 명시.
-[x] Library module remount 뒤 새 `.nav-scroll`에 canonical liquid controller가 다시 연결되도록 shared owner 수정.
-[x] Library 기본 style config가 사진 페이지의 BREEZE easing을 덮어쓰지 않도록 수정.
-[x] motion control을 사용자가 실제 변경한 경우에만 style runtime override 적용.
-[x] Public과 module preview 모두 `liquid-controller.js?v=2`를 로드하도록 cache marker 갱신.
-[x] focused Chromium QA `check-top-nav-runtime-parity.mjs` 추가.
-[x] PR Actions에서 Public ↔ Library controller/native-pan/BREEZE parity 실제 검증.
-[x] Cloudflare live에서 동일 controller/native-pan/remount recovery/BREEZE easing parity 재검증.
+[x] Library 상단 메뉴 HTML이 `PhotoPublicModuleSource.navigation.render`를 사용한다.
+[x] Library hydration이 사진 페이지의 `setupNavigation()` owner를 사용한다.
+[x] 실제 liquid motion owner는 `public/assets/js/ui/liquid-controller.js`다.
+[x] 실제 native pan owner는 `native-pan-fab-clearance.css`다.
+[x] Library module remount 뒤 새 `.nav-scroll`에 canonical liquid controller가 다시 연결된다.
+[x] Library 기본 style config가 사진 페이지의 BREEZE easing을 덮어쓰지 않는다.
+[x] iOS Liquid 기본값은 Photography canonical appearance/motion을 유지한다.
+[x] `chipFamily`의 iOS Flat / Material이 실제 shared CSS surface/geometry/state를 바꾼다.
+[x] later-loaded liquid baseline이 non-liquid family를 다시 덮지 못하도록 module-scoped canonical selector로 수정.
+[x] family CSS를 Registry `ownerFiles`에 포함해 Public Snapshot dependency loader에서도 같은 owner를 사용할 수 있게 함.
+[-] PC/mobile/light/dark 전체 visual matrix 재검수.
 
-## Typography
+## Filter style families / horizontal interaction
 
-[x] 상단 메뉴에 font family 설정 추가.
-[x] 상단 메뉴에 font size / weight / letter-spacing 설정 추가.
-[x] 범용 필터칩에 동일 typography 설정 추가.
-[x] typography 값은 module style defaults에 저장되는 canonical 설정이다.
-[x] typography 값은 preview DOM이 아니라 실제 nav/filter button node에 적용한다.
-[x] Library font family 옵션에 한국어 표시명 polish runtime 추가.
-[x] 사진 페이지 CSS의 `!important` baseline을 canonical style runtime이 실제 override할 수 있도록 수정.
-[x] Chromium QA에서 computed font size/weight/spacing 변화 재검증.
+[x] iOS Liquid / iOS Flat / Material은 하나의 `filter-chip-rail` 안에 존재하는 실제 source DOM family다.
+[x] 세 family 모두 같은 `platform-filter-select` event와 ARIA state를 사용한다.
+[x] Material에서 의미 없는 background blur 설정은 Library에서 disabled 처리한다.
+[x] iOS Liquid `gap` / `runway` 실제 geometry 소비 no-op 수정.
+[x] 메뉴가 rail 너비를 넘으면 세 family 모두 nowrap + horizontal overflow로 수용한다.
+[x] Material family를 tonal surface / shape change / motion 중심으로 재구성했다.
+[x] Library selector에 현재 family를 표시하고 변경 즉시 동기화한다.
+[x] 모바일은 browser-native `pan-x`를 사용한다.
+[x] PC는 canonical `filter-chip-rail` hydrate owner가 mouse drag + drag 후 click suppression을 제공한다.
+[x] focused Chromium에서 long menu overflow + PC pointer drag + mobile pan-x를 실제 검사한다.
+[-] 세 family PC/mobile/light/dark 전체 visual matrix 재검수.
 
-## Filter style families
+## Library content completeness
 
-[x] iOS Liquid = 기존 canonical liquid controller 유지.
-[x] iOS Flat = 별도 실제 runtime source 유지.
-[x] Material = 별도 실제 runtime source 유지.
-[x] 세 family 모두 `filter-chip-rail` 하나의 canonical module 안에서 실제 source DOM으로 렌더된다.
-[x] 세 family 모두 동일 `platform-filter-select` interaction event와 ARIA state를 사용.
-[x] 세 family 모두 Editor/Public에서 같은 module ID로 렌더할 수 있다.
-[x] Material에서 의미 없는 background blur 설정은 Library에서 disabled 처리.
-[x] 코드 감사에서 iOS Liquid의 `gap` / `runway`가 CSS 변수만 설정되고 실제 source geometry에는 소비되지 않던 no-op 발견.
-[x] iOS Liquid가 `gap` / `runway`를 실제 rail gap/padding으로 소비하도록 shared canonical CSS 수정.
-[x] 메뉴가 rail 너비를 넘으면 세 family 모두 nowrap horizontal overflow로 수용하고 텍스트가 rail 밖으로 paint되지 않도록 수정.
-[x] Material family를 outlined-pill + dot에서 tonal surface / contrasting shape / motion 중심의 Material 3 Expressive 방향으로 재구성.
-[x] Library 상단 module selector에 현재 family (`iOS 리퀴드` / `iOS 플랫` / `Material 3 Expressive`)를 표시하고 변경 즉시 동기화.
-[-] 세 family PC/mobile/light/dark + long-menu 실제 Chromium QA.
+[x] 상단 메뉴 항목 표시명/대상 ID 추가·삭제·순서변경을 live preview와 저장 기본값에 반영한다.
+[x] 범용 필터칩 메뉴 추가·삭제·순서변경 및 선택 상태 보존.
+[x] `horizontal-rail` canonical 카드가 지원하는 `eyebrow/title/description/tags/meta/image/imageAlt/actionLabel/actionUrl`을 Library에서 보존·편집한다.
+[x] `horizontal-rail` 순서변경 시 tags/meta/image/action 필드가 삭제되지 않는다.
+[x] `accordion`의 `singleOpen/openFirst/openIds/item meta`를 Library에서 편집한다.
+[x] `bottom-sheet`의 initial open/show launcher/launcher label/backdrop dismiss/primary+secondary action을 Library에서 편집한다.
+[x] Library preview frame의 장식용 box-shadow를 제거해 모듈 자체 surface와 preview frame을 혼동하지 않게 했다.
+[-] 승인 모듈 전체에서 Registry가 지원하지만 Library editor에 빠진 content/state 필드가 더 없는지 계속 전수검사한다.
 
 ## Library settings runtime audit
 
-[x] manifest + module-extension의 모든 visible control을 canonical `PlatformModuleStyleRuntime`, owner CSS, interaction owner와 1:1 코드 대조.
-[x] 감사 결과를 `SETTING-RUNTIME-AUDIT-V1.md`에 owner/effect 단위로 기록.
-[x] locked control은 편집 효과가 없는 대신 UI에서 disabled인지 별도 분류.
-[x] filter `gap` / `runway`의 iOS Liquid no-op를 코드 감사로 확인하고 shared runtime에서 수정.
-[-] 모든 editable control을 비기본값으로 실제 변경하고 measurable DOM/computed-style/interaction 변화를 검증하는 exhaustive Chromium gate 추가.
-[ ] exhaustive Chromium에서 추가 no-op 발견 시 canonical runtime 구현 또는 UI 제거/disabled 후 다시 전체 통과.
-
-## Bottom sheet interaction
-
-[x] 실제 Public bulk-selection owner 사용.
-[x] 실제 `전체 선택 / n개 선택 / 삭제` bulk action footer 사용.
-[x] 질문 작성 / 저장 질문 / 질문 reopen state 실제 owner 사용.
-[x] 영상/읽을거리 filter actual runtime 유지.
+[x] manifest + module extension visible controls를 canonical style/runtime owner와 1:1 코드 대조.
+[x] `SETTING-RUNTIME-AUDIT-V1.md`에 owner/effect 단위 기록.
+[x] locked control은 UI에서 disabled인지 별도 검사.
+[x] exhaustive Chromium setting gate가 모든 기존 style control을 non-default 값으로 바꿔 measurable effect를 검사한다.
+[x] 별도 `check-library-runtime-feedback-v1.mjs`가 사용자 실검수에서 발견된 family/drag/content-preservation 문제를 실제 DOM으로 검사한다.
+[ ] 향후 새 visible control 추가 시 exhaustive gate에도 반드시 추가한다.
+[-] PC/mobile/light/dark visual QA에서 추가 no-op이 발견되면 canonical runtime 구현 또는 UI 제거/disabled 처리한다.
 
 ## Photography ↔ Block Lab parity
 
@@ -108,7 +110,7 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 
 ## SEO / GEO + page structure
 
-[x] `docs/library/publishing/PUBLISH-SEO-GEO-V1.md`에 draft/published snapshot, canonical, metadata, robots/sitemap 기본 계약 존재.
+[x] `docs/library/publishing/PUBLISH-SEO-GEO-V1.md`에 canonical/metadata/robots/sitemap 기본 계약 존재.
 [ ] SEO/GEO metadata를 page model과 Editor에서 실제 편집/저장할 수 있게 연결.
 [ ] page hierarchy / parent-child / route / canonical / sitemap 포함 여부를 공통 page metadata로 관리.
 [ ] draft/preview는 noindex, published snapshot만 indexable이라는 런타임 계약 자동 검증.
@@ -135,40 +137,22 @@ Legend: `[x] done` / `[-] active or review` / `[ ] pending`
 [ ] 공통 module bundle을 다른 신규 프로젝트에서 직접 import할 수 있는 distribution/versioning contract 확정.
 [ ] exported project가 Library preview/admin iframe 없이 독립 실행되는지 CI 검증.
 
-## Private strategy boundary / restart safety
-
-[x] 민감한 사업/제품 전략 원문은 Google Drive private document로 분리.
-[x] Git에는 private 문서 본문/ID/URL을 넣지 않는 규칙을 `AGENTS.md`에 추가.
-[x] 전략적 판단이 필요한 AI 세션은 Drive 연결 시 지정 문서 제목을 검색해 최신 내용을 읽도록 규칙화.
-[x] Drive 접근이 없으면 민감한 맥락을 Git에서 추측하지 않도록 규칙화.
-[x] Git workstream에는 실행에 필요한 비민감 기술 계약과 상태만 유지.
-
-## Permanent Git instructions
-
-[x] `AGENTS.md`에 `Reusable UI module contract` 추가.
-[x] preview-only visual copy 금지.
-[x] 모든 visible Library setting은 canonical runtime effect가 있어야 한다는 규칙 추가.
-[x] Public에서 admin preview/sandbox/iframe 사용 금지.
-[x] actual interaction QA 의무화.
-[x] static boundary + Chromium pipeline QA 의무화.
-[x] exhaustive setting audit 시 대표 control이 아니라 모든 editable/locked control을 검증하도록 규칙 강화.
-
 ## QA / CI
 
-[x] `scripts/check-platform-module-pipeline-v3.mjs`로 reusable module runtime 대표 설정 검사.
-[x] `scripts/check-top-nav-runtime-parity.mjs`로 Photography Public ↔ Library 상단 메뉴 owner/motion/native-pan 검사 추가.
-[x] Actions path filter에 canonical owner 경로 추가.
-[x] static boundary check가 top-nav complete owner set과 remount-safe liquid owner를 강제하도록 확장.
-[x] PR #27 canonical BREEZE/remount repair + 전체 Chromium QA green.
-[x] PR #28 live deploy gate 확대.
-[x] PR #29~#32 stale live QA를 현재 canonical 계약에 맞게 수정.
-[x] PR #33 기준 main `Platform Library Checks` green / live deploy gate green.
-[-] `check-library-setting-runtime-exhaustive-v1.mjs`를 CI에 추가하고 branch 전체 green 확보.
+[x] `scripts/check-platform-module-pipeline-v3.mjs` canonical pipeline 검사.
+[x] `scripts/check-top-nav-runtime-parity.mjs` Photography Public ↔ Library 상단 메뉴 owner/motion/native-pan 검사.
+[x] `scripts/check-library-setting-runtime-exhaustive-v2.mjs` visible setting runtime exhaustive 검사.
+[x] `scripts/check-portable-primitives-batch2-v1.mjs` portable 3종 Registry/interaction/Editor snapshot 검사.
+[x] `scripts/check-library-runtime-feedback-v1.mjs` family skin, filter drag, rail content preservation, primitive control completeness 검사.
+[x] PR #39 head `ba718fda...`에서 `Platform Library Generalization Checks` run #11 green.
+[x] PR #39 head `ba718fda...`에서 `Platform Library Checks` run #426 green.
+[-] PR #39 병합 후 main workflows + Cloudflare live 검증.
 
 ## Exact next action
 
-1. exhaustive Chromium setting gate를 작성해 모든 visible control + filter long-menu overflow + family label/runtime switch를 검증한다.
-2. gate에서 발견되는 추가 no-op을 canonical owner에서 수정하고 전체 green으로 만든다.
-3. 그 다음 SEO/GEO page metadata의 실제 Editor/runtime 연결을 먼저 진행한다.
-4. 이후 completed-page registry → exact-runtime edit/duplicate → dependency-aware export → portable new-project smoke test 순서로 진행한다.
-5. Photography Block Lab advanced variants는 `PARITY-V1.md`의 4개 candidate부터 병행 연구하되, 승인 전 Editor production에는 노출하지 않는다.
+1. PR #39의 문서 업데이트 커밋 후 CI green을 다시 확인한다.
+2. PR #39를 main에 병합한다.
+3. main의 `Platform Library Checks`, `Platform Library Generalization Checks`, `Platform Live Deploy Check`를 확인한다.
+4. live `/ui-dashboard/`에서 상단 메뉴 family 실제 변경, filter PC/mobile horizontal interaction, ghost frame 제거, horizontal-rail badge/meta/action reorder 보존을 검증한다.
+5. 이 runtime-completeness 배치가 live green이면 전체 승인 모듈 PC/mobile/light/dark visual matrix를 계속하고, 이후 SEO/GEO page metadata wiring으로 진행한다.
+6. Photography 최종 Public의 새 primitive 연결/기능 변경은 사용자 승인 전 진행하지 않는다.
