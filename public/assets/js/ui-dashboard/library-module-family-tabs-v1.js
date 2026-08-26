@@ -47,8 +47,10 @@
       const wrapper=selector.querySelector(`[data-module-family="${group.id}"]`);
       if(!wrapper)continue;
       const active=Boolean(currentChild(group));
-      wrapper.dataset.active=String(active);
-      wrapper.querySelector('[data-module-family-parent]')?.setAttribute('aria-pressed',String(active));
+      const next=String(active);
+      if(wrapper.dataset.active!==next)wrapper.dataset.active=next;
+      const parent=wrapper.querySelector('[data-module-family-parent]');
+      if(parent&&parent.getAttribute('aria-pressed')!==next)parent.setAttribute('aria-pressed',next);
     }
   }
 
