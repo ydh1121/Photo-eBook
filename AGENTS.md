@@ -22,9 +22,21 @@ During a long-running workstream:
 - After each meaningful completed unit, update both files in the same work session.
 - If a session must end in the middle of a task, record the partial state, files changed, unresolved checks, and exact next command/action before stopping.
 - Never require the user to reconstruct previous chat context when repository state can carry it.
-- Final product rules, approved libraries, schemas, and operational specs remain in permanent Git paths such as `docs/library/`, `docs/spec-v1/`, and runtime code.
-- Temporary research notes, alternatives, QA logs, and completion checklists may live in the workstream folder while active.
-- When the workstream is fully usable and user-approved, archive the workstream folder and QA records to Google Drive, but keep the permanent product rules/specs/runtime in Git.
+- Final non-sensitive technical rules, approved libraries, schemas, interface contracts, and operational specs remain in permanent Git paths such as `docs/library/`, `docs/spec-v1/`, and runtime code.
+- Temporary technical research notes, alternatives, QA logs, and completion checklists may live in the workstream folder while active.
+- When the workstream is fully usable and user-approved, archive temporary workstream/QA records as appropriate, while permanent non-sensitive technical specs/runtime remain in Git.
+
+## Private business context boundary
+
+Business strategy and sensitive product context are not Git repository content.
+
+- Business vision, commercial strategy, pricing/economics, client strategy, revenue plans, partnership plans, and other sensitive planning material must live in private Google Drive documents, not in Git files, issues, pull requests, commit messages, QA artifacts, code comments, or workstream notes.
+- The designated private context document is named `Photo-eBook 플랫폼 · 사업 비전 및 제품 개발 목표 (Private)`.
+- When a task requires strategic prioritization or business intent and a Google Drive connector is available, search Drive for that exact document title and read the current document before making the strategic decision.
+- Never copy the private document body into Git. Git may record only the resulting non-sensitive technical contract, acceptance criteria, architecture, or task status needed to implement the decision.
+- Do not store the private Drive document ID, URL, exported body, or cached copy in the repository.
+- If Drive access is unavailable, do not reconstruct or guess private business context from stale Git notes. Continue only where the non-sensitive technical contract is sufficient; otherwise leave the strategic decision unresolved for a Drive-enabled session.
+- This privacy boundary overrides any general rule that would otherwise place long-lived product documentation in Git.
 
 ## Korean copy contract
 
@@ -93,19 +105,21 @@ Any work that changes `/ui-dashboard/`, `PlatformModuleRegistry`, Block Editor U
 
 The required product path is:
 
-`Library → Editor → Public`
+`Library → Editor → Public → Portable Export`
 
 For every approved module or approved style family:
 
-1. Library, Editor, and Public must consume the same module ID and the same canonical `render()/hydrate()` owner through `PlatformModuleRegistry`.
+1. Library, Editor, Public, and portable project exports must consume the same module ID and the same canonical `render()/hydrate()` owner through `PlatformModuleRegistry`.
 2. A Library preview may own only framing, viewport isolation, theme simulation, and QA controls. It must not own a second visual implementation of the component.
-3. Do not add preview-only HTML/CSS/JS that merely copies the production appearance. If a selector, style family, state, or interaction is intended to ship, its owner must live in shared module/runtime code that Public can load.
+3. Do not add preview-only HTML/CSS/JS that merely copies the production appearance. If a selector, style family, state, or interaction is intended to ship, its owner must live in shared module/runtime code that Public and exported projects can load.
 4. Every visible Library setting must either change the canonical runtime immediately or be removed/disabled from the UI. No visible no-op controls are allowed.
 5. Library default changes are only defaults for newly inserted Editor instances. Editor instances must persist a snapshot of content/style props and must not reread mutable Library defaults later.
 6. Published pages must render `ui-module` blocks directly through `PlatformModuleRegistry` and `PlatformModuleStyleRuntime`; using `/ui-dashboard/`, `module-preview`, sandbox, or an admin iframe in Public is forbidden.
 7. Interaction QA must exercise the actual behavior, not only compare appearance. Examples include horizontal scrolling, sticky navigation, filter selection events, bottom-sheet drag/selection/delete, accordion state, and FAB actions.
 8. Style QA must verify that each exposed control has a measurable runtime effect. Typography controls must affect actual component text nodes; layout controls must affect the actual scroller/sheet/rail; state controls must affect the real interaction owner.
 9. Any new module promoted from Block Lab must be extracted to shared canonical code before Library or Editor can consume it. Library/Editor must never import Block Lab runtime/data/style directly.
-10. Before merging a UI-module change, run both the static module-boundary check and Chromium end-to-end module pipeline check. A green result is required unless the repository owner explicitly asks for a main-only visual verification; in that case the known failing check and reason must be recorded and repaired immediately after visual verification.
+10. Canonical modules must not depend on Photo-eBook page composition unless the dependency is declared and exported. New repositories must be able to receive only the module/runtime/style/assets they actually use through a dependency manifest or generated export bundle.
+11. Before merging a UI-module change, run both the static module-boundary check and Chromium end-to-end module pipeline check. A green result is required unless the repository owner explicitly asks for a main-only visual verification; in that case the known failing check and reason must be recorded and repaired immediately after visual verification.
+12. A visible setting audit is not complete when only representative controls pass. When an exhaustive audit is active, every editable control must be exercised with a non-default value and every locked control must be verified disabled by browser QA.
 
-A change fails this contract if it looks correct in `/ui-dashboard/` but cannot be inserted in Block Editor and rendered with the same behavior on a published page.
+A change fails this contract if it looks correct in `/ui-dashboard/` but cannot be inserted in Block Editor, rendered with the same behavior on a published page, and included without a second implementation in a portable project export.

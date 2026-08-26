@@ -1,0 +1,11 @@
+/* UI Library viewport framing only.
+   Desktop simulation must satisfy the same desktop breakpoint as the public runtime.
+   This file owns preview geometry, never component visuals or interaction behavior. */
+.builder-kit-workspace[data-viewport="desktop"][data-active-ui="top-chapter-navigation"] .builder-kit-canvas{
+  overflow-x:auto;
+}
+.builder-kit-workspace[data-viewport="desktop"][data-active-ui="top-chapter-navigation"] .builder-kit-frame-shell{
+  width:1180px!important;
+  min-width:1024px!important;
+  max-width:1180px!important;
+}
