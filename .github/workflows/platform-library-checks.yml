@@ -57,6 +57,7 @@ on:
       - 'scripts/check-platform-module-pipeline-v1.mjs'
       - 'scripts/check-platform-module-pipeline-v3.mjs'
       - 'scripts/check-library-setting-runtime-exhaustive-v1.mjs'
+      - 'scripts/check-library-interaction-runtime-v1.mjs'
       - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/library/platform-modules/**'
@@ -119,6 +120,7 @@ on:
       - 'scripts/check-platform-module-pipeline-v1.mjs'
       - 'scripts/check-platform-module-pipeline-v3.mjs'
       - 'scripts/check-library-setting-runtime-exhaustive-v1.mjs'
+      - 'scripts/check-library-interaction-runtime-v1.mjs'
       - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
       - 'docs/library/platform-modules/**'
@@ -133,7 +135,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 16
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -170,6 +172,7 @@ jobs:
           node --check scripts/check-platform-module-pipeline-v1.mjs
           node --check scripts/check-platform-module-pipeline-v3.mjs
           node --check scripts/check-library-setting-runtime-exhaustive-v1.mjs
+          node --check scripts/check-library-interaction-runtime-v1.mjs
           node --check scripts/check-top-nav-runtime-parity.mjs
           node --check scripts/check-live-ui-dashboard-deploy.mjs
       - name: Install browser QA dependency
@@ -197,6 +200,7 @@ jobs:
           node scripts/check-top-nav-runtime-parity.mjs
           node scripts/check-platform-module-pipeline-v1.mjs
           node scripts/check-library-setting-runtime-exhaustive-v1.mjs
+          node scripts/check-library-interaction-runtime-v1.mjs
       - name: Upload public-module parity QA
         if: always()
         uses: actions/upload-artifact@v4
@@ -205,5 +209,6 @@ jobs:
           path: |
             artifacts/platform-module-pipeline
             artifacts/library-setting-runtime-exhaustive
+            artifacts/library-interaction-runtime
           if-no-files-found: ignore
           retention-days: 7
