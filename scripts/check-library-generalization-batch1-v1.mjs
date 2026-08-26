@@ -70,8 +70,10 @@ try{
   assert(fabDiag.runtime,`FAB action runtime missing: ${JSON.stringify(fabDiag)}`);
   assert(fabDiag.hydrate==='function',`FAB registry hydrate missing: ${JSON.stringify(fabDiag)}`);
   assert(fabDiag.baselineType==='none',`FAB baseline hydration missing: ${JSON.stringify(fabDiag)}`);
-  await page.locator('[data-fab-action]').selectOption('custom-event');await page.locator('[data-fab-value]').fill('qa-fab-action');
-  await wait(()=>frame.locator(fabSelector).getAttribute('data-platform-action-type').then(v=>v==='custom-event'),'FAB action type not hydrated');
+  await page.locator('[data-fab-action]').selectOption('custom-event');
+  await page.locator('[data-fab-value]').fill('qa-fab-action');
+  await wait(()=>frame.locator(fabSelector).evaluate(node=>node.dataset.platformActionType==='custom-event'&&node.dataset.platformActionValue==='qa-fab-action'),'FAB final action remount not hydrated');
+  await sleep(120);
   await frame.locator(fabSelector).evaluate(node=>{window.__qaFabAction=false;node.addEventListener('qa-fab-action',()=>window.__qaFabAction=true,{once:true});});
   await frame.locator(fabSelector).click();
   assert(await frame.locator('html').evaluate(()=>Boolean(window.__qaFabAction)),'FAB custom event did not execute');
