@@ -65,6 +65,11 @@ try{
 
   frame=await select(page,'floating-action');await inspector(page);
   await wait(()=>page.locator('[data-content-editor="floating-action"]').count().then(Boolean),'FAB action editor missing');
+  const fabDiag=await frame.locator('html').evaluate(()=>{const def=window.PlatformModuleRegistry?.get?.('floating-action'),node=document.querySelector('[data-platform-module="floating-action"]');return {runtime:Boolean(window.PlatformModuleActionRuntime),hydrate:typeof def?.hydrate,version:def?.version||0,baselineType:node?.dataset.platformActionType||'',scripts:[...document.scripts].map(s=>s.getAttribute('src')||'').filter(Boolean)};});
+  console.log('FAB hydration diagnostic',JSON.stringify(fabDiag));
+  assert(fabDiag.runtime,`FAB action runtime missing: ${JSON.stringify(fabDiag)}`);
+  assert(fabDiag.hydrate==='function',`FAB registry hydrate missing: ${JSON.stringify(fabDiag)}`);
+  assert(fabDiag.baselineType==='none',`FAB baseline hydration missing: ${JSON.stringify(fabDiag)}`);
   await page.locator('[data-fab-action]').selectOption('custom-event');await page.locator('[data-fab-value]').fill('qa-fab-action');
   await wait(()=>frame.locator('[data-platform-module="floating-action"]').getAttribute('data-platform-action-type').then(v=>v==='custom-event'),'FAB action type not hydrated');
   await frame.locator('[data-platform-module="floating-action"]').evaluate(node=>{window.__qaFabAction=false;node.addEventListener('qa-fab-action',()=>window.__qaFabAction=true,{once:true});});
