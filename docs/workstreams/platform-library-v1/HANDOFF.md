@@ -1,104 +1,133 @@
 # Platform Library V1 Handoff
 
 Updated: 2026-08-26 KST
-Active implementation branch: `fix/library-runtime-audit-portability-v1`
+Active implementation branch: `fix/library-complete-runtime-controls-v1`
 Production branch: `main`
-Status: `exhaustive Library setting audit + filter runtime repair + portability roadmap`
+Current PR: `#39`
+Status: `canonical Library runtime completeness + portable primitive content completeness`
 
 ## Resume order
 
-1. `AGENTS.md` — especially `Private business context boundary` and `Reusable UI module contract`
+1. `AGENTS.md`
 2. `docs/library/platform-modules/CANONICAL-MODULE-PIPELINE.md`
 3. `docs/workstreams/platform-library-v1/TASKS.md`
 4. `docs/workstreams/platform-library-v1/SETTING-RUNTIME-AUDIT-V1.md`
 5. this file
-6. compare active branch against production `main`
+6. compare active branch against `main`
 
-If a task needs business intent or strategic prioritization, and Google Drive access is available, search Drive for the exact document title recorded in `AGENTS.md`. Do not copy that private document into Git.
+Private business context remains Drive-only per `AGENTS.md`. Do not copy strategy text, Drive IDs, or private document URLs into Git.
 
-## Production baseline before current branch
+## Production baseline before PR #39
 
-`main` at branch start: `147ad83f6916b762eaf0579569d7f52c3d5d336c` (PR #33 merge/status).
+`main`: `70a338bc5d52eb965e50faae8ebd7a5831ce391d`.
 
-The previous production baseline was green:
-- `Platform Library Checks`: green
-- `Platform Live Deploy Check`: run #30 green
-- Photography/Public ↔ Library top-nav canonical owner/BREEZE/native-pan parity: green
+PR #38 is already merged. It promoted three shared portable primitives:
+- `horizontal-rail`
+- `accordion`
+- `bottom-sheet`
 
-Do not regress the established `Library → Editor → Public` canonical owner contract.
+They are approved for Library + Editor and intentionally not connected to Photography final Public. Their `public` consumer remains closed until explicit user approval.
 
-## Current branch findings
+## User runtime feedback reproduced in code
 
-Source-level audit compared every exposed Library control from the capability manifest/module extension against:
-- `PlatformModuleStyleRuntime`
-- canonical owner CSS
-- `desktop/rail-drag.js`
-- actual module render/hydrate sources
+1. Top navigation `chipFamily` changed the dataset but non-liquid visual rules could be repainted by later Photography liquid `!important` CSS.
+2. `filter-chip-rail` had `overflow-x:auto` but no canonical PC mouse-drag owner; mobile native scrolling alone was insufficient.
+3. The faint rectangle around previews came from Library iframe-shell `box-shadow`, not the component.
+4. `horizontal-rail` Library editor normalized items down to eyebrow/title/description, dropping tags/meta/image/action fields during reorder.
+5. Portable primitive Registry props exposed additional state/action fields that were not all editable from Library.
 
-Confirmed:
-- iOS Liquid, iOS Flat and Material are real source DOM families inside the one canonical `filter-chip-rail`; they are not Library-only simulations.
-- Library style changes already travel through `saveStyleKey()` → `platform-module-style` → preview `applyStyle()` → canonical style runtime.
-- one definite no-op existed: `filter-chip-rail.gap` and `runway` set CSS variables but default iOS Liquid did not consume them.
-- long iOS Liquid menus lacked a strong shared overflow contract and could paint/size outside the intended rail.
+These are confirmed implementation issues, not guessed UI observations.
 
-Full source audit is recorded in `SETTING-RUNTIME-AUDIT-V1.md`.
+## PR #39 changes
 
-## Current branch changes already made
+### Top navigation families
 
-### Library family label
+- New canonical owner: `public/assets/styles/platform-modules/top-nav-style-families-v1.css`.
+- iOS Liquid stays owned by Photography canonical liquid CSS/controller.
+- iOS Flat and Material now change actual nav chip surface/shape/active state.
+- selectors are scoped through `.nav-shell[data-platform-module="top-chapter-navigation"]` so later liquid baseline CSS cannot override non-liquid families.
+- liquid indicator is explicitly hidden for non-liquid families.
+- owner is included in Registry `ownerFiles`, so a Public Snapshot using the module can load the same CSS dependency rather than a preview copy.
 
-`public/assets/js/ui-dashboard/library-control-polish-v1.js`
-- Library selector now shows the current style family for top nav/filter.
-- examples: `상단 메뉴 · iOS 리퀴드`, `범용 필터칩 · iOS 플랫`.
-- selector label updates when the family control changes.
-- Material display label is `Material 3 Expressive` while the persisted family ID remains `material-flat` for compatibility.
+### Filter horizontal scrolling
 
-### Filter canonical runtime / overflow
+- `filter-chip-rail` keeps native horizontal overflow and mobile `touch-action:pan-x`.
+- canonical `hydrateGenericFilterRail()` binds PC pointer drag to each actual family rail.
+- drag completion suppresses accidental chip click briefly.
+- this is shared module behavior, not Library-only JS.
 
-`public/assets/styles/platform-modules/filter-chip-rail-v1.css`
-- iOS Liquid now consumes the shared gap/runway controls.
-- all three families use single-row native horizontal overflow when menu width exceeds the rail.
-- filter source/module geometry uses `min-width:0`/width containment to avoid text painting beyond the rail.
-- Material family was redesigned from outlined pills + accent dot to a tonal/shape/motion treatment while preserving the canonical family ID and interaction owner.
+### Library preview frame
 
-### Restart/privacy/portability rules
+- decorative iframe-shell shadow removed from Library UI.
+- component-owned shadows remain visible.
 
-`AGENTS.md`
-- private strategic/business context is Drive-only.
-- Git must not contain the private body/Drive ID/URL.
-- reusable module path expanded to `Library → Editor → Public → Portable Export`.
-- exhaustive visible-setting audits must test every editable control, not representative samples.
+### Portable horizontal rail content
 
-`TASKS.md`
-- records SEO/GEO → completed-page registry → exact-runtime duplicate/edit → dependency-aware export → portable new-project smoke-test sequence.
-- records Photography ↔ Block Lab pending advanced variants from the existing parity classification.
+Library content editor v2 preserves/edits canonical fields:
+- eyebrow
+- title
+- description
+- tags
+- meta
+- image
+- imageAlt
+- actionLabel
+- actionUrl
 
-## Photography ↔ Block Lab status
+Reordering moves the whole canonical item object, so badges/meta/image/action are not dropped.
 
-Photography patterns have been classified in `docs/library/blocks/photography/PARITY-V1.md`, but full runnable parity is not complete.
+### Portable accordion / bottom sheet controls
 
-Still pending as actual Block Lab candidate variants:
-- `hero / immersive-metrics`
-- `chapter-hero / image-overlay`
-- `comparison-cards / visual-metrics`
-- `roadmap / metric-cards`
+Accordion Library controls now expose:
+- `singleOpen`
+- `openFirst`
+- `openIds`
+- item `meta`
 
-Several other Photography patterns are classified as improvements/style presets for existing generic variants rather than new variants.
+Bottom sheet Library controls now expose:
+- initial `open`
+- `showLauncher`
+- `launcherLabel`
+- `dismissOnBackdrop`
+- primary action
+- secondary action
 
-## SEO/GEO status
+## Canonical ownership status
 
-`docs/library/publishing/PUBLISH-SEO-GEO-V1.md` already defines the base publish contract: canonical URL, page SEO metadata, draft/published snapshots, robots/sitemap intent and publish validation.
+Photography extracted modules continue to use the same `PlatformModuleRegistry` definition/render/hydrate across Library/Editor/Public.
 
-The missing next layer is product wiring: page metadata editing/storage, hierarchy/sitemap management, completed-page registry, duplication and export preservation.
+The three portable primitives also use one Registry render/hydrate owner across Library/Editor. They do not import Block Lab runtime. They are not yet complete Portable Export products because dependency-manifest/export-bundle work is still pending.
+
+Do not describe the entire Library as feature-complete yet. Full PC/mobile/light/dark visual matrix and ongoing content/state completeness audit remain active.
+
+## QA status
+
+PR #39 first focused run correctly failed on `iOS Flat still shows liquid indicator`, proving the new gate measured actual rendering instead of only dataset state.
+
+The CSS specificity issue was fixed in the shared canonical owner.
+
+Current passing head before this documentation commit: `ba718fda057f0c3b4b9e43e4507b0e36deccc73c`.
+- `Platform Library Generalization Checks` run #11: PASS
+- `Platform Library Checks` run #426: PASS
+
+Focused browser gate verifies:
+- no artificial preview-frame shadow
+- top-nav liquid / iOS Flat / Material have measurable computed-style differences
+- non-liquid family hides liquid indicator
+- filter long menu overflows and PC pointer drag moves it
+- mobile filter rail exposes native pan-x
+- horizontal-rail tags/meta/action survive live edit + reorder + saved defaults
+- accordion missing state/meta controls are present
+- bottom-sheet missing state/action controls are present
+- portable primitives remain isolated from Photography final Public
 
 ## Exact next action
 
-1. Create `scripts/check-library-setting-runtime-exhaustive-v1.mjs`.
-2. For every editable setting, apply a non-default value and assert a measurable canonical DOM/computed-style/interaction effect; for every locked setting assert disabled.
-3. Add long-menu filter overflow and family-selector label/runtime-switch checks.
-4. Wire the exhaustive script into `Platform Library Checks` and make the branch green.
-5. Bump only admin/module-preview cache markers needed for the changed shared assets.
-6. Open PR, verify CI, merge when green.
-7. After this runtime audit is complete, begin actual SEO/GEO page-metadata wiring before completed-page duplication/export work.
+1. Wait for CI on the TASKS/HANDOFF documentation commit and ensure both Library workflows remain green.
+2. Merge PR #39.
+3. Verify main `Platform Library Checks`, `Platform Library Generalization Checks`, and `Platform Live Deploy Check`.
+4. Verify live `/ui-dashboard/` behavior for the four user-reported issues.
+5. If live green, continue all-approved-module PC/mobile/light/dark visual matrix and no-op/content-state audit.
+6. Next major product layer after Library runtime stabilization: SEO/GEO page metadata wiring, then completed-page registry/duplicate, then dependency-aware Portable Export.
 
-Do not treat the source audit alone as completed QA. Browser proof is the merge gate.
+Do not connect new portable primitives or otherwise change the Photography final Public experience without explicit user approval.
