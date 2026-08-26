@@ -4,6 +4,7 @@
   if(!registry||!source||window.__photoCorePlatformModulesV7)return;
   window.__photoCorePlatformModulesV7=true;
 
+  const moduleOwner='public/assets/js/platform-modules/photo-core-modules-v1.js';
   const shared=['public/assets/js/platform-modules/photo-public-module-source-v1.js'];
   const origin={
     nav:[
@@ -64,10 +65,56 @@
       <div class="platform-filter-chip-source platform-filter-chip-source--material-flat" role="group" aria-label="${label}" hidden>${materialButtons}</div>
     </div>`;
   }
+
+  function bindFilterHorizontalDrag(sourceNode){
+    if(!sourceNode||sourceNode.dataset.platformFilterDragBound==='true')return null;
+    sourceNode.dataset.platformFilterDragBound='true';
+    let pointerId=null,startX=0,startScroll=0,dragging=false,suppressUntil=0;
+    const threshold=5;
+    const down=event=>{
+      if(event.pointerType!=='mouse'||event.button!==0)return;
+      if(event.target.closest?.('input,textarea,select,[contenteditable="true"]'))return;
+      pointerId=event.pointerId;startX=event.clientX;startScroll=sourceNode.scrollLeft;dragging=false;sourceNode.classList.add('is-pointerdown');
+    };
+    const move=event=>{
+      if(pointerId===null||event.pointerId!==pointerId)return;
+      const dx=event.clientX-startX;
+      if(!dragging&&Math.abs(dx)<threshold)return;
+      if(!dragging){dragging=true;sourceNode.classList.add('is-dragging');try{sourceNode.setPointerCapture(pointerId);}catch{}}
+      sourceNode.scrollLeft=startScroll-dx;
+      if(event.cancelable)event.preventDefault();
+    };
+    const finish=event=>{
+      if(pointerId===null||event.pointerId!==pointerId)return;
+      const didDrag=dragging;try{sourceNode.releasePointerCapture(pointerId);}catch{}
+      pointerId=null;dragging=false;sourceNode.classList.remove('is-pointerdown','is-dragging');
+      if(didDrag)suppressUntil=performance.now()+220;
+    };
+    const click=event=>{
+      if(performance.now()>suppressUntil)return;
+      if(!event.target.closest?.('[data-platform-filter-id]'))return;
+      event.preventDefault();event.stopImmediatePropagation();suppressUntil=0;
+    };
+    sourceNode.addEventListener('pointerdown',down,true);
+    sourceNode.addEventListener('pointermove',move,{capture:true,passive:false});
+    sourceNode.addEventListener('pointerup',finish,true);
+    sourceNode.addEventListener('pointercancel',finish,true);
+    sourceNode.addEventListener('click',click,true);
+    return ()=>{
+      delete sourceNode.dataset.platformFilterDragBound;
+      sourceNode.removeEventListener('pointerdown',down,true);
+      sourceNode.removeEventListener('pointermove',move,true);
+      sourceNode.removeEventListener('pointerup',finish,true);
+      sourceNode.removeEventListener('pointercancel',finish,true);
+      sourceNode.removeEventListener('click',click,true);
+    };
+  }
+
   function hydrateGenericFilterRail(host){
     const module=host.matches?.('[data-platform-module="filter-chip-rail"]')?host:host.querySelector('[data-platform-module="filter-chip-rail"]');
     if(!module||module.dataset.platformFilterBound==='true')return;
     module.dataset.platformFilterBound='true';
+    const dragCleanups=[...module.querySelectorAll('.platform-filter-chip-source')].map(bindFilterHorizontalDrag).filter(Boolean);
 
     function revealActive(id,{behavior='smooth'}={}){
       const source=[...module.querySelectorAll('.platform-filter-chip-source')].find(node=>!node.hidden);
@@ -107,41 +154,41 @@
     };
     module.addEventListener('click',click);
     setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);
-    return ()=>{delete module.__platformFilterRevealActive;module.removeEventListener('click',click);};
+    return ()=>{delete module.__platformFilterRevealActive;dragCleanups.forEach(cleanup=>cleanup());module.removeEventListener('click',click);};
   }
 
   registry.register({
     id:'top-chapter-navigation',label:'상단 메뉴',category:'navigation',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:6,
-    ownerFiles:[...shared,...origin.nav],previewProps:{items:source.fixtures.nav},editorProps:{items:source.fixtures.nav},
+    ownerFiles:[moduleOwner,...shared,...origin.nav],previewProps:{items:source.fixtures.nav},editorProps:{items:source.fixtures.nav},
     styleDefaults:{enabled:true,stickyMode:'deferred-sticky',chipFamily:'ios-liquid',accentColor:'#437ce7',fontFamily:'system-sans',fontSize:15,fontWeight:680,letterSpacing:-.38,progressEnabled:true,progressMode:'chapter-wash',progressColor:'#4081ef',progressOpacityStart:24,progressOpacityEnd:16,mobileChipGap:6,desktopChipGap:9,railInset:5.5,response:'standard',overshoot:'high',durationScale:1.1,safariSafety:true},
     render:source.navigation.render,hydrate:source.navigation.hydrate
   });
   registry.register({
-    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-core',sourceRoute:'/',consumers,version:8,
-    ownerFiles:[...origin.liquid,...origin.filterFamilies],previewProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},editorProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},
+    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-core',sourceRoute:'/',consumers,version:9,
+    ownerFiles:[moduleOwner,...origin.liquid,...origin.filterFamilies],previewProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},editorProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},
     styleDefaults:{family:'ios-liquid',accentColor:'#4c7fdf',fontFamily:'system-sans',fontSize:14,fontWeight:680,letterSpacing:-.28,surfaceOpacity:54,blur:15,response:'standard',overshoot:'medium',gap:8,runway:4},
     render:renderGenericFilterRail,hydrate:hydrateGenericFilterRail
   });
   registry.register({
     id:'horizontal-card-rail',label:'가로 카드',category:'content',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:5,
-    ownerFiles:[...shared,...origin.card],previewProps:{items:source.fixtures.market},editorProps:{items:source.fixtures.market},
+    ownerFiles:[moduleOwner,...shared,...origin.card],previewProps:{items:source.fixtures.market},editorProps:{items:source.fixtures.market},
     styleDefaults:{nativeTouch:true,desktopDrag:true,leftShadowGuard:true,leftPaintRunway:16,leftFade:false,rightFade:true,rightFadeMode:'alpha-mask',rightFadeWidth:112,rightContentPadding:122,scrollbar:'hidden',dragThreshold:5,clickSuppressMs:220},
     render:source.horizontalCardRail.render
   });
   registry.register({
     id:'collection-bottom-sheet',label:'하단 팝업',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:6,
-    ownerFiles:[...shared,...origin.collection,...origin.liquid,...origin.device],previewProps:{open:true,activeTab:'all'},editorProps:{open:true,activeTab:'all'},
+    ownerFiles:[moduleOwner,...shared,...origin.collection,...origin.liquid,...origin.device],previewProps:{open:true,activeTab:'all'},editorProps:{open:true,activeTab:'all'},
     styleDefaults:{enabled:true,backdrop:true,backdropBlur:12,sheetBlur:26,sheetSaturation:135,maxWidth:760,maxHeightDvh:84,radiusTop:30,handle:true,tabs:true,search:true,filters:true,bulkSelection:true,themeSelector:true,deviceHandoff:true},
     render:source.collectionBottomSheet.render,hydrate:source.collectionBottomSheet.hydrate
   });
   registry.register({
     id:'device-handoff-accordion',label:'아코디언 탭',category:'overlay',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:5,
-    ownerFiles:[...shared,...origin.device],previewProps:{},editorProps:{},styleDefaults:{enabled:true,heightMode:'measured',response:'standard',copyAction:true,connectAction:true,statusMessage:true},render:source.deviceHandoff.render,
+    ownerFiles:[moduleOwner,...shared,...origin.device],previewProps:{},editorProps:{},styleDefaults:{enabled:true,heightMode:'measured',response:'standard',copyAction:true,connectAction:true,statusMessage:true},render:source.deviceHandoff.render,
     hydrate(){setTimeout(()=>window.dispatchEvent(new Event('pageshow')),0);}
   });
   registry.register({
     id:'floating-action',label:'플로팅 버튼',category:'action',status:'approved',source:'public-extracted',sourceRoute:'/',consumers,version:6,
-    ownerFiles:[...shared,...origin.action],
+    ownerFiles:[moduleOwner,...shared,...origin.action],
     previewProps:{domId:'collectionFabPreview',ariaLabel:'플로팅 버튼',action:{type:'none',value:'',newTab:false}},
     editorProps:{domId:'collectionFabPreview',ariaLabel:'플로팅 버튼',action:{type:'none',value:'',newTab:false}},
     styleDefaults:{family:'glass',accentColor:'#315fc9',response:'standard',overshoot:'low'},
