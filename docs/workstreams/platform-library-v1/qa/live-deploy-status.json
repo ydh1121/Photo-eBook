@@ -1,15 +1,15 @@
 {
-  "startedAt": "2026-08-26T04:47:17.489Z",
+  "startedAt": "2026-08-26T04:52:53.454Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-26T04:47:17.489Z",
+      "at": "2026-08-26T04:52:53.454Z",
       "status": "http-ok",
       "matched": true,
-      "bytes": 2183
+      "bytes": 2388
     }
   ],
   "checks": [
@@ -50,16 +50,15 @@
     },
     {
       "name": "live top-nav runtime parity",
-      "status": "fail",
-      "detail": "focused Photography/Public ↔ Library runtime parity failed"
+      "status": "pass",
+      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
     }
   ],
-  "status": "fail",
-  "finishedAt": "2026-08-26T04:47:55.541Z",
-  "error": "live top-nav runtime parity failed",
-  "sourceSha": "6ccb54ecff407cef01e5aaa688f1f608b9e6cd2c",
+  "status": "pass",
+  "finishedAt": "2026-08-26T04:53:09.275Z",
+  "sourceSha": "14b6b84e6fc96c8b299a974f4c7b59a0f185b888",
   "sourceRef": "main",
-  "workflowRunId": "32931516175",
-  "workflowRunNumber": "31",
-  "recordedAt": "2026-08-26T04:47:55.994Z"
+  "workflowRunId": "32931874099",
+  "workflowRunNumber": "32",
+  "recordedAt": "2026-08-26T04:53:09.572Z"
 }
