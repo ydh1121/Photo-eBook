@@ -3,11 +3,17 @@
   window.__platformAdminShellV1=true;
 
   const path=location.pathname;
+  const ADMIN_THEME_KEY='platformAdminThemeV1';
+  const ADMIN_SIDEBAR_WIDTH_KEY='platformAdminSidebarWidthV1';
+  const systemDark=matchMedia('(prefers-color-scheme: dark)');
   const icons={
     library:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>',
     blocks:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h6v6H5zM13 4h6v6h-6zM5 12h6v8H5zM13 12h6v8h-6z"/></svg>',
     editor:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10l4 4v12H5zM15 4v5h4M8 13h8M8 16h6"/></svg>',
-    qa:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 9l2 2 4-4M8 15h8"/></svg>'
+    qa:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 9l2 2 4-4M8 15h8"/></svg>',
+    sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>',
+    moon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.5 8.5 0 1 1 8.8 4 7 7 0 0 0 20 15.2z"/></svg>',
+    system:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>'
   };
   const items=[
     {id:'library',label:'UI 라이브러리',hint:'승인된 공통 모듈',href:'/ui-dashboard/'},
@@ -37,7 +43,39 @@
     appendStyle('/assets/styles/admin/admin-shell-v1.css?v=2','data-admin-shell-style');
     if(id!=='library')appendStyle('/assets/styles/admin/admin-surface-v1.css?v=2','data-admin-surface-style');
     if(id==='blocks'||id==='editor')appendStyle('/assets/styles/admin/admin-preview-theme-v1.css?v=1','data-admin-preview-theme-style');
+    appendStyle('/assets/styles/admin/admin-unified-v2.css?v=1','data-admin-unified-style');
   }
+
+  function readAdminSidebarWidth(){
+    try{return Math.max(236,Math.min(390,Number(localStorage.getItem(ADMIN_SIDEBAR_WIDTH_KEY))||256));}catch{return 256;}
+  }
+  function applyAdminSidebarWidth(){
+    const width=readAdminSidebarWidth();
+    document.documentElement.style.setProperty('--admin-sidebar-w',`${width}px`);
+    document.documentElement.style.setProperty('--library-admin-sidebar-w',`${width}px`);
+    return width;
+  }
+
+  function normalizeAdminTheme(value){return ['light','dark','system'].includes(value)?value:'light';}
+  function readAdminTheme(){try{return normalizeAdminTheme(localStorage.getItem(ADMIN_THEME_KEY)||'light');}catch{return'light';}}
+  function resolvedAdminTheme(value){return value==='system'?(systemDark.matches?'dark':'light'):value;}
+  function paintAdminTheme(value=readAdminTheme()){
+    const theme=normalizeAdminTheme(value),resolved=resolvedAdminTheme(theme);
+    document.documentElement.dataset.adminTheme=theme;
+    document.documentElement.dataset.adminThemeResolved=resolved;
+    document.querySelectorAll('[data-admin-theme-value]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.adminThemeValue===theme)));
+    return theme;
+  }
+  function setAdminTheme(value){
+    const theme=normalizeAdminTheme(value);
+    try{localStorage.setItem(ADMIN_THEME_KEY,theme);}catch{}
+    paintAdminTheme(theme);
+  }
+  function bindAdminTheme(shell){
+    shell.querySelectorAll('[data-admin-theme-value]').forEach(button=>button.addEventListener('click',()=>setAdminTheme(button.dataset.adminThemeValue)));
+    paintAdminTheme();
+  }
+  systemDark.addEventListener?.('change',()=>{if(readAdminTheme()==='system')paintAdminTheme('system');});
 
   function simplifyEditorLibrary(){
     const library=document.querySelector('.editor-library');
@@ -100,10 +138,13 @@
     const id=currentId();
     ensureCss(id);
     document.documentElement.dataset.adminShell='true';
+    document.documentElement.dataset.adminSection=id||'unknown';
+    applyAdminSidebarWidth();
     const shell=document.createElement('aside');
     shell.className='platform-admin-shell';
-    shell.innerHTML=`<div class="platform-admin-shell__brand"><a href="/ui-dashboard/"><span class="platform-admin-shell__mark">P</span><span><strong>플랫폼 관리</strong><small>모듈·페이지 도구</small></span></a></div><nav class="platform-admin-shell__nav" aria-label="관리 화면">${items.map(item=>`<a href="${item.href}" title="${item.label}" ${item.id===id?'aria-current="page"':''}><span class="platform-admin-shell__icon">${icons[item.id]}</span><span class="platform-admin-shell__copy"><strong>${item.label}</strong><small>${item.hint}</small></span></a>`).join('')}</nav><div class="platform-admin-shell__end"><a href="/" target="_blank" rel="noopener"><span>공개 페이지</span><b aria-hidden="true">↗</b></a><small>관리 화면은 검색 노출 제외</small></div>`;
+    shell.innerHTML=`<div class="platform-admin-shell__brand"><a href="/ui-dashboard/"><span class="platform-admin-shell__mark">P</span><span><strong>플랫폼 관리</strong><small>모듈·페이지 도구</small></span></a></div><nav class="platform-admin-shell__nav" aria-label="관리 화면">${items.map(item=>`<a href="${item.href}" title="${item.label}" ${item.id===id?'aria-current="page"':''}><span class="platform-admin-shell__icon">${icons[item.id]}</span><span class="platform-admin-shell__copy"><strong>${item.label}</strong><small>${item.hint}</small></span></a>`).join('')}</nav><div class="platform-admin-shell__end"><div class="platform-admin-theme"><span>관리 화면</span><div role="group" aria-label="관리 화면 테마"><button type="button" data-admin-theme-value="light" aria-label="관리 화면 밝게" title="밝게">${icons.sun}</button><button type="button" data-admin-theme-value="dark" aria-label="관리 화면 어둡게" title="어둡게">${icons.moon}</button><button type="button" data-admin-theme-value="system" aria-label="관리 화면 시스템 설정" title="시스템">${icons.system}</button></div></div><a href="/" target="_blank" rel="noopener"><span>공개 페이지</span><b aria-hidden="true">↗</b></a><small>관리 화면은 검색 노출 제외</small></div>`;
     document.body.prepend(shell);
+    bindAdminTheme(shell);
     simplifyLocalUi(id);
     if(id==='blocks'||id==='editor')appendScript('/assets/js/admin/admin-surface-v1.js?v=1','data-admin-surface-script');
   }

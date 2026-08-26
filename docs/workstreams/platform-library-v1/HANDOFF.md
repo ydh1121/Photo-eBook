@@ -1,9 +1,9 @@
 # Platform Library V1 Handoff
 
 Updated: 2026-08-26 KST
-Active implementation branch: `fix/library-tree-shared-primitives-audit-v1`
+Active implementation branch: `fix/admin-shell-library-navigation-v2`
 Production branch: `main`
-Status: `Library tree/shared primitive remediation merge candidate`
+Status: `unified admin shell + Library navigation UX in QA`
 
 ## Resume order
 
@@ -15,7 +15,7 @@ Status: `Library tree/shared primitive remediation merge candidate`
 6. this file
 7. confirm current branch/PR CI before merge
 
-## Architecture correction confirmed 2026-08-26
+## Architecture invariant
 
 Photography is NOT the permanent source/upstream for the UI Library.
 
@@ -33,16 +33,18 @@ After that migration, Library must not reread Photography page DOM/CSS/runtime a
 
 ## Current production baseline
 
-PR #39 `Fix Library runtime controls and preserve rail content` merged:
-`12e3deb7996c46647a589e9bc7bb7ff43683cd44`.
+PR #43 `Replace Library top catalog with canonical module tree` merged:
+`431ed3360039f3b10662f151587b6ca7c45340a9`.
 
-PR #40 `Align live Library gate with portable modules and feedback QA` merged:
-`7153464f7acbefdc49d67bb4cb243f38577a3138`.
+Live verification bot record after #43:
+`444ead0a3ef94855697b147c06aeece1bbd42e38`.
 
-Last known production live check before this branch:
-- `Platform Live Deploy Check` run #37 (`32949387548`): PASS
-- main `Platform Library Generalization Checks` run #14: PASS
-- main `Platform Library Checks` run #431: PASS
+PR #43 delivered:
+- Registry-driven left module tree
+- shared bottom-popup shell
+- screen-mode composition from canonical filter-chip module
+- horizontal-rail bottom paint runway
+- Photography bootstrap-only / Completed Page architecture correction
 
 ## Approved module boundary
 
@@ -66,55 +68,73 @@ Do not connect portable/new modules to the current Photography final Public expe
 
 ## Current branch changes
 
-1. Library module navigation
-- Replace top horizontal module chip catalog with Registry-driven hierarchical sidebar tree.
-- Move/reconcile the actual `[data-kit-ui]` selector buttons rather than cloning module implementations.
-- Add group hierarchy for navigation, horizontal content, accordion, bottom popup, action and display.
-- Add desktop collapse/reopen and drag resize/collapse.
-- Add narrow-screen drawer path.
+1. Library left navigation UX
+- Keep the actual Registry `[data-kit-ui]` selector nodes; no cloned module catalog.
+- Redesign hierarchy with category SVG icons, clear active/open/closed states, chevrons and stronger spacing.
+- Persist group open/closed state.
+- Module tree body owns vertical scrolling so the catalog can grow to many modules.
 
-2. Bottom popup ownership
-- Add shared bottom-popup shell owner derived from the finished collection-sheet shell.
-- Make `collection-bottom-sheet` and generic `bottom-sheet` consume the shared shell contract.
-- Remove generic bottom-sheet duplicate lookalike shell CSS.
-- Generic default primary action closes the sheet when no custom action is configured.
+2. Collapse / resize repair
+- Root cause of text leakage: old collapse set `--admin-sidebar-w:0`, which also collapsed the shell width before `translateX(-100%)`.
+- New contract separates actual shell width (`--library-admin-sidebar-w`) from page offset (`--admin-sidebar-w`).
+- Collapsed shell keeps its real width and fully translates offscreen.
+- Reopen control is a fixed left-edge center handle.
+- Drag resize/collapse remains; width is shared through `platformAdminSidebarWidthV1` across management routes.
+- Old broken Library state key is retired in favor of `platformLibrarySidebarV2`.
 
-3. Screen mode ownership
-- Remove standalone segmented-control skin ownership.
-- `screen-mode-selector` composes the canonical `filter-chip-rail` Registry module for White/Dark/System selection.
+3. Preview controls placement
+- The real Library `#kitTheme`, `#kitViewport`, and `#kitSettings` nodes are moved into one `.builder-kit-preview-toolbar` directly above the canvas.
+- No duplicate preview controls are created.
+- These controls remain edit-target state, not admin chrome state.
 
-4. Horizontal rail paint
-- Add canonical vertical paint runway so card shadow is not clipped at the bottom of the scroller.
+4. Admin-only theme
+- Add `platformAdminThemeV1`: light / dark / system.
+- Admin theme changes only `data-admin-theme`, `data-admin-theme-resolved` and admin chrome CSS tokens.
+- Library `platformLibraryThemeV3` / iframe theme remain independent.
+- Block Lab and Editor `data-theme` preview roots remain independent.
+- Admin theme control lives in the shared shell footer and persists across management routes.
 
-5. Preview isolation
-- Hide unrelated Photography page-context screen-mode UI from device-handoff module preview.
-- Long-term remaining work: make shared preview dependency-driven from module `ownerFiles` instead of broadly preloading Photography runtime.
+5. Shared management chrome
+- Add `public/assets/styles/admin/admin-unified-v2.css`.
+- Same admin token system and shell state apply to Library, Block Lab, Editor and QA.
+- Local tool-specific surfaces remain, but their management chrome uses the shared token layer.
+- Block Lab specimen canvas, Editor page canvas and Library iframe keep their own preview theme ownership.
 
-6. Architecture contract
-- Added `ARCHITECTURE-COMPLIANCE-AUDIT-V1.md`.
-- Updated canonical pipeline so Photography is bootstrap-only and Completed Page migration is the final state.
-- Saved module/preset contract stores module id/version + content/style/state snapshots, never copied rendered HTML/CSS.
+6. QA
+- Existing `scripts/check-library-module-family-controls-v1.mjs` now also verifies:
+  - icon hierarchy and real Registry button ownership
+  - preview toolbar node placement
+  - admin-dark / preview-light isolation
+  - preview theme cannot mutate admin theme
+  - collapsed shell keeps width and fully exits viewport
+  - reopen and drag resize
+  - shared width persistence
+  - admin theme/width continuity across Library → Block Lab → Editor
+  - target preview themes remain light across those route changes
+- Architecture workflow now watches admin shell/style, Block Lab and QA paths too.
 
 ## Current branch QA requirement
 
 Before merge:
-- focused Library family/architecture Chromium check must pass.
-- existing module pipeline/settings/runtime regression workflows must pass.
+- `Platform Library Architecture Checks` must pass with the new admin UX/theme isolation assertions.
+- existing `Platform Library Checks` must pass.
+- existing `Platform Library Generalization Checks` must pass.
 - Library and Editor approved module IDs must remain aligned.
-- no new Block Lab direct runtime import is allowed.
+- no canonical module owner or current Photography final Public runtime is changed by this branch.
 
-After merge:
-- verify Cloudflare live deployment.
-- continue full 10-module PC/mobile × light/dark matrix.
+## Exact next action
 
-## Exact next action after this branch is merged
-
-1. Run full 10-module visual matrix and exhaustive content/state/style control audit.
-2. Implement Completed Page registry data model and Block Editor completed-page list.
-3. Convert Photography to the first non-destructive canonical Completed Page snapshot.
-4. Verify Photography from the completed-page list using the same canonical module owners.
-5. Once migration parity is proven, remove any remaining assumption that Photography is Library source/long-term QA upstream.
-6. Implement reusable completed module/preset storage.
-7. Continue SEO/GEO/page hierarchy and dependency-aware Portable Export/new-project smoke test.
+1. Open PR for `fix/admin-shell-library-navigation-v2`.
+2. Run Architecture + Library + Generalization CI.
+3. Fix only genuine product/QA regressions until all required checks are green.
+4. Merge to main and verify Cloudflare live Library:
+   - left hierarchy visuals
+   - no text leakage after collapse
+   - reopen/drag behavior
+   - preview controls above canvas
+   - admin dark independent from preview light/dark
+5. Open Block Lab and Block Editor and verify shared admin shell design/theme/width remains consistent.
+6. Continue full 10-module PC/mobile × light/dark visual matrix.
+7. Then implement Completed Page registry/list and migrate Photography as the first Completed Page.
 
 Do not change the current Photography final public experience without explicit user approval.

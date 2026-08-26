@@ -1,0 +1,102 @@
+/* v2: one management chrome across Library / Block Lab / Editor / QA.
+   Admin theme is intentionally isolated from preview/canvas theme state. */
+:root{
+  --admin-ui-bg:#f3f5f8;
+  --admin-ui-panel:#ffffff;
+  --admin-ui-panel-2:#f8f9fb;
+  --admin-ui-hover:#eef1f5;
+  --admin-ui-line:#e2e6eb;
+  --admin-ui-ink:#171a20;
+  --admin-ui-text:#4b535e;
+  --admin-ui-muted:#8d95a0;
+  --admin-ui-accent:#3568d4;
+  --admin-ui-accent-soft:#eaf1ff;
+  --admin-ui-shadow:0 10px 30px rgba(25,34,52,.07);
+}
+html[data-admin-theme-resolved="dark"]{
+  --admin-ui-bg:#15181d;
+  --admin-ui-panel:#1d2127;
+  --admin-ui-panel-2:#22272e;
+  --admin-ui-hover:#272d35;
+  --admin-ui-line:#313740;
+  --admin-ui-ink:#f2f4f7;
+  --admin-ui-text:#c7ccd4;
+  --admin-ui-muted:#8f98a5;
+  --admin-ui-accent:#7ea2ff;
+  --admin-ui-accent-soft:#25324d;
+  --admin-ui-shadow:0 14px 34px rgba(0,0,0,.26);
+}
+
+html[data-admin-shell="true"] body{background:var(--admin-ui-bg)!important;color:var(--admin-ui-ink)}
+.platform-admin-shell{overflow:hidden;border-color:var(--admin-ui-line)!important;background:color-mix(in srgb,var(--admin-ui-panel) 96%,transparent)!important;color:var(--admin-ui-ink)!important;box-shadow:5px 0 24px rgba(23,31,48,.025)}
+.platform-admin-shell__brand strong{color:var(--admin-ui-ink)}
+.platform-admin-shell__brand small,.platform-admin-shell__copy small,.platform-admin-shell__end>small{color:var(--admin-ui-muted)!important}
+.platform-admin-shell__nav a{color:var(--admin-ui-text)!important}
+.platform-admin-shell__nav a:hover{background:var(--admin-ui-hover)!important;color:var(--admin-ui-ink)!important}
+.platform-admin-shell__nav a[aria-current="page"]{background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important;box-shadow:0 1px 2px rgba(20,28,40,.05),0 6px 18px rgba(20,28,40,.06)!important}
+.platform-admin-shell__nav a[aria-current="page"] .platform-admin-shell__icon{background:var(--admin-ui-accent-soft)!important;color:var(--admin-ui-accent)!important}
+.platform-admin-shell__end{border-color:var(--admin-ui-line)!important}
+.platform-admin-shell__end>a,.admin-utility-menu>summary,.admin-utility-menu__panel{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel)!important;color:var(--admin-ui-text)!important}
+.admin-utility-menu__panel{box-shadow:var(--admin-ui-shadow)!important}
+html[data-library-module-tree="true"] .platform-admin-shell__nav{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto auto auto!important;min-height:0!important;flex:1 1 auto!important;align-content:stretch!important}
+
+.platform-admin-theme{display:grid;gap:6px;padding:3px 1px 5px}
+.platform-admin-theme>span{padding:0 3px;color:var(--admin-ui-muted);font-size:8px;font-weight:760;letter-spacing:-.01em}
+.platform-admin-theme>div{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;border:1px solid var(--admin-ui-line);border-radius:10px;background:var(--admin-ui-panel-2)}
+.platform-admin-theme button{display:grid;place-items:center;min-width:0;height:29px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--admin-ui-muted);cursor:pointer}
+.platform-admin-theme button:hover{background:var(--admin-ui-hover);color:var(--admin-ui-ink)}
+.platform-admin-theme button[aria-pressed="true"]{background:var(--admin-ui-panel);color:var(--admin-ui-accent);box-shadow:0 1px 5px rgba(20,28,40,.1)}
+.platform-admin-theme svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* Library management chrome. Preview theme stays owned by builder-kit-workspace / iframe. */
+html[data-admin-theme-resolved="dark"] .builder-shell[data-builder-view="library"] .builder-library-tools,
+html[data-admin-theme-resolved="dark"] .builder-kit-workspace,
+html[data-admin-theme-resolved="dark"] .builder-kit-head{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important}
+html[data-admin-theme-resolved="dark"] .builder-kit-head small,
+html[data-admin-theme-resolved="dark"] .builder-kit-head span{color:var(--admin-ui-muted)!important}
+html[data-admin-theme-resolved="dark"] .builder-kit-head>div>strong{color:var(--admin-ui-ink)!important}
+html[data-admin-theme-resolved="dark"] .builder-kit-switch{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel-2)!important}
+html[data-admin-theme-resolved="dark"] .builder-kit-switch button{color:var(--admin-ui-text)!important}
+html[data-admin-theme-resolved="dark"] .builder-kit-switch button[aria-pressed="true"]{background:#313842!important;color:#fff!important;box-shadow:none!important}
+html[data-admin-theme-resolved="dark"] .builder-kit-canvas{background:#171b20!important}
+html[data-admin-theme-resolved="dark"] .builder-kit-inspector{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important}
+
+/* Block Lab chrome. Do not touch .lab-specimen__canvas: its own preview theme remains independent. */
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab{background:var(--admin-ui-bg)!important;color:var(--admin-ui-ink)!important}
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-topbar,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-specimen,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-specimen__head,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-review-note,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-variant-review,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-style-editor{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important}
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-specimen__stage{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel-2)!important}
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-nav a{color:var(--admin-ui-text)!important}
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.block-lab .lab-nav a:hover{background:var(--admin-ui-hover)!important;color:var(--admin-ui-ink)!important}
+
+/* Editor chrome. The page canvas keeps editor preview theme ownership. */
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab{background:var(--admin-ui-bg)!important;color:var(--admin-ui-ink)!important}
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .editor-topbar,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .editor-library,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .editor-inspector,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .editor-workspace-head,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .admin-editor-settings{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important}
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .editor-workspace,
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .editor-stage{background:var(--admin-ui-bg)!important}
+html[data-admin-theme-resolved="dark"] .platform-admin-shell~.editor-lab .editor-search{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel-2)!important;color:var(--admin-ui-ink)!important}
+
+/* Keep page-level local toolbars visually stable across major admin routes. */
+.platform-admin-shell~.block-lab .lab-topbar,
+.platform-admin-shell~.editor-lab .editor-topbar,
+.platform-admin-shell~.qa-page .qa-toolbar{min-height:58px!important;border-bottom:1px solid var(--admin-ui-line)!important;background:color-mix(in srgb,var(--admin-ui-panel) 96%,transparent)!important;box-shadow:none!important}
+.platform-admin-shell~.block-lab .lab-filter,
+.platform-admin-shell~.block-lab .lab-segment,
+.platform-admin-shell~.editor-lab .editor-segment,
+.platform-admin-shell~.editor-lab .editor-server-controls button,
+.platform-admin-shell~.editor-lab .editor-server-controls select{border-color:var(--admin-ui-line)!important;background:var(--admin-ui-panel-2)!important;color:var(--admin-ui-text)!important}
+
+@media(max-width:1080px) and (min-width:821px){
+  .platform-admin-theme>span{display:none}
+  .platform-admin-theme>div{grid-template-columns:1fr;padding:2px}
+  .platform-admin-theme button{height:28px}
+}
+@media(max-width:820px){.platform-admin-theme{display:none}}
