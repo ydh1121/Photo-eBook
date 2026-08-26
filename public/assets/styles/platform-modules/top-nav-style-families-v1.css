@@ -1,6 +1,8 @@
 /* Canonical non-liquid chip families for top-chapter-navigation.
-   The default iOS Liquid family remains owned by Photography navigation/liquid CSS. */
-.nav-scroll[data-module-style-family="ios-flat"]{
+   The default iOS Liquid family remains owned by Photography navigation/liquid CSS.
+   Scope to the module shell so later-loaded liquid baseline CSS cannot repaint a
+   non-liquid family back into the Photography liquid appearance. */
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"]{
   border:1px solid rgba(24,34,52,.055)!important;
   border-radius:999px!important;
   background:rgba(235,238,244,.9)!important;
@@ -8,7 +10,7 @@
   -webkit-backdrop-filter:blur(12px) saturate(115%)!important;
   backdrop-filter:blur(12px) saturate(115%)!important;
 }
-.nav-scroll[data-module-style-family="ios-flat"] .nav-chip{
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip{
   border:1px solid transparent!important;
   border-radius:999px!important;
   background:transparent!important;
@@ -16,15 +18,15 @@
   box-shadow:none!important;
   transform:none!important;
 }
-.nav-scroll[data-module-style-family="ios-flat"] .nav-chip.is-active,
-.nav-scroll[data-module-style-family="ios-flat"] .nav-chip[aria-current="true"]{
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip.is-active,
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip[aria-current="true"]{
   border-color:rgba(255,255,255,.88)!important;
   background:rgba(255,255,255,.96)!important;
   color:color-mix(in srgb,var(--module-accent,#437ce7) 82%,#20242b)!important;
   box-shadow:0 1px 1px rgba(24,34,52,.04),0 5px 14px rgba(24,34,52,.09),inset 0 1px 0 #fff!important;
 }
 
-.nav-scroll[data-module-style-family="material-flat"]{
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"]{
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
@@ -32,7 +34,7 @@
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
 }
-.nav-scroll[data-module-style-family="material-flat"] .nav-chip{
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip{
   border:1px solid rgba(95,100,112,.12)!important;
   border-radius:14px!important;
   background:#f1f2f5!important;
@@ -40,13 +42,13 @@
   box-shadow:inset 0 1px 0 rgba(255,255,255,.68)!important;
   transform:none!important;
 }
-.nav-scroll[data-module-style-family="material-flat"] .nav-chip:hover{
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip:hover{
   border-color:color-mix(in srgb,var(--module-accent,#437ce7) 18%,#5f6470 14%)!important;
   background:color-mix(in srgb,var(--module-accent,#437ce7) 5%,#eef0f4)!important;
   transform:translateY(-1px)!important;
 }
-.nav-scroll[data-module-style-family="material-flat"] .nav-chip.is-active,
-.nav-scroll[data-module-style-family="material-flat"] .nav-chip[aria-current="true"]{
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip.is-active,
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip[aria-current="true"]{
   border-color:color-mix(in srgb,var(--module-accent,#437ce7) 24%,transparent)!important;
   border-radius:22px!important;
   background:color-mix(in srgb,var(--module-accent,#437ce7) 18%,#f4f6fa)!important;
@@ -54,31 +56,40 @@
   box-shadow:0 5px 15px color-mix(in srgb,var(--module-accent,#437ce7) 13%,transparent),inset 0 1px 0 rgba(255,255,255,.7)!important;
   transform:translateY(-1px)!important;
 }
-.nav-scroll[data-module-style-family="material-flat"] .nav-chip:active{transform:translateY(0) scale(.965)!important}
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip:active{
+  transform:translateY(0) scale(.965)!important;
+}
 
-.nav-scroll:is([data-module-style-family="ios-flat"],[data-module-style-family="material-flat"]) .nav-v33-indicator{display:none!important}
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"] > .nav-v33-indicator,
+.nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] > .nav-v33-indicator{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+}
 
-html[data-theme="dark"] .nav-scroll[data-module-style-family="ios-flat"]{
+html[data-theme="dark"] .nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"]{
   border-color:rgba(255,255,255,.065)!important;
   background:rgba(32,36,43,.94)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 4px 14px rgba(0,0,0,.14)!important;
 }
-html[data-theme="dark"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip{color:#aeb5c0!important}
-html[data-theme="dark"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip.is-active,
-html[data-theme="dark"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip[aria-current="true"]{
+html[data-theme="dark"] .nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip{
+  color:#aeb5c0!important;
+}
+html[data-theme="dark"] .nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip.is-active,
+html[data-theme="dark"] .nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="ios-flat"] .nav-chip[aria-current="true"]{
   border-color:rgba(255,255,255,.075)!important;
   background:#303641!important;
   color:#f4f7fb!important;
   box-shadow:0 4px 12px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.045)!important;
 }
-html[data-theme="dark"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip{
+html[data-theme="dark"] .nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip{
   border-color:rgba(255,255,255,.075)!important;
   background:#272a30!important;
   color:#c6cad2!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
 }
-html[data-theme="dark"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip.is-active,
-html[data-theme="dark"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip[aria-current="true"]{
+html[data-theme="dark"] .nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip.is-active,
+html[data-theme="dark"] .nav-shell[data-platform-module="top-chapter-navigation"] .nav-scroll[data-module-style-family="material-flat"] .nav-chip[aria-current="true"]{
   border-color:color-mix(in srgb,var(--module-accent,#437ce7) 38%,transparent)!important;
   background:color-mix(in srgb,var(--module-accent,#437ce7) 28%,#242830)!important;
   color:#f5f7fb!important;
