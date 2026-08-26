@@ -1,12 +1,14 @@
-/* v7: stable in-place cross-device continuation accordion.
+/* v8: stable in-place cross-device continuation accordion.
    Build before interaction, keep the panel mounted, and animate its exact
-   measured height inside one persistent outer shell. */
+   measured height inside one persistent outer shell. Standalone module entry
+   starts from the canonical collapsed baseline without resetting later user toggles. */
 (function(){
   if(window.__photoCollectionHandoffV2Installed)return;
   window.__photoCollectionHandoffV2Installed=true;
 
   const DEVICE_KEY='photoRoadmapDeviceKeyV1';
   const QUESTION_KEY='photoRoadmapQuestionsV2';
+  const standaloneRoots=new WeakSet();
 
   function readQuestions(){
     try{const value=JSON.parse(localStorage.getItem(QUESTION_KEY)||'[]');return Array.isArray(value)?value:[];}catch{return [];}
@@ -229,7 +231,19 @@
 
   function refresh(){
     installRpcOverride();
-    prepareLink(document.getElementById('collectionDeviceLink'));
+    const standalone=document.querySelector('[data-platform-module="device-handoff-accordion"]');
+    const link=standalone?.querySelector('#collectionDeviceLink')||document.getElementById('collectionDeviceLink');
+    if(!link)return;
+
+    /* A standalone module mount is a fresh preview surface. Normalize that
+       surface exactly once, then preserve intentional user toggles on later
+       pageshow/resize/mutation refreshes. */
+    if(standalone&&standalone.contains(link)&&!standaloneRoots.has(standalone)){
+      standaloneRoots.add(standalone);
+      setExpanded(link,false);
+      return;
+    }
+    prepareLink(link);
   }
 
   window.addEventListener('click',event=>{
