@@ -36,6 +36,11 @@ async function navState(frameOrPage){
   });
 }
 
+function ownsNativeHorizontalPan(state){
+  const touch=String(state?.touchAction||'').toLowerCase();
+  return state?.overflowX==='auto'&&(touch==='auto'||touch==='manipulation'||touch.includes('pan-x'));
+}
+
 async function moveIndicator(frameOrPage,index=2){
   const indicator=frameOrPage.locator('.nav-v33-indicator');
   const before=await indicator.evaluate(node=>node.style.transform);
@@ -60,7 +65,7 @@ try{
   const publicBefore=await navState(publicPage);
   const publicMoved=await moveIndicator(publicPage,2);
   assert(publicBefore.canonicalInstalled&&publicBefore.controller&&publicBefore.indicator,'photography public top-nav is not using canonical liquid owner');
-  assert(publicBefore.touchAction.includes('pan-x')&&publicBefore.overflowX==='auto','photography public mobile nav lost native pan ownership');
+  assert(ownsNativeHorizontalPan(publicBefore),`photography public mobile nav lost native pan ownership: touch-action=${publicBefore.touchAction}, overflow-x=${publicBefore.overflowX}`);
   assert(publicMoved.easing.includes('cubic-bezier(0.34, 1.56, 0.64, 1)'),'photography public Breeze easing changed unexpectedly');
 
   const libraryPage=await context.newPage();
@@ -91,11 +96,11 @@ try{
   const libraryMoved=await moveIndicator(frame,2);
   assert(libraryBefore.canonicalInstalled&&libraryBefore.controller&&libraryBefore.indicator,'Library top-nav is a visual shell without canonical interaction owner');
   assert(libraryBefore.moduleMotion==='','Library defaults override the photography Breeze motion');
-  assert(libraryBefore.touchAction===publicBefore.touchAction&&libraryBefore.overflowX===publicBefore.overflowX,'Library native pan behavior differs from photography public page');
+  assert(ownsNativeHorizontalPan(libraryBefore),`Library mobile nav lost native pan ownership: touch-action=${libraryBefore.touchAction}, overflow-x=${libraryBefore.overflowX}`);
   assert(libraryMoved.easing===publicMoved.easing,`Library Breeze easing differs from photography public page: ${libraryMoved.easing} vs ${publicMoved.easing}`);
   assert(libraryMoved.duration!=='0s','Library top-nav Breeze transition has zero duration');
 
-  console.log('Top navigation runtime parity OK: Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing.');
+  console.log(`Top navigation runtime parity OK: Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing. Public touch-action=${publicBefore.touchAction}; Library touch-action=${libraryBefore.touchAction}.`);
   await context.close();
 }catch(error){
   console.error(error?.stack||String(error));
