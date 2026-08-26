@@ -1,44 +1,89 @@
-/* v1: admin-only runtime fixes. Preview theme remains independent from admin chrome. */
+/* v2: admin runtime isolation, persistent-workspace state scoping, and embedded dark-theme completion. */
 
-/* Library preview workspace owns its own light/dark surface. Admin dark mode must
-   never force the preview canvas dark. */
+/* Library preview owns its own theme. Admin dark mode must never force the preview canvas dark. */
 .builder-kit-workspace[data-theme="light"]{background:#fff!important}
 .builder-kit-workspace[data-theme="light"] .builder-kit-canvas{background:#eef0f3!important}
 .builder-kit-workspace[data-theme="dark"]{background:#252a31!important}
 .builder-kit-workspace[data-theme="dark"] .builder-kit-canvas{background:#252a31!important}
 
-/* Persistent admin workspace: major tool navigation swaps this iframe while the
-   shared admin shell stays mounted, so the whole document does not reload. */
-.platform-admin-workspace-host{
-  position:fixed;
-  z-index:9000;
-  inset:0 0 0 var(--admin-sidebar-w);
-  display:block;
-  min-width:0;
-  min-height:0;
-  overflow:hidden;
-  background:var(--admin-ui-bg,#f3f5f8);
-}
+/* Persistent admin workspace. */
+.platform-admin-workspace-host{position:fixed;z-index:9000;inset:0 0 0 var(--admin-sidebar-w);display:block;min-width:0;min-height:0;overflow:hidden;background:var(--admin-ui-bg,#f3f5f8)}
 .platform-admin-workspace-host[hidden]{display:none!important}
-.platform-admin-workspace-host iframe{
-  display:block;
-  width:100%;
-  height:100%;
-  border:0;
-  background:var(--admin-ui-bg,#f3f5f8);
-}
+.platform-admin-workspace-host iframe{display:block;width:100%;height:100%;border:0;background:var(--admin-ui-bg,#f3f5f8)}
 html[data-admin-sidebar-collapsed="true"] .platform-admin-workspace-host{left:0}
 
-/* Embedded tool documents reuse the same admin theme tokens without mounting a
-   second admin shell. Their actual preview/canvas theme remains tool-owned. */
-html[data-admin-embedded="true"] body{margin:0!important;padding:0!important;background:var(--admin-ui-bg,#f3f5f8)!important;color:var(--admin-ui-ink,#171a20)}
-html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab,
-html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab,
-html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page{background:var(--admin-ui-bg)!important;color:var(--admin-ui-ink)!important}
-html[data-admin-embedded="true"] .block-lab .lab-topbar,
-html[data-admin-embedded="true"] .editor-lab .editor-topbar,
-html[data-admin-embedded="true"] .qa-page .qa-toolbar{border-bottom:1px solid var(--admin-ui-line)!important;background:color-mix(in srgb,var(--admin-ui-panel) 96%,transparent)!important;box-shadow:none!important}
+/* Keep the Library's last module state for restoration, but do not paint that
+   selection as current while another major admin tool is covering the host. */
+body:has(.platform-admin-workspace-host:not([hidden])) .platform-admin-shell__module-tree [data-kit-ui][aria-pressed="true"]{background:transparent!important;color:var(--admin-ui-text,#4b535e)!important;border-color:transparent!important;box-shadow:none!important}
+body:has(.platform-admin-workspace-host:not([hidden])) .platform-admin-shell__module-tree [data-kit-ui][aria-pressed="true"]::before,
+body:has(.platform-admin-workspace-host:not([hidden])) .platform-admin-shell__module-tree [data-kit-ui][aria-pressed="true"]::after{opacity:0!important}
+body:has(.platform-admin-workspace-host:not([hidden])) .platform-module-tree-group[data-active="true"]>summary{background:transparent!important;color:var(--admin-ui-text,#4b535e)!important;box-shadow:none!important}
 
-@media(max-width:820px){
-  .platform-admin-workspace-host{inset:var(--admin-top-h,58px) 0 0 0}
-}
+/* Embedded tools reuse admin tokens without mounting a second shell. */
+html[data-admin-embedded="true"] body{margin:0!important;padding:0!important;background:var(--admin-ui-bg,#f3f5f8)!important;color:var(--admin-ui-ink,#171a20)}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] :is(.block-lab,.editor-lab,.qa-page){background:var(--admin-ui-bg)!important;color:var(--admin-ui-ink)!important}
+html[data-admin-embedded="true"] :is(.block-lab .lab-topbar,.editor-lab .editor-topbar,.qa-page .qa-toolbar){border-bottom:1px solid var(--admin-ui-line)!important;background:color-mix(in srgb,var(--admin-ui-panel) 96%,transparent)!important;box-shadow:none!important}
+
+/* --------------------------------------------------------------------------
+   Embedded Editor dark audit.
+   The page content canvas itself remains editor-owned; only management chrome
+   and the canvas surround are themed here.
+   -------------------------------------------------------------------------- */
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(
+  .editor-topbar,.editor-library,.editor-inspector,.editor-workspace-head,.admin-editor-settings,
+  .editor-pane-head,.editor-page-meta,.editor-seo,.editor-ai-brief,.editor-publish,
+  .editor-media-card-wrap,.editor-revision-card,.editor-connect-card
+){background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important;border-color:var(--admin-ui-line)!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(.editor-shell,.editor-workspace,.editor-stage){background:var(--admin-ui-bg)!important;border-color:var(--admin-ui-line)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(
+  input:not([type="file"]):not([type="range"]):not([type="color"]),textarea,select,
+  .editor-search,.editor-page-title,.editor-server-controls button,.editor-top-actions>button,
+  .editor-import,.editor-segment,.editor-page-meta__actions button,.editor-seo__actions button,
+  .editor-ai-brief__actions button,.editor-publish__actions button,.editor-media-close,
+  .editor-revision-close,.editor-connect-actions button
+){background:var(--admin-ui-panel-2)!important;color:var(--admin-ui-text)!important;border-color:var(--admin-ui-line)!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(input,textarea,select)::placeholder{color:var(--admin-ui-muted)!important;opacity:1}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(.editor-segment button,[aria-pressed="false"]){color:var(--admin-ui-text)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab .editor-segment button[aria-pressed="true"]{background:#303844!important;color:#fff!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(
+  .editor-library-list>button,.editor-library-list>article,.editor-block-card,.editor-inspector-body>section,
+  .editor-inspector-body>div,.editor-ai-review,.editor-publish-results,.editor-media-list>*,.editor-revision-list>*
+){background:var(--admin-ui-panel-2)!important;color:var(--admin-ui-ink)!important;border-color:var(--admin-ui-line)!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(small,label,p,.editor-empty,.editor-server-status){color:var(--admin-ui-muted)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(h1,h2,h3,strong,.editor-brand){color:var(--admin-ui-ink)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .editor-lab :is(input,textarea,select,button):focus-visible{outline:2px solid var(--admin-ui-accent)!important;outline-offset:2px}
+
+/* --------------------------------------------------------------------------
+   Embedded Block Lab dark audit. Specimen canvas remains preview-owned.
+   -------------------------------------------------------------------------- */
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(.lab-layout,.lab-sidebar,.lab-main){background:var(--admin-ui-bg)!important;color:var(--admin-ui-ink)!important;border-color:var(--admin-ui-line)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(
+  .lab-topbar,.lab-sidebar__intro,.lab-intro,.lab-specimen,.lab-specimen__head,.lab-review-note,
+  .lab-variant-review,.lab-style-editor,.lab-review-panel,.lab-review-card
+){background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important;border-color:var(--admin-ui-line)!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(.lab-specimen__stage,.lab-controls,.lab-review-body,.lab-style-editor__body){background:var(--admin-ui-panel-2)!important;border-color:var(--admin-ui-line)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(
+  .lab-filter,.lab-segment,.lab-segment button,.lab-controls>a,input:not([type="range"]):not([type="color"]),textarea,select,
+  .lab-review-note button,.lab-variant-review button,.lab-style-editor button
+){background:var(--admin-ui-panel-2)!important;color:var(--admin-ui-text)!important;border-color:var(--admin-ui-line)!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(.lab-segment button[aria-pressed="true"],.lab-nav a[aria-current="true"],.lab-nav a.is-active){background:var(--admin-ui-accent-soft)!important;color:var(--admin-ui-accent)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab .lab-nav a{color:var(--admin-ui-text)!important;border-color:transparent!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab .lab-nav a:hover{background:var(--admin-ui-hover)!important;color:var(--admin-ui-ink)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(small,p,label,.lab-brand span){color:var(--admin-ui-muted)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(h1,h2,h3,strong,.lab-brand){color:var(--admin-ui-ink)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab :is(input,textarea,select,button,a):focus-visible{outline:2px solid var(--admin-ui-accent)!important;outline-offset:2px}
+/* Never recolor the actual specimen preview canvas. */
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .block-lab .lab-specimen__canvas{color-scheme:normal}
+
+/* --------------------------------------------------------------------------
+   Embedded QA dark audit. qaCanvas remains controlled by the QA preview theme.
+   -------------------------------------------------------------------------- */
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page :is(.qa-toolbar,.qa-footer){background:var(--admin-ui-panel)!important;color:var(--admin-ui-ink)!important;border-color:var(--admin-ui-line)!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page .qa-stage{background:var(--admin-ui-bg)!important;border-color:var(--admin-ui-line)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page .qa-segment{background:var(--admin-ui-panel-2)!important;border-color:var(--admin-ui-line)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page .qa-segment button{background:transparent!important;color:var(--admin-ui-text)!important;border-color:transparent!important;box-shadow:none!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page .qa-segment button[aria-pressed="true"]{background:#303844!important;color:#fff!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page :is(.qa-toolbar__label span,.qa-footer){color:var(--admin-ui-muted)!important}
+html[data-admin-embedded="true"][data-admin-theme-resolved="dark"] .qa-page :is(button,input,select):focus-visible{outline:2px solid var(--admin-ui-accent)!important;outline-offset:2px}
+
+@media(max-width:820px){.platform-admin-workspace-host{inset:var(--admin-top-h,58px) 0 0 0}}
