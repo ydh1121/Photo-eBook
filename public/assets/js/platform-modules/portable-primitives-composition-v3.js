@@ -1,7 +1,7 @@
-/* v4: restore dedicated screen-mode owner and align generic bottom sheet with the finished Photography popup. */
+/* v5: dedicated screen-mode owner plus Photography-parity generic bottom sheet. */
 (function(){
-  if(window.__platformPortablePrimitivesCompositionV4)return;
-  window.__platformPortablePrimitivesCompositionV4=true;
+  if(window.__platformPortablePrimitivesCompositionV5)return;
+  window.__platformPortablePrimitivesCompositionV5=true;
 
   const registry=window.PlatformModuleRegistry;
   if(!registry)return;
@@ -23,7 +23,7 @@
   if(collection)patch('collection-bottom-sheet',{ownerFiles:uniq([...(collection.ownerFiles||[]),sharedPopupCss])});
 
   const rail=registry.get('horizontal-rail');
-  if(rail)patch('horizontal-rail',{version:4,ownerFiles:uniq([...(rail.ownerFiles||[]),repairCss,ownerJs])});
+  if(rail)patch('horizontal-rail',{version:5,ownerFiles:uniq([...(rail.ownerFiles||[]),repairCss,ownerJs])});
 
   const arr=value=>Array.isArray(value)?value:[];
   function normalizeSheetItems(value){
@@ -42,7 +42,8 @@
         <button type="button" class="platform-bottom-sheet__backdrop" data-bottom-sheet-close aria-label="닫기"></button>
         <section class="platform-bottom-sheet__panel ${open?'is-open':''}" role="dialog" aria-modal="true" aria-label="${a(props.ariaLabel||props.title||'하단 패널')}">
           <div class="platform-bottom-sheet__handle-wrap" data-bottom-sheet-drag-handle><div class="platform-bottom-sheet__handle" aria-hidden="true"></div></div>
-          <header class="platform-bottom-sheet__head"><div>${props.eyebrow?`<small>${e(props.eyebrow)}</small>`:''}<h3>${e(props.title||'하단 패널')}</h3>${props.description?`<p>${e(props.description)}</p>`:''}</div><button type="button" data-bottom-sheet-close aria-label="닫기">×</button></header>
+          <header class="platform-bottom-sheet__head"><div>${props.eyebrow?`<small>${e(props.eyebrow)}</small>`:''}<h3>${e(props.title||'하단 패널')}</h3></div><button type="button" data-bottom-sheet-close aria-label="닫기">×</button></header>
+          ${props.description?`<p class="platform-bottom-sheet__intro">${e(props.description)}</p>`:''}
           ${items.length?`<div class="platform-bottom-sheet__items">${items.map(item=>`<article data-bottom-sheet-item="${a(item.id)}">${item.label?`<small>${e(item.label)}</small>`:''}<strong>${e(item.title)}</strong>${item.description?`<p>${e(item.description)}</p>`:''}</article>`).join('')}</div>`:'<div class="platform-bottom-sheet__items"></div>'}
           ${(props.primaryAction?.label||props.secondaryAction?.label)?`<footer class="platform-bottom-sheet__actions">${props.secondaryAction?.label?`<button type="button" data-bottom-sheet-action="secondary" data-action-type="${a(secondary.type)}" data-action-value="${a(secondary.value)}" data-action-new-tab="${secondary.newTab}">${e(props.secondaryAction.label)}</button>`:''}${props.primaryAction?.label?`<button type="button" class="is-primary" data-bottom-sheet-action="primary" data-action-type="${a(primary.type)}" data-action-value="${a(primary.value)}" data-action-new-tab="${primary.newTab}">${e(props.primaryAction.label)}</button>`:''}</footer>`:''}
         </section>
@@ -52,8 +53,8 @@
 
   function hydrateBottomSheet(host,props={},context={}){
     const module=host.matches?.('[data-platform-module="bottom-sheet"]')?host:host.querySelector?.('[data-platform-module="bottom-sheet"]');
-    if(!module||module.dataset.platformBottomSheetBoundV4==='true')return;
-    module.dataset.platformBottomSheetBoundV4='true';
+    if(!module||module.dataset.platformBottomSheetBoundV5==='true')return;
+    module.dataset.platformBottomSheetBoundV5='true';
     const layer=module.querySelector('.platform-bottom-sheet__layer');
     const panel=module.querySelector('.platform-bottom-sheet__panel');
     const launcher=module.querySelector('[data-bottom-sheet-open]');
@@ -88,42 +89,38 @@
     };
     module.addEventListener('click',click);
 
-    let pointerId=null,startY=0,lastY=0,lastTime=0,dragY=0;
-    const down=event=>{
-      if(!handle||!panel||event.button!==0)return;
-      pointerId=event.pointerId;startY=lastY=event.clientY;lastTime=performance.now();dragY=0;
-      panel.classList.add('is-dragging');
-      try{handle.setPointerCapture(pointerId);}catch{}
-      if(event.cancelable)event.preventDefault();
+    /* Match the finished Photography collection popup: the 32px handle zone is
+       the drag owner, touch and non-touch pointers share the same 86px close threshold. */
+    let dragging=false,startY=0,delta=0,pointerId=null;
+    const begin=y=>{if(!panel)return;dragging=true;startY=y;delta=0;panel.classList.add('is-dragging');};
+    const move=y=>{if(!dragging||!panel)return;delta=Math.max(0,y-startY);panel.style.setProperty('--drag-y',`${delta}px`);};
+    const end=()=>{
+      if(!dragging||!panel)return;
+      dragging=false;panel.classList.remove('is-dragging');
+      const shouldClose=delta>86;
+      delta=0;
+      if(shouldClose)setOpen(false);else panel.style.setProperty('--drag-y','0px');
     };
-    const move=event=>{
-      if(pointerId===null||event.pointerId!==pointerId||!panel)return;
-      dragY=Math.max(0,event.clientY-startY);
-      panel.style.setProperty('--drag-y',`${dragY}px`);
-      lastY=event.clientY;lastTime=performance.now();
-      if(event.cancelable)event.preventDefault();
-    };
-    const finish=event=>{
-      if(pointerId===null||event.pointerId!==pointerId||!panel)return;
-      const now=performance.now();
-      const dt=Math.max(1,now-lastTime);
-      const velocity=Math.max(0,(event.clientY-lastY)/dt);
-      try{handle?.releasePointerCapture(pointerId);}catch{}
-      pointerId=null;panel.classList.remove('is-dragging');
-      if(dragY>90||velocity>.65)setOpen(false);
-      else{dragY=0;panel.style.setProperty('--drag-y','0px');}
-    };
-    handle?.addEventListener('pointerdown',down,{passive:false});
-    handle?.addEventListener('pointermove',move,{passive:false});
-    handle?.addEventListener('pointerup',finish);
-    handle?.addEventListener('pointercancel',finish);
+    const touchStart=event=>{const point=event.touches?.[0];if(point)begin(point.clientY);};
+    const touchMove=event=>{const point=event.touches?.[0];if(!point)return;move(point.clientY);if(delta>0&&event.cancelable)event.preventDefault();};
+    const pointerDown=event=>{if(event.pointerType==='touch'||event.button!==0)return;pointerId=event.pointerId;begin(event.clientY);try{handle?.setPointerCapture(pointerId);}catch{}};
+    const pointerMove=event=>{if(pointerId===null||event.pointerId!==pointerId)return;move(event.clientY);};
+    const pointerEnd=event=>{if(pointerId!==null&&event.pointerId!==pointerId)return;try{handle?.releasePointerCapture(pointerId);}catch{}pointerId=null;end();};
+    handle?.addEventListener('touchstart',touchStart,{passive:true});
+    handle?.addEventListener('touchmove',touchMove,{passive:false});
+    handle?.addEventListener('touchend',end,{passive:true});
+    handle?.addEventListener('touchcancel',end,{passive:true});
+    handle?.addEventListener('pointerdown',pointerDown);
+    handle?.addEventListener('pointermove',pointerMove);
+    handle?.addEventListener('pointerup',pointerEnd);
+    handle?.addEventListener('pointercancel',pointerEnd);
 
     setOpen(props.open!==false,{immediate:true});
-    return {api:{open(){return setOpen(true);},close(){return setOpen(false);},toggle(){return setOpen(module.dataset.open!=='true');},isOpen(){return module.dataset.open==='true';}},cleanup(){clearTimeout(closeTimer);module.removeEventListener('click',click);handle?.removeEventListener('pointerdown',down);handle?.removeEventListener('pointermove',move);handle?.removeEventListener('pointerup',finish);handle?.removeEventListener('pointercancel',finish);}};
+    return {api:{open(){return setOpen(true);},close(){return setOpen(false);},toggle(){return setOpen(module.dataset.open!=='true');},isOpen(){return module.dataset.open==='true';}},cleanup(){clearTimeout(closeTimer);module.removeEventListener('click',click);handle?.removeEventListener('touchstart',touchStart);handle?.removeEventListener('touchmove',touchMove);handle?.removeEventListener('touchend',end);handle?.removeEventListener('touchcancel',end);handle?.removeEventListener('pointerdown',pointerDown);handle?.removeEventListener('pointermove',pointerMove);handle?.removeEventListener('pointerup',pointerEnd);handle?.removeEventListener('pointercancel',pointerEnd);}};
   }
 
   const sheet=registry.get('bottom-sheet');
-  if(sheet)patch('bottom-sheet',{version:4,ownerFiles:uniq([...(sheet.ownerFiles||[]),sharedPopupCss,repairCss,ownerJs]),render:renderBottomSheet,hydrate:hydrateBottomSheet});
+  if(sheet)patch('bottom-sheet',{version:5,ownerFiles:uniq([...(sheet.ownerFiles||[]),sharedPopupCss,repairCss,ownerJs]),render:renderBottomSheet,hydrate:hydrateBottomSheet});
 
   function normalizeMode(value){return ['light','dark','system'].includes(String(value||''))?String(value):'light';}
   function resolveMode(value){const mode=normalizeMode(value);return mode==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):mode;}
@@ -134,8 +131,8 @@
   }
   function hydrateScreenMode(host,props={}){
     const module=host.matches?.('[data-platform-module="screen-mode-selector"]')?host:host.querySelector?.('[data-platform-module="screen-mode-selector"]');
-    if(!module||module.dataset.platformScreenModeBoundV4==='true')return;
-    module.dataset.platformScreenModeBoundV4='true';let mode=normalizeMode(props.mode);
+    if(!module||module.dataset.platformScreenModeBoundV5==='true')return;
+    module.dataset.platformScreenModeBoundV5='true';let mode=normalizeMode(props.mode);
     const apply=value=>{mode=normalizeMode(value);const resolved=resolveMode(mode);module.dataset.screenMode=mode;module.querySelectorAll('[data-screen-mode-value]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.screenModeValue===mode)));document.documentElement.dataset.themeChoice=mode;document.documentElement.dataset.theme=resolved;document.documentElement.style.colorScheme=resolved;module.dispatchEvent(new CustomEvent('platform-screen-mode-change',{bubbles:true,detail:{mode,resolved}}));return resolved;};
     const click=event=>{const button=event.target.closest?.('[data-screen-mode-value]');if(button&&module.contains(button))apply(button.dataset.screenModeValue);};
     const media=matchMedia('(prefers-color-scheme: dark)'),systemChange=()=>{if(mode==='system')apply('system');};
@@ -144,5 +141,5 @@
   }
 
   const screen=registry.get('screen-mode-selector');
-  if(screen)patch('screen-mode-selector',{version:3,ownerFiles:uniq([...(screen.ownerFiles||[]).filter(file=>!String(file).includes('filter-chip')),screenCss,ownerJs]),render:renderScreenMode,hydrate:hydrateScreenMode});
+  if(screen)patch('screen-mode-selector',{version:4,ownerFiles:uniq([...(screen.ownerFiles||[]).filter(file=>!String(file).includes('filter-chip')),screenCss,ownerJs]),render:renderScreenMode,hydrate:hydrateScreenMode});
 })();

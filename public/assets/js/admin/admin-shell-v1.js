@@ -3,6 +3,7 @@
   window.__platformAdminShellV1=true;
 
   const path=location.pathname;
+  const embedded=new URLSearchParams(location.search).get('adminEmbed')==='1';
   const ADMIN_THEME_KEY='platformAdminThemeV1';
   const ADMIN_SIDEBAR_WIDTH_KEY='platformAdminSidebarWidthV1';
   const systemDark=matchMedia('(prefers-color-scheme: dark)');
@@ -18,7 +19,7 @@
   const items=[
     {id:'library',label:'UI 라이브러리',hint:'승인된 공통 모듈',href:'/ui-dashboard/'},
     {id:'blocks',label:'블록 연구실',hint:'신규 블록 연구',href:'/block-lab/'},
-    {id:'editor',label:'블록 에디터',hint:'페이지 조립·저장',href:'/block-editor/'},
+    {id:'editor',label:'블록 에디터',hint:'페이지 조립·저장',href:'/editor-lab/'},
     {id:'qa',label:'QA',hint:'발행 전 확인',href:'/qa/video-editor/'}
   ];
 
@@ -43,7 +44,8 @@
     appendStyle('/assets/styles/admin/admin-shell-v1.css?v=2','data-admin-shell-style');
     if(id!=='library')appendStyle('/assets/styles/admin/admin-surface-v1.css?v=2','data-admin-surface-style');
     if(id==='blocks'||id==='editor')appendStyle('/assets/styles/admin/admin-preview-theme-v1.css?v=1','data-admin-preview-theme-style');
-    appendStyle('/assets/styles/admin/admin-unified-v2.css?v=1','data-admin-unified-style');
+    appendStyle('/assets/styles/admin/admin-unified-v2.css?v=2','data-admin-unified-style');
+    appendStyle('/assets/styles/admin/admin-runtime-fixes-v1.css?v=1','data-admin-runtime-fixes-style');
   }
 
   function readAdminSidebarWidth(){
@@ -81,8 +83,8 @@
     const library=document.querySelector('.editor-library');
     if(!library||library.querySelector('.admin-editor-settings'))return;
     const head=library.querySelector('.editor-pane-head');
-    const search=library.querySelector('#editorLibrarySearch');
-    const list=library.querySelector('#editorLibraryList');
+    const search=document.querySelector('#editorLibrarySearch');
+    const list=document.querySelector('#editorLibraryList');
     const settings=[library.querySelector('.editor-page-meta'),library.querySelector('.editor-seo'),library.querySelector('.editor-ai-brief'),library.querySelector('.editor-publish')].filter(Boolean);
     const details=document.createElement('details');
     details.className='admin-editor-settings';
@@ -134,9 +136,21 @@
   }
 
   function mount(){
-    if(document.querySelector('.platform-admin-shell'))return;
     const id=currentId();
     ensureCss(id);
+
+    /* Same-origin embedded tool document: keep the tool runtime, but do not mount
+       a second admin shell. The parent shell remains persistent. */
+    if(embedded){
+      document.documentElement.dataset.adminEmbedded='true';
+      document.documentElement.dataset.adminSection=id||'unknown';
+      paintAdminTheme();
+      simplifyLocalUi(id);
+      if(id==='blocks'||id==='editor')appendScript('/assets/js/admin/admin-surface-v1.js?v=1','data-admin-surface-script');
+      return;
+    }
+
+    if(document.querySelector('.platform-admin-shell'))return;
     document.documentElement.dataset.adminShell='true';
     document.documentElement.dataset.adminSection=id||'unknown';
     applyAdminSidebarWidth();
@@ -147,6 +161,7 @@
     bindAdminTheme(shell);
     simplifyLocalUi(id);
     if(id==='blocks'||id==='editor')appendScript('/assets/js/admin/admin-surface-v1.js?v=1','data-admin-surface-script');
+    appendScript('/assets/js/admin/admin-persistent-workspace-v1.js?v=2','data-admin-persistent-workspace-script');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
