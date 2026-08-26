@@ -16,7 +16,7 @@ const browser=await chromium.launch({headless:true,executablePath:executable,arg
 async function wait(fn,message,timeout=20000){const started=Date.now();let error;while(Date.now()-started<timeout){try{if(await fn())return;}catch(e){error=e;}await sleep(80);}if(error)throw error;throw new Error(message);}
 async function frameFor(page,id){
   const button=page.locator(`[data-kit-ui="${id}"]`);assert(await button.count()===1,`Missing tree module: ${id}`);await button.click();
-  await wait(()=>page.evaluate(moduleId=>{const frame=document.querySelector('#builderFrame'),doc=frame?.contentDocument;return Boolean(doc?.documentElement?.dataset.platformModule===moduleId&&doc.querySelector(`[data-platform-module="${moduleId}"]`));},id),`Preview did not mount ${id}`);
+  await wait(()=>page.evaluate(moduleId=>{const frame=document.querySelector('#builderFrame'),doc=frame?.contentDocument;return Boolean(doc?.documentElement?.dataset.platformModule===moduleId&&doc.querySelector(`#platformModuleHost [data-platform-module="${CSS.escape(moduleId)}"]`));},id),`Preview did not mount ${id}`);
   const handle=await page.$('#builderFrame');const frame=await handle?.contentFrame();assert(frame,`Missing preview frame: ${id}`);return frame;
 }
 async function openInspector(page){if(await page.locator('.builder-kit-inspector:not([hidden])').count())return;await page.locator('#kitSettings').click();await wait(()=>page.locator('.builder-kit-inspector:not([hidden])').count().then(Boolean),'Inspector did not open');}
@@ -76,7 +76,7 @@ try{
 
   frame=await frameFor(page,'device-handoff-accordion');await sleep(600);
   assert(await frame.locator('.theme-setting-card,[data-theme-setting-card]').count()===0,'Screen mode page context still leaks into device accordion preview');
-  const deviceText=await frame.locator('[data-platform-module="device-handoff-accordion"]').innerText();assert(!deviceText.includes('화면 모드'),'Device accordion still owns screen mode');
+  const deviceText=await frame.locator('#platformModuleHost [data-platform-module="device-handoff-accordion"]').innerText();assert(!deviceText.includes('화면 모드'),'Device accordion still owns screen mode');
 
   frame=await frameFor(page,'screen-mode-selector');
   assert(await frame.locator('.platform-screen-mode-composed [data-platform-module="filter-chip-rail"]').count()===1,'Screen mode is not composed from canonical filter-chip module');
@@ -92,7 +92,7 @@ try{
   assert(genericPopup.radius===photoPopup.radius,`Bottom popup radius drift: ${photoPopup.radius} vs ${genericPopup.radius}`);
   assert(Math.abs((genericPopup.closeW||0)-(photoPopup.closeW||0))<1&&Math.abs((genericPopup.closeH||0)-(photoPopup.closeH||0))<1,'Bottom popup close button geometry drift');
   assert(Math.abs((genericPopup.handleW||0)-(photoPopup.handleW||0))<1&&Math.abs((genericPopup.handleH||0)-(photoPopup.handleH||0))<1,'Bottom popup handle geometry drift');
-  const primary=frame.locator('[data-bottom-sheet-action="primary"]');if(await primary.count()){await primary.click();await wait(()=>frame.locator('[data-platform-module="bottom-sheet"]').evaluate(node=>node.dataset.open==='false'),'Primary no-action button did not close generic bottom popup');}
+  const primary=frame.locator('[data-bottom-sheet-action="primary"]');if(await primary.count()){await primary.click();await wait(()=>frame.locator('#platformModuleHost [data-platform-module="bottom-sheet"]').evaluate(node=>node.dataset.open==='false'),'Primary no-action button did not close generic bottom popup');}
   pass('Shared bottom-popup shell',`radius ${genericPopup.radius}, close ${genericPopup.closeW}×${genericPopup.closeH}, handle ${genericPopup.handleW}×${genericPopup.handleH}`);
 
   const ownership=await page.evaluate(()=>{
