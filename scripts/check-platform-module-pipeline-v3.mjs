@@ -135,27 +135,41 @@ async function library(context){
 async function editor(context){
   const page=await context.newPage();
   await page.setViewportSize({width:1440,height:1000});
-  await page.goto(`${BASE}/editor-lab/`,{waitUntil:'domcontentloaded'});
+
+  /* The Library document is the durable admin host. Clear only the Editor draft,
+     then enter Editor through the real major-menu route so this QA exercises the
+     same persistent-workspace contract as the product. */
+  await page.goto(`${BASE}/ui-dashboard/`,{waitUntil:'domcontentloaded'});
   await page.evaluate(()=>localStorage.removeItem('platformEditorLabDraftV1'));
-  await page.reload({waitUntil:'domcontentloaded'});
-  await wait(()=>page.locator('[data-add-module="filter-chip-rail"]').count().then(count=>count===1),'Editor filter module missing');
-  await page.locator('[data-add-module="filter-chip-rail"]').click();
-  await wait(()=>page.evaluate(()=>document.querySelector('[data-platform-editor-module-frame="filter-chip-rail"]')?.contentDocument?.querySelector('[data-platform-module="filter-chip-rail"]')!=null),'Editor canonical filter missing');
+  await wait(()=>page.locator('.platform-admin-shell').evaluate(node=>node.dataset.persistentWorkspaceBound==='true'),'Persistent admin host did not bind');
+  await page.locator('.platform-admin-shell__nav a[href="/editor-lab/"]').click();
+  await wait(()=>page.evaluate(()=>location.pathname==='/editor-lab/'),'Editor route did not update on persistent host');
+  await wait(()=>page.locator('.platform-admin-workspace-host:not([hidden]) iframe').count().then(Boolean),'Editor persistent workspace missing');
+  const workspaceHandle=await page.$('.platform-admin-workspace-host iframe');
+  const tool=await workspaceHandle?.contentFrame();
+  assert(tool,'Editor workspace frame missing');
+  await wait(()=>tool.locator('[data-add-module="filter-chip-rail"]').count().then(count=>count===1),'Editor filter module missing');
+
+  await tool.locator('[data-add-module="filter-chip-rail"]').click();
+  await wait(()=>tool.evaluate(()=>document.querySelector('[data-platform-editor-module-frame="filter-chip-rail"]')?.contentDocument?.querySelector('[data-platform-module="filter-chip-rail"]')!=null),'Editor canonical filter missing');
   const draft=await page.evaluate(()=>JSON.parse(localStorage.getItem('platformEditorLabDraftV1')||'{}'));
   const block=draft?.blocks?.find(item=>item.type==='ui-module'&&item.variant==='filter-chip-rail');
   assert(block,'Editor did not persist filter as ui-module');
   assert(block.styleOverrides?.family==='material-flat','Editor did not snapshot Library filter family default');
   assert(Number(block.styleOverrides?.fontSize)===17,'Editor did not snapshot Library typography default');
-  const frame=page.frameLocator('[data-platform-editor-module-frame="filter-chip-rail"]');
+
+  const frame=tool.frameLocator('[data-platform-editor-module-frame="filter-chip-rail"]');
   await wait(()=>frame.locator('.platform-filter-chip-source--material-flat:not([hidden])').count().then(Boolean),'Editor did not render snapshotted Material family');
   const button=frame.locator('.platform-filter-chip-source--material-flat [data-platform-filter-id]').nth(1);
-  await page.locator('[data-editor-mode="preview"]').click();
-  await wait(()=>page.locator('.editor-lab').evaluate(node=>node.dataset.mode==='preview'),'Editor preview mode did not activate');
+  await tool.locator('[data-editor-mode="preview"]').click();
+  await wait(()=>tool.locator('.editor-lab').evaluate(node=>node.dataset.mode==='preview'),'Editor preview mode did not activate');
   await button.click();
   assert(await button.getAttribute('aria-pressed')==='true','Editor module interaction is not live');
+  assert(await page.locator('.platform-admin-shell').count()===1,'Persistent admin shell disappeared during Editor test');
+  assert(await tool.locator('.platform-admin-shell').count()===0,'Editor embedded a duplicate admin shell');
   await shot(page,'editor-runtime-module-contract');
   await page.close();
-  pass('Block Editor','new instance snapshots Library defaults and keeps live canonical interaction');
+  pass('Block Editor','persistent host + new instance snapshots Library defaults and keeps live canonical interaction');
 }
 
 try{
