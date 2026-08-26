@@ -7,7 +7,8 @@
   const taxonomy=window.__PLATFORM_MODULE_LIBRARY_TAXONOMY_V1;
   if(!registry||!taxonomy?.groups)return;
 
-  const STATE_KEY='platformLibrarySidebarV1';
+  const STATE_KEY='platformLibrarySidebarV2';
+  const ADMIN_WIDTH_KEY='platformAdminSidebarWidthV1';
   const DESKTOP=matchMedia('(min-width:821px)');
   const html=document.documentElement;
   const $=(selector,root=document)=>root.querySelector(selector);
@@ -22,7 +23,8 @@
   };
 
   function readState(){try{const value=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');return value&&typeof value==='object'?value:{};}catch{return {};}}
-  function saveState(value){try{localStorage.setItem(STATE_KEY,JSON.stringify(value));}catch{}}
+  function readSharedWidth(){try{return Number(localStorage.getItem(ADMIN_WIDTH_KEY))||256;}catch{return 256;}}
+  function saveState(value){try{localStorage.setItem(STATE_KEY,JSON.stringify(value));localStorage.setItem(ADMIN_WIDTH_KEY,String(value.width));}catch{}}
 
   function mount(){
     const admin=$('.platform-admin-shell');
@@ -41,7 +43,7 @@
     html.dataset.libraryModuleTree='true';
     const saved=readState();
     const state={
-      width:Math.max(236,Math.min(360,Number(saved.width)||272)),
+      width:Math.max(236,Math.min(390,Number(saved.width)||readSharedWidth())),
       collapsed:Boolean(saved.collapsed),
       groups:saved.groups&&typeof saved.groups==='object'?{...saved.groups}:{}
     };
@@ -169,7 +171,7 @@
     activeObserver.observe(body,{subtree:true,attributes:true,attributeFilter:['aria-pressed']});
     body.addEventListener('click',event=>{if(event.target.closest('[data-kit-ui]')&&!DESKTOP.matches){html.dataset.libraryTreeDrawer='closed';mobileToggle.setAttribute('aria-expanded','false');}});
     DESKTOP.addEventListener?.('change',apply);
-    syncActive();apply();
+    syncActive();apply();persist();
     return true;
   }
 
