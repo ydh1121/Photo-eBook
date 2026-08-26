@@ -1,7 +1,7 @@
-/* v1: portable style-runtime extension. Loaded after module-style-runtime-v1. */
+/* v2: portable style-runtime extension. Loaded after module-style-runtime-v1. */
 (function(){
-  if(window.__platformModuleStylePortableV1)return;
-  window.__platformModuleStylePortableV1=true;
+  if(window.__platformModuleStylePortableV2)return;
+  window.__platformModuleStylePortableV2=true;
 
   const runtime=window.PlatformModuleStyleRuntime;
   if(!runtime)return;
@@ -71,12 +71,28 @@
     return value;
   }
 
+  function collectionScreenModeSlot(root=document){
+    return $('[data-platform-module="collection-bottom-sheet"] [data-collection-screen-mode-slot]',root)||$('[data-collection-screen-mode-slot]',root);
+  }
+  function resetCollectionScreenMode(root=document){
+    const slot=collectionScreenModeSlot(root);
+    if(slot)slot.hidden=false;
+  }
+  function applyCollectionScreenMode(root=document,value={}){
+    const slot=collectionScreenModeSlot(root);
+    if(slot)slot.hidden=!bool(value.themeSelector,true);
+  }
+
   runtime.reset=function(id,root=document){
     if(id==='horizontal-rail'){resetRail(root);return;}
-    return originalReset(id,root);
+    const result=originalReset(id,root);
+    if(id==='collection-bottom-sheet')resetCollectionScreenMode(root);
+    return result;
   };
   runtime.apply=function(id,root=document,config={}){
     if(id==='horizontal-rail')return applyRail(root,config);
-    return originalApply(id,root,config);
+    const value=originalApply(id,root,config);
+    if(id==='collection-bottom-sheet')applyCollectionScreenMode(root,value||config);
+    return value;
   };
 })();

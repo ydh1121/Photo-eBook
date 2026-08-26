@@ -1,7 +1,7 @@
-/* v2: shared portable-module refinements for Library/Editor consumers. */
+/* v3: shared portable-module refinements for Public/Library/Editor consumers. */
 (function(){
-  if(window.__platformPortablePrimitivesExtensionV2)return;
-  window.__platformPortablePrimitivesExtensionV2=true;
+  if(window.__platformPortablePrimitivesExtensionV3)return;
+  window.__platformPortablePrimitivesExtensionV3=true;
 
   const registry=window.PlatformModuleRegistry;
   if(!registry)return;
@@ -11,6 +11,7 @@
   const styleExt='public/assets/js/platform-modules/module-style-runtime-portable-v1.js';
   const uniq=list=>[...new Set((list||[]).filter(Boolean))];
   const consumers=['library','editor'];
+  const screenConsumers=['public','library','editor'];
   const e=registry.escapeHtml;
   const a=registry.attr;
 
@@ -178,8 +179,8 @@
     status:'approved',
     source:'platform-core',
     sourceRoute:'',
-    consumers,
-    version:1,
+    consumers:screenConsumers,
+    version:2,
     ownerFiles:[extJs,extCss],
     previewProps:{title:'화면 모드',description:'화이트, 다크 또는 기기 설정에 맞춰 표시합니다.',mode:'light'},
     editorProps:{title:'화면 모드',description:'표시 모드를 선택하세요.',mode:'light'},

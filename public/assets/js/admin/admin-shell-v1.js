@@ -45,7 +45,7 @@
     if(id!=='library')appendStyle('/assets/styles/admin/admin-surface-v1.css?v=2','data-admin-surface-style');
     if(id==='blocks'||id==='editor')appendStyle('/assets/styles/admin/admin-preview-theme-v1.css?v=1','data-admin-preview-theme-style');
     appendStyle('/assets/styles/admin/admin-unified-v2.css?v=2','data-admin-unified-style');
-    appendStyle('/assets/styles/admin/admin-runtime-fixes-v1.css?v=1','data-admin-runtime-fixes-style');
+    appendStyle('/assets/styles/admin/admin-runtime-fixes-v1.css?v=2','data-admin-runtime-fixes-style');
   }
 
   function readAdminSidebarWidth(){
@@ -139,8 +139,6 @@
     const id=currentId();
     ensureCss(id);
 
-    /* Same-origin embedded tool document: keep the tool runtime, but do not mount
-       a second admin shell. The parent shell remains persistent. */
     if(embedded){
       document.documentElement.dataset.adminEmbedded='true';
       document.documentElement.dataset.adminSection=id||'unknown';
@@ -161,7 +159,7 @@
     bindAdminTheme(shell);
     simplifyLocalUi(id);
     if(id==='blocks'||id==='editor')appendScript('/assets/js/admin/admin-surface-v1.js?v=1','data-admin-surface-script');
-    appendScript('/assets/js/admin/admin-persistent-workspace-v1.js?v=2','data-admin-persistent-workspace-script');
+    appendScript('/assets/js/admin/admin-persistent-workspace-v1.js?v=3','data-admin-persistent-workspace-script');
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();

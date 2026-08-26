@@ -1,0 +1,82 @@
+name: Canonical Admin Parity
+
+on:
+  pull_request:
+    paths:
+      - 'public/index.html'
+      - 'public/ui-dashboard/**'
+      - 'public/block-lab/**'
+      - 'public/editor-lab/**'
+      - 'public/qa/**'
+      - 'public/assets/js/admin/**'
+      - 'public/assets/js/collection/**'
+      - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/admin/**'
+      - 'public/assets/styles/platform-modules/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'scripts/check-canonical-admin-parity-v1.mjs'
+      - '.github/workflows/canonical-admin-parity.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/index.html'
+      - 'public/ui-dashboard/**'
+      - 'public/block-lab/**'
+      - 'public/editor-lab/**'
+      - 'public/qa/**'
+      - 'public/assets/js/admin/**'
+      - 'public/assets/js/collection/**'
+      - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/admin/**'
+      - 'public/assets/styles/platform-modules/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'scripts/check-canonical-admin-parity-v1.mjs'
+      - '.github/workflows/canonical-admin-parity.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check focused QA syntax
+        run: node --check scripts/check-canonical-admin-parity-v1.mjs
+      - name: Install browser QA dependency
+        run: npm install --no-save --no-package-lock playwright@1.55.0
+      - name: Run canonical and admin parity QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory public >/tmp/photo-ebook-canonical-admin-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/ui-dashboard/ >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep .3
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/photo-ebook-canonical-admin-http.log || true
+            exit 1
+          fi
+          export UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173
+          node scripts/check-canonical-admin-parity-v1.mjs
+      - name: Upload canonical admin parity QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-admin-parity-qa
+          path: artifacts/canonical-admin-parity
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,8 +1,8 @@
-/* v3: persistent major-tool navigation with Library as the stable admin host.
+/* v4: persistent major-tool navigation with Library as the stable admin host.
    Tool runtimes stay isolated in same-origin workspaces; no module/editor runtime is cloned. */
 (function(){
-  if(window.__platformAdminPersistentWorkspaceV3)return;
-  window.__platformAdminPersistentWorkspaceV3=true;
+  if(window.__platformAdminPersistentWorkspaceV4)return;
+  window.__platformAdminPersistentWorkspaceV4=true;
 
   const params=new URLSearchParams(location.search);
   const embedded=params.get('adminEmbed')==='1';
@@ -26,10 +26,6 @@
   const baseId=idFromPath(location.pathname);
   const requestedTool=routes[params.get('adminTool')]?params.get('adminTool'):'';
 
-  /* Keep one durable host document for the management UI. Direct entry to
-     Block Lab / Editor / QA is normalized once to the Library host, then the
-     requested tool is restored inside the persistent same-origin workspace.
-     Subsequent major-menu changes do not reload the parent document. */
   if(!embedded&&baseId&&baseId!=='library'){
     const url=new URL('/ui-dashboard/',location.origin);
     url.searchParams.set('adminTool',baseId);
@@ -42,8 +38,12 @@
     const link=document.createElement('link');
     link.rel='stylesheet';link.href=href;link.setAttribute(attr,'true');document.head.appendChild(link);
   }
+  function appendDocumentStyle(doc,href,attr){
+    if(!doc?.head||doc.querySelector(`link[${attr}]`))return;
+    const link=doc.createElement('link');link.rel='stylesheet';link.href=href;link.setAttribute(attr,'true');doc.head.appendChild(link);
+  }
   appendStyle('/assets/styles/admin/admin-unified-v2.css?v=2','data-admin-unified-persistent-style');
-  appendStyle('/assets/styles/admin/admin-runtime-fixes-v1.css?v=1','data-admin-runtime-fixes-style');
+  appendStyle('/assets/styles/admin/admin-runtime-fixes-v1.css?v=2','data-admin-runtime-fixes-style');
 
   function normalizeTheme(value){return ['light','dark','system'].includes(value)?value:'light';}
   function readTheme(){try{return normalizeTheme(localStorage.getItem(THEME_KEY)||'light');}catch{return'light';}}
@@ -58,6 +58,8 @@
     window.__platformAdminShellV1=true;
     document.documentElement.dataset.adminEmbedded='true';
     delete document.documentElement.dataset.adminShell;
+    appendStyle('/assets/styles/admin/admin-unified-v2.css?v=2','data-admin-unified-persistent-style');
+    appendStyle('/assets/styles/admin/admin-runtime-fixes-v1.css?v=2','data-admin-runtime-fixes-style');
     applyEmbeddedTheme();
     systemDark.addEventListener?.('change',()=>{if(readTheme()==='system')applyEmbeddedTheme();});
     return;
@@ -69,6 +71,8 @@
     const doc=frame?.contentDocument;if(!doc)return;
     try{
       doc.querySelectorAll('.platform-admin-shell,.platform-admin-shell__reopen,.platform-admin-shell__resize-handle').forEach(node=>node.remove());
+      appendDocumentStyle(doc,'/assets/styles/admin/admin-unified-v2.css?v=2','data-admin-unified-persistent-style');
+      appendDocumentStyle(doc,'/assets/styles/admin/admin-runtime-fixes-v1.css?v=2','data-admin-runtime-fixes-style-v2');
       const root=doc.documentElement;
       root.dataset.adminEmbedded='true';
       delete root.dataset.adminShell;
@@ -100,7 +104,7 @@
 
   function syncFrameTheme(){
     if(!frame?.contentDocument)return;
-    try{applyEmbeddedTheme(frame.contentDocument.documentElement);}catch{}
+    try{sanitizeEmbeddedDocument();applyEmbeddedTheme(frame.contentDocument.documentElement);}catch{}
   }
 
   function setCurrent(id){
@@ -146,7 +150,7 @@
       event.preventDefault();
       showRoute(id,{push:true});
     }));
-    shell.addEventListener('click',event=>{if(event.target.closest('[data-admin-theme-value]'))queueMicrotask(syncFrameTheme);});
+    shell.addEventListener('click',event=>{if(event.target.closest('[data-admin-theme-value]'))setTimeout(syncFrameTheme,0);});
     window.addEventListener('popstate',()=>showRoute(idFromPath(location.pathname)||'library',{push:false}));
     setCurrent(idFromPath(location.pathname)||'library');
     return true;
