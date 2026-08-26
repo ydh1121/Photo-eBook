@@ -80,7 +80,7 @@ try{
   const modeSkin=await frame.locator('.platform-screen-mode__options').evaluate(node=>({display:getComputedStyle(node).display,radius:getComputedStyle(node).borderRadius,bg:getComputedStyle(node).backgroundColor,buttons:node.querySelectorAll('[data-screen-mode-value]').length}));
   assert(modeSkin.display==='grid'&&modeSkin.buttons===3&&parseFloat(modeSkin.radius)>=17,`Screen mode segmented skin missing: ${JSON.stringify(modeSkin)}`);
   await frame.locator('[data-screen-mode-value="dark"]').click();
-  await wait(()=>frame.locator('[data-platform-module="screen-mode-selector"]').evaluate(node=>node.dataset.screenMode==='dark'),'Screen mode dark selection failed');
+  await wait(()=>frame.locator('#platformModuleHost [data-platform-module="screen-mode-selector"]').evaluate(node=>node.dataset.screenMode==='dark'),'Screen mode dark selection failed');
   pass('Standalone screen-mode segmented owner',`${modeSkin.buttons} segments, radius ${modeSkin.radius}`);
 
   frame=await frameFor(page,'collection-bottom-sheet');await sleep(180);
@@ -92,7 +92,7 @@ try{
   for(const key of ['closeW','closeH','handleW','handleH','handleWrapH'])assert(Math.abs((genericPopup[key]||0)-(photoPopup[key]||0))<1,`Bottom popup ${key} drift: ${JSON.stringify(report.popupGeometry)}`);
   assert(Math.abs((genericPopup.closeTop||0)-(photoPopup.closeTop||0))<3,`Bottom popup close Y drift: ${JSON.stringify(report.popupGeometry)}`);
   await frame.locator('[data-bottom-sheet-drag-handle]').evaluate(node=>{const fire=(type,y,buttons)=>node.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:77,pointerType:'mouse',button:0,buttons,clientY:y,clientX:100}));fire('pointerdown',100,1);fire('pointermove',205,1);fire('pointerup',205,0);});
-  await wait(()=>frame.locator('[data-platform-module="bottom-sheet"]').evaluate(node=>node.dataset.open==='false'),'Generic bottom sheet did not close by handle drag');
+  await wait(()=>frame.locator('#platformModuleHost [data-platform-module="bottom-sheet"]').evaluate(node=>node.dataset.open==='false'),'Generic bottom sheet did not close by handle drag');
   pass('Bottom-sheet Photography parity',`close ${genericPopup.closeW}×${genericPopup.closeH}, handle ${genericPopup.handleW}×${genericPopup.handleH}, drag close`);
 
   const ownership=await page.evaluate(()=>window.PlatformModuleRegistry.listFor('library').map(def=>({id:def.id,owners:def.ownerFiles,render:typeof def.render})));
@@ -102,7 +102,6 @@ try{
   assert(screen?.owners.includes('public/assets/styles/platform-modules/screen-mode-segmented-v1.css'),'Screen mode dedicated canonical style owner missing');
   pass('Canonical module ownership','shared popup owner + dedicated screen-mode owner; no Block Lab runtime import');
 
-  /* Major admin navigation must preserve this exact parent shell DOM node. */
   await page.evaluate(()=>document.querySelector('.platform-admin-shell').dataset.qaIdentity='persistent');
   const navigate=async(id,expectedPath,selector)=>{
     await page.locator(`.platform-admin-shell__nav a[href="${expectedPath}"]`).click();
