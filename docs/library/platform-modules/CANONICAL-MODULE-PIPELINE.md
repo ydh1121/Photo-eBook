@@ -15,6 +15,7 @@ Status: active architecture contract
    - 승인된 공통 모듈만 보여주는 UI Kit다.
    - 연구 공간이 아니다.
    - `PlatformModuleRegistry.listFor('library')`가 유일한 목록 source다.
+   - 모듈 분류/트리 UI는 Registry 엔트리를 조직할 뿐 별도 component 구현을 만들지 않는다.
 
 3. 블록 연구실 `/block-lab/`
    - 신규 블록, variant, 상호작용, 스타일을 연구하는 격리 공간이다.
@@ -23,18 +24,19 @@ Status: active architecture contract
 
 4. 블록 에디터 `/block-editor/`
    - 승인된 공통 모듈만 조립해 신규 페이지를 만든다.
-   - 페이지에는 연구 block type이 아니라 `module id + props`를 저장한다.
+   - 페이지에는 연구 block type이 아니라 canonical `module id + content/style/state snapshot`을 저장한다.
+   - 완성된 모듈 인스턴스를 재사용 preset으로 저장할 수 있는 계층을 둔다.
    - 완성된 페이지를 분류하고 저장하며, 발행 전 QA로 넘긴다.
 
 ## 정식 흐름
 
 공개 페이지에서 출발하는 모듈:
 
-`공개 페이지 완성형 → 공통 모듈 코드 추출 → approved/public-extracted → UI 라이브러리 → 블록 에디터 → 새 공개 페이지`
+`공개 페이지 완성형 → 공통 모듈 코드 추출 → approved/public-extracted → UI 라이브러리 → 블록 에디터 인스턴스 커스텀 → 저장된 완성 모듈/preset → 새 공개 페이지`
 
 블록 연구실에서 출발하는 모듈:
 
-`블록 연구실 candidate → 사용자 + GPT 검토 → 공통 모듈 코드로 승격 → approved/block-lab-approved → UI 라이브러리 → 블록 에디터 → 새 공개 페이지`
+`블록 연구실 candidate → 사용자 + GPT 검토 → 공통 모듈 코드로 승격 → approved/block-lab-approved → UI 라이브러리 → 블록 에디터 인스턴스 커스텀 → 저장된 완성 모듈/preset → 새 공개 페이지`
 
 UI 라이브러리에서 직접 공개 페이지로 설정을 밀어 넣지 않는다. 공개 화면은 블록 에디터가 저장한 승인 모듈 기반 페이지와 발행 QA를 통과한 결과를 소비한다.
 
@@ -102,6 +104,8 @@ Route:
 
 Preview용 CSS는 배경, 정렬, viewport 격리만 소유한다. 실제 component skin은 공통/공개 owner가 소유한다.
 
+Preview는 최종적으로 선택된 모듈의 `ownerFiles` dependency만 읽는 구조로 수렴한다. 광범위한 특정 분야 runtime을 모든 모듈에 미리 로드해 다른 page-context UI가 섞이는 상태는 허용하지 않는다.
+
 ## Editor storage contract
 
 Block Editor가 저장하는 공통 UI 인스턴스의 최소 구조:
@@ -110,14 +114,45 @@ Block Editor가 저장하는 공통 UI 인스턴스의 최소 구조:
 {
   "type": "ui-module",
   "variant": "filter-chip-rail",
-  "content": {}
+  "content": {},
+  "styleOverrides": {},
+  "state": {}
 }
 ```
 
 - `variant`는 canonical module id다.
 - `content`는 module props다.
+- `styleOverrides`와 `state`는 해당 인스턴스의 커스텀 결과다.
+- Library 기본값은 새 인스턴스를 만들 때만 snapshot한다.
+- 기존 인스턴스는 이후 Library 기본값 변경을 다시 읽지 않는다.
 - Block Lab sample object나 research-only metadata를 저장하지 않는다.
 - 기존 페이지 초안의 SEO, AI brief, revision metadata는 page layer가 별도로 관리한다.
+
+## 저장된 완성 모듈 / preset contract
+
+에디터에서 검수 완료된 모듈 인스턴스를 다시 쓸 때는 렌더된 HTML/CSS를 복제하지 않는다.
+
+최소 저장 구조:
+
+```json
+{
+  "moduleId": "filter-chip-rail",
+  "moduleVersion": 9,
+  "content": {},
+  "style": {},
+  "state": {},
+  "presetMeta": {
+    "name": "완성 preset",
+    "updatedAt": "ISO-8601"
+  }
+}
+```
+
+- preset은 canonical module definition을 참조한다.
+- 저장 대상은 입력값/설정값/state snapshot이다.
+- module owner code를 preset 안에 복사하지 않는다.
+- preset을 새 페이지에 삽입하면 같은 Registry module을 새 instance로 생성한다.
+- 향후 Portable Export도 preset이 아니라 Registry owner dependency를 따라 실제 코드 파일을 수집한다.
 
 ## 공개 페이지 발행
 
@@ -129,12 +164,21 @@ Public은 Registry에서 `approved`이며 `public` consumer가 허용된 모듈�
 
 공개 페이지의 현재 완성형을 공통 모듈로 추출하는 과정은 단계적으로 진행할 수 있다. 이미 adapter가 연결된 모듈과 아직 legacy owner가 직접 렌더링하는 모듈을 구분해서 기록한다.
 
+## Portable Export
+
+최종 내보내기는 전체 Photo-eBook 저장소를 복사하지 않는다.
+
+`사용된 module id → Registry definition → ownerFiles → transitive dependency manifest → page source/assets/routes/SEO metadata → standalone repo bundle`
+
+새 Git 저장소/Cloudflare Pages에서 동일한 모듈 코드가 재현되는 smoke test를 통과해야 Portable Export 완료로 본다.
+
 ## 금지 사항
 
 - Library에서 `/block-lab/` runtime/data 직접 import
 - Editor에서 `/block-lab/` runtime/data/style 직접 import
 - Public에서 Block Lab/Editor/Library runtime import
 - 동일 module id를 surface별 별도 HTML/CSS skin으로 재구현
+- 완료 preset에 렌더된 component HTML/CSS를 복사해 저장
 - candidate 자동 승인
 - 사용자 검토 없이 Block Lab 결과를 production으로 이동
 - Library를 연구실처럼 사용
@@ -151,4 +195,14 @@ Photography 공개 페이지에서 시작한 첫 canonical set:
 - `device-handoff-accordion`
 - `floating-action`
 
-이 세트가 Library와 Editor에서 동일 Registry를 통해 동작하는 것을 먼저 안정화한 뒤, 공개 페이지의 나머지 legacy render path를 단계적으로 canonical module consumer로 전환한다.
+Block Lab에서 승격한 portable set:
+
+- `horizontal-rail`
+- `accordion`
+- `bottom-sheet`
+
+Platform 공통 composition:
+
+- `screen-mode-selector`
+
+이 세트가 Library와 Editor에서 동일 Registry를 통해 동작하는 것을 안정화한 뒤, Public consumer 승인과 Portable Export dependency packaging을 단계적으로 진행한다.
