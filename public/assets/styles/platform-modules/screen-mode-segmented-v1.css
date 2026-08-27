@@ -1,4 +1,4 @@
-/* v3: screen-mode composition layout only.
+/* v4: screen-mode composition layout only.
    Chip skin, active indicator, spring/overshoot motion, drag and overflow are owned by filter-chip-rail + liquid-controller. */
 .platform-screen-mode{
   width:min(100%,720px);
@@ -16,8 +16,15 @@
 .platform-screen-mode__head{display:grid;gap:5px;margin-bottom:13px}
 .platform-screen-mode__head strong{font-size:14px;line-height:1.3;font-weight:760}
 .platform-screen-mode__head p{margin:0;color:#848b95;font-size:10.5px;line-height:1.5}
-.platform-screen-mode__control,
-.platform-screen-mode__control>.platform-filter-chip-module{width:100%;min-width:0}
+.platform-screen-mode__options,
+.platform-screen-mode__options>.platform-filter-chip-module{
+  width:100%;
+  min-width:0;
+}
+.platform-screen-mode__options{
+  display:grid;
+  border-radius:999px;
+}
 
 /* Screen mode chooses an equal three-slot composition. The actual chip paint and
    active liquid indicator remain entirely owned by the canonical filter module. */
