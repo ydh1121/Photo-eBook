@@ -1,7 +1,7 @@
-/* v4: portable primitive refinements. Screen mode is composed later from the canonical filter-chip dependency. */
+/* v5: portable primitive refinements. Screen mode is composed later from the canonical filter-chip dependency. */
 (function(){
-  if(window.__platformPortablePrimitivesExtensionV4)return;
-  window.__platformPortablePrimitivesExtensionV4=true;
+  if(window.__platformPortablePrimitivesExtensionV5)return;
+  window.__platformPortablePrimitivesExtensionV5=true;
 
   const registry=window.PlatformModuleRegistry;
   if(!registry)return;
@@ -9,6 +9,7 @@
   const extJs='public/assets/js/platform-modules/portable-primitives-extension-v2.js';
   const extCss='public/assets/styles/platform-modules/portable-primitives-extension-v2.css';
   const styleExt='public/assets/js/platform-modules/module-style-runtime-portable-v1.js';
+  const styleComposition='public/assets/js/platform-modules/module-style-runtime-composition-v1.js';
   const uniq=list=>[...new Set((list||[]).filter(Boolean))];
 
   function registerPatch(id,patch={}){
@@ -108,7 +109,15 @@
 
   registerPatch('accordion',{label:'기본 아코디언',version:2});
   registerPatch('device-handoff-accordion',{label:'기기 연결 아코디언',version:6});
-  registerPatch('collection-bottom-sheet',{label:'내 모음 하단 팝업',version:7});
+
+  const collection=registry.get('collection-bottom-sheet');
+  if(collection){
+    registerPatch('collection-bottom-sheet',{
+      label:'내 모음 하단 팝업',
+      version:8,
+      ownerFiles:uniq([...(collection.ownerFiles||[]),styleComposition])
+    });
+  }
 
   const sheet=registry.get('bottom-sheet');
   if(sheet){
