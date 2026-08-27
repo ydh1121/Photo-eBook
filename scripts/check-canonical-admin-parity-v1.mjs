@@ -62,7 +62,7 @@ async function darkSurface(frame,selector,label){
 async function screenModeParity(page){
   await openLibrary(page,'screen-mode-selector');
   const frame=page.frameLocator('#builderFrame');
-  const standalone=frame.locator('[data-platform-module="screen-mode-selector"]');
+  const standalone=frame.locator('.platform-screen-mode[data-platform-module="screen-mode-selector"]');
   const filter=standalone.locator('[data-platform-module="filter-chip-rail"]');
   const liquid=filter.locator('.platform-filter-chip-source--liquid');
   const light=liquid.locator('[data-platform-filter-id="light"]');
@@ -90,7 +90,7 @@ async function screenModeParity(page){
   await selectModule(page,'collection-bottom-sheet');
   const collectionFrame=page.frameLocator('#builderFrame');
   await collectionFrame.locator('[data-library-tab="settings"]').click();
-  const popupModule=collectionFrame.locator('[data-collection-screen-mode-slot] [data-platform-module="screen-mode-selector"]');
+  const popupModule=collectionFrame.locator('[data-collection-screen-mode-slot] .platform-screen-mode[data-platform-module="screen-mode-selector"]');
   await wait(()=>popupModule.count().then(Boolean),'canonical screen mode missing from collection settings',12000);
   const popupFilter=popupModule.locator('[data-platform-module="filter-chip-rail"]');
   const popupLiquid=popupFilter.locator('.platform-filter-chip-source--liquid');
