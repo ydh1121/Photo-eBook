@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T04:28:16.941Z",
+  "startedAt": "2026-08-27T04:29:30.827Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T04:28:16.941Z",
+      "at": "2026-08-27T04:29:30.828Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3382
@@ -35,11 +35,11 @@
     }
   ],
   "status": "fail",
-  "error": "Error: live Block Lab role label is stale\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:166:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:206:3",
-  "finishedAt": "2026-08-27T04:28:23.803Z",
+  "error": "Error: live Block Lab research boundary missing\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:167:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:206:3",
+  "finishedAt": "2026-08-27T04:29:45.244Z",
   "sourceSha": "d13d8b4e00afd43ac551320fb1f6f63330d8db20",
   "sourceRef": "main",
   "workflowRunId": "33039500867",
   "workflowRunNumber": "46",
-  "recordedAt": "2026-08-27T04:28:24.232Z"
+  "recordedAt": "2026-08-27T04:29:45.940Z"
 }
