@@ -52,14 +52,17 @@ async function screenModeParity(page){
   const frame=page.frameLocator('#builderFrame');
   const standalone=frame.locator('[data-platform-module="screen-mode-selector"]');
   const filter=standalone.locator('[data-platform-module="filter-chip-rail"]');
-  const light=filter.locator('[data-platform-filter-id="light"]');
-  const dark=filter.locator('[data-platform-filter-id="dark"]');
-  const indicator=filter.locator('.collection-v33-indicator');
-  await wait(()=>light.getAttribute('aria-pressed').then(value=>value==='true'),'standalone screen-mode filter active state missing');
-  await wait(()=>indicator.count().then(Boolean),'standalone screen-mode liquid indicator missing');
-  const provenance=await frame.locator('html').evaluate(()=>window.PlatformModuleRegistry?.provenance?.('screen-mode-selector'));
+  const liquid=filter.locator('.platform-filter-chip-source--liquid');
+  const light=liquid.locator('[data-platform-filter-id="light"]');
+  const dark=liquid.locator('[data-platform-filter-id="dark"]');
+  const indicator=liquid.locator('.collection-v33-indicator');
+  await wait(()=>light.getAttribute('aria-pressed').then(value=>value==='true'),'standalone screen-mode liquid filter active state missing');
+  await wait(()=>indicator.evaluate(node=>node.dataset.ready==='true'&&Boolean(node.style.transform)),'standalone screen-mode liquid indicator missing or not ready');
+  const graph=await frame.locator('html').evaluate(()=>({provenance:window.PlatformModuleRegistry?.provenance?.('screen-mode-selector'),closure:window.PlatformModuleRegistry?.dependencyClosure?.('screen-mode-selector','library')||[]}));
+  const provenance=graph.provenance;
   assert(provenance?.consumers?.includes('public'),'screen-mode-selector is not approved for public consumer');
   assert(provenance?.dependencies?.some(item=>item.id==='filter-chip-rail'&&item.kind==='composition'&&item.required===true),'screen-mode-selector does not declare filter-chip-rail composition dependency');
+  assert(graph.closure.includes('filter-chip-rail'),'screen-mode-selector dependency closure does not include filter-chip-rail');
   assert(await filter.count()===1,'screen mode did not render the canonical filter-chip dependency exactly once');
   const standaloneSignature=await liquidSignature(indicator);
   assert(/linear-gradient/i.test(standaloneSignature.backgroundImage),'standalone screen mode is not using the canonical liquid indicator skin');
@@ -69,7 +72,7 @@ async function screenModeParity(page){
   await wait(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'screen-mode liquid indicator did not move');
   const moved=await liquidSignature(indicator);
   assert(moved.transitionDuration!=='0s','screen-mode liquid indicator has zero-duration motion');
-  assert(moved.transitionTimingFunction.includes('cubic-bezier(0.34, 1.56, 0.64, 1)'),'screen-mode did not inherit canonical Breeze overshoot');
+  assert(moved.transitionTimingFunction.includes('cubic-bezier(0.34, 1.56, 0.64, 1)'),`screen-mode did not inherit canonical Breeze overshoot: ${moved.transitionTimingFunction}`);
   pass('screen mode dependency ownership',`screen-mode-selector → filter-chip-rail; ${provenance.consumers.join('/')}`);
 
   await selectModule(page,'collection-bottom-sheet');
@@ -78,10 +81,11 @@ async function screenModeParity(page){
   const popupModule=collectionFrame.locator('[data-collection-screen-mode-slot] [data-platform-module="screen-mode-selector"]');
   await wait(()=>popupModule.count().then(Boolean),'canonical screen mode missing from collection settings',12000);
   const popupFilter=popupModule.locator('[data-platform-module="filter-chip-rail"]');
-  const popupLight=popupFilter.locator('[data-platform-filter-id="light"]');
-  const popupIndicator=popupFilter.locator('.collection-v33-indicator');
-  await wait(()=>popupLight.getAttribute('aria-pressed').then(value=>value==='true'),'popup screen-mode filter active state missing');
-  await wait(()=>popupIndicator.count().then(Boolean),'popup screen-mode liquid indicator missing');
+  const popupLiquid=popupFilter.locator('.platform-filter-chip-source--liquid');
+  const popupLight=popupLiquid.locator('[data-platform-filter-id="light"]');
+  const popupIndicator=popupLiquid.locator('.collection-v33-indicator');
+  await wait(()=>popupLight.getAttribute('aria-pressed').then(value=>value==='true'),'popup screen-mode liquid filter active state missing');
+  await wait(()=>popupIndicator.evaluate(node=>node.dataset.ready==='true'&&Boolean(node.style.transform)),'popup screen-mode liquid indicator missing or not ready');
   assert(await collectionFrame.locator('.collection-settings .theme-setting-card,.collection-settings [data-theme-setting-card]').count()===0,'legacy screen-mode lookalike remains inside popup settings');
   assert(await popupFilter.count()===1,'popup screen mode did not compose the canonical filter-chip dependency exactly once');
   const popupSignature=await liquidSignature(popupIndicator);
