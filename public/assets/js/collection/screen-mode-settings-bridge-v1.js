@@ -1,7 +1,7 @@
-/* v4: mount the approved screen-mode-selector Registry module inside Photography settings and synchronously remove every legacy wrapper. */
+/* v5: mount the approved screen-mode-selector Registry module inside Photography settings and remove legacy wrappers before canonical-slot creation. */
 (function(){
-  if(window.__photoScreenModeSettingsBridgeV4)return;
-  window.__photoScreenModeSettingsBridgeV4=true;
+  if(window.__photoScreenModeSettingsBridgeV5)return;
+  window.__photoScreenModeSettingsBridgeV5=true;
 
   const THEME_KEY='photoRoadmapThemeV1';
   const STYLE_HREF='/assets/styles/platform-modules/screen-mode-segmented-v1.css?v=2';
@@ -47,44 +47,63 @@
     }
     return definitionPromise;
   }
-  function pruneLegacy(settings,slot){
-    if(!settings||!slot)return;
+  function pruneLegacy(settings,slot=null){
+    if(!settings)return slot;
     const canonicalSelector='[data-platform-module="screen-mode-selector"]';
     [...settings.querySelectorAll('.theme-setting-card,[data-theme-setting-card]')].forEach(node=>{
-      if(node===slot){
+      if(slot&&node===slot){
         node.classList.remove('theme-setting-card');
         node.removeAttribute('data-theme-setting-card');
         return;
       }
-      if(node.contains(slot)){
+      if(slot&&node.contains(slot)){
         node.insertAdjacentElement('beforebegin',slot);
         node.remove();
         return;
       }
       const canonical=node.querySelector?.(canonicalSelector);
-      if(canonical&&!slot.querySelector(canonicalSelector))slot.appendChild(canonical);
+      if(canonical){
+        if(!slot){
+          slot=document.createElement('div');
+          slot.dataset.collectionScreenModeSlot='true';
+          node.insertAdjacentElement('beforebegin',slot);
+        }
+        if(!slot.querySelector(canonicalSelector))slot.appendChild(canonical);
+      }
       node.remove();
     });
+    return slot;
   }
   function currentSettings(){return document.getElementById('collectionBody')?.querySelector('.collection-settings')||null;}
   function currentSlot(settings=currentSettings()){return settings?.querySelector('[data-collection-screen-mode-slot]')||null;}
-  function pruneCurrent(){const settings=currentSettings(),slot=currentSlot(settings);if(settings&&slot)pruneLegacy(settings,slot);return {settings,slot};}
+  function pruneCurrent(){
+    const settings=currentSettings();
+    if(!settings)return {settings:null,slot:null};
+    const slot=pruneLegacy(settings,currentSlot(settings));
+    return {settings,slot};
+  }
   async function mountCanonical(){
     scheduled=0;
     const body=document.getElementById('collectionBody');
     const settings=body?.querySelector('.collection-settings');
     if(!settings)return false;
+
+    /* Legacy controls are compatibility debris, not a valid intermediate
+       state. Remove them synchronously before any async Registry/script work. */
+    let slot=pruneLegacy(settings,settings.querySelector('[data-collection-screen-mode-slot]'));
     const registry=await ensureDefinition();
     const definition=ensurePublicDefinition(registry);
     if(!definition||!registry?.canConsume?.('screen-mode-selector','public'))return false;
 
-    let slot=settings.querySelector('[data-collection-screen-mode-slot]');
+    if(!slot||!slot.isConnected){
+      slot=settings.querySelector('[data-collection-screen-mode-slot]');
+    }
     if(!slot){
       slot=document.createElement('div');slot.dataset.collectionScreenModeSlot='true';
       const summary=settings.querySelector('.collection-settings__summary');
       if(summary)summary.insertAdjacentElement('afterend',slot);else settings.prepend(slot);
     }
-    pruneLegacy(settings,slot);
+    slot=pruneLegacy(settings,slot)||slot;
     if(slot.dataset.screenModeCanonicalMounted==='true'&&slot.querySelector('[data-platform-module="screen-mode-selector"]')){
       pruneLegacy(settings,slot);
       return true;
@@ -112,17 +131,22 @@
     observer=new MutationObserver(()=>{
       const settings=body.querySelector('.collection-settings');
       if(!settings)return;
-      const slot=settings.querySelector('[data-collection-screen-mode-slot]');
-      if(slot)pruneLegacy(settings,slot);
+      let slot=settings.querySelector('[data-collection-screen-mode-slot]');
+      slot=pruneLegacy(settings,slot);
       if(!slot?.querySelector('[data-platform-module="screen-mode-selector"]'))schedule();
     });
     observer.observe(body,{childList:true,subtree:true});
-    pruneCurrent();
+    const {settings}=pruneCurrent();
+    if(settings&&!currentSlot(settings)?.querySelector('[data-platform-module="screen-mode-selector"]'))schedule();
   }
 
   ensureStyle();
   document.addEventListener('platform-collection-render',event=>{
-    if(event.detail?.tab==='settings'){observeCollection();pruneCurrent();schedule();}
+    if(event.detail?.tab==='settings'){
+      observeCollection();
+      const {settings,slot}=pruneCurrent();
+      if(settings&&!slot?.querySelector('[data-platform-module="screen-mode-selector"]'))schedule();
+    }
   });
   document.addEventListener('platform-screen-mode-change',event=>{
     const module=event.target?.closest?.('[data-platform-module="screen-mode-selector"]');
