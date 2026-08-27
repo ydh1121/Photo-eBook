@@ -25,6 +25,7 @@ async function navState(frameOrPage){
     return {
       controller:Boolean(node.__photoLiquidController),
       indicator:Boolean(indicator),
+      indicatorReady:indicator?.dataset.ready==='true',
       canonicalInstalled:Boolean(window.__photoCanonicalLiquidInstalled),
       touchAction:style.touchAction,
       overflowX:style.overflowX,
@@ -41,12 +42,20 @@ function ownsNativeHorizontalPan(state){
   return state?.overflowX==='auto'&&(touch==='auto'||touch==='manipulation'||touch.includes('pan-x'));
 }
 
+async function waitLiquidReady(frameOrPage,label){
+  await wait(()=>frameOrPage.locator('.nav-scroll').evaluate(node=>{
+    const indicator=node.querySelector(':scope > .nav-v33-indicator');
+    return Boolean(node.__photoLiquidController&&indicator?.dataset.ready==='true'&&indicator.style.transform);
+  }),`${label} canonical liquid indicator did not finish initial measurement`);
+}
+
 async function moveIndicator(frameOrPage,index=2){
+  await waitLiquidReady(frameOrPage,'top-nav');
   const indicator=frameOrPage.locator('.nav-v33-indicator');
   const before=await indicator.evaluate(node=>node.style.transform);
   await frameOrPage.locator('.nav-chip').nth(index).click();
   await wait(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'top-nav liquid indicator did not move');
-  await sleep(40);
+  await wait(()=>indicator.evaluate(node=>getComputedStyle(node).transitionDuration!=='0s'&&getComputedStyle(node).transitionTimingFunction!=='ease'),'top-nav liquid transition did not settle');
   return indicator.evaluate(node=>({
     transform:node.style.transform,
     duration:getComputedStyle(node).transitionDuration,
@@ -61,12 +70,12 @@ try{
   await publicPage.setViewportSize({width:390,height:844});
   await publicPage.goto(`${BASE}/`,{waitUntil:'domcontentloaded'});
   await wait(()=>publicPage.locator('#app:not([hidden]) .nav-scroll').count().then(Boolean),'photography public nav missing');
-  await wait(()=>publicPage.locator('.nav-scroll').evaluate(node=>Boolean(node.__photoLiquidController&&node.querySelector(':scope > .nav-v33-indicator'))),'photography public canonical liquid controller missing');
+  await waitLiquidReady(publicPage,'photography public');
   const publicBefore=await navState(publicPage);
   const publicMoved=await moveIndicator(publicPage,2);
-  assert(publicBefore.canonicalInstalled&&publicBefore.controller&&publicBefore.indicator,'photography public top-nav is not using canonical liquid owner');
+  assert(publicBefore.canonicalInstalled&&publicBefore.controller&&publicBefore.indicator&&publicBefore.indicatorReady,'photography public top-nav is not using a ready canonical liquid owner');
   assert(ownsNativeHorizontalPan(publicBefore),`photography public mobile nav lost native pan ownership: touch-action=${publicBefore.touchAction}, overflow-x=${publicBefore.overflowX}`);
-  assert(publicMoved.easing.includes('cubic-bezier(0.34, 1.56, 0.64, 1)'),'photography public Breeze easing changed unexpectedly');
+  assert(publicMoved.easing.includes('cubic-bezier(0.34, 1.56, 0.64, 1)'),`photography public Breeze easing changed unexpectedly: ${publicMoved.easing}`);
 
   const libraryPage=await context.newPage();
   await libraryPage.setViewportSize({width:1440,height:1000});
@@ -77,7 +86,7 @@ try{
   const frame=await frameHandle.contentFrame();
   assert(frame,'Library preview iframe missing');
   await wait(()=>frame.locator('.nav-scroll').count().then(Boolean),'Library top-nav missing');
-  await wait(()=>frame.locator('.nav-scroll').evaluate(node=>Boolean(node.__photoLiquidController&&node.querySelector(':scope > .nav-v33-indicator'))),'Library top-nav canonical liquid controller missing');
+  await waitLiquidReady(frame,'Library top-nav');
 
   await frame.locator('.nav-scroll').evaluate(node=>{node.dataset.qaBeforeRemount='true';});
   await frame.evaluate(()=>window.postMessage({
@@ -90,11 +99,11 @@ try{
     ]}
   },location.origin));
   await wait(()=>frame.locator('.nav-scroll').evaluate(node=>node.dataset.qaBeforeRemount!=='true'),'Library module did not remount for regression test');
-  await wait(()=>frame.locator('.nav-scroll').evaluate(node=>Boolean(node.__photoLiquidController&&node.querySelector(':scope > .nav-v33-indicator'))),'canonical liquid owner did not reattach after Library remount');
+  await waitLiquidReady(frame,'Library remounted top-nav');
 
   const libraryBefore=await navState(frame);
   const libraryMoved=await moveIndicator(frame,2);
-  assert(libraryBefore.canonicalInstalled&&libraryBefore.controller&&libraryBefore.indicator,'Library top-nav is a visual shell without canonical interaction owner');
+  assert(libraryBefore.canonicalInstalled&&libraryBefore.controller&&libraryBefore.indicator&&libraryBefore.indicatorReady,'Library top-nav is a visual shell without ready canonical interaction owner');
   assert(libraryBefore.moduleMotion==='','Library defaults override the photography Breeze motion');
   assert(ownsNativeHorizontalPan(libraryBefore),`Library mobile nav lost native pan ownership: touch-action=${libraryBefore.touchAction}, overflow-x=${libraryBefore.overflowX}`);
   assert(libraryMoved.easing===publicMoved.easing,`Library Breeze easing differs from photography public page: ${libraryMoved.easing} vs ${publicMoved.easing}`);

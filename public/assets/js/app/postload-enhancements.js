@@ -1,7 +1,7 @@
-/* v33: keep optional enhancements off the critical path and load canonical collection UI. */
+/* v36: keep optional enhancements off the critical path and load canonical collection UI. */
 (function(){
-  if(window.__photoPostloadV33Installed)return;
-  window.__photoPostloadV33Installed=true;
+  if(window.__photoPostloadV36Installed)return;
+  window.__photoPostloadV36Installed=true;
 
   function appReady(){
     const app=document.querySelector('#app');
@@ -48,7 +48,7 @@
     await whenAppReady();await wait(900);if(!appReady())return;releaseStaleInteractionLocks();
     await new Promise(resolve=>{'requestIdleCallback'in window?requestIdleCallback(()=>resolve(),{timeout:700}):setTimeout(resolve,120);});
     try{await loadScript('/assets/js/media/generated-image-blob-cache.js?v=1');}catch(error){console.warn('postload image helper skipped',error);}
-    try{await loadScript('/assets/js/collection/screen-mode-settings-bridge-v1.js?v=4');}catch(error){console.warn('screen mode bridge skipped',error);}
+    try{await loadScript('/assets/js/collection/screen-mode-settings-bridge-v1.js?v=8');}catch(error){console.warn('screen mode bridge skipped',error);}
     try{await loadEnhancementWithoutGlobalSubtreeObserver('/assets/js/collection/collection-hub-canonical-v1.js?v=1');}catch(error){console.error('postload enhancement failed',error);}
     releaseStaleInteractionLocks();setTimeout(releaseStaleInteractionLocks,120);setTimeout(releaseStaleInteractionLocks,900);
   }
