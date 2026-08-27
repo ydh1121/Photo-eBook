@@ -168,12 +168,18 @@
   function screenFilterProps(mode,title){
     return {items:[{id:'light',label:'화이트'},{id:'dark',label:'다크'},{id:'system',label:'시스템'}],activeId:normalizeMode(mode),ariaLabel:`${title} 선택`};
   }
+  function screenCompatibilityAliases(markup){
+    return String(markup||'')
+      .replace('data-platform-filter-id="light"','data-platform-filter-id="light" data-screen-mode-value="light"')
+      .replace('data-platform-filter-id="dark"','data-platform-filter-id="dark" data-screen-mode-value="dark"')
+      .replace('data-platform-filter-id="system"','data-platform-filter-id="system" data-screen-mode-value="system"');
+  }
   function renderScreenMode(props={},context={}){
     const mode=normalizeMode(props.mode);
     const title=String(props.title||'화면 모드');
     const description=String(props.description||'화이트, 다크 또는 기기 설정에 맞춰 표시합니다.');
-    const filterMarkup=registry.renderDependency(SCREEN_ID,FILTER_ID,screenFilterProps(mode,title),context);
-    return `<section class="platform-screen-mode" data-platform-module="screen-mode-selector" data-screen-mode="${a(mode)}"><header class="platform-screen-mode__head"><strong>${e(title)}</strong>${description?`<p>${e(description)}</p>`:''}</header><div class="platform-screen-mode__control">${filterMarkup}</div></section>`;
+    const filterMarkup=screenCompatibilityAliases(registry.renderDependency(SCREEN_ID,FILTER_ID,screenFilterProps(mode,title),context));
+    return `<section class="platform-screen-mode" data-platform-module="screen-mode-selector" data-screen-mode="${a(mode)}"><header class="platform-screen-mode__head"><strong>${e(title)}</strong>${description?`<p>${e(description)}</p>`:''}</header><div class="platform-screen-mode__options">${filterMarkup}</div></section>`;
   }
   function hydrateScreenMode(host,props={},context={}){
     const module=host.matches?.('[data-platform-module="screen-mode-selector"]')?host:host.querySelector?.('[data-platform-module="screen-mode-selector"]');
