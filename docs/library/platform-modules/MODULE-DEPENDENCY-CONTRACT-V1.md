@@ -64,15 +64,18 @@ Library에서만 가능한 child를 Public parent 아래에 숨겨 넣는 것은
 screen-mode-selector
   └─ composition → filter-chip-rail
                        ├─ owner CSS → filter-chip-rail-v1.css
-                       └─ runtime owner → liquid-controller.js
+                       ├─ style policy → module-style-runtime-v1.js
+                       └─ indicator runtime → liquid-controller.js
 ```
 
 이 구조에서:
 
 - `screen-mode-selector`는 화면 모드의 의미, 제목/설명, `light | dark | system` 상태 변환만 소유한다.
-- `filter-chip-rail`은 칩 렌더링, 선택 상태, 스킨 family, 가로 레일 interaction을 소유한다.
-- `liquid-controller`는 moving indicator, Breeze spring/overshoot motion을 소유한다.
-- `screen-mode-selector`가 별도의 파란 active pill, indicator, spring CSS/JS를 다시 구현하면 계약 위반이다.
+- `filter-chip-rail`은 칩 렌더링, 선택 상태, 스킨 family, 가로 레일 interaction과 해당 필터의 유효한 `response / overshoot` 설정 정책을 소유한다.
+- `module-style-runtime-v1.js`는 `filter-chip-rail`의 styleDefaults/override를 실제 transition duration/easing으로 변환한다.
+- `liquid-controller`는 moving indicator의 geometry 측정, indicator 생성/복구, transform 이동과 canonical animation baseline 메커니즘을 소유한다.
+- 따라서 composed parent가 특정 easing 값을 별도로 강제하지 않는다. Screen Mode의 유효 transition은 같은 설정의 standalone `filter-chip-rail`과 동일해야 한다.
+- `screen-mode-selector`가 별도의 파란 active pill, indicator, spring CSS/JS 또는 자체 timing policy를 다시 구현하면 계약 위반이다.
 
 ## Screen mode canonical composition
 
@@ -109,6 +112,7 @@ Parent module의 CSS는 child module의 배치만 조절할 수 있다.
 - child active button의 background/gradient/shadow 재정의
 - child indicator의 별도 구현
 - child interaction을 흉내 내는 parent 전용 animation
+- child의 canonical `response / overshoot` 설정을 무시하는 parent 전용 easing/duration 강제
 
 공통 style control이 composed child/slot을 제어해야 하는 경우에는 composition-aware style adapter가 실제 canonical slot을 대상으로 해야 한다. retired/lookalike selector를 토글하는 no-op control은 금지한다.
 
@@ -134,13 +138,15 @@ Portable Export는 module ID 하나를 export할 때 다음 순서로 dependency
 - Chromium runtime: parent 내부에 canonical child module이 실제 mount되었는지
 - interaction: child의 canonical interaction owner가 실제 동작하는지
 - style: parent가 child skin을 별도로 재구현하지 않았는지
+- motion policy: parent 안의 child가 동일한 설정의 standalone canonical child와 동일한 유효 transition duration/easing을 쓰는지
 - Library → Editor → Public에서 같은 module ID와 dependency graph를 유지하는지
 
 화면 모드의 경우 Chromium QA는 최소 다음을 확인한다.
 
 - nested module id가 `filter-chip-rail`인지
 - `.collection-v33-indicator`가 canonical liquid owner에 의해 생성되는지
+- `.v37-liquid-skin`이 canonical liquid paint를 소유하는지
 - 선택 변경 시 indicator transform이 이동하는지
 - transition duration이 0이 아닌지
-- Breeze overshoot easing이 유지되는지
-- standalone과 collection settings가 같은 dependency graph를 쓰는지
+- 유효 transition duration/easing이 standalone `filter-chip-rail`과 동일한지
+- standalone과 collection settings가 같은 dependency graph와 child owner를 쓰는지
