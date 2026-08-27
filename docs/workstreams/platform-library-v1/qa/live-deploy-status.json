@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T04:39:34.311Z",
+  "startedAt": "2026-08-27T14:18:08.372Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T04:39:34.311Z",
+      "at": "2026-08-27T14:18:08.373Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3382
@@ -17,58 +17,14 @@
       "name": "live dashboard entry",
       "status": "pass",
       "detail": "builder-library-reference-v1.js"
-    },
-    {
-      "name": "live canonical assets",
-      "status": "pass",
-      "detail": "6 Photography/Public + 1 shared display + 3 Library/Editor-only modules"
-    },
-    {
-      "name": "live UI Library",
-      "status": "pass",
-      "detail": "registry-driven root route with 10 approved modules"
-    },
-    {
-      "name": "live Library theme/viewport",
-      "status": "pass",
-      "detail": "dark + mobile shared preview"
-    },
-    {
-      "name": "live Block Lab boundary",
-      "status": "pass",
-      "detail": "persistent workspace + research-only"
-    },
-    {
-      "name": "live Block Editor boundary",
-      "status": "pass",
-      "detail": "persistent workspace + 10 approved modules only"
-    },
-    {
-      "name": "live public migration",
-      "status": "pass",
-      "detail": "Photography canonical modules remain public; shared display remains public-capable by contract; portable Library/Editor-only boundary remains closed"
-    },
-    {
-      "name": "live top-nav runtime parity",
-      "status": "pass",
-      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
-    },
-    {
-      "name": "live Library runtime feedback gate",
-      "status": "pass",
-      "detail": "top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages"
-    },
-    {
-      "name": "live Library module family gate",
-      "status": "pass",
-      "detail": "grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages"
     }
   ],
-  "status": "pass",
-  "finishedAt": "2026-08-27T04:40:06.003Z",
-  "sourceSha": "5026da99dbb17b02730bbfa578fcf64cd2cc07a6",
+  "status": "fail",
+  "error": "Error: live Registry dependency API is stale: normalizeDependencies\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveAssets (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:116:154)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:308:3",
+  "finishedAt": "2026-08-27T14:18:08.537Z",
+  "sourceSha": "fc0603c8ed86441fe167323f29b982c544c099f7",
   "sourceRef": "main",
-  "workflowRunId": "33040069549",
-  "workflowRunNumber": "48",
-  "recordedAt": "2026-08-27T04:40:06.278Z"
+  "workflowRunId": "33081458305",
+  "workflowRunNumber": "49",
+  "recordedAt": "2026-08-27T14:18:09.084Z"
 }
