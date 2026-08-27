@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T04:29:30.827Z",
+  "startedAt": "2026-08-27T04:34:38.126Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T04:29:30.828Z",
+      "at": "2026-08-27T04:34:38.126Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3382
@@ -32,14 +32,24 @@
       "name": "live Library theme/viewport",
       "status": "pass",
       "detail": "dark + mobile shared preview"
+    },
+    {
+      "name": "live Block Lab boundary",
+      "status": "pass",
+      "detail": "persistent workspace + research-only"
+    },
+    {
+      "name": "live Block Editor boundary",
+      "status": "pass",
+      "detail": "persistent workspace + 10 approved modules only"
     }
   ],
   "status": "fail",
-  "error": "Error: live Block Lab research boundary missing\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:167:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:206:3",
-  "finishedAt": "2026-08-27T04:29:45.244Z",
-  "sourceSha": "d13d8b4e00afd43ac551320fb1f6f63330d8db20",
+  "error": "Error: live public consumer cannot resolve shared display modules\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:210:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:224:3",
+  "finishedAt": "2026-08-27T04:34:50.120Z",
+  "sourceSha": "08b2792340452116545dd615264fd4e384bf386e",
   "sourceRef": "main",
-  "workflowRunId": "33039500867",
-  "workflowRunNumber": "46",
-  "recordedAt": "2026-08-27T04:29:45.940Z"
+  "workflowRunId": "33039820996",
+  "workflowRunNumber": "47",
+  "recordedAt": "2026-08-27T04:34:50.519Z"
 }
