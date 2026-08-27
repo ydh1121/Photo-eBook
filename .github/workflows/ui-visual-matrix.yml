@@ -13,10 +13,12 @@ on:
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/styles/admin/**'
+      - 'public/assets/styles/block-lab/**'
       - 'public/assets/styles/platform-modules/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/editor-lab/**'
       - 'scripts/check-ui-visual-matrix-v1.mjs'
+      - 'scripts/check-block-lab-mobile-controls-v1.mjs'
       - '.github/workflows/ui-visual-matrix.yml'
   workflow_dispatch:
 
@@ -33,7 +35,9 @@ jobs:
         with:
           node-version: '22'
       - name: Check visual matrix syntax
-        run: node --check scripts/check-ui-visual-matrix-v1.mjs
+        run: |
+          node --check scripts/check-ui-visual-matrix-v1.mjs
+          node --check scripts/check-block-lab-mobile-controls-v1.mjs
       - name: Install browser QA dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Run desktop/mobile light/dark matrix
@@ -55,12 +59,15 @@ jobs:
             cat /tmp/photo-ebook-ui-matrix-http.log || true
             exit 1
           fi
+          UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-block-lab-mobile-controls-v1.mjs
           UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-ui-visual-matrix-v1.mjs
       - name: Upload UI visual matrix evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ui-visual-matrix-v1
-          path: artifacts/ui-visual-matrix-v1
+          path: |
+            artifacts/ui-visual-matrix-v1
+            artifacts/block-lab-mobile-controls-v1
           if-no-files-found: ignore
           retention-days: 7
