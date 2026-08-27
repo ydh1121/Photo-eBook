@@ -1,6 +1,6 @@
 (function(){
-  if(window.__platformCanonicalLibraryV5)return;
-  window.__platformCanonicalLibraryV5=true;
+  if(window.__platformCanonicalLibraryV6)return;
+  window.__platformCanonicalLibraryV6=true;
 
   const registry=window.PlatformModuleRegistry;
   const manifest=window.__PLATFORM_UI_CAPABILITY_MANIFEST;
@@ -109,8 +109,11 @@
   function loadFrame(){frameReady=false;if(status){status.hidden=false;status.textContent='공개 페이지 공통 모듈을 불러오는 중';}frame.src=`/ui-dashboard/module-preview/?module=${encodeURIComponent(active)}&embed=library&v=4`;applyViewport();}
   function select(id){if(!order.includes(id))return;active=id;setUrl();renderSelector();renderHead();loadFrame();if(!inspector.hidden)openInspector();}
 
+  /* The preview-ready message owns initial synchronization. A second delayed
+     load-time sync remounted fast modules with identical props and could reopen
+     a bottom sheet immediately after a close/drag interaction. */
   window.addEventListener('message',event=>{if(event.origin!==location.origin||event.source!==frame.contentWindow)return;const data=event.data||{};if(data.moduleId!==active&&data.capabilityId!==active)return;if(data.type==='platform-preview-ready'){frameReady=true;if(status)status.hidden=true;syncFrame();return;}if(data.type==='platform-preview-error'){if(status){status.hidden=false;status.textContent=data.message||'모듈을 불러오지 못했습니다.';}return;}if(data.type==='platform-preview-state-change'&&STATE_OPTIONS[active])saveState(active,data.state||'',{fromPreview:true});});
 
-  frame.addEventListener('load',()=>setTimeout(syncFrame,80));settings.addEventListener('click',openInspector);matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(theme==='system'){applyViewport();syncFrame();}});
+  settings.addEventListener('click',openInspector);matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(theme==='system'){applyViewport();syncFrame();}});
   renderSelector();renderTheme();renderViewport();renderHead();applyViewport();loadFrame();
 })();

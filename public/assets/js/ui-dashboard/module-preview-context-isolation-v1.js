@@ -1,12 +1,12 @@
-/* v2: preview framing isolation plus canonical nested-module bridge loading. */
+/* v3: preview framing isolation plus canonical nested-module bridge loading. */
 (function(){
-  if(window.__platformModulePreviewContextIsolationV2)return;
-  window.__platformModulePreviewContextIsolationV2=true;
+  if(window.__platformModulePreviewContextIsolationV3)return;
+  window.__platformModulePreviewContextIsolationV3=true;
 
   function ensureScreenModeBridge(){
     if(document.querySelector('script[data-screen-mode-settings-bridge]'))return;
     const script=document.createElement('script');
-    script.src='/assets/js/collection/screen-mode-settings-bridge-v1.js?v=1';
+    script.src='/assets/js/collection/screen-mode-settings-bridge-v1.js?v=2';
     script.async=false;
     script.dataset.screenModeSettingsBridge='true';
     document.body.appendChild(script);
