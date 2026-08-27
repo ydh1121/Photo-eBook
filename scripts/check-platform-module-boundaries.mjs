@@ -15,10 +15,12 @@ expect(agents.includes('preview-only'),'AGENTS.md must explicitly prohibit previ
 const registry=read('public/assets/js/platform-modules/module-registry-v1.js');
 expect(registry.includes("VALID_STATUS=new Set(['approved','candidate','deprecated'])"),'Registry promotion states changed unexpectedly.');
 expect(registry.includes("VALID_SOURCE=new Set(['public-extracted','block-lab-approved','platform-core'])"),'Registry provenance states changed unexpectedly.');
+expect(registry.includes("VALID_DEPENDENCY_KIND=new Set(['composition','behavior','data'])"),'Registry dependency kinds changed unexpectedly.');
 expect(registry.includes("definition.status!=='approved'"),'Normal consumers must reject non-approved modules.');
 expect(registry.includes("CONTENT_DEFAULTS_KEY='platformModuleContentDefaultsV1'"),'Library content defaults must snapshot into new Editor instances.');
 expect(registry.includes("STYLE_DEFAULTS_KEY='platformModuleDefaultsV1'"),'Library style defaults must snapshot into new Editor instances.');
 expect(registry.includes('hydration.api'),'Registry mount must expose real interaction APIs.');
+for(const marker of ['normalizeDependencies','resolveDependency','renderDependency','hydrateDependency','dependencies:clone(def.dependencies||[])'])expect(registry.includes(marker),`Registry dependency graph API missing: ${marker}`);
 
 const modules=read('public/assets/js/platform-modules/photo-core-modules-v1.js');
 for(const id of expected)expect(modules.includes(`id:'${id}'`),`Missing approved platform module: ${id}`);
@@ -38,6 +40,21 @@ for(const owner of [
   'public/assets/styles/desktop/nav-corrections.css'
 ])expect(modules.includes(owner),`Top navigation provenance is missing photography runtime owner: ${owner}`);
 
+const primitiveExtension=read('public/assets/js/platform-modules/portable-primitives-extension-v2.js');
+expect(!primitiveExtension.includes('function renderScreenMode')&&!primitiveExtension.includes('function hydrateScreenMode'),'Screen mode must not keep a duplicate implementation in the primitive extension.');
+
+const composition=read('public/assets/js/platform-modules/portable-primitives-composition-v3.js');
+for(const marker of [
+  "const SCREEN_ID='screen-mode-selector'",
+  "const FILTER_ID='filter-chip-rail'",
+  "dependencies:[{id:FILTER_ID,kind:'composition',required:true}]",
+  'registry.renderDependency(SCREEN_ID,FILTER_ID',
+  'registry.hydrateDependency(SCREEN_ID',
+  'PhotoLiquidController?.attachFilterRail',
+  "id:SCREEN_ID",
+  "consumers:['public','library','editor']"
+])expect(composition.includes(marker),`Screen mode dependency composition missing: ${marker}`);
+
 const source=read('public/assets/js/platform-modules/photo-public-module-source-v1.js');
 for(const marker of ['renderNavigation','renderHorizontalCardRail','renderCollectionShell','hydrateCollection','renderDeviceHandoff','renderFab'])expect(source.includes(marker),`Missing public-derived module owner: ${marker}`);
 expect(source.includes('if(delta>86)shut()'),'Bottom sheet must retain drag-dismiss behavior.');
@@ -45,9 +62,11 @@ expect(source.includes("if(tab==='video')return ['all',...new Set"),'Video filte
 expect(source.includes("if(tab==='article')return ['all',...new Set"),'Article filter derivation must remain data-driven.');
 
 const liquidController=read('public/assets/js/ui/liquid-controller.js');
-expect(liquidController.includes("const BREEZE='cubic-bezier(0.34, 1.56, 0.64, 1)'"),'Photography Breeze easing must remain the canonical top-nav motion baseline.');
+expect(liquidController.includes("const BREEZE='cubic-bezier(0.34, 1.56, 0.64, 1)'"),'Photography Breeze easing must remain the canonical motion baseline.');
 expect(liquidController.includes('watchNavigationMounts'),'Canonical liquid owner must survive Library/Editor DOM remounts.');
 expect(liquidController.includes("node.matches?.('.nav-scroll')||node.querySelector?.('.nav-scroll')"),'Canonical liquid owner must detect newly mounted top navigation without a preview-only hook.');
+expect(liquidController.includes('attachFilterRail'),'Canonical liquid owner must expose filter-chip motion to composed modules.');
+expect(!liquidController.includes('themeCardMarkup')&&!liquidController.includes('injectThemeControls'),'Liquid runtime must not inject a separate screen-mode implementation.');
 
 const nativePan=read('public/assets/styles/navigation/native-pan-fab-clearance.css');
 expect(nativePan.includes('-webkit-overflow-scrolling:touch!important'),'Photography top nav must retain native touch momentum.');
@@ -56,6 +75,14 @@ expect(nativePan.includes('touch-action:pan-x pan-y!important'),'Photography top
 const filterCss=read('public/assets/styles/platform-modules/filter-chip-rail-v1.css');
 for(const marker of ['platform-filter-chip-source--liquid','platform-filter-chip-source--ios-flat','platform-filter-chip-source--material-flat','--platform-filter-font-family'])expect(filterCss.includes(marker),`Filter CSS missing runtime family/typography contract: ${marker}`);
 expect(filterCss.includes('Shared by Library, Block Editor and published pages'),'Filter stylesheet must document shared runtime ownership.');
+
+const screenCss=read('public/assets/styles/platform-modules/screen-mode-segmented-v1.css');
+expect(screenCss.includes('filter-chip-rail + liquid-controller'),'Screen mode stylesheet must document child runtime ownership.');
+for(const forbidden of ['.platform-screen-mode__options button','[aria-pressed="true"]','data-screen-mode-value'])expect(!screenCss.includes(forbidden),`Screen mode stylesheet recreates filter-chip paint/state: ${forbidden}`);
+
+const screenBridge=read('public/assets/js/collection/screen-mode-settings-bridge-v1.js');
+expect(screenBridge.includes("resolveDependency?.('screen-mode-selector','filter-chip-rail','public')"),'Photography screen-mode bridge must resolve the declared filter-chip dependency.');
+expect(screenBridge.includes('/assets/styles/platform-modules/filter-chip-rail-v1.css'),'Photography screen-mode bridge must load the child filter stylesheet.');
 
 const styleRuntime=read('public/assets/js/platform-modules/module-style-runtime-v1.js');
 for(const marker of ['FONT_STACKS','fontFamily','fontSize','fontWeight','letterSpacing','progressEnabled','progressMode','progressColor','leftFade','themeSelector','moduleScrollbar'])expect(styleRuntime.includes(marker),`Visible setting has no canonical runtime implementation marker: ${marker}`);
@@ -73,15 +100,18 @@ const dashboard=read('public/ui-dashboard/index.html');
 expect(dashboard.includes('data-builder-view="library"'),'/ui-dashboard/ must remain Library-only.');
 expect(!dashboard.includes('/ui-dashboard/sandbox/'),'Library must not boot old sandbox runtime.');
 expect(dashboard.includes('/assets/js/platform-modules/photo-core-modules-v1.js'),'Library must load the shared Registry definitions.');
+expect(dashboard.includes('/assets/js/platform-modules/module-registry-v1.js?v=4'),'Library must load the dependency-aware Registry cache version.');
 
 const preview=read('public/ui-dashboard/module-preview/index.html');
 expect(!preview.includes('/ui-dashboard/sandbox/'),'Shared preview must have zero sandbox dependencies.');
-expect(preview.includes('/assets/styles/platform-modules/filter-chip-rail-v1.css'),'Preview must use the shared filter stylesheet.');
+expect(preview.includes('/assets/styles/platform-modules/filter-chip-rail-v1.css?v=6'),'Preview must use the current shared filter stylesheet.');
 expect(preview.includes('/assets/js/platform-modules/module-style-runtime-v1.js'),'Preview must use the canonical style runtime.');
-expect(preview.includes('/assets/js/ui/liquid-controller.js?v=2'),'Library/Editor preview must load the same canonical liquid owner as Photography Public.');
+expect(preview.includes('/assets/js/ui/liquid-controller.js?v=3'),'Library/Editor preview must load the same dependency-capable liquid owner as Photography Public.');
+expect(preview.includes('/assets/js/platform-modules/portable-primitives-composition-v3.js?v=6'),'Preview must load dependency-aware module composition.');
 
 const publicIndex=read('public/index.html');
-expect(publicIndex.includes('/assets/js/ui/liquid-controller.js?v=2'),'Photography Public must load the current canonical liquid owner.');
+expect(publicIndex.includes('/assets/js/ui/liquid-controller.js?v=3'),'Photography Public must load the current canonical liquid owner.');
+expect(publicIndex.includes('/assets/js/platform-modules/module-registry-v1.js?v=4'),'Photography Public must load the dependency-aware Registry.');
 
 const previewJs=read('public/ui-dashboard/module-preview/module-preview-v1.js');
 expect(previewJs.includes("const consumer=params.get('embed')==='editor'?'editor':'library'"),'Library and Editor must share one preview host.');
@@ -114,4 +144,4 @@ const lab=read('public/block-lab/index.html');
 expect(lab.includes('RESEARCH ONLY'),'Block Lab must remain explicitly research-only.');
 expect(!lab.includes('/ui-dashboard/module-preview/'),'Block Lab must not consume approved preview runtime directly.');
 
-console.log('Canonical reusable UI module boundary contract passed.');
+console.log('Canonical reusable UI module boundary and dependency contract passed.');
