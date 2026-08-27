@@ -1,0 +1,1 @@
+run authenticated proxy smoke
