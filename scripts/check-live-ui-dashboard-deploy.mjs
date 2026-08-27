@@ -23,7 +23,7 @@ function browserPath(){return ['/usr/bin/google-chrome','/usr/bin/google-chrome-
 function cacheBust(url){const join=url.includes('?')?'&':'?';return `${url}${join}deploy_check=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
 
 async function fetchText(url){
-  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.7'}});
+  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.8'}});
   if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
   return response.text();
 }
@@ -56,7 +56,10 @@ async function waitLibraryFrame(page,id){
     const doc=frame?.contentDocument;
     return Boolean(doc?.documentElement?.dataset.platformModulePreview==='true'&&doc.documentElement.dataset.platformModule===moduleId&&doc.documentElement.dataset.platformModuleConsumer==='library'&&frame.contentWindow?.PlatformModuleRegistry);
   },id,{timeout:30000});
-  const handle=await page.$('#builderFrame');const frame=await handle?.contentFrame();assert(frame,`module iframe missing: ${id}`);return frame;
+  const handle=await page.$('#builderFrame');
+  const frame=await handle?.contentFrame();
+  assert(frame,`module iframe missing: ${id}`);
+  return frame;
 }
 
 async function selectLibraryModule(page,id){
@@ -92,10 +95,25 @@ async function waitAdminWorkspace(page,targetPath,readySelector){
   return frame;
 }
 
+async function indicatorSignature(locator){
+  return locator.evaluate(node=>{
+    const style=getComputedStyle(node);
+    const skin=node.querySelector(':scope > .v37-liquid-skin');
+    const skinStyle=skin?getComputedStyle(skin):null;
+    return {
+      transform:node.style.transform||'',
+      duration:style.transitionDuration,
+      easing:style.transitionTimingFunction,
+      backgroundImage:skinStyle?.backgroundImage||'',
+      boxShadow:skinStyle?.boxShadow||''
+    };
+  });
+}
+
 async function verifyLiveAssets(){
   const registry=await fetchText(`${BASE}/assets/js/platform-modules/module-registry-v1.js`);
   assert(registry.includes(REGISTRY_MARKER),`live module registry is stale; missing ${REGISTRY_MARKER}`);
-  for(const marker of ['normalizeDependencies','renderDependency','hydrateDependency','resolveDependency'])assert(registry.includes(marker),`live Registry dependency API is stale: ${marker}`);
+  for(const marker of ['normalizeDependencies','renderDependency','hydrateDependency','resolveDependency','dependencyClosure','validateDependencyGraph'])assert(registry.includes(marker),`live Registry dependency API is stale: ${marker}`);
 
   const photoModules=await fetchText(`${BASE}/assets/js/platform-modules/photo-core-modules-v1.js`);
   expectedPhoto.forEach(id=>assert(photoModules.includes(`id:'${id}'`),`live canonical photo module asset is missing ${id}`));
@@ -120,7 +138,7 @@ async function verifyLiveAssets(){
   ])assert(composition.includes(marker),`live screen-mode composition contract is stale: ${marker}`);
 
   const liquid=await fetchText(`${BASE}/assets/js/ui/liquid-controller.js`);
-  assert(liquid.includes("const BREEZE='cubic-bezier(0.34, 1.56, 0.64, 1)'"),'live canonical Breeze motion changed');
+  assert(liquid.includes("const BREEZE='cubic-bezier(0.34, 1.56, 0.64, 1)'"),'live canonical liquid-controller baseline changed');
   assert(liquid.includes('attachFilterRail'),'live filter-chip liquid motion API is missing');
 
   const screenCss=await fetchText(`${BASE}/assets/styles/platform-modules/screen-mode-segmented-v1.css`);
@@ -156,9 +174,12 @@ async function verifyLiveBrowser(){
     assert(expectedSharedDisplay.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('public')&&item.consumers.includes('library')&&item.consumers.includes('editor'))),'shared display consumer boundary regressed');
     const screenEntry=library.entries.find(item=>item.id==='screen-mode-selector');
     assert(screenEntry?.dependencies?.some(item=>item.id==='filter-chip-rail'&&item.kind==='composition'&&item.required===true),'live screen-mode dependency graph is missing filter-chip-rail');
+    const closure=await page.evaluate(()=>window.PlatformModuleRegistry.dependencyClosure?.('screen-mode-selector','library')||[]);
+    assert(closure.includes('filter-chip-rail'),'live screen-mode dependency closure does not include filter-chip-rail');
     assert(library.overflow<=2,`live Library outer overflow ${library.overflow}px`);
     pass('live UI Library',`registry-driven root route with ${library.ids.length} approved modules`);
 
+    let canonicalFilterMotion=null;
     for(const id of ['top-chapter-navigation','filter-chip-rail','collection-bottom-sheet','device-handoff-accordion','horizontal-rail','accordion','bottom-sheet','screen-mode-selector']){
       const frame=await selectLibraryModule(page,id);
       const src=await page.locator('#builderFrame').getAttribute('src');
@@ -171,7 +192,16 @@ async function verifyLiveBrowser(){
         const chipsSelector='.platform-filter-chip-module .platform-filter-chip-source:not([hidden]) [data-platform-filter-id]';
         await waitFrameCount(frame,chipsSelector,4,'live canonical filter chips missing');
         const chips=frame.locator(chipsSelector);
-        const labels=await chips.allTextContents();assert(labels.every(label=>label&&!label.includes('[object Object]')),'live filter normalization regressed');
+        const labels=await chips.allTextContents();
+        assert(labels.every(label=>label&&!label.includes('[object Object]')),'live filter normalization regressed');
+        const indicator=frame.locator('.platform-filter-chip-source--liquid .collection-v33-indicator');
+        await frame.waitForFunction(()=>{const node=document.querySelector('.platform-filter-chip-source--liquid .collection-v33-indicator');return Boolean(node?.dataset.ready==='true'&&node.style.transform&&node.querySelector(':scope > .v37-liquid-skin'));},{timeout:10000});
+        const before=await indicatorSignature(indicator);
+        await frame.locator('.platform-filter-chip-source--liquid [data-platform-filter-id]').nth(1).click();
+        await frame.waitForFunction(old=>document.querySelector('.platform-filter-chip-source--liquid .collection-v33-indicator')?.style.transform!==old,before.transform,{timeout:10000});
+        canonicalFilterMotion=await indicatorSignature(indicator);
+        assert(canonicalFilterMotion.duration!=='0s'&&/cubic-bezier/i.test(canonicalFilterMotion.easing),'live canonical filter lost motion policy');
+        assert(/linear-gradient/i.test(canonicalFilterMotion.backgroundImage),'live canonical filter lost liquid skin paint');
       }
       if(id==='collection-bottom-sheet'){
         const sheet=frame.locator('#collectionSheet');
@@ -186,23 +216,35 @@ async function verifyLiveBrowser(){
       if(id==='accordion')await waitFrameCount(frame,'.platform-accordion__item',2,'live portable accordion missing');
       if(id==='bottom-sheet')await waitFrameCount(frame,'.platform-bottom-sheet[data-platform-module="bottom-sheet"]',1,'live portable bottom sheet missing');
       if(id==='screen-mode-selector'){
+        assert(canonicalFilterMotion,'live canonical filter motion reference was not captured');
         await waitFrameCount(frame,'.platform-screen-mode [data-platform-module="filter-chip-rail"]',1,'live screen mode did not compose canonical filter-chip module');
-        await waitFrameCount(frame,'.platform-screen-mode [data-screen-mode-value]',3,'live standalone screen mode compatibility controls missing');
-        await waitFrameCount(frame,'.platform-screen-mode .collection-v33-indicator',1,'live screen mode liquid indicator missing');
+        await waitFrameCount(frame,'.platform-screen-mode .platform-filter-chip-source--liquid [data-screen-mode-value]',3,'live standalone screen mode compatibility controls missing');
+        await waitFrameCount(frame,'.platform-screen-mode .platform-filter-chip-source--liquid .collection-v33-indicator',1,'live screen mode liquid indicator missing');
         const state=await frame.evaluate(()=>{
-          const screen=document.querySelector('[data-platform-module="screen-mode-selector"]');
+          const screen=document.querySelector('.platform-screen-mode[data-platform-module="screen-mode-selector"]');
           const filter=screen?.querySelector('[data-platform-module="filter-chip-rail"]');
-          const indicator=filter?.querySelector('.collection-v33-indicator');
+          const liquid=filter?.querySelector('.platform-filter-chip-source--liquid');
+          const indicator=liquid?.querySelector('.collection-v33-indicator');
           const provenance=window.PlatformModuleRegistry?.provenance?.('screen-mode-selector');
-          return {nested:filter?.dataset.platformModule,controller:Boolean(filter?.querySelector('.platform-filter-chip-source--liquid')?.__photoLiquidController),dependency:provenance?.dependencies?.find(item=>item.id==='filter-chip-rail')||null,transform:indicator?.style.transform||''};
+          const closure=window.PlatformModuleRegistry?.dependencyClosure?.('screen-mode-selector','library')||[];
+          return {nested:filter?.dataset.platformModule,controller:Boolean(liquid?.__photoLiquidController),dependency:provenance?.dependencies?.find(item=>item.id==='filter-chip-rail')||null,closure,transform:indicator?.style.transform||'',ready:indicator?.dataset.ready==='true',skin:Boolean(indicator?.querySelector(':scope > .v37-liquid-skin'))};
         });
         assert(state.nested==='filter-chip-rail'&&state.controller,'live screen mode is not hydrated by the canonical filter/liquid owner');
         assert(state.dependency?.kind==='composition'&&state.dependency?.required===true,'live screen mode dependency provenance is wrong');
+        assert(state.closure.includes('filter-chip-rail'),'live screen mode dependency closure is wrong');
+        assert(state.ready&&state.skin,'live screen mode liquid indicator/skin did not become ready');
         const before=state.transform;
-        await frame.locator('[data-screen-mode-value="dark"]').click();
-        await frame.waitForFunction(old=>document.querySelector('[data-platform-module="screen-mode-selector"]')?.dataset.screenMode==='dark'&&document.querySelector('.platform-screen-mode .collection-v33-indicator')?.style.transform!==old,before,{timeout:10000});
-        const motion=await frame.locator('.platform-screen-mode .collection-v33-indicator').evaluate(node=>({duration:getComputedStyle(node).transitionDuration,easing:getComputedStyle(node).transitionTimingFunction}));
-        assert(motion.duration!=='0s'&&motion.easing.includes('cubic-bezier(0.34, 1.56, 0.64, 1)'),'live screen-mode filter lost canonical Breeze motion');
+        await frame.locator('.platform-screen-mode .platform-filter-chip-source--liquid [data-screen-mode-value="dark"]').click();
+        await frame.waitForFunction(old=>{
+          const screen=document.querySelector('.platform-screen-mode[data-platform-module="screen-mode-selector"]');
+          const indicator=screen?.querySelector('.platform-filter-chip-source--liquid .collection-v33-indicator');
+          return screen?.dataset.screenMode==='dark'&&indicator?.style.transform!==old;
+        },before,{timeout:10000});
+        const motion=await indicatorSignature(frame.locator('.platform-screen-mode .platform-filter-chip-source--liquid .collection-v33-indicator'));
+        assert(motion.duration!=='0s','live screen-mode filter has zero-duration motion');
+        assert(motion.easing===canonicalFilterMotion.easing,`live screen-mode motion policy differs from canonical filter: ${motion.easing} vs ${canonicalFilterMotion.easing}`);
+        assert(motion.duration===canonicalFilterMotion.duration,`live screen-mode motion duration differs from canonical filter: ${motion.duration} vs ${canonicalFilterMotion.duration}`);
+        assert(motion.backgroundImage===canonicalFilterMotion.backgroundImage&&motion.boxShadow===canonicalFilterMotion.boxShadow,'live screen-mode liquid paint owner differs from canonical filter');
       }
     }
 
@@ -210,7 +252,8 @@ async function verifyLiveBrowser(){
     await page.locator('[data-kit-theme="dark"]').click();
     await page.waitForFunction(()=>document.querySelector('#builderFrame')?.contentDocument?.documentElement?.dataset.theme==='dark',{timeout:15000});
     await page.locator('[data-kit-viewport="mobile"]').click();
-    const mobileWidth=await page.locator('#builderFrame').evaluate(node=>node.getBoundingClientRect().width);assert(mobileWidth<=400,`live mobile preview width ${mobileWidth}`);
+    const mobileWidth=await page.locator('#builderFrame').evaluate(node=>node.getBoundingClientRect().width);
+    assert(mobileWidth<=400,`live mobile preview width ${mobileWidth}`);
     await page.screenshot({path:path.join(OUT,'live-ui-library.png'),fullPage:true});
     pass('live Library theme/viewport','dark + mobile shared preview');
 
@@ -228,7 +271,8 @@ async function verifyLiveBrowser(){
       scripts:[...document.scripts].map(node=>node.getAttribute('src')||''),
       styles:[...document.querySelectorAll('link[rel="stylesheet"]')].map(node=>node.getAttribute('href')||''),
       ids:window.PlatformModuleRegistry.listFor('editor').map(item=>item.id),
-      screenDependency:window.PlatformModuleRegistry.provenance?.('screen-mode-selector')?.dependencies||[]
+      screenDependency:window.PlatformModuleRegistry.provenance?.('screen-mode-selector')?.dependencies||[],
+      screenClosure:window.PlatformModuleRegistry.dependencyClosure?.('screen-mode-selector','editor')||[]
     }));
     assert((await page.title()).includes('블록 에디터'),'live Block Editor role label is stale');
     assert(await page.locator('.platform-admin-shell__nav a[aria-current="page"][href="/editor-lab/"]').count()===1,'live Block Editor admin nav state is stale');
@@ -236,6 +280,7 @@ async function verifyLiveBrowser(){
     assert(!editor.styles.some(src=>src.includes('/assets/styles/block-lab/')),'live Block Editor loads Block Lab CSS');
     assert(expectedLibrary.every(id=>editor.ids.includes(id)),`live Block Editor approved module set mismatch: ${editor.ids.join(', ')}`);
     assert(editor.screenDependency.some(item=>item.id==='filter-chip-rail'&&item.kind==='composition'),'live Editor did not load dependency-aware screen-mode definition');
+    assert(editor.screenClosure.includes('filter-chip-rail'),'live Editor screen-mode dependency closure is incomplete');
     pass('live Block Editor boundary',`persistent workspace + ${expectedLibrary.length} approved modules only`);
 
     await page.goto(cacheBust(`${BASE}/`),{waitUntil:'domcontentloaded',timeout:45000});
@@ -252,7 +297,9 @@ async function verifyLiveBrowser(){
     pass('live public migration','Photography canonical modules remain public; shared display remains public-capable by dependency contract; portable Library/Editor-only boundary remains closed');
 
     await context.close();
-  }finally{await browser.close();}
+  }finally{
+    await browser.close();
+  }
 }
 
 try{
@@ -262,7 +309,10 @@ try{
   await verifyLiveBrowser();
   report.status='pass';
 }catch(error){
-  report.status='fail';report.error=error?.stack||String(error);console.error(report.error);process.exitCode=1;
+  report.status='fail';
+  report.error=error?.stack||String(error);
+  console.error(report.error);
+  process.exitCode=1;
 }finally{
   report.finishedAt=new Date().toISOString();
   fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify(report,null,2));
