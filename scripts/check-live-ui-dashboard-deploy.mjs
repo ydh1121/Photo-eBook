@@ -23,7 +23,7 @@ function browserPath(){return ['/usr/bin/google-chrome','/usr/bin/google-chrome-
 function cacheBust(url){const join=url.includes('?')?'&':'?';return `${url}${join}deploy_check=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
 
 async function fetchText(url){
-  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.8'}});
+  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.9'}});
   if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
   return response.text();
 }
@@ -34,11 +34,19 @@ async function waitForCanonicalLibrary(){
     const at=new Date().toISOString();
     try{
       const html=await fetchText(`${BASE}/ui-dashboard/`);
-      const matched=html.includes(ENTRY_MARKER)&&html.includes('/assets/js/platform-modules/module-registry-v1.js');
-      report.attempts.push({attempt,at,status:'http-ok',matched,bytes:html.length});
-      console.log(`[deploy ${attempt}/${ATTEMPTS}] HTTP OK; canonical-library=${matched}`);
+      const entryMatched=html.includes(ENTRY_MARKER)&&html.includes('/assets/js/platform-modules/module-registry-v1.js');
+      let dependencyReady=false;
+      if(entryMatched){
+        const registry=await fetchText(`${BASE}/assets/js/platform-modules/module-registry-v1.js`);
+        const composition=await fetchText(`${BASE}/assets/js/platform-modules/portable-primitives-composition-v3.js`);
+        dependencyReady=['normalizeDependencies','renderDependency','hydrateDependency','resolveDependency','dependencyClosure','validateDependencyGraph'].every(marker=>registry.includes(marker))
+          &&composition.includes("dependencies:[{id:FILTER_ID,kind:'composition',required:true}]");
+      }
+      const matched=entryMatched&&dependencyReady;
+      report.attempts.push({attempt,at,status:'http-ok',matched,entryMatched,dependencyReady,bytes:html.length});
+      console.log(`[deploy ${attempt}/${ATTEMPTS}] HTTP OK; canonical-library=${entryMatched}; dependency-generation=${dependencyReady}`);
       if(matched)return html;
-      lastError=`latest HTML did not contain ${ENTRY_MARKER} + module registry`;
+      lastError=entryMatched?'canonical dependency generation not live yet':`latest HTML did not contain ${ENTRY_MARKER} + module registry`;
     }catch(error){
       lastError=error?.message||String(error);
       report.attempts.push({attempt,at,status:'error',error:lastError});
@@ -233,18 +241,21 @@ async function verifyLiveBrowser(){
         assert(state.dependency?.kind==='composition'&&state.dependency?.required===true,'live screen mode dependency provenance is wrong');
         assert(state.closure.includes('filter-chip-rail'),'live screen mode dependency closure is wrong');
         assert(state.ready&&state.skin,'live screen mode liquid indicator/skin did not become ready');
-        const before=state.transform;
+        const indicator=frame.locator('.platform-screen-mode .platform-filter-chip-source--liquid .collection-v33-indicator');
+        const lightSignature=await indicatorSignature(indicator);
+        assert(lightSignature.backgroundImage===canonicalFilterMotion.backgroundImage&&lightSignature.boxShadow===canonicalFilterMotion.boxShadow,'live screen-mode liquid paint owner differs from canonical filter in the same light theme');
+        const before=lightSignature.transform;
         await frame.locator('.platform-screen-mode .platform-filter-chip-source--liquid [data-screen-mode-value="dark"]').click();
         await frame.waitForFunction(old=>{
           const screen=document.querySelector('.platform-screen-mode[data-platform-module="screen-mode-selector"]');
           const indicator=screen?.querySelector('.platform-filter-chip-source--liquid .collection-v33-indicator');
           return screen?.dataset.screenMode==='dark'&&indicator?.style.transform!==old;
         },before,{timeout:10000});
-        const motion=await indicatorSignature(frame.locator('.platform-screen-mode .platform-filter-chip-source--liquid .collection-v33-indicator'));
+        const motion=await indicatorSignature(indicator);
         assert(motion.duration!=='0s','live screen-mode filter has zero-duration motion');
         assert(motion.easing===canonicalFilterMotion.easing,`live screen-mode motion policy differs from canonical filter: ${motion.easing} vs ${canonicalFilterMotion.easing}`);
         assert(motion.duration===canonicalFilterMotion.duration,`live screen-mode motion duration differs from canonical filter: ${motion.duration} vs ${canonicalFilterMotion.duration}`);
-        assert(motion.backgroundImage===canonicalFilterMotion.backgroundImage&&motion.boxShadow===canonicalFilterMotion.boxShadow,'live screen-mode liquid paint owner differs from canonical filter');
+        assert(/linear-gradient/i.test(motion.backgroundImage)&&motion.boxShadow!=='none','live screen-mode liquid skin paint disappeared after dark-theme selection');
       }
     }
 
