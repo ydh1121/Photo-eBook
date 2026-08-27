@@ -18,9 +18,10 @@ try{
   await page.goto(`${BASE}/block-lab/`,{waitUntil:'domcontentloaded',timeout:45000});
   await wait(()=>page.locator('.platform-admin-workspace-host:not([hidden]) iframe').count().then(Boolean),'Block Lab workspace missing');
   const iframe=page.locator('.platform-admin-workspace-host:not([hidden]) iframe');
-  await wait(()=>iframe.evaluate(node=>Boolean(node.contentDocument?.querySelector('.lab-controls > a[href="/ui-dashboard/"]'))),'Block Lab control link missing');
+  const linkSelector='.lab-controls > a[href="/ui-dashboard/"]:not([data-platform-builder-link])';
+  await wait(()=>iframe.evaluate((node,selector)=>Boolean(node.contentDocument?.querySelector(selector)),linkSelector),'Block Lab UI Library control link missing');
   const frame=iframe.contentFrame();
-  const link=frame.locator('.lab-controls > a[href="/ui-dashboard/"]');
+  const link=frame.locator(linkSelector);
   const filter=frame.locator('.lab-controls > .lab-filter');
   const segments=frame.locator('.lab-controls > .lab-segment');
   const state=await link.evaluate(node=>{
