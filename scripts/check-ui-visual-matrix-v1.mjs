@@ -192,6 +192,11 @@ async function waitWorkspace(page,route){
   await wait(()=>frame.locator(route.ready).count().then(Boolean),`${route.name}: ready surface missing`);
   return {iframe,frame};
 }
+async function setAdminTheme(page,theme,stateName,routeName){
+  const button=page.locator(`[data-admin-theme-value="${theme}"]`);
+  await wait(()=>button.count().then(Boolean),`${routeName}/${stateName}: admin theme control missing`);
+  if(await button.getAttribute('aria-pressed')!=='true')await button.evaluate(node=>node.click());
+}
 async function runAdminMatrix(browser){
   for(const state of ADMIN_STATES){
     const context=await browser.newContext({viewport:{width:state.width,height:state.height}});
@@ -199,9 +204,7 @@ async function runAdminMatrix(browser){
     for(const route of ADMIN_ROUTES){
       await page.goto(`${BASE}${route.href}`,{waitUntil:'domcontentloaded',timeout:45000});
       const {iframe,frame}=await waitWorkspace(page,route);
-      const themeButton=page.locator(`[data-admin-theme-value="${state.theme}"]`);
-      await wait(()=>themeButton.count().then(Boolean),`${route.name}/${state.name}: admin theme control missing`);
-      await themeButton.click({force:true});
+      await setAdminTheme(page,state.theme,state.name,route.name);
       await wait(()=>iframe.evaluate((node,want)=>node.contentDocument?.documentElement?.dataset.adminThemeResolved===want,state.theme),`${route.name}/${state.name}: embedded theme propagation failed`);
       await sleep(90);
 
