@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T16:59:04.765Z",
+  "startedAt": "2026-08-27T17:50:59.026Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T16:59:04.765Z",
+      "at": "2026-08-27T17:50:59.026Z",
       "status": "http-ok",
       "matched": true,
       "entryMatched": true,
@@ -68,14 +68,14 @@
     {
       "name": "live UI visual matrix gate",
       "status": "pass",
-      "detail": "10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states passed on live Pages"
+      "detail": "10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states and Block Lab mobile control rail passed on live Pages"
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-08-27T17:00:14.068Z",
-  "sourceSha": "593a905c7144738f9ea48882ba30fb458de3d191",
+  "finishedAt": "2026-08-27T17:52:26.308Z",
+  "sourceSha": "bfcc79faa8c9a08f6f302ce8eea4b60ada9cf2f3",
   "sourceRef": "main",
-  "workflowRunId": "33096031508",
-  "workflowRunNumber": "51",
-  "recordedAt": "2026-08-27T17:00:14.421Z"
+  "workflowRunId": "33100483375",
+  "workflowRunNumber": "52",
+  "recordedAt": "2026-08-27T17:52:26.794Z"
 }
