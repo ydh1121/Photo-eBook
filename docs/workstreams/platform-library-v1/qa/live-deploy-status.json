@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T14:32:15.579Z",
+  "startedAt": "2026-08-27T16:59:04.765Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T14:32:15.579Z",
+      "at": "2026-08-27T16:59:04.765Z",
       "status": "http-ok",
       "matched": true,
       "entryMatched": true,
@@ -64,13 +64,18 @@
       "name": "live Library module family gate",
       "status": "pass",
       "detail": "grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages"
+    },
+    {
+      "name": "live UI visual matrix gate",
+      "status": "pass",
+      "detail": "10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states passed on live Pages"
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-08-27T14:33:12.356Z",
-  "sourceSha": "f65fefbd83452f5744b1ce4d9f09ab4a7001b795",
+  "finishedAt": "2026-08-27T17:00:14.068Z",
+  "sourceSha": "593a905c7144738f9ea48882ba30fb458de3d191",
   "sourceRef": "main",
-  "workflowRunId": "33082606141",
-  "workflowRunNumber": "50",
-  "recordedAt": "2026-08-27T14:33:13.209Z"
+  "workflowRunId": "33096031508",
+  "workflowRunNumber": "51",
+  "recordedAt": "2026-08-27T17:00:14.421Z"
 }
