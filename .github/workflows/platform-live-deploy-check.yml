@@ -23,6 +23,7 @@ on:
       - 'public/assets/js/navigation/**'
       - 'public/assets/js/ui/**'
       - 'public/assets/styles/admin/**'
+      - 'public/assets/styles/block-lab/**'
       - 'public/assets/styles/platform-modules/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/editor-lab/**'
@@ -34,6 +35,7 @@ on:
       - 'scripts/check-library-runtime-feedback-v1.mjs'
       - 'scripts/check-library-module-family-controls-v1.mjs'
       - 'scripts/check-ui-visual-matrix-v1.mjs'
+      - 'scripts/check-block-lab-mobile-controls-v1.mjs'
       - '.github/workflows/platform-live-deploy-check.yml'
   workflow_dispatch:
 
@@ -56,6 +58,7 @@ jobs:
           node --check scripts/check-library-runtime-feedback-v1.mjs
           node --check scripts/check-library-module-family-controls-v1.mjs
           node --check scripts/check-ui-visual-matrix-v1.mjs
+          node --check scripts/check-block-lab-mobile-controls-v1.mjs
       - name: Install browser dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Verify Cloudflare Pages canonical module pipeline
@@ -84,6 +87,9 @@ jobs:
           fi
 
           matrix_status=pass
+          if ! UI_DASHBOARD_BASE_URL="$UI_DASHBOARD_LIVE_URL" node scripts/check-block-lab-mobile-controls-v1.mjs; then
+            matrix_status=fail
+          fi
           if ! UI_DASHBOARD_BASE_URL="$UI_DASHBOARD_LIVE_URL" node scripts/check-ui-visual-matrix-v1.mjs; then
             matrix_status=fail
           fi
@@ -122,8 +128,8 @@ jobs:
             name:'live UI visual matrix gate',
             status:matrixOk?'pass':'fail',
             detail:matrixOk
-              ?'10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states passed on live Pages'
-              :'UI visual matrix failed on live Pages'
+              ?'10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states and Block Lab mobile control rail passed on live Pages'
+              :'UI visual matrix or Block Lab mobile control rail failed on live Pages'
           });
           if(!parityOk||!feedbackOk||!familyOk||!matrixOk){
             report.status='fail';
@@ -194,5 +200,6 @@ jobs:
             artifacts/library-runtime-feedback-v1
             artifacts/library-module-family-controls-v1
             artifacts/ui-visual-matrix-v1
+            artifacts/block-lab-mobile-controls-v1
           if-no-files-found: ignore
           retention-days: 7
