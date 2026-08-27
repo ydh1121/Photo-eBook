@@ -1,19 +1,21 @@
 # Platform Library V1 Handoff
 
-Updated: 2026-08-26 KST
-Active implementation branch: `fix/admin-shell-library-navigation-v2`
+Updated: 2026-08-27 KST
+Active implementation branch: `refactor/module-dependency-screen-mode-filter-v1`
 Production branch: `main`
-Status: `unified admin shell + Library navigation UX in QA`
+Production baseline before this branch: `2fb2ec220c5515c096520ff1e0ed2ee8b1f419b8`
+Status: `screen-mode → filter-chip canonical dependency refactor in PR QA preparation`
 
 ## Resume order
 
 1. `AGENTS.md`
 2. `docs/library/platform-modules/CANONICAL-MODULE-PIPELINE.md`
-3. `docs/workstreams/platform-library-v1/ARCHITECTURE-COMPLIANCE-AUDIT-V1.md`
-4. `docs/workstreams/platform-library-v1/TASKS.md`
-5. `docs/workstreams/platform-library-v1/SETTING-RUNTIME-AUDIT-V1.md`
-6. this file
-7. confirm current branch/PR CI before merge
+3. `docs/library/platform-modules/MODULE-DEPENDENCY-CONTRACT-V1.md`
+4. `docs/workstreams/platform-library-v1/ARCHITECTURE-COMPLIANCE-AUDIT-V1.md`
+5. `docs/workstreams/platform-library-v1/TASKS.md`
+6. `docs/workstreams/platform-library-v1/SETTING-RUNTIME-AUDIT-V1.md`
+7. this file
+8. confirm current branch/PR CI before merge
 
 ## Architecture invariant
 
@@ -23,28 +25,23 @@ Correct final model:
 
 `Canonical Module Registry → UI Library → Block Editor → Completed Page → Public/Portable Export`
 
-Photography is only an initial bootstrap extraction/parity reference. `source: public-extracted` records historical provenance, not a live dependency.
+A reusable module must not visually imitate another canonical module. If it consumes another module's structure or behavior, the relation is declared in `PlatformModuleRegistry.dependencies` and the child is rendered/hydrated through Registry dependency APIs.
 
-Final Photography state:
+Module dependency and file ownership are separate:
 
-`Photography legacy page → canonical extraction/parity complete → first Completed Page snapshot → visible/editable/duplicable from Block Editor completed-page list`
+- `dependencies`: canonical module-to-module relation
+- `ownerFiles`: JS/CSS/assets owned by a module/runtime
 
-After that migration, Library must not reread Photography page DOM/CSS/runtime as its source of truth.
+Portable Export must follow the Registry dependency closure instead of guessing transitive files.
 
 ## Current production baseline
 
-PR #43 `Replace Library top catalog with canonical module tree` merged:
-`431ed3360039f3b10662f151587b6ca7c45340a9`.
+The previous production line completed the canonical/admin parity and live deploy QA fixes through PR #52.
 
-Live verification bot record after #43:
-`444ead0a3ef94855697b147c06aeece1bbd42e38`.
+Current `main` before this branch:
+`2fb2ec220c5515c096520ff1e0ed2ee8b1f419b8`
 
-PR #43 delivered:
-- Registry-driven left module tree
-- shared bottom-popup shell
-- screen-mode composition from canonical filter-chip module
-- horizontal-rail bottom paint runway
-- Photography bootstrap-only / Completed Page architecture correction
+That SHA is the live verification record commit after merge `5026da99dbb17b02730bbfa578fcf64cd2cc07a6`.
 
 ## Approved module boundary
 
@@ -64,77 +61,82 @@ Portable Library + Editor set:
 Platform composition:
 - `screen-mode-selector`
 
-Do not connect portable/new modules to the current Photography final Public experience without explicit user approval.
+Current required dependency:
+
+`screen-mode-selector --composition/required--> filter-chip-rail`
+
+Do not connect portable/new modules to the current Photography final Public experience without explicit approval. The existing Photography collection settings may mount `screen-mode-selector` because that module is already an approved public-capable composition.
 
 ## Current branch changes
 
-1. Library left navigation UX
-- Keep the actual Registry `[data-kit-ui]` selector nodes; no cloned module catalog.
-- Redesign hierarchy with category SVG icons, clear active/open/closed states, chevrons and stronger spacing.
-- Persist group open/closed state.
-- Module tree body owns vertical scrolling so the catalog can grow to many modules.
+1. Registry dependency graph
+- Add normalized `dependencies` to module definitions.
+- Supported kinds: `composition`, `behavior`, `data`.
+- Reject self-dependency and duplicate dependency IDs.
+- Add `resolveDependency()`, `renderDependency()`, `hydrateDependency()`.
+- Add `dependencyClosure()` for dependency-first transitive resolution.
+- Add `validateDependencyGraph()`.
+- Reject missing required dependencies, consumer-boundary violations, and circular dependency graphs.
+- Include dependency provenance in `provenance()`.
 
-2. Collapse / resize repair
-- Root cause of text leakage: old collapse set `--admin-sidebar-w:0`, which also collapsed the shell width before `translateX(-100%)`.
-- New contract separates actual shell width (`--library-admin-sidebar-w`) from page offset (`--admin-sidebar-w`).
-- Collapsed shell keeps its real width and fully translates offscreen.
-- Reopen control is a fixed left-edge center handle.
-- Drag resize/collapse remains; width is shared through `platformAdminSidebarWidthV1` across management routes.
-- Old broken Library state key is retired in favor of `platformLibrarySidebarV2`.
+2. Screen mode canonical composition
+- Remove the duplicate Screen Mode chip renderer/hydrator from `portable-primitives-extension-v2.js`.
+- Register Screen Mode in `portable-primitives-composition-v3.js`.
+- Screen Mode owns only title/description and `light | dark | system` semantic state.
+- Actual chips are rendered by canonical `filter-chip-rail` through `renderDependency()`.
+- Actual filter interaction is hydrated through `hydrateDependency()`.
+- `data-screen-mode-value` remains a non-visual compatibility alias only.
 
-3. Preview controls placement
-- The real Library `#kitTheme`, `#kitViewport`, and `#kitSettings` nodes are moved into one `.builder-kit-preview-toolbar` directly above the canvas.
-- No duplicate preview controls are created.
-- These controls remain edit-target state, not admin chrome state.
+3. Filter motion ownership
+- `public/assets/js/ui/liquid-controller.js` exposes `PhotoLiquidController.attachFilterRail()`.
+- The canonical filter module attaches the same liquid controller when mounted standalone or inside Screen Mode.
+- Moving indicator, Breeze overshoot, active geometry and remount repair stay in the shared motion owner.
+- Screen Mode CSS may control composition geometry only; it must not paint its own active pill or motion.
 
-4. Admin-only theme
-- Add `platformAdminThemeV1`: light / dark / system.
-- Admin theme changes only `data-admin-theme`, `data-admin-theme-resolved` and admin chrome CSS tokens.
-- Library `platformLibraryThemeV3` / iframe theme remain independent.
-- Block Lab and Editor `data-theme` preview roots remain independent.
-- Admin theme control lives in the shared shell footer and persists across management routes.
+4. Collection settings composition
+- Photography collection settings bridge mounts the same `screen-mode-selector` through Registry with `consumer:'public'`.
+- The bridge validates the public dependency closure before mount.
+- Legacy `.theme-setting-card` nodes are placement/migration debris only and are pruned.
+- `collection-bottom-sheet.themeSelector` now targets the actual `[data-collection-screen-mode-slot]` through `module-style-runtime-composition-v1.js`.
 
-5. Shared management chrome
-- Add `public/assets/styles/admin/admin-unified-v2.css`.
-- Same admin token system and shell state apply to Library, Block Lab, Editor and QA.
-- Local tool-specific surfaces remain, but their management chrome uses the shared token layer.
-- Block Lab specimen canvas, Editor page canvas and Library iframe keep their own preview theme ownership.
+5. Consumer generation alignment
+- Library, shared preview, Editor and Photography Public now load the same transitive dependency-aware Registry generation.
+- Editor validates the dependency graph before exposing `ui-module` variants.
+- Cache versions were bumped for Registry/extension/bridge loader paths changed by this refactor.
 
-6. QA
-- Existing `scripts/check-library-module-family-controls-v1.mjs` now also verifies:
-  - icon hierarchy and real Registry button ownership
-  - preview toolbar node placement
-  - admin-dark / preview-light isolation
-  - preview theme cannot mutate admin theme
-  - collapsed shell keeps width and fully exits viewport
-  - reopen and drag resize
-  - shared width persistence
-  - admin theme/width continuity across Library → Block Lab → Editor
-  - target preview themes remain light across those route changes
-- Architecture workflow now watches admin shell/style, Block Lab and QA paths too.
+6. QA contracts
+- `scripts/check-platform-module-boundaries.mjs` now checks dependency graph APIs, composition ownership, style-owner separation, cache generation alignment and Editor graph validation.
+- `scripts/check-canonical-admin-parity-v1.mjs` checks Screen Mode's real nested `filter-chip-rail`, moving liquid indicator and Breeze easing.
+- `scripts/check-live-ui-dashboard-deploy.mjs` checks the same dependency graph and runtime behavior on deployed Pages.
+- Existing Library exhaustive QA already targets `[data-collection-screen-mode-slot]` for `themeSelector`.
 
 ## Current branch QA requirement
 
-Before merge:
-- `Platform Library Architecture Checks` must pass with the new admin UX/theme isolation assertions.
-- existing `Platform Library Checks` must pass.
-- existing `Platform Library Generalization Checks` must pass.
-- Library and Editor approved module IDs must remain aligned.
-- no canonical module owner or current Photography final Public runtime is changed by this branch.
+Before merge, all triggered checks must be green. At minimum:
+
+- `Canonical Admin Parity`
+- `Platform Library Architecture Checks`
+- `Platform Library Generalization Checks`
+- `Platform Library Checks`
+
+Required behavior assertions:
+
+- standalone Screen Mode contains exactly one canonical `filter-chip-rail` child.
+- collection popup Screen Mode contains the same canonical child.
+- selecting Dark moves `.collection-v33-indicator` with non-zero duration and canonical Breeze overshoot.
+- Screen Mode CSS does not recreate active-chip paint/state/motion.
+- `dependencyClosure('screen-mode-selector', consumer)` includes `filter-chip-rail`.
+- Library / Editor / Public consumer boundaries remain valid.
+- `themeSelector=false` hides the actual canonical collection Screen Mode slot.
+- no mobile behavior regression is introduced.
 
 ## Exact next action
 
-1. Open PR for `fix/admin-shell-library-navigation-v2`.
-2. Run Architecture + Library + Generalization CI.
-3. Fix only genuine product/QA regressions until all required checks are green.
-4. Merge to main and verify Cloudflare live Library:
-   - left hierarchy visuals
-   - no text leakage after collapse
-   - reopen/drag behavior
-   - preview controls above canvas
-   - admin dark independent from preview light/dark
-5. Open Block Lab and Block Editor and verify shared admin shell design/theme/width remains consistent.
-6. Continue full 10-module PC/mobile × light/dark visual matrix.
-7. Then implement Completed Page registry/list and migrate Photography as the first Completed Page.
-
-Do not change the current Photography final public experience without explicit user approval.
+1. Open a PR from `refactor/module-dependency-screen-mode-filter-v1` to `main`.
+2. Run all triggered GitHub Actions.
+3. Do not merge while any gate is failing.
+4. Fix genuine product/contract regressions on the same branch and rerun.
+5. When all PR gates are green, merge with the verified head SHA.
+6. Verify `main` Actions and Cloudflare Pages deployment.
+7. Confirm live `/ui-dashboard/?ui=screen-mode-selector` and collection settings use the same nested filter module and motion owner.
+8. After this refactor is complete, continue the remaining PC/mobile × light/dark module matrix and then Completed Page work.
