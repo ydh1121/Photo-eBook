@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T14:30:34.234Z",
+  "startedAt": "2026-08-27T14:32:15.579Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T14:30:34.234Z",
+      "at": "2026-08-27T14:32:15.579Z",
       "status": "http-ok",
       "matched": true,
       "entryMatched": true,
@@ -57,8 +57,8 @@
     },
     {
       "name": "live Library runtime feedback gate",
-      "status": "fail",
-      "detail": "focused Library runtime feedback checks failed on live Pages"
+      "status": "pass",
+      "detail": "top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages"
     },
     {
       "name": "live Library module family gate",
@@ -66,12 +66,11 @@
       "detail": "grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages"
     }
   ],
-  "status": "fail",
-  "finishedAt": "2026-08-27T14:31:10.255Z",
-  "error": "live Library runtime feedback gate failed",
+  "status": "pass",
+  "finishedAt": "2026-08-27T14:33:12.356Z",
   "sourceSha": "f65fefbd83452f5744b1ce4d9f09ab4a7001b795",
   "sourceRef": "main",
   "workflowRunId": "33082606141",
   "workflowRunNumber": "50",
-  "recordedAt": "2026-08-27T14:31:10.688Z"
+  "recordedAt": "2026-08-27T14:33:13.209Z"
 }
