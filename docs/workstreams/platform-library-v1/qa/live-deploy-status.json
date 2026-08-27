@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T04:34:38.126Z",
+  "startedAt": "2026-08-27T04:39:34.311Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T04:34:38.126Z",
+      "at": "2026-08-27T04:39:34.311Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3382
@@ -42,14 +42,33 @@
       "name": "live Block Editor boundary",
       "status": "pass",
       "detail": "persistent workspace + 10 approved modules only"
+    },
+    {
+      "name": "live public migration",
+      "status": "pass",
+      "detail": "Photography canonical modules remain public; shared display remains public-capable by contract; portable Library/Editor-only boundary remains closed"
+    },
+    {
+      "name": "live top-nav runtime parity",
+      "status": "pass",
+      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
+    },
+    {
+      "name": "live Library runtime feedback gate",
+      "status": "pass",
+      "detail": "top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages"
+    },
+    {
+      "name": "live Library module family gate",
+      "status": "pass",
+      "detail": "grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages"
     }
   ],
-  "status": "fail",
-  "error": "Error: live public consumer cannot resolve shared display modules\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:210:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:224:3",
-  "finishedAt": "2026-08-27T04:34:50.120Z",
-  "sourceSha": "08b2792340452116545dd615264fd4e384bf386e",
+  "status": "pass",
+  "finishedAt": "2026-08-27T04:40:06.003Z",
+  "sourceSha": "5026da99dbb17b02730bbfa578fcf64cd2cc07a6",
   "sourceRef": "main",
-  "workflowRunId": "33039820996",
-  "workflowRunNumber": "47",
-  "recordedAt": "2026-08-27T04:34:50.519Z"
+  "workflowRunId": "33040069549",
+  "workflowRunNumber": "48",
+  "recordedAt": "2026-08-27T04:40:06.278Z"
 }
