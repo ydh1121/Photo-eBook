@@ -1,14 +1,16 @@
 {
-  "startedAt": "2026-08-27T14:19:09.121Z",
+  "startedAt": "2026-08-27T14:30:34.234Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T14:19:09.121Z",
+      "at": "2026-08-27T14:30:34.234Z",
       "status": "http-ok",
       "matched": true,
+      "entryMatched": true,
+      "dependencyReady": true,
       "bytes": 3382
     }
   ],
@@ -27,14 +29,49 @@
       "name": "live UI Library",
       "status": "pass",
       "detail": "registry-driven root route with 10 approved modules"
+    },
+    {
+      "name": "live Library theme/viewport",
+      "status": "pass",
+      "detail": "dark + mobile shared preview"
+    },
+    {
+      "name": "live Block Lab boundary",
+      "status": "pass",
+      "detail": "persistent workspace + research-only"
+    },
+    {
+      "name": "live Block Editor boundary",
+      "status": "pass",
+      "detail": "persistent workspace + 10 approved modules only"
+    },
+    {
+      "name": "live public migration",
+      "status": "pass",
+      "detail": "Photography canonical modules remain public; shared display remains public-capable by dependency contract; portable Library/Editor-only boundary remains closed"
+    },
+    {
+      "name": "live top-nav runtime parity",
+      "status": "pass",
+      "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
+    },
+    {
+      "name": "live Library runtime feedback gate",
+      "status": "fail",
+      "detail": "focused Library runtime feedback checks failed on live Pages"
+    },
+    {
+      "name": "live Library module family gate",
+      "status": "pass",
+      "detail": "grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages"
     }
   ],
   "status": "fail",
-  "error": "Error: live screen-mode liquid paint owner differs from canonical filter\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:247:9)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:309:3",
-  "finishedAt": "2026-08-27T14:19:22.586Z",
-  "sourceSha": "fc0603c8ed86441fe167323f29b982c544c099f7",
+  "finishedAt": "2026-08-27T14:31:10.255Z",
+  "error": "live Library runtime feedback gate failed",
+  "sourceSha": "f65fefbd83452f5744b1ce4d9f09ab4a7001b795",
   "sourceRef": "main",
-  "workflowRunId": "33081458305",
-  "workflowRunNumber": "49",
-  "recordedAt": "2026-08-27T14:19:23.164Z"
+  "workflowRunId": "33082606141",
+  "workflowRunNumber": "50",
+  "recordedAt": "2026-08-27T14:31:10.688Z"
 }
