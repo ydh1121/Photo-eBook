@@ -1,14 +1,9 @@
-/* v2: canonical liquid controller for nav, collection tabs, and theme controls.
-   Loaded immediately after the base markup helpers so first paint never depends
-   on a late enhancement race. This file intentionally owns these selectors and
-   prevents the retired script-27 controller from attaching a second owner.
-   Navigation mount detection is DOM-owner based so the same controller survives
-   Public, Library, and Editor remounts without preview-only interaction code. */
+/* v3: canonical liquid controller shared by navigation and filter-chip rails.
+   Screen mode no longer owns or injects a separate theme-choice control; it composes
+   the approved filter-chip module, which attaches to this motion owner explicitly. */
 (function(){
   if(window.__photoCanonicalLiquidInstalled)return;
   window.__photoCanonicalLiquidInstalled=true;
-
-  /* script-27 uses this guard. Claim ownership before that deferred asset runs. */
   window.__photoV49CoreInstalled=true;
 
   const THEME_KEY='photoRoadmapThemeV1';
@@ -19,7 +14,7 @@
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;
   const controllers=new WeakMap();
-  let navMountRaf=0;
+  let mountRaf=0;
 
   function currentThemeChoice(){
     const dom=document.documentElement.dataset.themeChoice;
@@ -38,7 +33,6 @@
     document.documentElement.dataset.theme=dark?'dark':'light';
     document.documentElement.style.colorScheme=dark?'dark':'light';
     try{localStorage.setItem(THEME_KEY,choice);}catch{}
-    $$('.theme-choice button').forEach(button=>button.classList.toggle('is-active',button.dataset.themeChoice===choice));
     window.dispatchEvent(new CustomEvent('photo-theme-change',{detail:{choice,effective:dark?'dark':'light'}}));
   }
 
@@ -51,12 +45,8 @@
     window.setPhotoRoadmapTheme=applyTheme;
   }
 
-  function skinMarkup(){
-    return '<span class="v37-liquid-skin" aria-hidden="true"></span>';
-  }
+  function skinMarkup(){return '<span class="v37-liquid-skin" aria-hidden="true"></span>';}
 
-  /* Seed the top-nav indicator in the actual first-paint HTML. MutationObserver
-     then measures it in the same rendering turn that #app receives its markup. */
   if(typeof window.nav==='function'&&!window.__photoCanonicalNavMarkup){
     window.__photoCanonicalNavMarkup=true;
     const baseNav=window.nav;
@@ -104,9 +94,7 @@
       const base=clamp((slow?300:245)+distance*(slow?.18:.10),slow?320:255,slow?470:380);
       return Math.round(base*durationScale);
     }
-
     function activeItem(){return $(itemSelector+'.is-active',root)||$(itemSelector,root);}
-
     function geometry(){
       const item=activeItem();
       if(!item)return null;
@@ -114,13 +102,9 @@
       if(!w||!h)return null;
       return {item,x,y,w,h};
     }
-
     function setTransition(current,duration,easing,instant){
-      current.style.transition=(instant||reduced())
-        ?'none'
-        :`transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
+      current.style.transition=(instant||reduced())?'none':`transform ${duration}ms ${easing}, width ${duration}ms ${easing}, height ${duration}ms ${easing}`;
     }
-
     function update({instant=false}={}){
       if(!root.isConnected)return;
       const next=geometry();
@@ -130,7 +114,6 @@
       const duration=durationFor(next.x,next.w);
       const firstItem=$(itemSelector,root);
       const easing=root.matches('.nav-scroll')&&next.item===firstItem?EDGE:BREEZE;
-
       setTransition(indicator,duration,easing,instant||first);
       indicator.style.width=next.w+'px';
       indicator.style.height=next.h+'px';
@@ -142,12 +125,10 @@
       indicator.dataset.ready='true';
       state.x=next.x;state.y=next.y;state.w=next.w;state.h=next.h;state.ready=true;
       root.classList.add(readyClass,'v41-skin-ready','v39-liquid-ready');
-
       if((instant||first)&&!reduced())requestAnimationFrame(()=>{
         if(indicator?.isConnected)setTransition(indicator,duration,easing,false);
       });
     }
-
     function repair(){
       if(!root.isConnected)return;
       const hadIndicator=Boolean(indicator?.isConnected&&indicator.parentNode===root);
@@ -204,93 +185,71 @@
     update();
   }
 
+  function attachNavigation(nav){
+    if(!nav)return null;
+    installReadingProgress(nav);
+    return makeController(nav,{itemSelector:'.nav-chip',indicatorClass:'nav-v33-indicator',readyClass:'v33-liquid-ready',durationScale:1.10});
+  }
+  function attachFilterRail(root){
+    if(!root)return null;
+    return makeController(root,{itemSelector:'.collection-tab',indicatorClass:'collection-v33-indicator',readyClass:'v33-liquid-ready',slow:true});
+  }
   function installNav(){
     const nav=$('.nav-scroll');
     if(!nav)return false;
-    installReadingProgress(nav);
-    makeController(nav,{itemSelector:'.nav-chip',indicatorClass:'nav-v33-indicator',readyClass:'v33-liquid-ready',durationScale:1.10});
+    attachNavigation(nav);
     return true;
   }
-
-  function installCollectionTabs(){
-    const tabs=$('.collection-tabs');
-    if(!tabs)return false;
-    makeController(tabs,{itemSelector:'.collection-tab',indicatorClass:'collection-v33-indicator',readyClass:'v33-liquid-ready',slow:true});
-    return true;
-  }
-
-  function themeCardMarkup(){
-    const choice=currentThemeChoice();
-    return `<section class="theme-setting-card" aria-label="화면 모드"><div class="theme-setting-card__copy"><strong>화면 모드</strong><small>화이트, 다크 또는 기기 설정에 맞춰 표시할 수 있습니다.</small></div><div class="theme-choice" role="group" aria-label="화면 모드 선택"><button type="button" data-theme-choice="light" class="${choice==='light'?'is-active':''}">화이트</button><button type="button" data-theme-choice="dark" class="${choice==='dark'?'is-active':''}">다크</button><button type="button" data-theme-choice="system" class="${choice==='system'?'is-active':''}">시스템</button></div></section>`;
-  }
-
-  function injectThemeControls(){
-    const settings=$('.collection-settings');
-    if(!settings)return false;
-    let card=$('.theme-setting-card',settings);
-    if(!card){
-      const summary=$('.collection-settings__summary',settings);
-      if(summary)summary.insertAdjacentHTML('afterend',themeCardMarkup());
-      else settings.insertAdjacentHTML('afterbegin',themeCardMarkup());
-      card=$('.theme-setting-card',settings);
-    }
-    const choice=$('.theme-choice',card||settings);
-    if(!choice)return false;
-    makeController(choice,{itemSelector:'button',indicatorClass:'theme-v34-indicator',readyClass:'v34-liquid-ready',slow:true});
-    $$('button[data-theme-choice]',choice).forEach(button=>{
-      if(button.dataset.canonicalThemeBound==='true')return;
-      button.dataset.canonicalThemeBound='true';
-      button.addEventListener('click',()=>applyTheme(button.dataset.themeChoice||'light'));
-    });
+  function installCollectionTabs(root=document){
+    const tabs=$$('.collection-tabs',root);
+    if(!tabs.length)return false;
+    tabs.forEach(attachFilterRail);
     return true;
   }
 
   function nodeContainsNav(node){
     return Boolean(node?.nodeType===1&&(node.matches?.('.nav-scroll')||node.querySelector?.('.nav-scroll')));
   }
-
-  function scheduleNavInstall(){
-    if(navMountRaf)return;
-    navMountRaf=requestAnimationFrame(()=>{navMountRaf=0;installNav();});
+  function nodeContainsFilterRail(node){
+    return Boolean(node?.nodeType===1&&(node.matches?.('.collection-tabs')||node.querySelector?.('.collection-tabs')));
   }
-
+  function scheduleMountInstall(){
+    if(mountRaf)return;
+    mountRaf=requestAnimationFrame(()=>{mountRaf=0;installNav();installCollectionTabs();});
+  }
   function watchNavigationMounts(){
     installNav();
+    installCollectionTabs();
     const body=document.body;
     if(!body||body.dataset.canonicalLiquidNavWatch==='true')return;
     body.dataset.canonicalLiquidNavWatch='true';
     const observer=new MutationObserver(records=>{
       for(const record of records){
-        if([...record.addedNodes].some(nodeContainsNav)){scheduleNavInstall();return;}
+        if([...record.addedNodes].some(node=>nodeContainsNav(node)||nodeContainsFilterRail(node))){scheduleMountInstall();return;}
       }
     });
     observer.observe(body,{childList:true,subtree:true});
-    [80,220,520,1100,2200].forEach(delay=>setTimeout(installNav,delay));
+    [80,220,520,1100,2200].forEach(delay=>setTimeout(()=>{installNav();installCollectionTabs();},delay));
   }
+
+  window.PhotoLiquidController=Object.freeze({attachNavigation,attachFilterRail});
 
   document.addEventListener('click',event=>{
     if(event.target.closest?.('#collectionFab')){
-      requestAnimationFrame(installCollectionTabs);
-      setTimeout(installCollectionTabs,40);
+      requestAnimationFrame(()=>installCollectionTabs());
+      setTimeout(()=>installCollectionTabs(),40);
       return;
     }
-    if(event.target.closest?.('.collection-tab')){
-      requestAnimationFrame(installCollectionTabs);
-      if(event.target.closest?.('[data-library-tab="settings"]')){
-        setTimeout(()=>{injectThemeControls();installCollectionTabs();},50);
-      }
-      return;
-    }
+    if(event.target.closest?.('.collection-tab'))requestAnimationFrame(()=>installCollectionTabs());
   },true);
 
   window.addEventListener('pageshow',()=>{
-    setTimeout(()=>{installNav();installCollectionTabs();injectThemeControls();},80);
+    setTimeout(()=>{installNav();installCollectionTabs();},80);
   },{passive:true});
   window.addEventListener('photo-theme-change',()=>{
     requestAnimationFrame(()=>{
-      $('.nav-scroll')?.__photoLiquidController?.repair();
-      $('.collection-tabs')?.__photoLiquidController?.repair();
-      $('.theme-choice')?.__photoLiquidController?.repair();
+      $$('.nav-scroll').forEach(root=>root.__photoLiquidController?.repair());
+      $$('.collection-tabs').forEach(root=>root.__photoLiquidController?.repair());
     });
   },{passive:true});
 
