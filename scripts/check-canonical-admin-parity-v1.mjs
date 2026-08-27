@@ -59,8 +59,27 @@ async function darkSurface(frame,selector,label){
   return value;
 }
 
+async function canonicalFilterReference(page){
+  await openLibrary(page,'filter-chip-rail');
+  const frame=page.frameLocator('#builderFrame');
+  const module=frame.locator('.platform-filter-chip-module[data-platform-module="filter-chip-rail"]');
+  const liquid=module.locator('.platform-filter-chip-source--liquid');
+  const buttons=liquid.locator('[data-platform-filter-id]');
+  const indicator=liquid.locator('.collection-v33-indicator');
+  await wait(()=>indicator.evaluate(node=>node.dataset.ready==='true'&&Boolean(node.style.transform)&&Boolean(node.querySelector(':scope > .v37-liquid-skin'))),'canonical filter liquid owner did not become ready');
+  const before=await liquidSignature(indicator);
+  await buttons.nth(1).click();
+  await wait(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before.transform),'canonical filter indicator did not move');
+  const moved=await liquidSignature(indicator);
+  assert(moved.transitionDuration!=='0s','canonical filter indicator has zero-duration motion');
+  assert(/cubic-bezier/i.test(moved.transitionTimingFunction),'canonical filter indicator lost overshoot timing policy');
+  assert(/linear-gradient/i.test(moved.backgroundImage),'canonical filter liquid skin paint missing');
+  return moved;
+}
+
 async function screenModeParity(page){
-  await openLibrary(page,'screen-mode-selector');
+  const canonicalFilter=await canonicalFilterReference(page);
+  await selectModule(page,'screen-mode-selector');
   const frame=page.frameLocator('#builderFrame');
   const standalone=frame.locator('.platform-screen-mode[data-platform-module="screen-mode-selector"]');
   const filter=standalone.locator('[data-platform-module="filter-chip-rail"]');
@@ -84,8 +103,9 @@ async function screenModeParity(page){
   await wait(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'screen-mode liquid indicator did not move');
   const moved=await liquidSignature(indicator);
   assert(moved.transitionDuration!=='0s','screen-mode liquid indicator has zero-duration motion');
-  assert(moved.transitionTimingFunction.includes('cubic-bezier(0.34, 1.56, 0.64, 1)'),`screen-mode did not inherit canonical Breeze overshoot: ${moved.transitionTimingFunction}`);
-  pass('screen mode dependency ownership',`screen-mode-selector → filter-chip-rail; ${provenance.consumers.join('/')}`);
+  assert(moved.transitionTimingFunction===canonicalFilter.transitionTimingFunction,`screen-mode motion policy differs from canonical filter: ${moved.transitionTimingFunction} vs ${canonicalFilter.transitionTimingFunction}`);
+  assert(moved.transitionDuration===canonicalFilter.transitionDuration,`screen-mode motion duration differs from canonical filter: ${moved.transitionDuration} vs ${canonicalFilter.transitionDuration}`);
+  pass('screen mode dependency ownership',`screen-mode-selector → filter-chip-rail; motion ${moved.transitionTimingFunction}`);
 
   await selectModule(page,'collection-bottom-sheet');
   const collectionFrame=page.frameLocator('#builderFrame');
@@ -101,8 +121,8 @@ async function screenModeParity(page){
   assert(await collectionFrame.locator('.collection-settings .theme-setting-card,.collection-settings [data-theme-setting-card]').count()===0,'legacy screen-mode lookalike remains inside popup settings');
   assert(await popupFilter.count()===1,'popup screen mode did not compose the canonical filter-chip dependency exactly once');
   const popupSignature=await liquidSignature(popupIndicator);
-  for(const key of ['backgroundImage','borderRadius','boxShadow'])assert(popupSignature[key]===standaloneSignature[key],`screen mode popup/standalone liquid-owner mismatch: ${key}`);
-  pass('screen mode popup/standalone parity','same screen module + same nested filter module + same liquid geometry/motion + same liquid skin paint owner');
+  for(const key of ['backgroundImage','borderRadius','boxShadow','transitionDuration','transitionTimingFunction'])assert(popupSignature[key]===standaloneSignature[key],`screen mode popup/standalone canonical-owner mismatch: ${key}`);
+  pass('screen mode popup/standalone parity','same screen module + same nested filter module + same filter motion policy + same liquid skin paint owner');
   await shot(page,'screen-mode-popup-parity');
 }
 
