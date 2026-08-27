@@ -20,7 +20,7 @@ expect(registry.includes("definition.status!=='approved'"),'Normal consumers mus
 expect(registry.includes("CONTENT_DEFAULTS_KEY='platformModuleContentDefaultsV1'"),'Library content defaults must snapshot into new Editor instances.');
 expect(registry.includes("STYLE_DEFAULTS_KEY='platformModuleDefaultsV1'"),'Library style defaults must snapshot into new Editor instances.');
 expect(registry.includes('hydration.api'),'Registry mount must expose real interaction APIs.');
-for(const marker of ['normalizeDependencies','resolveDependency','renderDependency','hydrateDependency','dependencies:clone(def.dependencies||[])'])expect(registry.includes(marker),`Registry dependency graph API missing: ${marker}`);
+for(const marker of ['normalizeDependencies','resolveDependency','renderDependency','hydrateDependency','dependencyClosure','validateDependencyGraph','Circular platform module dependency','dependencies:clone(def.dependencies||[])'])expect(registry.includes(marker),`Registry dependency graph API missing: ${marker}`);
 
 const modules=read('public/assets/js/platform-modules/photo-core-modules-v1.js');
 for(const id of expected)expect(modules.includes(`id:'${id}'`),`Missing approved platform module: ${id}`);
@@ -42,6 +42,7 @@ for(const owner of [
 
 const primitiveExtension=read('public/assets/js/platform-modules/portable-primitives-extension-v2.js');
 expect(!primitiveExtension.includes('function renderScreenMode')&&!primitiveExtension.includes('function hydrateScreenMode'),'Screen mode must not keep a duplicate implementation in the primitive extension.');
+expect(primitiveExtension.includes("styleComposition='public/assets/js/platform-modules/module-style-runtime-composition-v1.js'"),'Collection composition style owner is missing from provenance.');
 
 const composition=read('public/assets/js/platform-modules/portable-primitives-composition-v3.js');
 for(const marker of [
@@ -81,16 +82,19 @@ expect(screenCss.includes('filter-chip-rail + liquid-controller'),'Screen mode s
 for(const forbidden of ['.platform-screen-mode__options button','[aria-pressed="true"]','data-screen-mode-value'])expect(!screenCss.includes(forbidden),`Screen mode stylesheet recreates filter-chip paint/state: ${forbidden}`);
 
 const screenBridge=read('public/assets/js/collection/screen-mode-settings-bridge-v1.js');
-expect(screenBridge.includes("resolveDependency?.('screen-mode-selector','filter-chip-rail','public')"),'Photography screen-mode bridge must resolve the declared filter-chip dependency.');
+expect(screenBridge.includes("resolveDependency?.('screen-mode-selector','filter-chip-rail','public')")||screenBridge.includes("resolveDependency('screen-mode-selector','filter-chip-rail','public')"),'Photography screen-mode bridge must resolve the declared filter-chip dependency.');
+expect(screenBridge.includes("dependencyClosure?.('screen-mode-selector','public')"),'Photography screen-mode bridge must validate the transitive dependency closure.');
 expect(screenBridge.includes('/assets/styles/platform-modules/filter-chip-rail-v1.css'),'Photography screen-mode bridge must load the child filter stylesheet.');
+expect(screenBridge.includes('portable-primitives-extension-v2.js?v=5'),'Photography bridge must load the current dependency-aware extension.');
 
 const styleRuntime=read('public/assets/js/platform-modules/module-style-runtime-v1.js');
 for(const marker of ['FONT_STACKS','fontFamily','fontSize','fontWeight','letterSpacing','progressEnabled','progressMode','progressColor','leftFade','themeSelector','moduleScrollbar'])expect(styleRuntime.includes(marker),`Visible setting has no canonical runtime implementation marker: ${marker}`);
 expect(styleRuntime.includes("allowed=['ios-liquid','ios-flat','material-flat']"),'Filter style runtime must support exactly the three canonical families.');
-expect(styleRuntime.includes("['themeSelector','.theme-setting-card']"),'Bottom sheet theme-selector control must affect the real node.');
 expect(styleRuntime.includes('data-module-scrollbar'),'Card scrollbar control must affect the real horizontal rail.');
 expect(styleRuntime.includes("node.style.setProperty('font-size'"),'Typography controls must override the photography baseline CSS on canonical nodes.');
 expect(styleRuntime.includes('const customMotion='),'Library default top-nav settings must preserve the photography Breeze motion until the user changes motion controls.');
+const compositionStyleRuntime=read('public/assets/js/platform-modules/module-style-runtime-composition-v1.js');
+for(const marker of ['themeSelector','[data-collection-screen-mode-slot]','baseApply','baseReset'])expect(compositionStyleRuntime.includes(marker),`Composition style runtime does not target the canonical screen-mode slot: ${marker}`);
 
 const extension=read('public/data/ui-capabilities/v1/module-extension-v1.js');
 expect(extension.includes("family.options=['ios-liquid','ios-flat','material-flat']"),'Library must expose all three canonical filter families.');
@@ -100,18 +104,23 @@ const dashboard=read('public/ui-dashboard/index.html');
 expect(dashboard.includes('data-builder-view="library"'),'/ui-dashboard/ must remain Library-only.');
 expect(!dashboard.includes('/ui-dashboard/sandbox/'),'Library must not boot old sandbox runtime.');
 expect(dashboard.includes('/assets/js/platform-modules/photo-core-modules-v1.js'),'Library must load the shared Registry definitions.');
-expect(dashboard.includes('/assets/js/platform-modules/module-registry-v1.js?v=4'),'Library must load the dependency-aware Registry cache version.');
+expect(dashboard.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Library must load the transitive dependency-aware Registry cache version.');
+expect(dashboard.includes('/assets/js/platform-modules/portable-primitives-extension-v2.js?v=5'),'Library must load the current dependency-aware extension.');
 
 const preview=read('public/ui-dashboard/module-preview/index.html');
 expect(!preview.includes('/ui-dashboard/sandbox/'),'Shared preview must have zero sandbox dependencies.');
 expect(preview.includes('/assets/styles/platform-modules/filter-chip-rail-v1.css?v=6'),'Preview must use the current shared filter stylesheet.');
 expect(preview.includes('/assets/js/platform-modules/module-style-runtime-v1.js'),'Preview must use the canonical style runtime.');
+expect(preview.includes('/assets/js/platform-modules/module-style-runtime-composition-v1.js?v=1'),'Preview must load the composition-aware style adapter.');
 expect(preview.includes('/assets/js/ui/liquid-controller.js?v=3'),'Library/Editor preview must load the same dependency-capable liquid owner as Photography Public.');
 expect(preview.includes('/assets/js/platform-modules/portable-primitives-composition-v3.js?v=6'),'Preview must load dependency-aware module composition.');
+expect(preview.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Preview must load the transitive dependency-aware Registry.');
+expect(preview.includes('/assets/js/platform-modules/portable-primitives-extension-v2.js?v=5'),'Preview must load the current dependency-aware extension.');
 
 const publicIndex=read('public/index.html');
 expect(publicIndex.includes('/assets/js/ui/liquid-controller.js?v=3'),'Photography Public must load the current canonical liquid owner.');
-expect(publicIndex.includes('/assets/js/platform-modules/module-registry-v1.js?v=4'),'Photography Public must load the dependency-aware Registry.');
+expect(publicIndex.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Photography Public must load the transitive dependency-aware Registry.');
+expect(publicIndex.includes('/assets/js/app/postload-enhancements.js?v=5'),'Photography Public must load the current screen-mode bridge loader.');
 
 const previewJs=read('public/ui-dashboard/module-preview/module-preview-v1.js');
 expect(previewJs.includes("const consumer=params.get('embed')==='editor'?'editor':'library'"),'Library and Editor must share one preview host.');
@@ -133,7 +142,11 @@ expect(publicCollection.includes("modules.mount(host,'collection-bottom-sheet'")
 const editorHtml=read('public/editor-lab/index.html');
 expect(!editorHtml.includes('/assets/js/block-lab/'),'Block Editor must not import Block Lab JavaScript.');
 expect(!editorHtml.includes('/assets/styles/block-lab/'),'Block Editor must not import Block Lab styles.');
-expect(editorHtml.includes('/assets/js/platform-modules/module-registry-v1.js'),'Block Editor must load PlatformModuleRegistry.');
+expect(editorHtml.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Block Editor must load the transitive dependency-aware Registry.');
+expect(editorHtml.includes('/data/block-registry/v1/editor-module-extension-v1.js?v=2'),'Block Editor must load the dependency-validating module extension.');
+const editorExtension=read('public/data/block-registry/v1/editor-module-extension-v1.js');
+expect(editorExtension.includes("modules.validateDependencyGraph?.('editor')"),'Block Editor must validate its dependency graph before exposing variants.');
+expect(editorExtension.includes('portable-primitives-extension-v2.js?v=5'),'Block Editor must load the current dependency-aware extension.');
 const editorBridge=read('public/assets/js/editor-lab/module-frame-bridge-v1.js');
 expect(editorBridge.includes('block?.styleOverrides'),'Editor preview must use persisted per-instance styles.');
 expect(!editorBridge.includes('platformModuleDefaultsV1'),'Existing Editor instances must not reread mutable Library defaults.');
@@ -144,4 +157,4 @@ const lab=read('public/block-lab/index.html');
 expect(lab.includes('RESEARCH ONLY'),'Block Lab must remain explicitly research-only.');
 expect(!lab.includes('/ui-dashboard/module-preview/'),'Block Lab must not consume approved preview runtime directly.');
 
-console.log('Canonical reusable UI module boundary and dependency contract passed.');
+console.log('Canonical reusable UI module boundary and dependency graph contract passed.');
