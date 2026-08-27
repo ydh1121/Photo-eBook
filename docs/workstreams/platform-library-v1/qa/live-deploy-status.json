@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T04:22:17.037Z",
+  "startedAt": "2026-08-27T04:28:16.941Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T04:22:17.037Z",
+      "at": "2026-08-27T04:28:16.941Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3382
@@ -36,10 +36,10 @@
   ],
   "status": "fail",
   "error": "Error: live Block Lab role label is stale\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:166:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:206:3",
-  "finishedAt": "2026-08-27T04:22:29.047Z",
-  "sourceSha": "50655d9f13af21db22900d6f2bd062b3a058ecf4",
+  "finishedAt": "2026-08-27T04:28:23.803Z",
+  "sourceSha": "d13d8b4e00afd43ac551320fb1f6f63330d8db20",
   "sourceRef": "main",
-  "workflowRunId": "33039194265",
-  "workflowRunNumber": "45",
-  "recordedAt": "2026-08-27T04:22:29.518Z"
+  "workflowRunId": "33039500867",
+  "workflowRunNumber": "46",
+  "recordedAt": "2026-08-27T04:28:24.232Z"
 }
