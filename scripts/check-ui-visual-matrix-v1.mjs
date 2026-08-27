@@ -98,6 +98,16 @@ async function moduleReady(frame,id){
   const selector=selectors[id];
   await wait(()=>frame.locator(selector).count().then(count=>count>=minimum[id]),`${id} readiness failed`);
 }
+async function syncLibraryTheme(page,frame,id,state){
+  if(id==='screen-mode-selector'){
+    const button=frame.locator(`[data-screen-mode-value="${state.theme}"]`);
+    await button.waitFor({state:'visible',timeout:10000});
+    if(await button.getAttribute('aria-pressed')!=='true')await button.click();
+    await wait(()=>frame.locator('html').evaluate((html,want)=>html.dataset.theme===want,state.theme),`${id}/${state.name}: owned theme selection failed`);
+    return;
+  }
+  await wait(()=>page.locator('#builderFrame').evaluate((node,want)=>node.contentDocument?.documentElement?.dataset.theme===want,state.theme),`${id}/${state.name}: parent theme propagation failed`);
+}
 async function frameMetrics(page,frame,id,state){
   const iframe=page.locator('#builderFrame');
   const iframeWidth=await iframe.evaluate(node=>node.getBoundingClientRect().width);
@@ -154,12 +164,11 @@ async function runLibraryMatrix(browser){
     const viewport=page.locator(`[data-kit-viewport="${state.viewport}"]`);
     await theme.click();
     await viewport.click();
-    await wait(()=>page.locator('#builderFrame').evaluate((node,want)=>node.contentDocument?.documentElement?.dataset.theme===want,state.theme),`Library ${state.name} theme propagation failed`);
 
     for(const id of LIBRARY_MODULES){
       const frame=await selectLibraryModule(page,id);
       await moduleReady(frame,id);
-      await wait(()=>page.locator('#builderFrame').evaluate((node,want)=>node.contentDocument?.documentElement?.dataset.theme===want,state.theme),`${id}/${state.name}: theme remount propagation failed`);
+      await syncLibraryTheme(page,frame,id,state);
       await sleep(110);
       const metrics=await frameMetrics(page,frame,id,state);
       const screenshot=await shot(page.locator('#builderFrame'),`library-${id}-${state.name}`);
