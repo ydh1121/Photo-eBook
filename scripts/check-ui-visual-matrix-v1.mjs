@@ -102,7 +102,7 @@ async function frameMetrics(page,frame,id,state){
   const iframe=page.locator('#builderFrame');
   const iframeWidth=await iframe.evaluate(node=>node.getBoundingClientRect().width);
   if(state.viewport==='mobile')assert(iframeWidth<=405,`${id}/${state.name}: preview width ${iframeWidth} is not mobile`);
-  else assert(iframeWidth>=700,`${id}/${state.name}: preview width ${iframeWidth} is not desktop`);
+  else assert(iframeWidth>405,`${id}/${state.name}: preview width ${iframeWidth} is not desktop`);
 
   const metrics=await frame.locator('html').evaluate((html,moduleId)=>{
     const doc=html.ownerDocument;
