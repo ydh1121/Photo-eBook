@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T03:55:34.416Z",
+  "startedAt": "2026-08-27T04:22:17.037Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T03:55:34.416Z",
+      "at": "2026-08-27T04:22:17.037Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3382
@@ -21,15 +21,25 @@
     {
       "name": "live canonical assets",
       "status": "pass",
-      "detail": "6 Photography/Public + 4 Library/Editor-only modules"
+      "detail": "6 Photography/Public + 1 shared display + 3 Library/Editor-only modules"
+    },
+    {
+      "name": "live UI Library",
+      "status": "pass",
+      "detail": "registry-driven root route with 10 approved modules"
+    },
+    {
+      "name": "live Library theme/viewport",
+      "status": "pass",
+      "detail": "dark + mobile shared preview"
     }
   ],
   "status": "fail",
-  "error": "Error: Library/Editor-only consumer boundary regressed\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:121:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:204:3",
-  "finishedAt": "2026-08-27T03:55:36.549Z",
-  "sourceSha": "0fbd59d2f47fcec7a441de8fc1b6b594e295ba21",
+  "error": "Error: live Block Lab role label is stale\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:166:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:206:3",
+  "finishedAt": "2026-08-27T04:22:29.047Z",
+  "sourceSha": "50655d9f13af21db22900d6f2bd062b3a058ecf4",
   "sourceRef": "main",
-  "workflowRunId": "33037709952",
-  "workflowRunNumber": "44",
-  "recordedAt": "2026-08-27T03:55:37.152Z"
+  "workflowRunId": "33039194265",
+  "workflowRunNumber": "45",
+  "recordedAt": "2026-08-27T04:22:29.518Z"
 }
