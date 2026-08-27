@@ -12,9 +12,9 @@ fs.mkdirSync(OUT,{recursive:true});
 
 const expectedPhoto=['top-chapter-navigation','filter-chip-rail','horizontal-card-rail','collection-bottom-sheet','device-handoff-accordion','floating-action'];
 const expectedPortable=['horizontal-rail','accordion','bottom-sheet'];
-const expectedLibraryOnly=['screen-mode-selector'];
-const expectedNonPublic=[...expectedPortable,...expectedLibraryOnly];
-const expectedLibrary=[...expectedPhoto,...expectedPortable,...expectedLibraryOnly];
+const expectedSharedDisplay=['screen-mode-selector'];
+const expectedNonPublic=[...expectedPortable];
+const expectedLibrary=[...expectedPhoto,...expectedPortable,...expectedSharedDisplay];
 const report={startedAt:new Date().toISOString(),base:BASE,entryMarker:ENTRY_MARKER,registryMarker:REGISTRY_MARKER,attempts:[],checks:[]};
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function assert(value,message){if(!value)throw new Error(message);}
@@ -23,7 +23,7 @@ function browserPath(){return ['/usr/bin/google-chrome','/usr/bin/google-chrome-
 function cacheBust(url){const join=url.includes('?')?'&':'?';return `${url}${join}deploy_check=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
 
 async function fetchText(url){
-  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.3'}});
+  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.4'}});
   if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
   return response.text();
 }
@@ -90,9 +90,10 @@ async function verifyLiveAssets(){
 
   const extension=await fetchText(`${BASE}/assets/js/platform-modules/portable-primitives-extension-v2.js`);
   assert(extension.includes("id:'screen-mode-selector'"),'live screen-mode module extension is missing');
+  assert(extension.includes("const screenConsumers=['public','library','editor']"),'live screen-mode shared consumer boundary is stale');
   assert(extension.includes("label:'기기 연결 아코디언'")&&extension.includes("label:'범용 하단 시트'"),'live family label extension is stale');
 
-  pass('live canonical assets',`${expectedPhoto.length} Photography/Public + ${expectedNonPublic.length} Library/Editor-only modules`);
+  pass('live canonical assets',`${expectedPhoto.length} Photography/Public + ${expectedSharedDisplay.length} shared display + ${expectedNonPublic.length} Library/Editor-only modules`);
 }
 
 async function verifyLiveBrowser(){
@@ -119,6 +120,7 @@ async function verifyLiveBrowser(){
     assert(new Set(library.buttons).size===library.buttons.length,'live Library selector contains duplicate module buttons');
     assert(library.entries.every(item=>item.status==='approved'),'non-approved module leaked into live Library');
     assert(expectedNonPublic.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('library')&&item.consumers.includes('editor')&&!item.consumers.includes('public'))),'Library/Editor-only consumer boundary regressed');
+    assert(expectedSharedDisplay.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('public')&&item.consumers.includes('library')&&item.consumers.includes('editor'))),'shared display consumer boundary regressed');
     assert(library.overflow<=2,`live Library outer overflow ${library.overflow}px`);
     pass('live UI Library',`registry-driven root route with ${library.ids.length} approved modules`);
 
@@ -191,7 +193,7 @@ async function verifyLiveBrowser(){
     assert(expectedNonPublic.every(id=>!publicState.modules.some(item=>item.id===id)),'Library/Editor-only module leaked into Photography Public consumer');
     assert(publicState.nav>=8,'live public top navigation is not using canonical module');
     await page.screenshot({path:path.join(OUT,'live-public-canonical-nav.png'),fullPage:false});
-    pass('live public migration','Photography top navigation canonical; Library/Editor-only boundary remains closed');
+    pass('live public migration','Photography canonical modules remain public; portable Library/Editor-only boundary remains closed');
 
     await context.close();
   }finally{await browser.close();}
