@@ -18,8 +18,8 @@
     }catch(error){console.warn(`${label} load failed.`,error);}
   }
 
-  loadSharedOnce('__platformPortablePrimitivesExtensionV2','/assets/js/platform-modules/portable-primitives-extension-v2.js?v=1','Portable Registry extension');
-  loadSharedOnce('__platformPortablePrimitivesCompositionV3','/assets/js/platform-modules/portable-primitives-composition-v3.js?v=1','Portable canonical composition');
+  loadSharedOnce('__platformPortablePrimitivesExtensionV4','/assets/js/platform-modules/portable-primitives-extension-v2.js?v=4','Portable Registry extension');
+  loadSharedOnce('__platformPortablePrimitivesCompositionV6','/assets/js/platform-modules/portable-primitives-composition-v3.js?v=6','Portable canonical composition');
   loadSharedOnce('__platformFilterChipEdgeRepairV1','/assets/js/platform-modules/filter-chip-rail-edge-repair-v1.js?v=1','Filter edge Registry repair');
 
   if(manifest.blocks.some(item=>item.type==='ui-module'))return;
