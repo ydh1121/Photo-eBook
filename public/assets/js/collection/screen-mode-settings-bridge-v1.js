@@ -1,10 +1,10 @@
-/* v6: mount the dependency-aware screen-mode-selector inside Photography settings. */
+/* v7: mount the dependency-aware screen-mode-selector inside Photography settings. */
 (function(){
-  if(window.__photoScreenModeSettingsBridgeV6)return;
-  window.__photoScreenModeSettingsBridgeV6=true;
+  if(window.__photoScreenModeSettingsBridgeV7)return;
+  window.__photoScreenModeSettingsBridgeV7=true;
 
   const THEME_KEY='photoRoadmapThemeV1';
-  const SCREEN_STYLE='/assets/styles/platform-modules/screen-mode-segmented-v1.css?v=3';
+  const SCREEN_STYLE='/assets/styles/platform-modules/screen-mode-segmented-v1.css?v=4';
   const FILTER_STYLE='/assets/styles/platform-modules/filter-chip-rail-v1.css?v=6';
   const EXTENSION_SRC='/assets/js/platform-modules/portable-primitives-extension-v2.js?v=4';
   const COMPOSITION_SRC='/assets/js/platform-modules/portable-primitives-composition-v3.js?v=6';
@@ -30,7 +30,9 @@
   }
   async function ensureDefinition(){
     const current=window.PlatformModuleRegistry;
-    if(current?.get?.('screen-mode-selector'))return current;
+    if(current?.get?.('screen-mode-selector')&&current?.resolveDependency){
+      try{if(current.resolveDependency('screen-mode-selector','filter-chip-rail','public'))return current;}catch{}
+    }
     if(!definitionPromise){
       definitionPromise=(async()=>{
         if(!window.PlatformModuleRegistry)return null;
