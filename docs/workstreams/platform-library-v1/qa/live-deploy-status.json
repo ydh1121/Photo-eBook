@@ -1,12 +1,12 @@
 {
-  "startedAt": "2026-08-27T14:18:08.372Z",
+  "startedAt": "2026-08-27T14:19:09.121Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T14:18:08.373Z",
+      "at": "2026-08-27T14:19:09.121Z",
       "status": "http-ok",
       "matched": true,
       "bytes": 3382
@@ -17,14 +17,24 @@
       "name": "live dashboard entry",
       "status": "pass",
       "detail": "builder-library-reference-v1.js"
+    },
+    {
+      "name": "live canonical assets",
+      "status": "pass",
+      "detail": "6 Photography/Public + 1 dependency-composed display + 3 Library/Editor-only modules"
+    },
+    {
+      "name": "live UI Library",
+      "status": "pass",
+      "detail": "registry-driven root route with 10 approved modules"
     }
   ],
   "status": "fail",
-  "error": "Error: live Registry dependency API is stale: normalizeDependencies\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveAssets (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:116:154)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:308:3",
-  "finishedAt": "2026-08-27T14:18:08.537Z",
+  "error": "Error: live screen-mode liquid paint owner differs from canonical filter\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:247:9)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:309:3",
+  "finishedAt": "2026-08-27T14:19:22.586Z",
   "sourceSha": "fc0603c8ed86441fe167323f29b982c544c099f7",
   "sourceRef": "main",
   "workflowRunId": "33081458305",
   "workflowRunNumber": "49",
-  "recordedAt": "2026-08-27T14:18:09.084Z"
+  "recordedAt": "2026-08-27T14:19:23.164Z"
 }
