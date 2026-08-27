@@ -1,4 +1,4 @@
-/* Shared responsive corrections for candidate Block renderer surfaces. */
+/* Shared responsive corrections for candidate Block renderer surfaces and the Block Lab mobile control rail. */
 
 .pb-product-card__body {
   min-width: 0;
@@ -25,6 +25,19 @@
 }
 
 @media (max-width: 720px) {
+  /* The top control row is a horizontal scroller. Its children must retain
+     their intrinsic width instead of shrinking the Library link to one glyph. */
+  .lab-controls > a,
+  .lab-controls > .lab-filter,
+  .lab-controls > .lab-segment {
+    flex: 0 0 auto;
+  }
+
+  .lab-controls > a {
+    white-space: nowrap;
+    word-break: keep-all;
+  }
+
   .pb-product-list .pb-product-card {
     grid-template-columns: minmax(88px, 28%) minmax(0, 1fr);
   }
