@@ -94,6 +94,37 @@
     }
     return {parent,spec,definition:dependency};
   }
+  function dependencyClosure(rootId,consumer,{allowCandidate=false}={}){
+    const root=definitions.get(String(rootId||''));
+    if(!root)throw new Error(`Unknown platform module: ${rootId}`);
+    if(!canConsume(root,consumer,{allowCandidate}))throw new Error(`Platform module is not available for ${consumer}: ${root.id}`);
+    const visited=new Set();
+    const visiting=[];
+    const ordered=[];
+    const visit=definition=>{
+      if(visited.has(definition.id))return;
+      const cycleAt=visiting.indexOf(definition.id);
+      if(cycleAt>=0){
+        const cycle=[...visiting.slice(cycleAt),definition.id].join(' -> ');
+        throw new Error(`Circular platform module dependency: ${cycle}`);
+      }
+      visiting.push(definition.id);
+      for(const spec of definition.dependencies||[]){
+        const resolved=resolveDependency(definition.id,spec.id,consumer,{allowCandidate});
+        if(resolved.definition)visit(resolved.definition);
+      }
+      visiting.pop();
+      visited.add(definition.id);
+      ordered.push(definition);
+    };
+    visit(root);
+    return ordered;
+  }
+  function validateDependencyGraph(consumer,{allowCandidate=false}={}){
+    const roots=[...definitions.values()].filter(definition=>canConsume(definition,consumer,{allowCandidate}));
+    roots.forEach(definition=>dependencyClosure(definition.id,consumer,{allowCandidate}));
+    return true;
+  }
   function hydrationResult(hydration){
     return {
       cleanup:typeof hydration==='function'?hydration:typeof hydration?.cleanup==='function'?hydration.cleanup:()=>{},
@@ -116,6 +147,12 @@
     dependencies(id){return clone(definitions.get(String(id||''))?.dependencies||[]);},
     resolveDependency(parentId,dependencyId,consumer='library',options={}){
       return resolveDependency(parentId,dependencyId,String(consumer||'library'),options).definition;
+    },
+    dependencyClosure(id,consumer='library',options={}){
+      return dependencyClosure(id,String(consumer||'library'),options).map(definition=>definition.id);
+    },
+    validateDependencyGraph(consumer='library',options={}){
+      return validateDependencyGraph(String(consumer||'library'),options);
     },
     render(id,props={},context={}){
       const definition=definitions.get(String(id||''));
