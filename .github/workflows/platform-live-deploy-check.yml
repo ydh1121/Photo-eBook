@@ -9,10 +9,12 @@ on:
       - 'public/_redirects'
       - 'public/block-lab/**'
       - 'public/editor-lab/**'
+      - 'public/qa/**'
       - 'public/ui-dashboard/**'
       - 'public/data/ui-capabilities/**'
       - 'public/data/block-registry/**'
       - 'public/assets/js/admin/**'
+      - 'public/assets/js/collection/**'
       - 'public/assets/js/platform-modules/**'
       - 'public/assets/js/ui-dashboard/**'
       - 'public/assets/js/editor-lab/**'
@@ -20,6 +22,7 @@ on:
       - 'public/assets/js/desktop/**'
       - 'public/assets/js/navigation/**'
       - 'public/assets/js/ui/**'
+      - 'public/assets/styles/admin/**'
       - 'public/assets/styles/platform-modules/**'
       - 'public/assets/styles/ui-dashboard/**'
       - 'public/assets/styles/editor-lab/**'
@@ -30,6 +33,7 @@ on:
       - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-library-runtime-feedback-v1.mjs'
       - 'scripts/check-library-module-family-controls-v1.mjs'
+      - 'scripts/check-ui-visual-matrix-v1.mjs'
       - '.github/workflows/platform-live-deploy-check.yml'
   workflow_dispatch:
 
@@ -39,7 +43,7 @@ permissions:
 jobs:
   verify-live-pages:
     runs-on: ubuntu-latest
-    timeout-minutes: 14
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,6 +55,7 @@ jobs:
           node --check scripts/check-top-nav-runtime-parity.mjs
           node --check scripts/check-library-runtime-feedback-v1.mjs
           node --check scripts/check-library-module-family-controls-v1.mjs
+          node --check scripts/check-ui-visual-matrix-v1.mjs
       - name: Install browser dependency
         run: npm install --no-save --no-package-lock playwright@1.55.0
       - name: Verify Cloudflare Pages canonical module pipeline
@@ -78,13 +83,19 @@ jobs:
             family_status=fail
           fi
 
-          TOP_NAV_PARITY_STATUS="$parity_status" LIBRARY_FEEDBACK_STATUS="$feedback_status" LIBRARY_FAMILY_STATUS="$family_status" node <<'NODE'
+          matrix_status=pass
+          if ! UI_DASHBOARD_BASE_URL="$UI_DASHBOARD_LIVE_URL" node scripts/check-ui-visual-matrix-v1.mjs; then
+            matrix_status=fail
+          fi
+
+          TOP_NAV_PARITY_STATUS="$parity_status" LIBRARY_FEEDBACK_STATUS="$feedback_status" LIBRARY_FAMILY_STATUS="$family_status" UI_VISUAL_MATRIX_STATUS="$matrix_status" node <<'NODE'
           const fs=require('node:fs');
           const target='artifacts/platform-live-deploy/report.json';
           const report=JSON.parse(fs.readFileSync(target,'utf8'));
           const parityOk=process.env.TOP_NAV_PARITY_STATUS==='pass';
           const feedbackOk=process.env.LIBRARY_FEEDBACK_STATUS==='pass';
           const familyOk=process.env.LIBRARY_FAMILY_STATUS==='pass';
+          const matrixOk=process.env.UI_VISUAL_MATRIX_STATUS==='pass';
           report.checks=Array.isArray(report.checks)?report.checks:[];
           report.checks.push({
             name:'live top-nav runtime parity',
@@ -107,13 +118,21 @@ jobs:
               ?'grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages'
               :'grouped Library module family checks failed on live Pages'
           });
-          if(!parityOk||!feedbackOk||!familyOk){
+          report.checks.push({
+            name:'live UI visual matrix gate',
+            status:matrixOk?'pass':'fail',
+            detail:matrixOk
+              ?'10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states passed on live Pages'
+              :'UI visual matrix failed on live Pages'
+          });
+          if(!parityOk||!feedbackOk||!familyOk||!matrixOk){
             report.status='fail';
             report.error=[
               report.error,
               !parityOk?'live top-nav runtime parity failed':'',
               !feedbackOk?'live Library runtime feedback gate failed':'',
-              !familyOk?'live Library module family gate failed':''
+              !familyOk?'live Library module family gate failed':'',
+              !matrixOk?'live UI visual matrix gate failed':''
             ].filter(Boolean).join('\n');
           }
           report.finishedAt=new Date().toISOString();
@@ -123,6 +142,7 @@ jobs:
           test "$parity_status" = pass
           test "$feedback_status" = pass
           test "$family_status" = pass
+          test "$matrix_status" = pass
       - name: Record live deployment result
         if: always()
         shell: bash
@@ -173,5 +193,6 @@ jobs:
             artifacts/platform-live-deploy
             artifacts/library-runtime-feedback-v1
             artifacts/library-module-family-controls-v1
+            artifacts/ui-visual-matrix-v1
           if-no-files-found: ignore
           retention-days: 7

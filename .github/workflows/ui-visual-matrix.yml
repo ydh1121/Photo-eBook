@@ -1,0 +1,66 @@
+name: UI Visual Matrix
+
+on:
+  pull_request:
+    paths:
+      - 'public/index.html'
+      - 'public/ui-dashboard/**'
+      - 'public/block-lab/**'
+      - 'public/editor-lab/**'
+      - 'public/qa/**'
+      - 'public/assets/js/admin/**'
+      - 'public/assets/js/collection/**'
+      - 'public/assets/js/platform-modules/**'
+      - 'public/assets/js/ui-dashboard/**'
+      - 'public/assets/styles/admin/**'
+      - 'public/assets/styles/platform-modules/**'
+      - 'public/assets/styles/ui-dashboard/**'
+      - 'public/assets/styles/editor-lab/**'
+      - 'scripts/check-ui-visual-matrix-v1.mjs'
+      - '.github/workflows/ui-visual-matrix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check visual matrix syntax
+        run: node --check scripts/check-ui-visual-matrix-v1.mjs
+      - name: Install browser QA dependency
+        run: npm install --no-save --no-package-lock playwright@1.55.0
+      - name: Run desktop/mobile light/dark matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory public >/tmp/photo-ebook-ui-matrix-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:4173/ui-dashboard/ >/dev/null; then
+              ready=1
+              break
+            fi
+            sleep .25
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/photo-ebook-ui-matrix-http.log || true
+            exit 1
+          fi
+          UI_DASHBOARD_BASE_URL=http://127.0.0.1:4173 node scripts/check-ui-visual-matrix-v1.mjs
+      - name: Upload UI visual matrix evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-visual-matrix-v1
+          path: artifacts/ui-visual-matrix-v1
+          if-no-files-found: ignore
+          retention-days: 7
