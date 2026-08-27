@@ -1,8 +1,8 @@
-/* v4: persistent major-tool navigation with Library as the stable admin host.
+/* v5: persistent major-tool navigation with Library as the stable admin host.
    Tool runtimes stay isolated in same-origin workspaces; no module/editor runtime is cloned. */
 (function(){
-  if(window.__platformAdminPersistentWorkspaceV4)return;
-  window.__platformAdminPersistentWorkspaceV4=true;
+  if(window.__platformAdminPersistentWorkspaceV5)return;
+  window.__platformAdminPersistentWorkspaceV5=true;
 
   const params=new URLSearchParams(location.search);
   const embedded=params.get('adminEmbed')==='1';
@@ -124,6 +124,8 @@
     const route=routes[id];if(!route)return;
     const parts=ensureHost();
     setCurrent(id);
+    document.title=`플랫폼 관리 · ${route.title}`;
+    document.documentElement.dataset.adminSection=id;
     if(id==='library'){
       parts.host.hidden=true;
       parts.host.removeAttribute('aria-busy');
@@ -162,6 +164,7 @@
       showRoute(requestedTool,{push:false});
       history.replaceState({adminWorkspace:requestedTool},'',routes[requestedTool].path);
     }else if(params.has('adminTool')){
+      showRoute('library',{push:false});
       history.replaceState({adminWorkspace:'library'},'',routes.library.path);
     }
     return true;
