@@ -22,7 +22,7 @@ try{
   await wait(()=>iframe.evaluate((node,selector)=>Boolean(node.contentDocument?.querySelector(selector)),linkSelector),'Block Lab UI Library control link missing');
   const frame=iframe.contentFrame();
   const link=frame.locator(linkSelector);
-  const filter=frame.locator('.lab-controls > .lab-filter');
+  const filters=frame.locator('.lab-controls > .lab-filter');
   const segments=frame.locator('.lab-controls > .lab-segment');
   const state=await link.evaluate(node=>{
     const style=getComputedStyle(node);
@@ -44,13 +44,14 @@ try{
   assert(state.flexShrink==='0',`Library control still shrinks on mobile: flex-shrink=${state.flexShrink}`);
   assert(state.width>=70,`Library control collapsed to ${state.width}px`);
   assert(state.height<=44,`Library control stacked vertically to ${state.height}px`);
-  assert(await filter.evaluate(node=>getComputedStyle(node).flexShrink)==='0','Block Lab filter shrinks in mobile control rail');
+  const filterShrink=await filters.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).flexShrink));
+  assert(filterShrink.length>=1&&filterShrink.every(value=>value==='0'),`Block Lab filters shrink in mobile rail: ${filterShrink.join(',')}`);
   const segmentShrink=await segments.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).flexShrink));
   assert(segmentShrink.length>=2&&segmentShrink.every(value=>value==='0'),`Block Lab segments shrink in mobile rail: ${segmentShrink.join(',')}`);
   assert(state.documentOverflow<=2,`Block Lab document overflow ${state.documentOverflow}px`);
   assert(state.controlsScrollWidth>=state.controlsClientWidth,'Block Lab control rail geometry is invalid');
   await page.screenshot({path:path.join(OUT,'block-lab-mobile-controls.png'),fullPage:false});
-  fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify({status:'pass',state},null,2)+'\n');
+  fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify({status:'pass',state,filterShrink,segmentShrink},null,2)+'\n');
   console.log(`Block Lab mobile controls OK: link ${Math.round(state.width)}×${Math.round(state.height)}px, rail ${state.controlsClientWidth}/${state.controlsScrollWidth}px.`);
   await context.close();
 }finally{
