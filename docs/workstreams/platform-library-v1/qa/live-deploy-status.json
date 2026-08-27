@@ -1,15 +1,15 @@
 {
-  "startedAt": "2026-08-27T03:53:33.387Z",
+  "startedAt": "2026-08-27T03:55:34.416Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T03:53:33.388Z",
+      "at": "2026-08-27T03:55:34.416Z",
       "status": "http-ok",
       "matched": true,
-      "bytes": 3383
+      "bytes": 3382
     }
   ],
   "checks": [
@@ -26,10 +26,10 @@
   ],
   "status": "fail",
   "error": "Error: Library/Editor-only consumer boundary regressed\n    at assert (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:20:48)\n    at verifyLiveBrowser (file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:121:5)\n    at async file:///home/runner/work/Photo-eBook/Photo-eBook/scripts/check-live-ui-dashboard-deploy.mjs:204:3",
-  "finishedAt": "2026-08-27T03:53:41.789Z",
+  "finishedAt": "2026-08-27T03:55:36.549Z",
   "sourceSha": "0fbd59d2f47fcec7a441de8fc1b6b594e295ba21",
   "sourceRef": "main",
   "workflowRunId": "33037709952",
   "workflowRunNumber": "44",
-  "recordedAt": "2026-08-27T03:53:42.057Z"
+  "recordedAt": "2026-08-27T03:55:37.152Z"
 }
