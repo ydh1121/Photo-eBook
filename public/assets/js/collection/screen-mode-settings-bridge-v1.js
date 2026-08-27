@@ -1,12 +1,12 @@
-/* v7: mount the dependency-aware screen-mode-selector inside Photography settings. */
+/* v8: mount the dependency-aware screen-mode-selector inside Photography settings and validate its public dependency closure. */
 (function(){
-  if(window.__photoScreenModeSettingsBridgeV7)return;
-  window.__photoScreenModeSettingsBridgeV7=true;
+  if(window.__photoScreenModeSettingsBridgeV8)return;
+  window.__photoScreenModeSettingsBridgeV8=true;
 
   const THEME_KEY='photoRoadmapThemeV1';
   const SCREEN_STYLE='/assets/styles/platform-modules/screen-mode-segmented-v1.css?v=4';
   const FILTER_STYLE='/assets/styles/platform-modules/filter-chip-rail-v1.css?v=6';
-  const EXTENSION_SRC='/assets/js/platform-modules/portable-primitives-extension-v2.js?v=4';
+  const EXTENSION_SRC='/assets/js/platform-modules/portable-primitives-extension-v2.js?v=5';
   const COMPOSITION_SRC='/assets/js/platform-modules/portable-primitives-composition-v3.js?v=6';
   let definitionPromise=null;
   let mountCleanup=null;
@@ -28,10 +28,16 @@
       const script=document.createElement('script');script.src=src;script.async=false;script.dataset.screenModeBridgeLoaded='true';script.onload=()=>resolve(script);script.onerror=reject;document.body.appendChild(script);
     });
   }
+  function validatePublicGraph(registry){
+    if(!registry)return false;
+    registry.validateDependencyGraph?.('public');
+    const closure=registry.dependencyClosure?.('screen-mode-selector','public')||[];
+    return closure.includes('filter-chip-rail');
+  }
   async function ensureDefinition(){
     const current=window.PlatformModuleRegistry;
     if(current?.get?.('screen-mode-selector')&&current?.resolveDependency){
-      try{if(current.resolveDependency('screen-mode-selector','filter-chip-rail','public'))return current;}catch{}
+      try{if(current.resolveDependency('screen-mode-selector','filter-chip-rail','public')&&validatePublicGraph(current))return current;}catch{}
     }
     if(!definitionPromise){
       definitionPromise=(async()=>{
@@ -41,7 +47,7 @@
         const registry=window.PlatformModuleRegistry;
         const definition=registry?.get?.('screen-mode-selector');
         const dependency=registry?.resolveDependency?.('screen-mode-selector','filter-chip-rail','public');
-        return definition&&dependency&&registry.canConsume?.('screen-mode-selector','public')?registry:null;
+        return definition&&dependency&&validatePublicGraph(registry)&&registry.canConsume?.('screen-mode-selector','public')?registry:null;
       })();
     }
     return definitionPromise;
