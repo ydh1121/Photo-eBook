@@ -1,7 +1,7 @@
-/* v3: shared portable-module refinements for Public/Library/Editor consumers. */
+/* v4: portable primitive refinements. Screen mode is composed later from the canonical filter-chip dependency. */
 (function(){
-  if(window.__platformPortablePrimitivesExtensionV3)return;
-  window.__platformPortablePrimitivesExtensionV3=true;
+  if(window.__platformPortablePrimitivesExtensionV4)return;
+  window.__platformPortablePrimitivesExtensionV4=true;
 
   const registry=window.PlatformModuleRegistry;
   if(!registry)return;
@@ -10,10 +10,6 @@
   const extCss='public/assets/styles/platform-modules/portable-primitives-extension-v2.css';
   const styleExt='public/assets/js/platform-modules/module-style-runtime-portable-v1.js';
   const uniq=list=>[...new Set((list||[]).filter(Boolean))];
-  const consumers=['library','editor'];
-  const screenConsumers=['public','library','editor'];
-  const e=registry.escapeHtml;
-  const a=registry.attr;
 
   function registerPatch(id,patch={}){
     const current=registry.get(id);
@@ -130,61 +126,4 @@
       editorProps:editor
     });
   }
-
-  function normalizeMode(value){return ['light','dark','system'].includes(value)?value:'light';}
-  function resolvedMode(value){const mode=normalizeMode(value);return mode==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):mode;}
-  function renderScreenMode(props={}){
-    const mode=normalizeMode(props.mode);
-    const title=String(props.title||'화면 모드');
-    const description=String(props.description||'화이트, 다크 또는 기기 설정에 맞춰 표시합니다.');
-    const options=[['light','화이트'],['dark','다크'],['system','시스템']];
-    return `<section class="platform-screen-mode" data-platform-module="screen-mode-selector" data-screen-mode="${a(mode)}">
-      <header class="platform-screen-mode__head"><strong>${e(title)}</strong>${description?`<p>${e(description)}</p>`:''}</header>
-      <div class="platform-screen-mode__options" role="group" aria-label="${a(title)}">${options.map(([value,label])=>`<button type="button" data-screen-mode-value="${value}" aria-pressed="${mode===value?'true':'false'}">${label}</button>`).join('')}</div>
-    </section>`;
-  }
-  function hydrateScreenMode(host,props={}){
-    const module=host.matches?.('[data-platform-module="screen-mode-selector"]')?host:host.querySelector?.('[data-platform-module="screen-mode-selector"]');
-    if(!module||module.dataset.platformScreenModeBound==='true')return;
-    module.dataset.platformScreenModeBound='true';
-    let mode=normalizeMode(props.mode);
-    const apply=value=>{
-      mode=normalizeMode(value);
-      module.dataset.screenMode=mode;
-      module.querySelectorAll('[data-screen-mode-value]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.screenModeValue===mode)));
-      const resolved=resolvedMode(mode);
-      document.documentElement.dataset.themeChoice=mode;
-      document.documentElement.dataset.theme=resolved;
-      document.documentElement.style.colorScheme=resolved;
-      module.dispatchEvent(new CustomEvent('platform-screen-mode-change',{bubbles:true,detail:{mode,resolved}}));
-      return resolved;
-    };
-    const click=event=>{
-      const button=event.target.closest?.('[data-screen-mode-value]');
-      if(!button||!module.contains(button))return;
-      apply(button.dataset.screenModeValue);
-    };
-    const media=matchMedia('(prefers-color-scheme: dark)');
-    const onSystem=()=>{if(mode==='system')apply('system');};
-    module.addEventListener('click',click);
-    media.addEventListener?.('change',onSystem);
-    apply(mode);
-    return {api:{setMode:apply,getMode:()=>mode},cleanup(){module.removeEventListener('click',click);media.removeEventListener?.('change',onSystem);}};
-  }
-
-  registry.register({
-    id:'screen-mode-selector',
-    label:'화면 모드',
-    category:'display',
-    status:'approved',
-    source:'platform-core',
-    sourceRoute:'',
-    consumers:screenConsumers,
-    version:2,
-    ownerFiles:[extJs,extCss],
-    previewProps:{title:'화면 모드',description:'화이트, 다크 또는 기기 설정에 맞춰 표시합니다.',mode:'light'},
-    editorProps:{title:'화면 모드',description:'표시 모드를 선택하세요.',mode:'light'},
-    render:renderScreenMode,
-    hydrate:hydrateScreenMode
-  });
 })();
