@@ -23,7 +23,7 @@ function browserPath(){return ['/usr/bin/google-chrome','/usr/bin/google-chrome-
 function cacheBust(url){const join=url.includes('?')?'&':'?';return `${url}${join}deploy_check=${Date.now()}_${Math.random().toString(36).slice(2)}`;}
 
 async function fetchText(url){
-  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.4'}});
+  const response=await fetch(cacheBust(url),{cache:'no-store',redirect:'follow',headers:{'cache-control':'no-cache','pragma':'no-cache','user-agent':'Photo-eBook-live-deploy-check/2.5'}});
   if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
   return response.text();
 }
@@ -74,6 +74,22 @@ async function waitFrameCount(frame,selector,min,message,timeout=15000){
   }
   const state=await frame.evaluate(()=>({module:document.documentElement.dataset.platformModule||'',html:document.getElementById('platformModulePreviewRoot')?.innerHTML?.slice(0,1200)||''})).catch(()=>({}));
   throw new Error(`${message}; state=${JSON.stringify(state)}`);
+}
+
+async function waitAdminWorkspace(page,targetPath,readySelector){
+  await page.waitForSelector('.platform-admin-shell',{timeout:20000});
+  await page.waitForFunction(pathname=>{
+    const host=document.querySelector('.platform-admin-workspace-host');
+    const iframe=host?.querySelector('iframe');
+    const src=iframe?.getAttribute('src')||'';
+    const doc=iframe?.contentDocument;
+    return Boolean(host&&!host.hidden&&iframe&&src.includes(pathname)&&src.includes('adminEmbed=1')&&doc?.documentElement?.dataset.adminEmbedded==='true');
+  },targetPath,{timeout:30000});
+  const handle=await page.$('.platform-admin-workspace-host iframe');
+  const frame=await handle?.contentFrame();
+  assert(frame,`persistent admin workspace missing: ${targetPath}`);
+  if(readySelector)await frame.waitForSelector(readySelector,{timeout:30000});
+  return frame;
 }
 
 async function verifyLiveAssets(){
@@ -162,25 +178,26 @@ async function verifyLiveBrowser(){
     pass('live Library theme/viewport','dark + mobile shared preview');
 
     await page.goto(cacheBust(`${BASE}/block-lab/`),{waitUntil:'domcontentloaded',timeout:45000});
-    await page.waitForSelector('.platform-admin-shell',{timeout:20000});
+    const blockFrame=await waitAdminWorkspace(page,'/block-lab/','.block-lab');
     assert((await page.title()).includes('블록 연구실'),'live Block Lab role label is stale');
-    assert(await page.locator('text=RESEARCH ONLY').count()>=1,'live Block Lab research boundary missing');
-    pass('live Block Lab boundary','research-only');
+    assert(await blockFrame.locator('text=RESEARCH ONLY').count()>=1,'live Block Lab research boundary missing');
+    assert(await page.locator('.platform-admin-shell__nav a[aria-current="page"][href="/block-lab/"]').count()===1,'live Block Lab admin nav state is stale');
+    pass('live Block Lab boundary','persistent workspace + research-only');
 
     await page.goto(cacheBust(`${BASE}/editor-lab/`),{waitUntil:'domcontentloaded',timeout:45000});
-    await page.waitForSelector('.editor-lab',{timeout:20000});
-    await page.waitForFunction(()=>Boolean(window.PlatformModuleRegistry&&document.querySelectorAll('[data-add-module]').length),{timeout:25000});
-    const editor=await page.evaluate(()=>({
-      title:document.title,
+    const editorFrame=await waitAdminWorkspace(page,'/editor-lab/','.editor-lab');
+    await editorFrame.waitForFunction(()=>Boolean(window.PlatformModuleRegistry&&document.querySelectorAll('[data-add-module]').length),{timeout:25000});
+    const editor=await editorFrame.evaluate(()=>({
       scripts:[...document.scripts].map(node=>node.getAttribute('src')||''),
       styles:[...document.querySelectorAll('link[rel="stylesheet"]')].map(node=>node.getAttribute('href')||''),
       ids:window.PlatformModuleRegistry.listFor('editor').map(item=>item.id)
     }));
-    assert(editor.title.includes('블록 에디터'),'live Block Editor role label is stale');
+    assert((await page.title()).includes('블록 에디터'),'live Block Editor role label is stale');
+    assert(await page.locator('.platform-admin-shell__nav a[aria-current="page"][href="/editor-lab/"]').count()===1,'live Block Editor admin nav state is stale');
     assert(!editor.scripts.some(src=>src.includes('/assets/js/block-lab/')),'live Block Editor loads Block Lab JS');
     assert(!editor.styles.some(src=>src.includes('/assets/styles/block-lab/')),'live Block Editor loads Block Lab CSS');
     assert(expectedLibrary.every(id=>editor.ids.includes(id)),`live Block Editor approved module set mismatch: ${editor.ids.join(', ')}`);
-    pass('live Block Editor boundary',`${expectedLibrary.length} approved modules only`);
+    pass('live Block Editor boundary',`persistent workspace + ${expectedLibrary.length} approved modules only`);
 
     await page.goto(cacheBust(`${BASE}/`),{waitUntil:'domcontentloaded',timeout:45000});
     await page.waitForFunction(()=>Boolean(window.PlatformModuleRegistry),{timeout:20000});
@@ -190,10 +207,11 @@ async function verifyLiveBrowser(){
       nav:document.querySelectorAll('.nav-shell[data-platform-module="top-chapter-navigation"] .nav-chip').length
     }));
     assert(expectedPhoto.every(id=>publicState.modules.some(item=>item.id===id&&item.status==='approved')),'live public consumer cannot resolve approved Photography common modules');
+    assert(expectedSharedDisplay.every(id=>publicState.modules.some(item=>item.id===id&&item.status==='approved')),'live public consumer cannot resolve shared display modules');
     assert(expectedNonPublic.every(id=>!publicState.modules.some(item=>item.id===id)),'Library/Editor-only module leaked into Photography Public consumer');
     assert(publicState.nav>=8,'live public top navigation is not using canonical module');
     await page.screenshot({path:path.join(OUT,'live-public-canonical-nav.png'),fullPage:false});
-    pass('live public migration','Photography canonical modules remain public; portable Library/Editor-only boundary remains closed');
+    pass('live public migration','Photography + shared display modules remain public; portable Library/Editor-only boundary remains closed');
 
     await context.close();
   }finally{await browser.close();}
