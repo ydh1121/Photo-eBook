@@ -35,7 +35,19 @@ async function selectModule(page,module){
   return page.frameLocator('#builderFrame');
 }
 async function liquidSignature(locator){
-  return locator.evaluate(node=>{const style=getComputedStyle(node);return {backgroundImage:style.backgroundImage,borderRadius:style.borderRadius,boxShadow:style.boxShadow,transitionDuration:style.transitionDuration,transitionTimingFunction:style.transitionTimingFunction,transform:node.style.transform};});
+  return locator.evaluate(node=>{
+    const style=getComputedStyle(node);
+    const skin=node.querySelector(':scope > .v37-liquid-skin');
+    const skinStyle=skin?getComputedStyle(skin):null;
+    return {
+      backgroundImage:skinStyle?.backgroundImage||'',
+      borderRadius:style.borderRadius,
+      boxShadow:skinStyle?.boxShadow||'',
+      transitionDuration:style.transitionDuration,
+      transitionTimingFunction:style.transitionTimingFunction,
+      transform:node.style.transform
+    };
+  });
 }
 async function relativeGeometry(frame,panelSelector,buttonSelector){
   return frame.locator(buttonSelector).evaluate((button,panelSelector)=>{const panel=button.closest(panelSelector)||button.ownerDocument.querySelector(panelSelector);const b=button.getBoundingClientRect(),p=panel.getBoundingClientRect();return {width:b.width,height:b.height,top:b.top-p.top,right:p.right-b.right};},panelSelector);
@@ -57,7 +69,7 @@ async function screenModeParity(page){
   const dark=liquid.locator('[data-platform-filter-id="dark"]');
   const indicator=liquid.locator('.collection-v33-indicator');
   await wait(()=>light.getAttribute('aria-pressed').then(value=>value==='true'),'standalone screen-mode liquid filter active state missing');
-  await wait(()=>indicator.evaluate(node=>node.dataset.ready==='true'&&Boolean(node.style.transform)),'standalone screen-mode liquid indicator missing or not ready');
+  await wait(()=>indicator.evaluate(node=>node.dataset.ready==='true'&&Boolean(node.style.transform)&&Boolean(node.querySelector(':scope > .v37-liquid-skin'))),'standalone screen-mode liquid indicator/skin missing or not ready');
   const graph=await frame.locator('html').evaluate(()=>({provenance:window.PlatformModuleRegistry?.provenance?.('screen-mode-selector'),closure:window.PlatformModuleRegistry?.dependencyClosure?.('screen-mode-selector','library')||[]}));
   const provenance=graph.provenance;
   assert(provenance?.consumers?.includes('public'),'screen-mode-selector is not approved for public consumer');
@@ -65,7 +77,7 @@ async function screenModeParity(page){
   assert(graph.closure.includes('filter-chip-rail'),'screen-mode-selector dependency closure does not include filter-chip-rail');
   assert(await filter.count()===1,'screen mode did not render the canonical filter-chip dependency exactly once');
   const standaloneSignature=await liquidSignature(indicator);
-  assert(/linear-gradient/i.test(standaloneSignature.backgroundImage),'standalone screen mode is not using the canonical liquid indicator skin');
+  assert(/linear-gradient/i.test(standaloneSignature.backgroundImage),'standalone screen mode is not using the canonical liquid skin paint owner');
   const before=standaloneSignature.transform;
   await dark.click();
   await wait(()=>standalone.evaluate(node=>node.dataset.screenMode==='dark'),'standalone screen mode dark selection failed');
@@ -85,12 +97,12 @@ async function screenModeParity(page){
   const popupLight=popupLiquid.locator('[data-platform-filter-id="light"]');
   const popupIndicator=popupLiquid.locator('.collection-v33-indicator');
   await wait(()=>popupLight.getAttribute('aria-pressed').then(value=>value==='true'),'popup screen-mode liquid filter active state missing');
-  await wait(()=>popupIndicator.evaluate(node=>node.dataset.ready==='true'&&Boolean(node.style.transform)),'popup screen-mode liquid indicator missing or not ready');
+  await wait(()=>popupIndicator.evaluate(node=>node.dataset.ready==='true'&&Boolean(node.style.transform)&&Boolean(node.querySelector(':scope > .v37-liquid-skin'))),'popup screen-mode liquid indicator/skin missing or not ready');
   assert(await collectionFrame.locator('.collection-settings .theme-setting-card,.collection-settings [data-theme-setting-card]').count()===0,'legacy screen-mode lookalike remains inside popup settings');
   assert(await popupFilter.count()===1,'popup screen mode did not compose the canonical filter-chip dependency exactly once');
   const popupSignature=await liquidSignature(popupIndicator);
   for(const key of ['backgroundImage','borderRadius','boxShadow'])assert(popupSignature[key]===standaloneSignature[key],`screen mode popup/standalone liquid-owner mismatch: ${key}`);
-  pass('screen mode popup/standalone parity','same screen module + same nested filter module + same liquid indicator owner');
+  pass('screen mode popup/standalone parity','same screen module + same nested filter module + same liquid geometry/motion + same liquid skin paint owner');
   await shot(page,'screen-mode-popup-parity');
 }
 
