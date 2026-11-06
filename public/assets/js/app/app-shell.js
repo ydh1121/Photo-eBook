@@ -455,13 +455,15 @@ function setupQuestionDrawer(){
     refreshRemoteHistory();
   });
 
-  ['gesturestart','gesturechange','gestureend'].forEach(type=>document.addEventListener(type,e=>e.preventDefault(),{passive:false}));
-  let lastTouchEnd=0;
-  document.addEventListener('touchend',e=>{
-    const now=Date.now();
-    if(now-lastTouchEnd<=280 && !e.target.closest('input,textarea')) e.preventDefault();
-    lastTouchEnd=now;
-  },{passive:false});
+  if(document.documentElement.dataset.learningGuide!=='true'){
+    ['gesturestart','gesturechange','gestureend'].forEach(type=>document.addEventListener(type,e=>e.preventDefault(),{passive:false}));
+    let lastTouchEnd=0;
+    document.addEventListener('touchend',e=>{
+      const now=Date.now();
+      if(now-lastTouchEnd<=280 && !e.target.closest('input,textarea')) e.preventDefault();
+      lastTouchEnd=now;
+    },{passive:false});
+  }
 
   renderHistory();
 }
@@ -469,7 +471,8 @@ function setupQuestionDrawer(){
 function fail(err){
   const boot=$('#boot');
   if(boot){
-    boot.innerHTML=`<div class="content" style="padding-top:18vh"><div class="eyebrow">연결 오류</div><h2>Google Sheet 내용을 불러오지 못했습니다.</h2><p class="muted">${esc(err&&err.message?err.message:err)}</p><button onclick="location.reload()" style="border:0;background:var(--accent);color:#fff;padding:.75rem 1rem;border-radius:14px;font-weight:650">다시 불러오기</button></div>`;
+    const title=document.documentElement.dataset.learningGuide==='true'?'학습 내용을 불러오지 못했습니다.':'Google Sheet 내용을 불러오지 못했습니다.';
+    boot.innerHTML=`<div class="content" style="padding-top:18vh"><div class="eyebrow">연결 오류</div><h2>${title}</h2><p class="muted">${esc(err&&err.message?err.message:err)}</p><button onclick="location.reload()" style="border:0;background:var(--accent);color:#fff;padding:.75rem 1rem;border-radius:14px;font-weight:650">다시 불러오기</button></div>`;
   }
 }
 

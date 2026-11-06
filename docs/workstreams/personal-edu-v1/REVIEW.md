@@ -3,7 +3,20 @@
 Reviewed: 2026-11-06
 Branch: `feat/personal-edu-subjects-v1`
 Baseline: `16669aca400a343d772680e47e08a2a48ca708e7`
-Review stage: implementation working tree; not a release sign-off
+Latest source inspection: `215ed05c25f4bd2fda4469e0f6f8695b959b0c05` plus the runtime-check working-tree updates
+Review stage: pre-deployment review; latest runtime CI and mobile visual QA pending
+
+## Verification status
+
+| Evidence | Status at this checkpoint |
+| --- | --- |
+| Implementation and canonical ownership review | Completed by source inspection; the reported corrections below are visible in source. |
+| Module boundary/dependency command | Passed when run by this reviewer. |
+| Full Personal Edu static command | Passed when run by this reviewer against reviewed sources and generated output. |
+| Runtime test design and selectors | Read-only review completed; the corrections in the runtime-review section are confirmed in source. |
+| Latest `check-personal-edu-runtime.mjs` CI execution | **Pending.** Source review of the script is not a passing browser run. |
+| Mobile image/layout inspection in the actual pages | **Pending.** File existence and valid WebP headers do not establish cropping, legibility or visual quality. |
+| Production revision and deployed-page verification | **Pending.** This document does not claim a production deployment. |
 
 ## Scope and method
 
@@ -18,6 +31,7 @@ Reviewed owners and adapters:
 - `public/assets/js/core/content-bookmark-store.js`
 - Changes in `app-shell.js`, `site-data-client.js`, `postload-enhancements.js`, `collection-hub-canonical-v1.js`, `photo-public-module-source-v1.js`, `public-snapshot/runtime-v2.js`, and the photography chapter renderer
 - The new module CSS, owner-file declarations, and script/style wiring in Library, shared preview, Editor and the public entry point
+- `scripts/check-personal-edu-runtime.mjs`, compared read-only with the actual collection, Editor and common-module DOM/runtime owners
 
 The review used source inspection and comparison with the baseline and the canonical module dependency contract. The reviewer also ran `node scripts/check-platform-module-boundaries.mjs`; it exited with code 0 and reported `Canonical reusable UI module boundary and dependency graph contract passed.` The Personal Edu static checks described below also passed after the reviewed sources and generated routes became available. No browser session, automated browser test, accessibility-tree inspection, portable export execution, full CI run, or production verification was performed by this reviewer. Runtime verification belongs to the implementation workstream and must be recorded separately.
 
@@ -67,7 +81,7 @@ The initial approved definitions declared Library, Editor, Public and Export sup
 
 The working tree now includes the new owners in Library, the shared module preview, Editor and the public snapshot runtime. The public app calls the same registered render/hydrate functions used by those consumers; no separate preview implementation was introduced.
 
-Required verification: insert and interact with both new module IDs through Library → Editor → Public, and verify a portable export includes the owner files and runtime behavior. Script inclusion alone is not a passing consumer test.
+Required verification: insert and interact with all three new module IDs through Library → Editor → Public, and verify the declared owner/dependency set in an isolated export consumer. Script inclusion alone is not a passing consumer test.
 
 ### R4 — learning owner files omit layout and dark-theme dependencies
 
@@ -126,6 +140,18 @@ Owner: `learning-guide-v1.css`
 
 The first learning stylesheet used `--muted`, which is not a repository token. Those references now use the existing `--secondary` token. Dark-token availability remains the separate R4 issue.
 
+### R8 — history restoration could retain an outdated source bookmark
+
+Priority: P2
+Status: event-wiring correction confirmed in source; browser reproduction and latest CI pending
+Owner: `learning-guide-v1.js`, `hydrateSection()`
+
+Source inspection identified this sequence: save a source in subject A, navigate to subject B, remove A's source through B's collection, then return to A with browser Back. If A is restored from the back-forward cache, its existing DOM survives. The initial learning hydration listened only to the same document's bookmark-change event, so the collection count could update while A's source button retained its previous selected state. This was a code-path finding, not a browser reproduction by this reviewer.
+
+Persistent Public / Export consumers now call `syncBookmarks()` on `pageshow`, and the cleanup removes that listener. The runtime script now removes the other subject's saved source before navigating Back and compares the count with the restored button's `aria-pressed` state. It also records `pageshow.persisted` so a normal document navigation is not misreported as an exercised back-forward-cache restoration.
+
+Required verification: run that sequence, inspect the recorded history-restoration mode, and confirm the button, count and collection agree. Merely enabling the browser's cache does not prove that a particular navigation used it.
+
 ## Confirmed design boundaries
 
 - The photography hero now calls the canonical hero renderer with the same title, subtitle, image, labels and values. The source diff does not change the photography chapter navigation owner.
@@ -148,17 +174,14 @@ Run these after the source corrections and generated routes are present:
 | Subject navigation | Scroll the hero out of view. Open the separate subject FAB, use keyboard navigation, Escape and the close button, then confirm focus and scrolling recover. |
 | Floating controls | Confirm picker and collection FABs do not overlap at mobile/desktop widths, with and without existing saved items. |
 | Checklist | Persist changes across two chapters and reload; verify independence across two subjects. |
-| Saved resources | Save, reload, navigate between subjects, remove from the collection, and verify both UI and stored records remain consistent. |
+| Saved resources | Save, reload, select the article tab, remove from the collection, and verify UI/count consistency. Also remove A's item while on B, return with Back, and record whether BFCache was actually used. |
 | Templates | Verify clipboard success feedback and the selectable-text fallback when clipboard access is denied. |
 | Multiple blocks | Insert two instances and use the Editor duplicate action for both new modules; inspect ID uniqueness and dialog relationships. |
-| Canonical consumers | Exercise the same registered module in Library, Editor, Public snapshot and portable export, including the source-card bookmark fixture. |
+| Canonical consumers | Exercise the same registered module in Library, Editor, Public snapshot and an isolated declared-dependency fixture, including the source-card bookmark fixture. Keep actual JSON export/import distinct from the dependency fixture. |
 | Styles | Test standalone declared assets, desktop hero layout, dark colors, narrow tables and visible keyboard focus. |
+| Mobile images | Inspect the generated hero and practice images inside the actual narrow pages for cropping, subject visibility, text contrast, spacing and unexpected overflow. |
 
-The default learning preview originally covered only checklist and template blocks. Add a source card to the preview or provide explicit test props so the new bookmark/store interaction is actually exercised by consumer tests.
-
-## Review conclusion
-
-All concrete source defects listed above have source corrections, including the Editor duplicate action and reusable checklist storage scope. The static module boundary/dependency check and full Personal Edu static validation passed. Browser behavior, portable export execution, HTTP route behavior, screenshots and full CI remain unverified by this reviewer. The implementation owner should append the actual runtime verification results and final revision before treating this document as a completed release record.
+The default learning preview still contains checklist and template blocks without a source-card fixture. The public-resource checks exercise source bookmarks, but Library / Editor bookmark-store isolation needs explicit source-card test props before it can be reported as tested. This is a coverage limit, not an observed storage failure.
 
 ## Personal Edu static validation
 
@@ -187,3 +210,28 @@ The validator checks:
 - All 20 photography pack files against baseline `16669aca400a343d772680e47e08a2a48ca708e7`. Only the hero adapter may differ; the rest of its file must match. The old and new hero render the same normalized markup for default and explicit content fixtures. The existing chapter-navigation and liquid-controller owners also match the baseline.
 
 Eight negative cases were injected into memory without changing repository files: a missing source reference, unsupported block type, broken cross-subject anchor, household disclosure, income guarantee, HTTP source URL, truncated course and photography-data drift. Every case produced the expected validation failure. No browser interaction or network availability result is implied by these checks.
+
+## Read-only runtime-test review
+
+Owner: `scripts/check-personal-edu-runtime.mjs`
+Review date: 2026-11-06
+Execution status: latest runtime CI **pending**; this reviewer inspected code and did not execute the browser suite
+
+The review compared the test selectors and steps with the canonical collection renderer, collection hub, Editor app, persistent admin workspace, admin utility menus and module-frame bridge. The article-tab selector, count badge ID, source-card selector and saved-item removal selector match the current implementation. The Editor test uses the actual module-add controls and toolbar duplicate action, then the existing JSON export/import controls.
+
+| Runtime-review finding | Correction confirmed in source | Execution status |
+| --- | --- | --- |
+| Editor export was clicked inside a closed More menu. | `openEditorUtility()` opens the real `details.admin-utility-menu` before export and import. | Pending latest runtime CI. |
+| A failed export click could leave an unobserved download promise. | Download waiting and the button click are grouped in `Promise.all()`. | Pending latest runtime CI. |
+| An article-tab click could pass while the collection remained on All, because both views contained the same one article. | The test now waits for the article tab's `is-active` state before checking saved content. | Pending latest runtime CI. |
+| Editor readiness could match default preview DOM before the frame bridge applied the actual block props. | `editorFrames()` checks the expected instance namespace; learning sections must also report hydration. Imported blocks use the IDs from the actual export. | Pending latest runtime CI. |
+| A navigation failure could leave a modal open and contaminate later checks. | The route is reopened and readied after a navigation failure; an unsuccessful recovery skips later checks for that route. | Pending latest runtime CI. |
+| The initial cross-subject round trip never changed A's source while viewing B. | The test now deletes A's entry in B, checks the remaining count, returns to A and checks the restored button. The implementation's `pageshow` fix is recorded in R8. | Pending latest runtime CI, including the observed restoration mode. |
+
+The runtime script removes only Playwright's default back-forward-cache disabling argument and records whether the browser actually used BFCache. A successful normal document-navigation result must not be described as a reproduced BFCache pass.
+
+The script also contains a clipboard comparison against the visible template text and a declared-dependency fixture built from Registry provenance. These are source-confirmed test paths whose execution remains pending. The dependency fixture copies canonical owners and referenced images and mounts the actual exported block props in isolation; it is a QA fixture, not an HTML/ZIP export product. The existing Editor JSON download/import is tested separately.
+
+## Release checkpoint
+
+All concrete implementation and runtime-test design issues listed in this review have source corrections. The module boundary/dependency command and full Personal Edu static validation have recorded passing runs. **The latest runtime CI and mobile image/layout inspection remain pending.** Browser interaction, the isolated dependency fixture, HTTP route behavior and production revision verification must be recorded from their actual results before closing this review as a release record.

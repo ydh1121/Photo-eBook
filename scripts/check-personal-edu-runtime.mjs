@@ -30,6 +30,14 @@ async function settledScroll(page){let last=null,stable=0;await wait(async()=>{c
 async function jump(page,id){await page.locator(`.nav-shell .nav-chip[data-target="${id}"]`).click();await wait(()=>page.locator(`.nav-shell .nav-chip[data-target="${id}"]`).evaluate(n=>n.classList.contains('is-active')),`chapter did not become active: ${id}`);await wait(()=>page.locator(`#app .chapter[data-chapter="${id}"]`).evaluate(n=>{const r=n.getBoundingClientRect();return r.top<innerHeight*.5&&r.bottom>90;}),`chapter not in viewport: ${id}`);await settledScroll(page);}
 async function counts(page,expected){await wait(()=>page.locator('#collectionFabCount').textContent().then(t=>Number(t)===expected),`collection count should be ${expected}`);assert(await page.locator('#collectionFabCount').isHidden()===(expected===0),'collection badge visibility disagrees with count');}
 async function closeCollection(page){await page.locator('#collectionClose').click();await page.locator('#collectionSheet').waitFor({state:'hidden'});}
+async function dialogFocusLoop(page,dialog){
+  const first=dialog.locator('.subject-picker__close'),last=dialog.locator('.subject-picker__grid a').last();
+  await wait(()=>first.evaluate(n=>document.activeElement===n),'subject dialog does not initially focus its close button');
+  await page.keyboard.press('Shift+Tab');assert(await last.evaluate(n=>document.activeElement===n),'Shift+Tab did not wrap from the first to the last modal control');
+  await page.keyboard.press('Tab');assert(await first.evaluate(n=>document.activeElement===n),'Tab did not wrap from the last to the first modal control');
+  const steps=await dialog.locator('button,a[href]').count()+1;
+  for(let i=0;i<steps;i++){await page.keyboard.press('Tab');assert(await dialog.evaluate(n=>n.contains(document.activeElement)),'keyboard focus escaped the modal');}
+}
 
 async function publicStructure(page,pack){
   const structure=await page.locator('#app .chapter[data-chapter]').evaluateAll(nodes=>nodes.map(n=>({id:n.dataset.chapter,title:n.querySelector('h2')?.textContent.trim(),height:n.getBoundingClientRect().height})));
@@ -72,7 +80,7 @@ async function navigation(page,pack){
   await fab.click();await dialog.waitFor({state:'visible'});
   assert(await fab.getAttribute('aria-expanded')==='true','subject picker expanded state is missing');
   assert(await dialog.locator('a').count()===6,'subject picker is incomplete');
-  for(let i=0;i<8;i++){await page.keyboard.press('Tab');assert(await dialog.evaluate(n=>n.contains(document.activeElement)),'keyboard focus escaped the modal');}
+  await dialogFocusLoop(page,dialog);
   await overflow(page,`${pack.id} picker`);
   await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});
   await wait(()=>fab.evaluate(n=>document.activeElement===n),'Escape does not return focus to the subject FAB');
@@ -111,7 +119,8 @@ async function bookmarks(page,pack){
   await page.reload({waitUntil:'domcontentloaded'});await ready(page,pack);await counts(page,1);
   assert(await button.getAttribute('aria-pressed')==='true','source bookmark was not restored');
   await page.locator('#collectionFab').click();await page.locator('#collectionSheet').waitFor({state:'visible'});
-  await page.locator('#collectionSheet [data-library-tab="article"]').click();
+  const articleTab=page.locator('#collectionSheet [data-library-tab="article"]');await articleTab.click();
+  await wait(()=>articleTab.evaluate(n=>n.classList.contains('is-active')),'collection did not switch to the article tab');
   const items=page.locator('#collectionSheet .collection-item[data-library-type="article"]');
   await wait(()=>items.count().then(n=>n===1),'saved source is missing or duplicated in the collection');
   assert((await items.first().locator('strong').textContent()).trim()===title,'collection restored the wrong source title');
@@ -123,6 +132,18 @@ async function bookmarks(page,pack){
   return {source:title};
 }
 
+async function copyTemplate(page,context){
+  await context.grantPermissions(['clipboard-read','clipboard-write'],{origin:new URL(BASE).origin});
+  await page.bringToFront();
+  const template=page.locator('.edu-template').first();
+  const original=await template.locator('pre').textContent();assert(original?.length>0,'copy template is empty');
+  await template.locator('.edu-copy-btn').click();
+  await wait(()=>template.locator('[role="status"]').textContent().then(text=>text.includes('복사했습니다.')),'copy action did not report success');
+  const copied=await page.evaluate(()=>navigator.clipboard.readText());
+  assert(copied===original,'clipboard text differs from the visible template');
+  return {characters:copied.length,sha256:sha(copied)};
+}
+
 async function publicMatrix(browser){
   for(const view of VIEWPORTS){for(const pack of PACKS){
     const context=await browser.newContext({viewport:{width:view.width,height:view.height},isMobile:view.mobile,hasTouch:view.mobile,deviceScaleFactor:1});
@@ -131,7 +152,8 @@ async function publicMatrix(browser){
     try{
       if(!await check(`${label}/render`,async()=>{await openPack(page,pack);return publicStructure(page,pack);},page))continue;
       await shot(page,`${view.name}-${pack.id}-hero`);
-      await check(`${label}/navigation-and-focus`,()=>navigation(page,pack),page);
+      const navigationPassed=await check(`${label}/navigation-and-focus`,()=>navigation(page,pack),page);
+      if(!navigationPassed&&!await check(`${label}/recover-after-navigation`,()=>openPack(page,pack),page))continue;
       if(pack.id!=='photography'){
         await check(`${label}/education-and-practice-screenshots`,async()=>{
           await jump(page,'education');await shot(page,`${view.name}-${pack.id}-education`);
@@ -139,6 +161,7 @@ async function publicMatrix(browser){
           await wait(()=>page.locator(`.chapter[data-chapter="${chapter}"] .chapter-hero__card img`).evaluate(n=>n.complete&&n.naturalWidth>0),'generated practice image failed to load after chapter navigation');
           await overflow(page,`${pack.id} practice`);await shot(page,`${view.name}-${pack.id}-practice`);
         },page);
+        if(!view.mobile&&pack.id==='video')await check(`${label}/template-copy-to-clipboard`,()=>copyTemplate(page,context),page);
         if(view.mobile){
           await check(`${label}/chapter-progress-reload`,()=>practices(page,pack),page);
           await check(`${label}/bookmarks-and-collection`,()=>bookmarks(page,pack),page);
@@ -150,6 +173,7 @@ async function publicMatrix(browser){
 
 async function subjectRoundtrip(browser){
   const context=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true});
+  await context.addInitScript(()=>{window.__personalEduHistoryEvents=[];window.addEventListener('pageshow',event=>window.__personalEduHistoryEvents.push({persisted:event.persisted}));});
   const page=await context.newPage();page.setDefaultTimeout(12000);observe(page,'cross-subject');
   try{await check('cross-subject/navigation-bookmark-namespace-and-history',async()=>{
     const video=PACKS.find(p=>p.id==='video'),ai=PACKS.find(p=>p.id==='ai');
@@ -161,20 +185,25 @@ async function subjectRoundtrip(browser){
     const aiSource=page.locator('.edu-source-card[data-source-id="openai-prompts"] .edu-bookmark');
     assert(await aiSource.getAttribute('aria-pressed')==='false','same source ID in another subject collided');
     await aiSource.click();await counts(page,2);
-    await page.goBack({waitUntil:'domcontentloaded'});await ready(page,video);await counts(page,2);
-    assert(await videoSource.getAttribute('aria-pressed')==='true','browser Back did not restore the previous subject bookmark');
-    assert(await page.locator('#subjectPicker').isHidden(),'browser Back restores an open subject modal');
-    const y=await page.evaluate(()=>scrollY);await page.mouse.wheel(0,-200);
-    await wait(()=>page.evaluate(old=>Math.abs(scrollY-old)>20,y),'browser Back leaves scrolling locked');
     await page.locator('#collectionFab').click();await page.locator('#collectionSheet').waitFor({state:'visible'});
     assert(await page.locator('#collectionSheet .collection-item[data-library-type="article"]').count()===2,'two subjects must retain two saved source entries');
     await shot(page,'mobile375-cross-subject-collection');
+    await page.locator('#collectionSheet .collection-item[data-library-id="video:openai-prompts"]').getByRole('button',{name:'저장 해제',exact:true}).click();await counts(page,1);
+    assert(await aiSource.getAttribute('aria-pressed')==='true','removing the other subject source also removed the current source');
+    await closeCollection(page);
+    await page.goBack({waitUntil:'commit'});await ready(page,video);await counts(page,1);
+    await wait(()=>videoSource.getAttribute('aria-pressed').then(v=>v==='false'),'browser Back restores a stale bookmark removed from another subject');
+    assert(await page.locator('#subjectPicker').isHidden(),'browser Back restores an open subject modal');
+    const y=await page.evaluate(()=>scrollY);await page.mouse.wheel(0,-200);
+    await wait(()=>page.evaluate(old=>Math.abs(scrollY-old)>20,y),'browser Back leaves scrolling locked');
+    const pageshowEvents=await page.evaluate(()=>window.__personalEduHistoryEvents||[]);
+    return {historyRestore:pageshowEvents.at(-1)?.persisted?'bfcache':'document-navigation',pageshowEvents,remainingSavedSources:1};
   },page);}finally{await context.close();}
 }
 
 async function libraryModule(page,id){
   await page.locator(`[data-kit-ui="${id}"]`).click();
-  await wait(()=>page.evaluate(moduleId=>{const doc=document.querySelector('#builderFrame')?.contentDocument;return doc?.documentElement.dataset.platformModule===moduleId&&Boolean(doc.querySelector(`[data-platform-module="${moduleId}"]`));},id),`Library did not mount ${id}`);
+  await wait(()=>page.evaluate(moduleId=>{const doc=document.querySelector('#builderFrame')?.contentDocument;return doc?.documentElement.dataset.platformModule===moduleId&&Boolean(doc.body?.querySelector(`[data-platform-module="${moduleId}"]`));},id),`Library did not mount ${id}`);
   return page.frameLocator('#builderFrame');
 }
 async function editorWorkspace(page){
@@ -186,8 +215,25 @@ async function editorWorkspace(page){
   const handle=await frame.elementHandle();const tool=await handle.contentFrame();assert(tool,'Editor workspace frame unavailable');
   await tool.locator('[data-add-module="learning-guide-section"]').waitFor({state:'visible'});return tool;
 }
-async function editorFrames(tool,id,count){
-  await wait(()=>tool.evaluate(({id,count})=>{const frames=[...document.querySelectorAll(`[data-platform-editor-module-frame="${id}"]`)];return frames.length===count&&frames.every(f=>f.contentDocument?.querySelector(`[data-platform-module="${id}"]`));},{id,count}),`Editor ${id}: expected ${count} hydrated instances`);
+async function editorFrames(tool,id,count,expectedBlocks=null){
+  await wait(()=>tool.evaluate(({id,count,expectedBlocks})=>{
+    const frames=[...document.querySelectorAll(`[data-platform-editor-module-frame="${id}"]`)];
+    return frames.length===count&&frames.every(frame=>{
+      const root=frame.contentDocument?.body?.querySelector(`[data-platform-module="${id}"]`);if(!root)return false;
+      const blockId=frame.closest('[data-editor-block]')?.dataset.editorBlock;
+      const expected=expectedBlocks?.find(block=>block.id===blockId);
+      const instance=expected?.content?.instanceId||blockId;
+      if(id==='subject-navigation')return root.dataset.subjectInstance===instance;
+      if(id==='learning-guide-section')return root.dataset.learningBound==='true'&&root.id.startsWith(`${instance}-`);
+      return true;
+    });
+  },{id,count,expectedBlocks}),`Editor ${id}: expected ${count} hydrated instances with their own props`);
+}
+async function openEditorUtility(tool,control){
+  const menu=tool.locator('details.admin-utility-menu').filter({has:tool.locator(control)});
+  assert(await menu.count()===1,`Editor utility menu missing for ${control}`);
+  if(!await menu.evaluate(n=>n.open))await menu.locator(':scope > summary').click();
+  await wait(()=>menu.evaluate(n=>n.open),'Editor More menu did not open');
 }
 
 async function commonPipeline(browser){
@@ -200,7 +246,7 @@ async function commonPipeline(browser){
       await wait(()=>page.evaluate(()=>Boolean(window.PlatformModuleRegistry?.get('subject-navigation'))),'new Registry entries are missing');
       metadata=await page.evaluate(ids=>ids.map(id=>({id,provenance:window.PlatformModuleRegistry.provenance(id),closure:window.PlatformModuleRegistry.dependencyClosure(id,'export').map(key=>window.PlatformModuleRegistry.provenance(key))})),MODULES);
       for(const item of metadata){assert(item.provenance.status==='approved',`${item.id}: not approved`);for(const consumer of ['public','library','editor','export'])assert(item.provenance.consumers.includes(consumer),`${item.id}: missing ${consumer} consumer`);assert(item.closure.every(d=>d.ownerFiles.length>0),`${item.id}: missing canonical owners`);}
-      for(const id of MODULES){const frame=await libraryModule(page,id);assert(await frame.locator(`[data-platform-module="${id}"]`).isVisible(),`${id}: Library preview is empty`);if(id==='learning-guide-section'){const input=frame.locator('.edu-checklist input').first();await input.check();assert(await input.isChecked(),'Library checklist is inert');}if(id==='subject-navigation'){const fab=frame.locator('.subject-fab');await fab.click();await frame.locator('dialog[open]').waitFor({state:'visible'});await page.keyboard.press('Escape');await frame.locator('dialog').waitFor({state:'hidden'});}}
+      for(const id of MODULES){const frame=await libraryModule(page,id);const module=frame.locator(`body [data-platform-module="${id}"]`);assert(await module.count()===1&&await module.isVisible(),`${id}: Library module root is missing, duplicated or empty`);if(id==='learning-guide-section'){const input=module.locator('.edu-checklist input').first();await input.check();assert(await input.isChecked(),'Library checklist is inert');}if(id==='subject-navigation'){const fab=module.locator('.subject-fab');await fab.click();const dialog=module.locator('dialog');await dialog.waitFor({state:'visible'});await dialogFocusLoop(page,dialog);await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});}}
       await shot(page,'canonical-library');return metadata;
     },page))return;
     if(!await check('common/editor-insert-duplicate-preview-and-json-export',async()=>{
@@ -216,8 +262,9 @@ async function commonPipeline(browser){
       const second=tool.frameLocator('[data-platform-editor-module-frame="learning-guide-section"]').nth(1);
       await learning.locator('.edu-checklist input').first().check();assert(!await second.locator('.edu-checklist input').first().isChecked(),'Editor duplicated checklist shares transient state');
       const subject=tool.frameLocator('[data-platform-editor-module-frame="subject-navigation"]').first();
-      await subject.locator('.subject-fab').click();await subject.locator('dialog[open]').waitFor({state:'visible'});await page.keyboard.press('Escape');await subject.locator('dialog').waitFor({state:'hidden'});
-      const downloadPromise=page.waitForEvent('download');await tool.locator('#editorExport').click();const download=await downloadPromise;
+      await subject.locator('.subject-fab').click();await subject.locator('dialog[open]').waitFor({state:'visible'});await dialogFocusLoop(page,subject.locator('dialog'));await page.keyboard.press('Escape');await subject.locator('dialog').waitFor({state:'hidden'});
+      await openEditorUtility(tool,'#editorExport');
+      const [download]=await Promise.all([page.waitForEvent('download'),tool.locator('#editorExport').click()]);
       const file=path.join(OUT,'editor-export.json');await download.saveAs(file);exported=JSON.parse(fs.readFileSync(file,'utf8'));
       assert(exported.blocks.length===5,'real export lost or added blocks');
       assert(exported.validation?.every(item=>item.ok),'Editor validation rejected exported modules');
@@ -227,7 +274,7 @@ async function commonPipeline(browser){
     await check('common/json-import-into-fresh-editor',async()=>{
       const fresh=await browser.newContext({viewport:{width:1440,height:1000}});const importedPage=await fresh.newPage();
       observe(importedPage,'canonical-editor-import');
-      try{const tool=await editorWorkspace(importedPage);await tool.locator('#editorImport').setInputFiles(path.join(OUT,'editor-export.json'));for(const id of MODULES)await editorFrames(tool,id,id==='learning-guide-hero'?1:2);await tool.locator('[data-editor-mode="preview"]').click();await editorFrames(tool,'learning-guide-section',2);const input=tool.frameLocator('[data-platform-editor-module-frame="learning-guide-section"]').first().locator('.edu-checklist input').first();await input.check();assert(await input.isChecked(),'imported learning module is inert');await shot(importedPage,'canonical-editor-import');}finally{await fresh.close();}
+      try{const tool=await editorWorkspace(importedPage);await openEditorUtility(tool,'#editorImport');await tool.locator('#editorImport').setInputFiles(path.join(OUT,'editor-export.json'));for(const id of MODULES)await editorFrames(tool,id,id==='learning-guide-hero'?1:2,exported.blocks);await tool.locator('[data-editor-mode="preview"]').click();await editorFrames(tool,'learning-guide-section',2,exported.blocks);const input=tool.frameLocator('[data-platform-editor-module-frame="learning-guide-section"]').first().locator('.edu-checklist input').first();await input.check();assert(await input.isChecked(),'imported learning module is inert');await shot(importedPage,'canonical-editor-import');}finally{await fresh.close();}
     },page);
     await standalone(browser,metadata,exported);
   }finally{await context.close();}
@@ -274,7 +321,7 @@ async function standalone(browser,metadata,exported){
     function luminance(value){const rgb=value.match(/[\d.]+/g)?.slice(0,3).map(Number);assert(rgb?.length===3,`unsupported computed color ${value}`);return rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);}
     const a=luminance(colors.foreground),b=luminance(colors.background),contrast=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);assert(contrast>=4.5,`standalone dark checklist contrast is ${contrast.toFixed(2)}`);
     for(const fab of await page.locator('.subject-fab').all()){
-      const id=await fab.getAttribute('aria-controls');const dialog=page.locator(`[id="${id}"]`);await fab.focus();await page.keyboard.press('Enter');await dialog.waitFor({state:'visible'});assert(await page.locator('dialog[open]').count()===1,'one trigger opened multiple exported dialogs');await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});assert(await fab.evaluate(n=>document.activeElement===n),'exported picker does not restore focus');
+      const id=await fab.getAttribute('aria-controls');const dialog=page.locator(`[id="${id}"]`);await fab.focus();await page.keyboard.press('Enter');await dialog.waitFor({state:'visible'});assert(await page.locator('dialog[open]').count()===1,'one trigger opened multiple exported dialogs');await dialogFocusLoop(page,dialog);await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});assert(await fab.evaluate(n=>document.activeElement===n),'exported picker does not restore focus');
     }
     await overflow(page,'standalone desktop');await shot(page,'canonical-export-dark-desktop');
     await page.setViewportSize({width:375,height:812});await overflow(page,'standalone mobile');await shot(page,'canonical-export-dark-mobile');
@@ -285,7 +332,7 @@ async function standalone(browser,metadata,exported){
 let browser;
 try{
   const executable=process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
-  browser=await chromium.launch({headless:true,...(executable?{executablePath:executable}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
+  browser=await chromium.launch({headless:true,ignoreDefaultArgs:['--disable-back-forward-cache'],...(executable?{executablePath:executable}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
   await publicMatrix(browser);
   await subjectRoundtrip(browser);
   await commonPipeline(browser);

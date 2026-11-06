@@ -1,4 +1,5 @@
 /* New learning components. Photography geometry is owned by its existing CSS. */
+html[data-learning-guide="true"],html[data-learning-guide="true"] body{touch-action:pan-x pan-y pinch-zoom;text-size-adjust:100%;-webkit-text-size-adjust:100%}
 [data-platform-module="learning-guide-hero"] h1{white-space:pre-line}
 .edu-chapter{--edu-border:rgba(94,111,140,.18);--edu-surface:var(--card,#fff)}
 .edu-chapter-heading{padding-top:clamp(3.4rem,7vw,6rem);padding-bottom:1rem}

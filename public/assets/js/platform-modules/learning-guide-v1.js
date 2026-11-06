@@ -130,7 +130,9 @@
     root.addEventListener('change',change);root.addEventListener('click',click);
     const storeChange=event=>{if(event.detail?.persistent===persist)syncBookmarks();};
     document.addEventListener('content-bookmarks-changed',storeChange);
-    return ()=>{root.removeEventListener('change',change);root.removeEventListener('click',click);document.removeEventListener('content-bookmarks-changed',storeChange);delete root.dataset.learningBound;};
+    // A restored page can outlive a bookmark change made in another subject.
+    if(persist)window.addEventListener('pageshow',syncBookmarks);
+    return ()=>{root.removeEventListener('change',change);root.removeEventListener('click',click);document.removeEventListener('content-bookmarks-changed',storeChange);window.removeEventListener('pageshow',syncBookmarks);delete root.dataset.learningBound;};
   }
   const heroPreview={eyebrow:'실습 가이드',title:'배운 내용을\n작은 결과물로',description:'목표를 정하고 직접 만든 결과물을 점검해 보세요.',image:'/assets/images/generated/personal-edu-v1/video-hero.webp',imageAlt:'스마트폰 촬영 실습을 묘사한 AI 생성 이미지',facts:[{label:'도구',value:'지금 쓰는 스마트폰'},{label:'결과물',value:'첫 실습 한 편'},{label:'학습',value:'실습과 피드백'},{label:'기록',value:'다음 작업에 재사용'}]};
   const sectionPreview={packId:'preview',index:0,chapter:{id:'practice',label:'실습',title:'작은 결과물을 완성해 보세요',description:'목표와 확인 기준을 함께 적습니다.',outcome:'검토할 결과물 한 개',blocks:[{type:'checklist',id:'preview',title:'완성 후 점검',items:['사용할 목적을 적었다','결과물을 직접 확인했다']},{type:'template',title:'실습 기록',text:'목적: [사용 목적]\n결과: [만든 결과물]\n다음 수정: [한 가지]'}]},sources:[]};

@@ -18,6 +18,19 @@
     const root=host.querySelector('[data-subject-instance]');if(!root)return;
     const dialog=root.querySelector('dialog'),fab=root.querySelector('.subject-fab');
     let previousFocus=null,oldOverflow='',locked=false;
+    function focusableItems(){
+      if(!dialog)return [];
+      return [...dialog.querySelectorAll('a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]')].filter(node=>node.tabIndex>=0&&!node.matches(':disabled')&&!node.closest('[hidden],[inert]')&&node.getClientRects().length>0&&!['hidden','collapse'].includes(getComputedStyle(node).visibility));
+    }
+    function trapFocus(event){
+      if(event.key!=='Tab'||event.altKey||event.ctrlKey||event.metaKey||!dialog?.open)return;
+      const items=focusableItems();if(!items.length){event.preventDefault();return;}
+      const first=items[0],last=items[items.length-1],active=document.activeElement;
+      // Keep both ends of the modal's keyboard sequence inside the dialog.
+      // Native dialog modality alone can hand the final Tab to browser chrome.
+      if(event.shiftKey&&(active===first||active===dialog||!dialog.contains(active))){event.preventDefault();last.focus({preventScroll:true});}
+      else if(!event.shiftKey&&(active===last||active===dialog||!dialog.contains(active))){event.preventDefault();first.focus({preventScroll:true});}
+    }
     function release(){if(!locked)return;document.documentElement.style.overflowY=oldOverflow;locked=false;previousFocus?.focus?.({preventScroll:true});fab?.setAttribute('aria-expanded','false');}
     function close(){if(dialog?.open)dialog.close();release();}
     function open(){
@@ -25,7 +38,7 @@
       if(context.consumer==='public')window.PhotoCollectionHub?.close?.();
       previousFocus=document.activeElement;oldOverflow=document.documentElement.style.overflowY;
       document.documentElement.style.overflowY='hidden';locked=true;
-      dialog.showModal();fab?.setAttribute('aria-expanded','true');
+      dialog.showModal();fab?.setAttribute('aria-expanded','true');focusableItems()[0]?.focus({preventScroll:true});
     }
     const click=event=>{
       if(event.target.closest?.('.subject-fab')){open();return;}
@@ -35,7 +48,7 @@
       else if(anchor){close();}
       else if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)close();}
     };
-    root.addEventListener('click',click);dialog?.addEventListener('close',release);
+    root.addEventListener('click',click);dialog?.addEventListener('close',release);dialog?.addEventListener('keydown',trapFocus);
     const pagehide=()=>{if(dialog?.open)dialog.close();release();};
     window.addEventListener('pagehide',pagehide);
     let observer=null,resizeObserver=null;
@@ -57,7 +70,7 @@
       window.addEventListener('resize',alignFab,{passive:true});
       window.visualViewport?.addEventListener('resize',alignFab,{passive:true});
     }
-    return {api:{open,close},cleanup(){close();root.removeEventListener('click',click);dialog?.removeEventListener('close',release);window.removeEventListener('pagehide',pagehide);window.removeEventListener('resize',alignFab);window.visualViewport?.removeEventListener('resize',alignFab);observer?.disconnect();resizeObserver?.disconnect();}};
+    return {api:{open,close},cleanup(){close();root.removeEventListener('click',click);dialog?.removeEventListener('close',release);dialog?.removeEventListener('keydown',trapFocus);window.removeEventListener('pagehide',pagehide);window.removeEventListener('resize',alignFab);window.visualViewport?.removeEventListener('resize',alignFab);observer?.disconnect();resizeObserver?.disconnect();}};
   }
   const preview={instanceId:'subjectPreview',currentId:'one',items:[{id:'one',label:'첫 분야',url:'/one/',description:'지금 배우는 내용'},{id:'two',label:'다음 분야',url:'/two/',description:'이어지는 실습'}]};
   registry.register({id:'subject-navigation',label:'분야 전환',category:'navigation',version:1,status:'approved',source:'platform-core',isolateInstances:true,consumers:['public','library','editor','export'],ownerFiles:['public/assets/js/platform-modules/subject-navigation-v1.js','public/assets/styles/navigation/subject-navigation-v1.css'],previewProps:preview,editorProps:preview,render,hydrate});
