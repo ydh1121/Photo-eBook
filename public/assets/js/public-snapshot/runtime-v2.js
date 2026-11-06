@@ -61,6 +61,8 @@
     await loadScript('/assets/js/platform-modules/filter-chip-rail-edge-repair-v1.js');
     await loadScript('/assets/js/core/content-bookmark-store.js');
     await loadScript('/assets/js/platform-modules/learning-resource-rail-v1.js');
+    await loadScript('/assets/js/platform-modules/content-detail-dialog-v1.js');
+    await loadScript('/assets/js/platform-modules/reference-case-rail-v1.js');
     await loadScript('/assets/js/platform-modules/learning-guide-v1.js');
     await loadScript('/assets/js/platform-modules/subject-navigation-v1.js');
     await loadScript('/assets/js/platform-modules/module-style-runtime-v1.js');

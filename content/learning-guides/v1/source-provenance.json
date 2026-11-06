@@ -6,6 +6,12 @@
     "sourceKind": "native-google-sheets"
   },
   {
+    "id": "sns",
+    "snapshotSha256": "70de0d023bc6fc2e95d8e0f0eb4b5402173ee10fce89506d56e945165603414b",
+    "verifiedAt": "2026-11-06T09:02:45.732Z",
+    "sourceKind": "native-google-sheets"
+  },
+  {
     "id": "ai",
     "snapshotSha256": "e854ac262c89a977151b903cbaa4140c748b88d4612c7b07b72294ecbdd30ee1",
     "verifiedAt": "2026-11-06T00:09:00.651Z",
@@ -19,8 +25,8 @@
   },
   {
     "id": "real-estate",
-    "snapshotSha256": "50a7c47836bb01694f992aa166053b13f00559d2cfee467dfb0d62f3d4b85e31",
-    "verifiedAt": "2026-11-06T06:05:06.985416+00:00",
+    "snapshotSha256": "8c11afbe30c72121e80012e69fe82364c901f1453d8e5b2a6dc991d4e724c7fc",
+    "verifiedAt": "2026-11-06T09:02:45.831Z",
     "sourceKind": "native-google-sheets"
   },
   {

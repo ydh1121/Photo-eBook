@@ -16,6 +16,8 @@
     "/photography/*",
     "/video",
     "/video/*",
+    "/sns",
+    "/sns/*",
     "/ai",
     "/ai/*",
     "/community",

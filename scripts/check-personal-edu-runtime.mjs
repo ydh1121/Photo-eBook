@@ -9,9 +9,9 @@ import {chromium} from 'playwright';
 const ROOT=path.resolve(import.meta.dirname,'..');
 const BASE=(process.env.PERSONAL_EDU_BASE_URL||process.env.UI_DASHBOARD_BASE_URL||process.env.BASE_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
 const OUT=path.join(ROOT,'artifacts/personal-edu-runtime');
-const PACKS=[{id:'photography',route:'/',chapters:10},...['video','ai','community','real-estate','auction'].map(id=>({id,route:`/${id}/`,chapters:9}))];
+const PACKS=[{id:'photography',route:'/',chapters:10},...['video','sns','ai','community','real-estate','auction'].map(id=>({id,route:`/${id}/`,chapters:id==='real-estate'?10:9}))];
 const MODULES=['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail'];
-const PRACTICE_CHAPTER={video:'editing',ai:'images',community:'education','real-estate':'inspection',auction:'inspection'};
+const PRACTICE_CHAPTER={video:'editing',sns:'content',ai:'images',community:'education','real-estate':'inspection',auction:'inspection'};
 const VIEWPORTS=[{name:'desktop1440',width:1440,height:1000,mobile:false},{name:'mobile375',width:375,height:812,mobile:true},{name:'mobile375-short667',width:375,height:667,mobile:true,packs:['photography','video'],shortOnly:true}];
 const report={startedAt:new Date().toISOString(),base:BASE,checks:[],screenshots:[],diagnostics:[],limitations:['Static-server checks use bundled content, not the production APIs.','The standalone export fixture verifies declared canonical dependencies. It is not an HTML/ZIP export product.']};
 fs.mkdirSync(OUT,{recursive:true});
@@ -68,7 +68,7 @@ async function publicStructure(page,pack){
   const targets=await page.locator('.nav-shell .nav-chip').evaluateAll(nodes=>nodes.map(n=>n.dataset.target));
   assert(JSON.stringify(targets)===JSON.stringify(structure.map(n=>n.id)),'chapter navigation no longer maps to the rendered chapters');
   const bar=page.locator('#app .hero .subject-nav');
-  assert(await bar.locator('a').count()===6,'subject bar must contain six subjects');
+  assert(await bar.locator('a').count()===PACKS.length,'subject bar must contain all configured subjects');
   assert(await bar.locator('[aria-current="page"]').getAttribute('data-subject-id')===pack.id,'current subject is wrong');
   assert(await bar.isVisible(),'subject bar missing from hero');
   const style=await bar.evaluate(n=>getComputedStyle(n).position);
@@ -84,7 +84,7 @@ async function publicStructure(page,pack){
   await overflow(page,`${pack.id} hero`);
   if(pack.id!=='photography'){
     assert(await page.locator('[data-platform-module="learning-guide-hero"]').count()===1,'public hero does not use its shared module');
-    assert(await page.locator('#app [data-platform-module="learning-guide-section"]').count()===9,'public learning chapters do not use the shared module');
+    assert(await page.locator('#app [data-platform-module="learning-guide-section"]').count()===pack.chapters,'public learning chapters do not use the shared module');
     await wait(()=>page.locator('#app .hero__image').evaluate(n=>n.complete&&n.naturalWidth>0),'generated hero image failed to load');
     const education=page.locator('#app .chapter[data-chapter="education"]');
     assert(await education.locator('.edu-block').count()>=3,'education chapter is empty');
@@ -107,7 +107,7 @@ async function navigation(page,pack){
   const url=page.url(),before=await page.evaluate(()=>scrollY);
   await fab.click();await dialog.waitFor({state:'visible'});
   assert(await fab.getAttribute('aria-expanded')==='true','subject picker expanded state is missing');
-  assert(await dialog.locator('a').count()===6,'subject picker is incomplete');
+  assert(await dialog.locator('a').count()===PACKS.length,'subject picker is incomplete');
   await pickerPresentation(dialog);
   await shot(page,`picker-${page.viewportSize().width}x${page.viewportSize().height}-${pack.id}`);
   await dialogFocusLoop(page,dialog);
@@ -173,6 +173,70 @@ async function copyTemplate(page,context){
   const copied=await page.evaluate(()=>navigator.clipboard.readText());
   assert(copied===original,'clipboard text differs from the visible template');
   return {characters:copied.length,sha256:sha(copied)};
+}
+
+async function publicReferenceCases(page,view){
+  const course=JSON.parse(fs.readFileSync(path.join(ROOT,'content/learning-guides/v1/real-estate.json'),'utf8'));
+  const blocks=course.chapters.find(chapter=>chapter.id==='references')?.blocks.filter(block=>block.type==='case-studies')||[];
+  assert(blocks.length>=2,'real-estate references must contain analyzed cases and profile references');
+  await jump(page,'references');
+  const chapter=page.locator('#app .chapter[data-chapter="references"]'),rails=chapter.locator('[data-platform-module="reference-case-rail"]');
+  assert(await rails.count()===blocks.length,'published reference rails differ from their source blocks');
+  const inventory=[];
+  for(let index=0;index<blocks.length;index++){
+    const rail=rails.nth(index),cards=rail.locator('[data-reference-case-id]'),track=rail.locator('.platform-horizontal-rail__track');
+    assert(await rail.getAttribute('data-reference-bound')==='true','published reference rail did not hydrate');
+    assert(await cards.count()===blocks[index].items.length,'published reference cards are missing or duplicated');
+    const geometry=await track.evaluate(node=>({width:node.clientWidth,scroll:node.scrollWidth,bound:node.dataset.platformRailBoundV2==='true'}));
+    assert(geometry.bound&&geometry.scroll>geometry.width,'published cases lost the canonical horizontal rail');
+    inventory.push({block:blocks[index].id,cards:await cards.count(),...geometry});
+  }
+  const observed=[];
+  try{
+    // Open the actual presenter-led analysis and an actual profile reference.
+    // Source data supplies expected text/links; fixture content never replaces it.
+    for(const kind of ['analysis','profile']){
+      const blockIndex=blocks.findIndex(block=>block.items.some(item=>item.kind===kind));
+      assert(blockIndex>=0,`published ${kind} references are missing`);
+      const itemIndex=blocks[blockIndex].items.findIndex(item=>item.kind===kind),item=blocks[blockIndex].items[itemIndex];
+      const rail=rails.nth(blockIndex),opener=rail.locator('[data-reference-case-id]').nth(itemIndex),dialog=rail.locator('dialog');
+      await opener.scrollIntoViewIfNeeded();await settledScroll(page);
+      const before=await page.evaluate(()=>({y:scrollY,bodyPosition:document.body.style.position,htmlOverflow:document.documentElement.style.overflow,url:location.href}));
+      const railBefore=await rail.locator('.platform-horizontal-rail__track').evaluate(node=>node.scrollLeft);
+      await opener.click();await dialog.waitFor({state:'visible'});
+      await dialog.evaluate(node=>Promise.all(node.getAnimations().map(animation=>animation.finished.catch(()=>{}))));
+      assert(await dialog.evaluate(node=>node.matches(':modal')),'published detail did not enter the native modal layer');
+      assert(await chapter.locator('dialog[open]').count()===1,'one reference click opened multiple details');
+      assert((await dialog.locator('h2').textContent()).trim()===item.title,'published detail selected the wrong case');
+      assert(await dialog.locator('.edu-detail-section').count()===item.sections.length,'published detail lost its analysis sections');
+      assert((await dialog.locator('.edu-detail-meta__evidence').textContent()).trim()===item.evidenceLabel,'published evidence label differs from source');
+      if(item.observedAt)assert(await dialog.locator('time').getAttribute('datetime')===item.observedAt,'published observation date differs from source');
+      if(item.exercise)assert((await dialog.locator('.edu-detail-exercise__output').textContent()).includes(item.exercise.output),'published practical exercise is missing');
+      const external=await dialog.locator('a[href]').evaluateAll(nodes=>nodes.map(node=>({href:node.href,target:node.target,rel:node.rel})));
+      assert(external.every(link=>/^https?:\/\//.test(link.href)&&link.target==='_blank'&&link.rel.includes('noopener')),'published source links do not open safely in a new tab');
+      if(kind==='profile')assert(external.some(link=>link.href===new URL(item.profileUrl||item.url).href),'published profile link differs from the selected reference');
+      const reading=await dialog.evaluate(node=>{const body=node.querySelector('.edu-detail-dialog__body'),rect=node.getBoundingClientRect();return {bodyHeight:body.clientHeight,bodyScroll:body.scrollHeight,top:rect.top,bottom:rect.bottom,viewport:innerHeight,header:node.querySelector('header').getBoundingClientRect().top,footer:node.querySelector('footer').getBoundingClientRect().bottom,locked:document.body.style.position==='fixed'};});
+      assert(reading.locked&&reading.top>=0&&reading.bottom<=reading.viewport+1,'published detail leaves the viewport or background scrolling unlocked');
+      if(kind==='analysis'){
+        assert(reading.bodyScroll>reading.bodyHeight&&reading.bodyHeight>100,'actual long analysis does not have a readable internal scroller');
+        await dialog.locator('.edu-detail-dialog__body').evaluate(node=>{node.scrollTop=node.scrollHeight;});
+        const pinned=await dialog.evaluate(node=>({header:node.querySelector('header').getBoundingClientRect().top,footer:node.querySelector('footer').getBoundingClientRect().bottom}));
+        assert(Math.abs(pinned.header-reading.header)<=1&&Math.abs(pinned.footer-reading.footer)<=1,'scrolling actual analysis moves the modal heading/footer');
+        await shot(page,`${view.name}-real-estate-reference-detail`);
+      }
+      await dialog.locator(kind==='analysis'?'.edu-detail-dialog__close':'.edu-detail-done').click();await dialog.waitFor({state:'hidden'});await settledScroll(page);
+      const after=await page.evaluate(()=>({y:scrollY,bodyPosition:document.body.style.position,htmlOverflow:document.documentElement.style.overflow,url:location.href}));
+      assert(Math.abs(after.y-before.y)<=4,'closing an actual reference changed the reading position');
+      assert(after.bodyPosition===before.bodyPosition&&after.htmlOverflow===before.htmlOverflow,'closing an actual reference did not restore scroll styles');
+      assert(after.url===before.url&&await opener.evaluate(node=>document.activeElement===node),'closing an actual reference lost its route or opener focus');
+      assert(Math.abs(await rail.locator('.platform-horizontal-rail__track').evaluate(node=>node.scrollLeft)-railBefore)<=1,'closing a reference moved its horizontal rail');
+      observed.push({kind,id:item.id,sections:item.sections.length,sourceLinks:external.length,beforeY:before.y,afterY:after.y,delta:after.y-before.y,reading});
+    }
+    const y=await page.evaluate(()=>scrollY);await page.mouse.wheel(0,180);await wait(()=>page.evaluate(prior=>Math.abs(scrollY-prior)>20,y),'actual reference close leaves page scrolling locked');
+    await overflow(page,'real-estate reference cards');return {inventory,observed};
+  }finally{
+    for(const dialog of await chapter.locator('dialog[open]').all())await dialog.evaluate(node=>node.close('qa-cleanup')).catch(()=>{});
+  }
 }
 
 async function discoveryModules(browser){
@@ -289,6 +353,7 @@ async function publicMatrix(browser){
       await shot(page,`${view.name}-${pack.id}-hero`);
       const navigationPassed=await check(`${label}/navigation-and-focus`,()=>navigation(page,pack),page);
       if(!navigationPassed&&!await check(`${label}/recover-after-navigation`,()=>openPack(page,pack),page))continue;
+      if(pack.id==='real-estate'&&!view.shortOnly)await check(`${label}/reference-cases-detail-and-return`,()=>publicReferenceCases(page,view),page);
       if(pack.id!=='photography'&&!view.shortOnly){
         await check(`${label}/education-and-practice-screenshots`,async()=>{
           await jump(page,'education');await shot(page,`${view.name}-${pack.id}-education`);

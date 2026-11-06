@@ -182,6 +182,12 @@ await check('Subject matching does not invent property or auction relevance', ()
   assert.deepEqual(subjectTags('부동산 계약과 등기'), ['real-estate']);
   assert.deepEqual(subjectTags('온비드 공매 권리분석'), ['auction']);
 });
+await check('SNS classification requires a platform or meaningful social publishing context', () => {
+  for (const title of ['SNS 마케팅 기초', '인스타그램 계정 운영', '유튜브 Shorts 제작', '메타 Threads 글쓰기', '스레드 계정 만들기', '소셜 미디어 홍보', '온라인 플랫폼 입점 및 홍보 교육']) assert.ok(subjectTags(title).includes('sns'), title);
+  for (const title of ['멀티스레드 프로그래밍', '파이썬 threads 동기화', '생성형 AI 자기소개서', '스마트폰 사진 촬영 기초', '오프라인 판매 기법']) assert.ok(!subjectTags(title).includes('sns'), title);
+  assert.ok(digital.subjects.includes('sns'));
+  assert.deepEqual(parseFilters('https://unit.test/api?subject=sns&region=seo-gu&type=education'), { subject: 'sns', region: 'seo-gu', type: 'education' });
+});
 
 await check('Only declared query values are accepted', () => {
   assert.deepEqual(parseFilters('https://unit.test/api?subject=ai'), { subject: 'ai', region: 'all', type: 'all' });
@@ -247,6 +253,16 @@ class MemoryCache {
 const testProvider = { ...kcmf, id: 'fixture-kcmf', listUrls: [kcmf.listUrls[0]] };
 const filters = { subject: 'video', region: 'all', type: 'all' };
 const liveFixture = async url => response(url.includes('pcode=') ? html('kcmf-open') : rowFor('10009035'));
+
+await check('SNS can classify a pre-SNS provider cache without changing verification time or other tags', async () => {
+  const seed=JSON.parse(fs.readFileSync(path.join(root,'content/discovery/v1/notices-bootstrap.json'),'utf8')).providers.bizinfo.items.find(item=>item.id==='bizinfo:PBLN_000000000122273');
+  const legacy={...seed,subjects:seed.subjects.filter(subject=>subject!=='sns')};
+  const cached={checkedAt,items:[legacy],status:'ok'};
+  let calls=0;
+  const result=await getLearningOpportunities(null,{subject:'sns',region:'all',type:'all'},{now,providers:[biz],cache:{async match(){return new Response(JSON.stringify(cached));}},fetcher:async()=>{calls++;throw new Error('fresh cache must not fetch');}});
+  assert.equal(calls,0);assert.equal(result.items.length,1);assert.equal(result.items[0].checkedAt,legacy.checkedAt);
+  assert.deepEqual(result.items[0].subjects,[...legacy.subjects,'sns']);assert.equal(result.items[0].endsAt,legacy.endsAt);assert.equal(result.items[0].sourceStatus,legacy.sourceStatus);
+});
 
 await check('Successful collection is cached once across different subject queries', async () => {
   const cache = new MemoryCache(); let calls = 0;

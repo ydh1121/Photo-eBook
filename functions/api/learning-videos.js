@@ -5,7 +5,7 @@ import {searchLearningYouTubePage,refreshInstagramMetadata,matchesMetadata,disco
 const FRESH_MS=10*60*1000,FAILURE_MS=2*60*1000,STALE_MS=24*60*60*1000,CACHE_ENTRIES=96;
 const PAGES=LEARNING_VIDEO_LIMITS.maxPages,PAGE_SIZE=LEARNING_VIDEO_LIMITS.maxItems;
 const ALLOWED_PARAMETERS=new Set(['subject','topic','cursor','q','platform']);
-const SCOPES={video:'스마트폰 영상',ai:'AI 챗GPT',community:'모임 커뮤니티','real-estate':'부동산 룸투어',auction:'부동산 경매'};
+const SCOPES={video:'스마트폰 영상',ai:'AI 챗GPT',community:'모임 커뮤니티','real-estate':'부동산 룸투어',auction:'부동산 경매',sns:'SNS'};
 const unique=items=>[...new Map(items.map(item=>[`${item.platform}:${item.id}`,item])).values()];
 function requestError(message,code='invalid_request',status=400){return json({ok:false,items:[],nextCursor:null,code,message},status,{'Cache-Control':'no-store'});}
 function selectRequest(request,catalog){
@@ -19,7 +19,7 @@ function selectRequest(request,catalog){
   const query=String(url.searchParams.get('q')||'').trim().replace(/\s+/g,' ');if(query.length>80||/[\x00-\x1f<>]|https?:\/\//i.test(query))return {error:requestError('검색어는 80자 이내로 입력해 주세요.','invalid_query')};
   const raw=url.searchParams.get('cursor')||'0';if(!/^(0|[1-9]\d{0,5})$/.test(raw))return {error:requestError('페이지 번호를 확인해 주세요.','invalid_cursor')};
   let topics=platform==='instagram'||topic==='instagram'?[]:record.topics.filter(item=>topic===null||item.id===topic).map(item=>({...item,kind:'youtube'}));
-  if(query&&topics.length)topics=[{id:'search',kind:'youtube',query:`${SCOPES[subject]} ${query.replace(/#/g,'')}`,category:'검색 결과',requiredTerms:record.topics[0]?.requiredTerms||[]}];
+  if(query&&topics.length)topics=[{id:'search',kind:'youtube',query:`${SCOPES[subject]} ${query.replace(/#/g,'')}`,category:'검색 결과',requiredTerms:subject==='sns'?[...new Set(record.topics.flatMap(item=>item.requiredTerms||[]))]:record.topics[0]?.requiredTerms||[]}];
   const instagram=record.items.filter(item=>item.platform==='Instagram'&&(!query||matchesMetadata(item,query)));
   if(platform!=='youtube'&&(topic===null||topic==='instagram')&&(instagram.length||platform==='instagram'))topics.push({id:'instagram',kind:'instagram',query:query||'임장 룸투어',category:'Instagram 게시물',items:instagram});
   const cursor=Number(raw),index=Math.floor(cursor/PAGES),page=cursor%PAGES,preset=topics[index]||null;

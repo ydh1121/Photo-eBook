@@ -116,7 +116,8 @@
       "type": "grant",
       "subjects": [
         "ai",
-        "community"
+        "community",
+        "sns"
       ],
       "region": "any",
       "regionEvidence": "원문이 지역별 구분 없이 소상공인을 대상으로 안내한다. 신청 조건은 원문 참조.",
@@ -234,7 +235,8 @@
         "ai",
         "community",
         "real-estate",
-        "auction"
+        "auction",
+        "sns"
       ],
       "detailVerified": false,
       "sourceLevel": "official-notice-card",
@@ -263,7 +265,8 @@
         "ai",
         "community",
         "real-estate",
-        "auction"
+        "auction",
+        "sns"
       ],
       "detailVerified": false,
       "sourceLevel": "official-notice-card",
@@ -292,7 +295,8 @@
         "ai",
         "community",
         "real-estate",
-        "auction"
+        "auction",
+        "sns"
       ],
       "detailVerified": false,
       "sourceLevel": "official-notice-card",
@@ -321,7 +325,8 @@
         "ai",
         "community",
         "real-estate",
-        "auction"
+        "auction",
+        "sns"
       ],
       "detailVerified": false,
       "sourceLevel": "official-notice-card",
@@ -350,7 +355,8 @@
         "ai",
         "community",
         "real-estate",
-        "auction"
+        "auction",
+        "sns"
       ],
       "detailVerified": false,
       "sourceLevel": "official-notice-card",
@@ -379,7 +385,8 @@
         "ai",
         "community",
         "real-estate",
-        "auction"
+        "auction",
+        "sns"
       ],
       "detailVerified": false,
       "sourceLevel": "official-notice-card",
@@ -408,7 +415,8 @@
         "ai",
         "community",
         "real-estate",
-        "auction"
+        "auction",
+        "sns"
       ],
       "detailVerified": false,
       "sourceLevel": "official-notice-card",

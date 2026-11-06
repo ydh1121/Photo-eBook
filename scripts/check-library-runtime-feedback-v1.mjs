@@ -3,6 +3,7 @@ import path from 'node:path';
 import {chromium} from 'playwright';
 
 const BASE=process.env.UI_DASHBOARD_BASE_URL||'http://127.0.0.1:4173';
+const COURSES=JSON.parse(fs.readFileSync(new URL('../public/content-packs/personal-edu-manifest.json',import.meta.url),'utf8')).courses;
 const OUT=path.resolve('artifacts/library-runtime-feedback-v1');
 fs.mkdirSync(OUT,{recursive:true});
 const report={startedAt:new Date().toISOString(),base:BASE,checks:[],screenshots:[]};
@@ -50,7 +51,7 @@ async function auditApprovedPublicRails(){
     assert(photo.primitiveRoots===0,'Portable primitive content was mounted into Photography');
     pass('Photography portable isolation','10 chapters; no primitive base script or primitive content roots');
 
-    for(const subject of ['video','ai','community','real-estate','auction']){
+    for(const {id:subject,chapters:expectedChapters} of COURSES){
       await page.goto(`${BASE}/${subject}/`,{waitUntil:'domcontentloaded'});
       await wait(()=>page.locator('#app').isVisible(),`${subject}: learning app did not become visible`);
       await wait(()=>page.locator('#app .edu-chapter[data-learning-bound="true"] .platform-horizontal-rail__track[data-platform-rail-bound-v2="true"]').count().then(Boolean),`${subject}: canonical horizontal rail did not hydrate`);
@@ -68,7 +69,7 @@ async function auditApprovedPublicRails(){
           canonicalOwner:modules?.get('horizontal-rail')?.ownerFiles.includes('public/assets/js/platform-modules/portable-primitives-v1.js')===true
         };
       });
-      assert(mounted.chapters===9,`${subject}: expected nine learning chapters, got ${mounted.chapters}`);
+      assert(mounted.chapters===expectedChapters,`${subject}: expected ${expectedChapters} learning chapters, got ${mounted.chapters}`);
       assert(mounted.allowed&&mounted.canonicalOwner,`${subject}: approved rail lost its public canonical owner`);
       assert(mounted.railCount>0&&mounted.approvedPlacement&&mounted.bound,`${subject}: rail is missing, outside approved learning composition, or not hydrated`);
       assert(mounted.forbiddenConsumers.length===0&&mounted.forbiddenRoots===0,`${subject}: unapproved accordion/bottom-sheet public exposure`);

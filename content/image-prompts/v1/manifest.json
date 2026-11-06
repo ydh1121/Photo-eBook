@@ -476,6 +476,24 @@
       "path": "/assets/images/generated/personal-edu-v1/video-practice.webp",
       "prompt_file": "slots/edu-video-practice.md",
       "ready": true
+    },
+    {
+      "slot_id": "edu-sns-hero",
+      "group": "hero",
+      "source_class": "generate",
+      "pack_id": "sns",
+      "path": "/assets/images/generated/personal-edu-v1/sns-hero.webp",
+      "prompt_file": "slots/edu-sns-hero.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-sns-practice",
+      "group": "practice",
+      "source_class": "generate",
+      "pack_id": "sns",
+      "path": "/assets/images/generated/personal-edu-v1/sns-practice.webp",
+      "prompt_file": "slots/edu-sns-practice.md",
+      "ready": true
     }
   ]
 }

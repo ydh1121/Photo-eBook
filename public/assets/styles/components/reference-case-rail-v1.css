@@ -1,0 +1,42 @@
+/* Card presentation only. Horizontal input and scrolling belong to horizontal-rail. */
+.edu-reference{--reference-ink:#222b39;--reference-muted:#657185;--reference-surface:#fff;--reference-line:rgba(78,97,126,.14);--reference-accent:#315fc9;min-width:0;width:100%;margin:2.5rem 0;color:var(--reference-ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+.edu-reference *{box-sizing:border-box}
+.edu-reference__head{margin:0 0 1.2rem}
+.edu-reference__head h3{margin:0;color:var(--reference-ink);font-size:24px;line-height:1.4;letter-spacing:-.035em;word-break:keep-all;overflow-wrap:anywhere}
+.edu-reference__head p{max-width:56rem;margin:.55rem 0 0;color:var(--reference-muted);font-size:15px;line-height:1.8;word-break:keep-all;overflow-wrap:anywhere}
+.edu-reference .platform-horizontal-rail__slot{flex-basis:min(320px,calc(100vw - 4rem))}
+.edu-reference-card{position:relative;display:flex;flex-direction:column;overflow:hidden;min-width:0;border:1px solid var(--reference-line);border-radius:24px;background:var(--reference-surface);box-shadow:0 12px 28px rgba(31,46,73,.07)}
+.edu-reference-card__graphic,.edu-reference-card__image{position:relative;aspect-ratio:16/9;flex:none;overflow:hidden;background:#eaf0fa}
+.edu-reference-card__graphic{display:flex;align-items:flex-end;justify-content:space-between;padding:22px 24px;color:#36578c;background:linear-gradient(135deg,#edf2fb,#dce7f7)}
+.edu-reference-card__graphic::before{content:"";position:absolute;inset:26px 26px 26px 48%;border:1px solid rgba(66,102,158,.18);border-radius:13px 13px 42px 13px;transform:rotate(-12deg)}
+.edu-reference-card__graphic::after{content:"";position:absolute;width:105px;height:105px;right:40px;top:-38px;border:1px solid rgba(66,102,158,.2);border-radius:50%}
+.edu-reference-card__graphic i{position:absolute;width:48px;height:48px;right:53px;top:35px;border:1px solid rgba(66,102,158,.18);border-radius:10px;transform:rotate(-12deg)}
+.edu-reference-card__number{position:relative;z-index:1;font-size:62px;font-weight:550;letter-spacing:-.065em;line-height:1;opacity:.8;font-variant-numeric:tabular-nums}
+.edu-reference-card__graphic-label{position:relative;z-index:1;padding:5px 8px;border:1px solid rgba(66,102,158,.14);border-radius:8px;background:rgba(255,255,255,.5);font-size:11px;line-height:1.5;font-weight:650}
+.edu-reference-card[data-reference-kind="profile"] .edu-reference-card__graphic{color:#76634b;background:linear-gradient(135deg,#f4f0e9,#e9e2d5)}
+.edu-reference-card[data-reference-kind="profile"] .edu-reference-card__graphic::before,.edu-reference-card[data-reference-kind="profile"] .edu-reference-card__graphic::after,.edu-reference-card[data-reference-kind="profile"] .edu-reference-card__graphic i{border-color:rgba(132,107,74,.18)}
+.edu-reference-card__image img{display:block;width:100%;height:100%;object-fit:cover}
+.edu-reference-card__image.is-unavailable{display:none}
+.edu-reference-card__body{display:flex;flex:1;flex-direction:column;padding:20px 21px 18px}
+.edu-reference-card__kicker{margin:0 0 7px;color:var(--reference-accent);font-size:12px;line-height:1.6;font-weight:700}
+.edu-reference-card h4{margin:0;font-size:20px;line-height:1.45;font-weight:750;letter-spacing:-.035em}
+.edu-reference-card__open{display:block;min-height:44px;padding:0;border:0;background:none;color:var(--reference-ink);font:inherit;text-align:left;word-break:keep-all;overflow-wrap:anywhere;cursor:pointer}
+.edu-reference-card__open::after{content:"";position:absolute;inset:0;z-index:2;border-radius:inherit}
+.edu-reference-card__open:focus{outline:none}
+.edu-reference-card__open:focus-visible::after{outline:3px solid var(--reference-accent);outline-offset:-4px;border-radius:23px}
+.edu-reference-card__creator{margin:6px 0 0;color:var(--reference-muted);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.edu-reference-card__summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin:11px 0 0;color:var(--reference-muted);font-size:14px;line-height:1.8;word-break:keep-all;overflow-wrap:anywhere}
+.edu-reference-card__tags{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:14px 0 0}
+.edu-reference-card__tags li{padding:4px 7px;border-radius:7px;background:#f2f4f8;color:var(--reference-muted);font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.edu-reference-card__foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding-top:23px;margin-top:auto}
+.edu-reference-card__foot small{color:var(--reference-muted);font-size:11px;line-height:1.6}
+.edu-reference-card__foot>span{display:inline-flex;align-items:center;gap:5px;color:var(--reference-accent);font-size:13px;font-weight:700;line-height:1.7}
+.edu-reference-card__foot svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.edu-reference__empty{padding:24px;border:1px dashed var(--reference-line);border-radius:18px;color:var(--reference-muted);font-size:14px}
+html[data-theme="dark"] .edu-reference{--reference-ink:#eef2f8;--reference-muted:#b1bdcf;--reference-surface:#171c23;--reference-line:rgba(180,195,219,.18);--reference-accent:#91b4ff}
+html[data-theme="dark"] .edu-reference-card__graphic{background:linear-gradient(135deg,#233049,#1a263b);color:#b1c8ed}
+html[data-theme="dark"] .edu-reference-card[data-reference-kind="profile"] .edu-reference-card__graphic{background:linear-gradient(135deg,#3b342a,#2b2823);color:#d4c5ad}
+html[data-theme="dark"] .edu-reference-card__graphic-label{background:rgba(0,0,0,.18);border-color:rgba(180,195,219,.2)}
+html[data-theme="dark"] .edu-reference-card__tags li{background:#252d3b;color:#c0ccdd}
+@media(hover:hover){.edu-reference-card:has(.edu-reference-card__open:hover){border-color:color-mix(in srgb,var(--reference-accent) 35%,transparent);box-shadow:0 14px 32px rgba(31,46,73,.12)}}
+@media(max-width:640px){.edu-reference{margin:2rem 0}.edu-reference__head h3{font-size:22px}.edu-reference__head p{font-size:14px}.edu-reference-card h4{font-size:19px}.edu-reference-card__body{padding:18px 19px}}
