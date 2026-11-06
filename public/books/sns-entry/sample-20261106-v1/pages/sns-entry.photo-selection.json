@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.photo-selection",
+  "pageNumber": 10,
+  "chapterId": "first-bookmark-post",
+  "title": "독자의 질문에 답하는 사진",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "‘예쁜 사진’만 기준으로 고르면 활동이 드러나지 않는 장면을 고르기 쉽습니다. 이번 게시물의 질문은 무엇을 만드는 모임인지입니다. 완성 책갈피가 책에 꽂힌 장면은 결과를, 종이와 펜은 준비할 재료를 보여줍니다.",
+      "blockId": "sns-entry.photo-selection.b01"
+    },
+    {
+      "type": "image",
+      "assetId": "bookmark-finished",
+      "alt": "책과 완성 책갈피가 함께 보여 쓰임새를 알 수 있는 장면",
+      "width": 1122,
+      "height": 1402,
+      "caption": "첫 사진 후보: 책갈피의 완성 모습과 쓰임새가 함께 보입니다.",
+      "credit": "Personal Edu · AI 생성 학습 이미지",
+      "blockId": "sns-entry.photo-selection.b02"
+    },
+    {
+      "type": "table",
+      "caption": "사진 세 종류를 고르는 기준",
+      "columns": [
+        "후보",
+        "잘 보여주는 정보",
+        "첫 사진 판단"
+      ],
+      "rows": [
+        [
+          "재료 전체",
+          "종이와 펜을 사용함",
+          "준비물 설명에 사용"
+        ],
+        [
+          "손이 무늬를 그리는 장면",
+          "직접 만드는 활동",
+          "과정 소개에 사용"
+        ],
+        [
+          "책에 꽂힌 완성품",
+          "무엇을 만들고 어디에 쓰는지",
+          "이번 첫 게시물에 선택"
+        ]
+      ],
+      "blockId": "sns-entry.photo-selection.b03"
+    },
+    {
+      "type": "paragraph",
+      "text": "제공 이미지는 학습용 제작 예시입니다. 실제 행사 현장 사진이나 참여자 후기처럼 설명하지 않습니다. 직접 촬영한 사진으로 바꿀 때도 같은 질문을 적용하세요. 책갈피가 너무 작아 보이면 책과 책갈피 쪽으로 촬영 범위를 좁힙니다.",
+      "blockId": "sns-entry.photo-selection.b04"
+    },
+    {
+      "type": "exercise",
+      "title": "선택 근거 붙이기",
+      "goal": "사진을 고른 이유를 독자의 질문과 연결한다.",
+      "steps": [
+        "사진 후보 하나를 고릅니다.",
+        "‘독자가 ○○을 알 수 있어서’로 이유를 적습니다."
+      ],
+      "expectedOutput": "사진 한 장과 선택 이유",
+      "checks": [
+        "색감만으로 이유를 설명하지 않았는가?",
+        "실제로 사진에 보이는 것을 적었는가?"
+      ],
+      "blockId": "sns-entry.photo-selection.b05"
+    }
+  ]
+}

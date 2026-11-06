@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.materials-and-inputs",
+  "pageNumber": 2,
+  "chapterId": "first-bookmark-video",
+  "title": "원본과 연습 자료 준비",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "직접 촬영할 때는 연노랑 종이, 파란 펜, 읽던 책 한 권과 스마트폰을 준비하세요. 작은 종이는 가로 약 4cm, 세로 약 15cm로 준비하면 화면을 구성하기 편합니다. 이 치수는 촬영 연습용 예시이며 모임의 확정 제공 규격을 뜻하지 않습니다.",
+      "blockId": "video-entry.materials-and-inputs.b01"
+    },
+    {
+      "type": "table",
+      "caption": "시작 자료 두 경로",
+      "columns": [
+        "경로",
+        "입력",
+        "남길 기록"
+      ],
+      "rows": [
+        [
+          "직접 촬영",
+          "7~9쪽 방법으로 찍은 동영상 5개",
+          "직접 촬영·촬영일·사용한 파일"
+        ],
+        [
+          "편집부터 연습",
+          "재료·그리기·글쓰기·끼우기·완성 사진 5장",
+          "학습용 제작 사진 사용·촬영 실습 미실행"
+        ]
+      ],
+      "blockId": "video-entry.materials-and-inputs.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "제공 사진은 촬영 구도와 편집 순서를 설명하기 위한 제작 예시입니다. 사진 다섯 장으로 만든 결과는 사진 영상이라고 표시합니다. 사람의 손이 실제로 움직이는 촬영 영상이나 Android 앱 조작 녹화로 소개하지 않습니다.",
+      "blockId": "video-entry.materials-and-inputs.b03"
+    },
+    {
+      "type": "template",
+      "title": "폴더와 파일 이름 예시",
+      "text": "bookmark-practice/\n01_materials.mp4\n02_drawing.mp4\n03_lettering.mp4\n04_in-book.mp4\n05_finished.mp4\ncaption-note.txt\nbookmark_30s_v01.mp4",
+      "blockId": "video-entry.materials-and-inputs.b04"
+    },
+    {
+      "type": "paragraph",
+      "text": "위 파일명은 자신이 만들 파일에 붙일 이름입니다. 이 이름을 적었다고 동영상 원본이 제공된 것은 아닙니다. 원본을 편집 앱 밖에도 보관하고, 완성 파일은 별도 이름으로 저장합니다.",
+      "blockId": "video-entry.materials-and-inputs.b05"
+    }
+  ]
+}

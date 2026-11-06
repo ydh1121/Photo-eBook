@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "regularBooksCompleted": 0,
+  "samples": 3,
+  "books": [
+    {
+      "bookId": "ai-entry",
+      "editionId": "sample-20261106-v1",
+      "status": "sample",
+      "subjectId": "ai",
+      "levelId": "entry",
+      "title": "AI 활용 입문",
+      "subtitle": "확인된 자료로 모임 안내문과 촬영 준비표 만들기",
+      "bodyPages": 24,
+      "manifestUrl": "/books/ai-entry/sample-20261106-v1/manifest.json",
+      "readerUrl": "/reader/?book=ai-entry&edition=sample-20261106-v1"
+    },
+    {
+      "bookId": "sns-entry",
+      "editionId": "sample-20261106-v1",
+      "status": "sample",
+      "subjectId": "sns",
+      "levelId": "entry",
+      "title": "SNS 입문",
+      "subtitle": "사진 한 장으로 모임을 설명하고 답하기",
+      "bodyPages": 24,
+      "manifestUrl": "/books/sns-entry/sample-20261106-v1/manifest.json",
+      "readerUrl": "/reader/?book=sns-entry&edition=sample-20261106-v1"
+    },
+    {
+      "bookId": "video-entry",
+      "editionId": "sample-20261106-v1",
+      "status": "sample",
+      "subjectId": "video",
+      "levelId": "entry",
+      "title": "영상 편집 입문",
+      "subtitle": "다섯 장면을 촬영하고 30초 영상으로 완성하기",
+      "bodyPages": 24,
+      "manifestUrl": "/books/video-entry/sample-20261106-v1/manifest.json",
+      "readerUrl": "/reader/?book=video-entry&edition=sample-20261106-v1"
+    }
+  ]
+}

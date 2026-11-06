@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.posting-preparation",
+  "pageNumber": 15,
+  "chapterId": "first-bookmark-post",
+  "title": "사진과 글을 작성 화면에 옮기기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "실제 앱에서 작업하는 사람은 아래 세 결과를 순서대로 확인합니다. 사진 한 장이 선택되었는지, 설명문이 빠짐없이 들어갔는지, 마지막 게시 동작 전에 미리 볼 수 있는지가 핵심입니다. 현재 버튼 이름과 위치를 이 책의 그림처럼 외우는 방식으로 안내하지 않습니다.",
+      "blockId": "sns-entry.posting-preparation.b01"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "사진 선택 확인",
+          "text": "현재 앱에서 사진 게시물을 작성하는 기능을 찾습니다. 선택한 사진을 열어 완성 책갈피가 보이는지 살핍니다. 형식이 동영상이나 다른 기능으로 바뀌었다면 사진 선택 단계로 돌아갑니다.",
+          "output": "선택한 사진 한 장"
+        },
+        {
+          "title": "설명문 옮기기",
+          "text": "13쪽 문장을 입력하거나 붙여넣습니다. 첫 줄의 연습용 표시, 시간, 읽던 책 1권이 끝까지 들어갔는지 읽습니다.",
+          "output": "사진과 설명문이 함께 있는 작성 상태"
+        },
+        {
+          "title": "사본 남기기",
+          "text": "작성 중인 글을 메모에도 보관합니다. 앱을 닫아도 초안이 남는다고 가정하지 말고 보관된 메모를 직접 다시 열어봅니다.",
+          "output": "앱 밖에서도 열리는 본문 사본"
+        }
+      ],
+      "blockId": "sns-entry.posting-preparation.b02"
+    },
+    {
+      "type": "callout",
+      "title": "현재 확인된 범위",
+      "text": "공식 사진 게시 도움말의 본문 조회가 막혀 한국어 Android 전체 메뉴 경로는 확인하지 못했습니다. 위 순서는 작업 결과를 확인하는 안내이며 검증된 버튼 경로가 아닙니다. 막히면 사진과 글 파일로 실습을 마치고 게시 상태를 ‘미실행’으로 기록하세요.",
+      "tone": "note",
+      "blockId": "sns-entry.posting-preparation.b03"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Instagram 사진 게시 도움말 — 원문 확인 대기",
+          "url": "https://help.instagram.com/442418472487929",
+          "publisher": "Instagram"
+        }
+      ],
+      "blockId": "sns-entry.posting-preparation.b04"
+    }
+  ]
+}

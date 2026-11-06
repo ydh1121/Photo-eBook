@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.split-and-recover",
+  "pageNumber": 15,
+  "chapterId": "first-bookmark-video",
+  "title": "분할과 삭제를 구분하기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "분할은 장면을 두 조각으로 나누는 동작입니다. 나누었다고 어느 부분이 자동으로 사라지는 것은 아닙니다. 필요 없는 조각을 확인한 뒤 삭제합니다. 잘못된 장면을 없애지 않도록 선택 표시와 미리보기를 함께 보세요.",
+      "blockId": "video-entry.split-and-recover.b01"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "경계 정하기",
+          "text": "대상 장면을 선택하고 남길 구간의 시작점에 재생 위치를 맞춥니다. 공식 모바일 문서의 Split(분할)을 사용합니다.",
+          "output": "앞 조각과 뒤 조각"
+        },
+        {
+          "title": "남길 구간 분리",
+          "text": "남길 구간의 끝에서도 나누면 앞·가운데·뒤 세 조각이 됩니다. 가운데가 원하는 6초인지 재생합니다.",
+          "output": "보존할 조각 확인"
+        },
+        {
+          "title": "불필요한 조각 삭제",
+          "text": "앞뒤에서 필요 없는 조각을 하나씩 선택해 Delete(삭제)합니다. 남은 장면의 앞뒤를 재생하며 연결을 확인합니다.",
+          "output": "의도한 구간만 남은 장면"
+        }
+      ],
+      "blockId": "video-entry.split-and-recover.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "실수했다면 현재 화면의 실행 취소 기능을 확인해 바로 되돌립니다. 실행 취소로 복원할 수 없으면 보관한 원본을 다시 가져와 해당 장면만 정리합니다. 편집 화면에서 조각을 삭제하는 일과 휴대전화에서 원본 파일을 삭제하는 일은 구분해야 합니다.",
+      "blockId": "video-entry.split-and-recover.b03"
+    },
+    {
+      "type": "exercise",
+      "title": "분할 후 남을 길이 계산",
+      "goal": "남긴 구간의 길이를 계산한다.",
+      "steps": [
+        "10초 원본을 2초와 8초에서 나눴다고 가정합니다.",
+        "가운데 조각의 길이와 나머지 두 조각의 길이를 적습니다."
+      ],
+      "expectedOutput": "가운데 6초, 앞 2초, 뒤 2초",
+      "checks": [
+        "분할만 하면 6초 파일이 저장된다고 생각하지 않았는가?"
+      ],
+      "solution": "분할 후 가운데 6초를 사용하고 필요 없는 조각을 빼야 합니다. 파일 저장은 내보내기 단계에서 합니다.",
+      "blockId": "video-entry.split-and-recover.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Create Instagram Reels with the CapCut mobile app",
+          "url": "https://www.capcut.com/resource/best-reel-videos",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.split-and-recover.b05"
+    }
+  ]
+}

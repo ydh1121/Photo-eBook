@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.trim-six-seconds",
+  "pageNumber": 14,
+  "chapterId": "first-bookmark-video",
+  "title": "각 장면을 6초로 다듬기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "앞뒤 불필요한 부분을 줄이는 작업을 트리밍이라고 합니다. 원본에서 시작과 끝을 정하면 필요한 순간만 남길 수 있습니다. 첫 원본의 길이가 10초이고 2~8초를 사용한다면 남는 길이는 8−2=6초입니다. 원본 길이와 완성본 길이를 따로 생각하세요.",
+      "blockId": "video-entry.trim-six-seconds.b01"
+    },
+    {
+      "type": "image",
+      "assetId": "video-trim-vs-split",
+      "alt": "10초 원본에서 앞 2초와 뒤 2초를 제외해 6초를 쓰는 그림과 가운데를 두 조각으로 나누는 그림",
+      "width": 1467,
+      "height": 1067,
+      "caption": "트리밍은 사용하는 범위를 줄이고, 분할은 한 장면을 여러 조각으로 나눕니다.",
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님",
+      "blockId": "video-entry.trim-six-seconds.b02"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "사용 구간 선택",
+          "text": "10쪽에 적은 원본 구간을 기준으로 앞뒤를 줄입니다. 앱에 표시되는 시작·끝과 재생 결과를 함께 확인합니다.",
+          "output": "첫 장면 6초"
+        },
+        {
+          "title": "다섯 장면 정리",
+          "text": "다른 장면도 필요한 동작이 남는 6초로 정리합니다. 사진을 사용한다면 사진 한 장의 표시 시간을 6초로 맞춥니다.",
+          "output": "5장면의 길이"
+        },
+        {
+          "title": "합계 확인",
+          "text": "끝 시각이 30초인지 확인합니다. 6×5=30초입니다. 추가된 엔딩이나 빈 구간이 있으면 원인을 살핍니다.",
+          "output": "30초 길이의 편집"
+        }
+      ],
+      "blockId": "video-entry.trim-six-seconds.b03"
+    },
+    {
+      "type": "paragraph",
+      "text": "공식 모바일 자료는 Split과 Delete를 이용해 불필요한 구간을 빼는 방법을 설명합니다. 현재 화면에서 끝부분을 조절하기 어렵다면 다음 쪽의 분할 절차로 구간을 나누어 제거합니다. 정확한 한국어 버튼 위치는 실기 확인 전까지 고정하지 않습니다.",
+      "blockId": "video-entry.trim-six-seconds.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Create Instagram Reels with the CapCut mobile app",
+          "url": "https://www.capcut.com/resource/best-reel-videos",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.trim-six-seconds.b05"
+    }
+  ]
+}

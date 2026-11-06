@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "books": [
+    {
+      "bookId": "sns-entry",
+      "editionId": "sample-20261106-v1",
+      "sourceKind": "drive-json",
+      "fullByteReadbackVerified": true,
+      "sourceSha256": "790d28bcc46e578c3e25eeca608465f78d23f15086faf65f975b527d27dce064",
+      "verifiedAt": "2026-11-06"
+    },
+    {
+      "bookId": "video-entry",
+      "editionId": "sample-20261106-v1",
+      "sourceKind": "drive-json",
+      "fullByteReadbackVerified": true,
+      "sourceSha256": "9bb80546640364f340569c7bbbdd19716fbf51e937541e9efa96d2c77d64e4c2",
+      "verifiedAt": "2026-11-06"
+    },
+    {
+      "bookId": "ai-entry",
+      "editionId": "sample-20261106-v1",
+      "sourceKind": "drive-json",
+      "fullByteReadbackVerified": true,
+      "sourceSha256": "b27bce8925a9468338a4ae58ec7d85432b97cb8114b0a8cc17939a6d29da34fa",
+      "verifiedAt": "2026-11-06"
+    }
+  ]
+}

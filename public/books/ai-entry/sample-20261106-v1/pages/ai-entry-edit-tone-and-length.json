@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-edit-tone-and-length",
+  "pageNumber": 16,
+  "chapterId": "first-ai-project",
+  "title": "사실을 고정하고 문장 다듬기",
+  "blocks": [
+    {
+      "blockId": "ai-entry-edit-tone-and-length-tone",
+      "type": "paragraph",
+      "text": "사실 검사가 끝나면 문장의 길이와 말투를 다듬습니다. 한 문장에 활동 소개와 시간, 준비물이 모두 들어 있으면 정보 찾기가 어렵습니다. 소개 문장과 항목 안내를 나누고, 독자가 해야 할 행동을 직접 씁니다. “독창적인 작품 세계를 펼치는 특별한 시간” 같은 표현 대신 무엇으로 무엇을 만드는지 알려 주세요. 행사 성격을 바꿀 만한 연령 조건이나 혜택은 새로 붙이지 않습니다."
+    },
+    {
+      "blockId": "ai-entry-edit-tone-and-length-limit",
+      "type": "paragraph",
+      "text": "수정 범위도 작게 정해 봅니다. 제목과 사실 항목은 그대로 두고 소개 두 문장만 고치게 하면 변경 내용을 비교하기 쉽습니다. 글자 수를 요청했더라도 AI가 정확히 맞췄다고 가정하지 않습니다. 휴대폰 메모에서 직접 읽고 너무 긴 문장을 줄이세요. 특히 “재료는 모두 제공”이라는 말은 읽던 책을 가져오라는 조건을 흐릴 수 있습니다. 제공 재료와 개인 준비물을 구체적으로 남기는 편이 낫습니다."
+    },
+    {
+      "blockId": "ai-entry-edit-tone-and-length-before-after",
+      "type": "table",
+      "caption": "같은 사실로 더 분명하게 쓰기",
+      "columns": [
+        "다듬기 전",
+        "다듬은 뒤"
+      ],
+      "rows": [
+        [
+          "특별한 창작의 즐거움을 만끽해 보세요",
+          "연노랑 종이에 파란 펜으로 책갈피를 만들어 봅니다"
+        ],
+        [
+          "필요한 재료는 모두 준비되어 있습니다",
+          "연노랑 종이와 파란 펜을 제공합니다. 읽던 책 1권을 가져오세요"
+        ],
+        [
+          "지금 바로 참여해 보세요",
+          "신청 방법 예시: 계정 메시지로 '책갈피' 보내기"
+        ]
+      ]
+    },
+    {
+      "blockId": "ai-entry-edit-tone-and-length-tone-prompt",
+      "type": "template",
+      "title": "소개 문장만 고치는 요청",
+      "text": "제목과 날짜·시간·장소·정원·비용·재료·준비물·신청 방식은 그대로 둬. 소개만 차분한 존댓말 두 문장 이내로 고쳐 줘. 무엇으로 무엇을 만드는지 쓰고, 후기는 넣지 마. 가상의 자체 기획 실습이며 실제 모집이 아니라는 표시도 유지해 줘."
+    },
+    {
+      "blockId": "ai-entry-edit-tone-and-length-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "Prompt engineering best practices for ChatGPT",
+          "url": "https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

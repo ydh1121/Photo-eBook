@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.frame-size-rate",
+  "pageNumber": 4,
+  "chapterId": "first-bookmark-video",
+  "title": "세로 화면과 화질의 기초",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "화면 비율은 가로와 세로의 관계입니다. 9:16은 세로로 긴 화면을 뜻합니다. 해상도는 화면을 이루는 픽셀 수이며, 이 과제의 목표는 가로 1080·세로 1920픽셀입니다. 30fps는 1초에 30장의 화면을 재생한다는 뜻입니다.",
+      "blockId": "video-entry.frame-size-rate.b01"
+    },
+    {
+      "type": "table",
+      "caption": "이번 촬영의 작업값",
+      "columns": [
+        "값",
+        "선택 이유",
+        "주의할 점"
+      ],
+      "rows": [
+        [
+          "세로 9:16",
+          "휴대전화 세로 화면에서 볼 연습 영상",
+          "중간에 휴대전화를 가로로 돌리지 않음"
+        ],
+        [
+          "1080p 수준",
+          "책갈피와 짧은 자막을 확인할 작업 목표",
+          "카메라·앱의 실제 지원 여부 확인"
+        ],
+        [
+          "30fps",
+          "일반 속도의 손동작을 기록하는 연습값",
+          "빠른 동작을 느리게 보여주는 실습은 별도"
+        ]
+      ],
+      "blockId": "video-entry.frame-size-rate.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "이 값은 모든 플랫폼에 공통인 의무 규격이나 화질 보장이 아닙니다. 카메라 앱에서 동영상 모드와 실제 표시되는 촬영값을 확인하세요. 제조사마다 설정 이름이 다르므로 ‘특정 메뉴를 세 번 누른다’는 식으로 경로를 만들어 쓰지 않습니다.",
+      "blockId": "video-entry.frame-size-rate.b03"
+    },
+    {
+      "type": "exercise",
+      "title": "시험 촬영 재생",
+      "goal": "촬영값과 방향을 스스로 확인한다.",
+      "steps": [
+        "세로로 3초 시험 촬영합니다.",
+        "사진 앱에서 재생해 옆으로 누워 보이지 않는지 확인합니다.",
+        "파일 정보에서 확인 가능한 크기와 길이를 적습니다."
+      ],
+      "expectedOutput": "재생되는 시험 파일과 확인값",
+      "checks": [
+        "확인되지 않은 프레임 값을 추정해 기록하지 않았는가?",
+        "원본부터 작은 글씨가 흐리지 않은가?"
+      ],
+      "blockId": "video-entry.frame-size-rate.b04"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-first-question",
+  "pageNumber": 9,
+  "chapterId": "first-ai-project",
+  "title": "짧은 첫 질문을 보내기",
+  "blocks": [
+    {
+      "blockId": "ai-entry-first-question-first",
+      "type": "paragraph",
+      "text": "새 대화에서 아래 질문을 보내세요. 행사 이름과 만들 글의 종류만 알려 주는 질문입니다. 일부러 상세 조건을 넣지 않았습니다. 답변을 받으면 어떤 정보가 더 필요한지 살펴봅니다. AI가 날짜나 장소를 다시 물으면 정상적인 진행입니다. 바로 완성된 글을 내놓더라도 그 안의 조건을 행사 자료와 비교하기 전에는 사용하지 않습니다."
+    },
+    {
+      "blockId": "ai-entry-first-question-observe",
+      "type": "paragraph",
+      "text": "첫 응답에서 새로 등장한 숫자나 장소에 밑줄을 긋는다고 생각하며 읽어 보세요. 우리 자료의 어느 줄에서 나온 내용인지 설명하지 못하면 표시를 남깁니다. 이 과정을 거치면 다음 질문에 무엇을 더 넣어야 할지 알 수 있습니다. 예를 들어 날짜를 되물었다면 자료의 날짜와 시간을 다음 요청에 함께 넣습니다. 필요한 정보가 빠졌을 때 알아차리고 보완하는 연습입니다. 화면의 답변을 복사해 “첫 응답”이라는 제목으로 메모에 보관하세요."
+    },
+    {
+      "blockId": "ai-entry-first-question-first-prompt",
+      "type": "template",
+      "title": "첫 질문",
+      "text": "부산에서 열 “토요일 책갈피 만들기” 모임의 짧은 안내문을 써 줘."
+    },
+    {
+      "blockId": "ai-entry-first-question-first-response",
+      "type": "exercise",
+      "title": "내 첫 응답 관찰",
+      "goal": "AI가 자료를 더 요구하는지, 임의로 내용을 채우는지 확인합니다.",
+      "steps": [
+        "위 질문을 보내고 응답을 끝까지 읽습니다.",
+        "행사 자료에 없는데 새로 생긴 내용에 표시합니다.",
+        "답변이 조건을 물었다면 질문한 항목을 그대로 메모합니다."
+      ],
+      "expectedOutput": "첫 응답과 “더 알려 줄 정보” 세 항목",
+      "checks": [
+        "날짜·시간을 확인했는가",
+        "장소·비용을 확인했는가",
+        "답변을 최종 안내문과 구분해 저장했는가"
+      ]
+    },
+    {
+      "blockId": "ai-entry-first-question-different-output",
+      "type": "callout",
+      "title": "답변이 교재와 달라도 괜찮습니다",
+      "text": "AI가 질문만 했으면 다음 쪽의 비교 예시를 읽고, 제공 자료와 형식을 넣는 단계로 이어가세요. 예시 문장을 얻으려고 같은 질문을 반복할 필요는 없습니다.",
+      "tone": "note"
+    },
+    {
+      "blockId": "ai-entry-first-question-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "Prompt engineering best practices for ChatGPT",
+          "url": "https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt",
+          "publisher": "OpenAI"
+        },
+        {
+          "title": "Does ChatGPT tell the truth?",
+          "url": "https://help.openai.com/en/articles/8313428-does-chatgpt-tell-the-truth",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

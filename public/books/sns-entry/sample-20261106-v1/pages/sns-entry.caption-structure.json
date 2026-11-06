@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.caption-structure",
+  "pageNumber": 12,
+  "chapterId": "first-bookmark-post",
+  "title": "본문을 네 덩어리로 나누기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "한 번에 멋진 글을 쓰려고 하기보다 독자가 찾을 정보를 순서대로 놓아보세요. 활동 한 문장, 참여 조건, 준비물, 신청 안내가 있으면 초안의 뼈대가 생깁니다. 연습용 표시를 글 맨 앞에 두어 뒤의 안내를 실제 모집으로 오해하지 않게 합니다.",
+      "blockId": "sns-entry.caption-structure.b01"
+    },
+    {
+      "type": "table",
+      "caption": "설명문의 역할",
+      "columns": [
+        "부분",
+        "넣을 내용",
+        "확인 질문"
+      ],
+      "rows": [
+        [
+          "활동",
+          "읽던 책에 꽂을 책갈피 만들기",
+          "사진과 같은 활동인가?"
+        ],
+        [
+          "참여 조건",
+          "날짜·시간·장소·정원·참가비",
+          "참여 여부를 판단할 수 있는가?"
+        ],
+        [
+          "준비",
+          "종이·파란 펜 제공, 책 1권 지참",
+          "제공 재료와 지참 물품이 구분되는가?"
+        ],
+        [
+          "다음 행동",
+          "계정 메시지로 ‘책갈피’",
+          "독자가 보낼 말을 알 수 있는가?"
+        ]
+      ],
+      "blockId": "sns-entry.caption-structure.b02"
+    },
+    {
+      "type": "image",
+      "assetId": "sns-caption-anatomy",
+      "alt": "본문에서 활동, 참여 조건, 준비물, 신청 안내의 역할을 구분한 도해",
+      "width": 1467,
+      "height": 1067,
+      "caption": "연습용 표시는 별도로 유지하고, 네 덩어리가 같은 설명을 반복하지 않게 씁니다.",
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님",
+      "blockId": "sns-entry.caption-structure.b03"
+    },
+    {
+      "type": "exercise",
+      "title": "초안 작성",
+      "goal": "사실 카드만 이용해 설명문을 쓴다.",
+      "steps": [
+        "연습용 표시를 적습니다.",
+        "네 덩어리를 순서대로 씁니다.",
+        "장소·주차·후기 등 새 사실을 추가하지 않았는지 대조합니다."
+      ],
+      "expectedOutput": "사진에 붙일 초안 한 개",
+      "checks": [
+        "사실 카드의 일시와 일치하는가?",
+        "책은 지참 물품으로 적었는가?",
+        "실제 모집 아님을 밝혔는가?"
+      ],
+      "blockId": "sns-entry.caption-structure.b04"
+    }
+  ]
+}

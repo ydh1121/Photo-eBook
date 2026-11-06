@@ -172,4 +172,15 @@ for(const [label,entry] of [['Library',dashboard],['Preview',preview],['Editor',
 }
 expect(!publicIndex.includes('content-detail-dialog-v1.js')&&!publicIndex.includes('reference-case-rail-v1.js'),'Photography must not eagerly load learning-only case modules.');
 
+const ebookReader=read('public/assets/js/platform-modules/ebook-reader-v1.js');
+expect(ebookReader.includes("consumers:['public','library','editor','export']"),'Reader must be reusable by all four consumers.');
+for(const owner of ['ebook-reader-model-v1.js','ebook-reader-v1.js','ebook-reader-v1.css'])expect(ebookReader.includes(owner),`Reader portable owner manifest is missing ${owner}.`);
+for(const [label,entry] of [['Library',dashboard],['Preview',preview],['Editor',editorHtml],['Public Snapshot',publicSnapshot]]){
+  for(const owner of ['ebook-reader-model-v1.js','ebook-reader-v1.js'])expect(entry.includes(owner),`${label} is missing ${owner}`);
+}
+const readerEntry=read('public/assets/js/reader/reader-entry-v1.js');
+expect(readerEntry.includes("registry.mount(host,'ebook-reader'")&&readerEntry.includes("PlatformModuleStyleRuntime?.apply?.('ebook-reader'"),'Reader route must mount the canonical Registry owner and style runtime.');
+expect(!ebookReader.includes('/ui-dashboard/')&&!ebookReader.includes('/block-lab/')&&!ebookReader.includes('/api/ebook-assets/'),'Reader owner must not depend on an admin or a particular image origin.');
+expect(!publicIndex.includes('ebook-reader-v1.js'),'Photography must not eagerly load the textbook reader.');
+
 console.log('Canonical reusable UI module boundary and dependency graph contract passed.');

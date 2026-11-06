@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.audience-setting",
+  "pageNumber": 16,
+  "chapterId": "first-bookmark-post",
+  "title": "누가 보게 할지 정하기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "사진과 글이 준비되었더라도 공개 범위는 따로 판단해야 합니다. 본인만 보관할지, 허락한 사람에게 보여줄지, 누구에게나 공개할지 의도를 적은 뒤 현재 앱 설정과 맞는지 확인하세요. ‘초안’, ‘비공개 계정’, ‘일부 공개’는 플랫폼마다 같은 뜻이나 기능을 가진 이름이 아닙니다.",
+      "blockId": "sns-entry.audience-setting.b01"
+    },
+    {
+      "type": "table",
+      "caption": "이번 연습에서 고를 진행 방식",
+      "columns": [
+        "방식",
+        "남길 결과",
+        "기록할 상태"
+      ],
+      "rows": [
+        [
+          "메모와 사진으로만 연습",
+          "완성 설명문·사진·댓글 답변",
+          "게시 미실행"
+        ],
+        [
+          "직접 확인한 범위로 공유",
+          "공유 대상·작성 화면·게시 후 확인",
+          "설정과 실제 결과를 기록"
+        ],
+        [
+          "일반 공개 예시 게시",
+          "실제 모집 아님이 드러나는 게시물",
+          "공개 범위와 게시 시각 기록"
+        ]
+      ],
+      "blockId": "sns-entry.audience-setting.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "이 사례를 그대로 공개한다면 사진이나 글을 본 사람이 실제 모집으로 오해하지 않게 연습용 표시를 유지하세요. 실제 행사를 알리고 싶다면 운영자의 허락과 확정 정보를 갖춘 뒤 자신의 사실 카드로 다시 작성해야 합니다.",
+      "blockId": "sns-entry.audience-setting.b03"
+    },
+    {
+      "type": "exercise",
+      "title": "의도와 설정 맞추기",
+      "goal": "보여주려는 사람과 실제 공유 범위를 대조한다.",
+      "steps": [
+        "진행 방식 하나를 고릅니다.",
+        "공유하려는 대상을 한 문장으로 적습니다.",
+        "현재 설정을 확인할 수 없으면 게시를 보류하고 메모를 보관합니다."
+      ],
+      "expectedOutput": "공개 의도와 확인 상태",
+      "checks": [
+        "확인하지 못한 공개 범위를 추정하지 않았는가?",
+        "연습용 행사를 실제 모집처럼 올리지 않았는가?"
+      ],
+      "blockId": "sns-entry.audience-setting.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Instagram 공개 범위 도움말 — 원문 확인 대기",
+          "url": "https://help.instagram.com/448523408565555",
+          "publisher": "Instagram"
+        }
+      ],
+      "blockId": "sns-entry.audience-setting.b05"
+    }
+  ]
+}

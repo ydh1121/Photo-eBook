@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-repair-wrong-answer",
+  "pageNumber": 15,
+  "chapterId": "first-ai-project",
+  "title": "없는 정보와 틀린 답변 고치기",
+  "blocks": [
+    {
+      "blockId": "ai-entry-repair-wrong-answer-repair",
+      "type": "paragraph",
+      "text": "오류를 발견하면 답변 전체를 막연히 다시 쓰라고 요청하기보다 틀린 부분과 원래 값을 함께 보냅니다. “정원이 틀렸어”에서 멈추지 말고 “정원은 여섯 명”이라고 알려 주세요. 자료에 없는 주차 정보는 삭제하고, 확인이 필요한 항목으로 옮기게 합니다. 고친 뒤에도 이전 숫자가 다른 문장에 남아 있을 수 있으니 새 응답을 처음부터 다시 읽습니다."
+    },
+    {
+      "blockId": "ai-entry-repair-wrong-answer-unknown",
+      "type": "paragraph",
+      "text": "AI가 출처를 열지 못했거나 확실하지 않다고 하면 확인 실패를 그대로 남깁니다. 여러 번 같은 질문을 보내 확신에 찬 답을 받아 내지 마세요. 행사 자료의 값은 직접 적용하면 되고, 외부 정보는 해당 공식 문서를 사람이 열어 확인하면 됩니다. 주차처럼 이번 자료로 확정할 수 없는 내용은 최종본에서 제외합니다. “확인할 정보”와 “확인한 사실”을 섞지 않는 것이 복구의 마지막 단계입니다."
+    },
+    {
+      "blockId": "ai-entry-repair-wrong-answer-repair-prompt",
+      "type": "template",
+      "title": "잘못된 초안을 고치는 요청",
+      "text": "앞서 쓴 글의 오류를 다음 기준으로 고쳐 줘.\n1. 정원 10명은 6명으로 바꿔.\n2. 참가비 5,000원은 무료로 바꿔.\n3. 일시는 2026년 11월 14일(토) 14:00~15:00으로 정확히 적어.\n4. 주차 가능, 공방이라는 장소 종류, 예약 링크는 자료에 없으니 삭제해.\n5. 신청 방법은 계정 메시지로 '책갈피' 보내기야.\n다른 확정 정보는 유지하고, 실제 모집이 아닌 가상의 자체 기획 실습임을 밝혀 줘.\n수정한 문장 아래에 무엇을 고쳤는지 짧게 적어 줘."
+    },
+    {
+      "blockId": "ai-entry-repair-wrong-answer-repair-record",
+      "type": "table",
+      "caption": "수정 기록 예시",
+      "columns": [
+        "발견한 문제",
+        "확정한 수정과 이유"
+      ],
+      "rows": [
+        [
+          "정원과 비용이 바뀜",
+          "6명·무료로 복원. 공통 행사 자료를 기준으로 함"
+        ],
+        [
+          "주차와 예약 링크를 추가함",
+          "삭제. 제공 자료에 근거가 없음"
+        ],
+        [
+          "상대적인 날짜 표현만 있음",
+          "연도·날짜·요일·시간을 함께 표기. 읽는 시점에 따른 혼동을 줄임"
+        ]
+      ]
+    },
+    {
+      "blockId": "ai-entry-repair-wrong-answer-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "Does ChatGPT tell the truth?",
+          "url": "https://help.openai.com/en/articles/8313428-does-chatgpt-tell-the-truth",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

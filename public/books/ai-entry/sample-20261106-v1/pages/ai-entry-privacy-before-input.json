@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-privacy-before-input",
+  "pageNumber": 4,
+  "chapterId": "first-ai-project",
+  "title": "입력할 정보만 따로 복사하기",
+  "blocks": [
+    {
+      "blockId": "ai-entry-privacy-before-input-privacy",
+      "type": "paragraph",
+      "text": "실제 일을 하다 보면 행사 자료와 개인 연락처가 한 메모에 섞여 있습니다. 안내문을 쓰는 데 필요한 내용만 새 메모로 옮긴 뒤 AI에 보냅니다. 이름을 지웠어도 사진 속 명찰이나 대화 상대의 계정명이 남아 있을 수 있으므로 이번 실습은 텍스트로 작성합니다. 계정 비밀번호나 인증번호는 행사 자료에 넣지 않습니다. AI가 요청하더라도 로그인 입력칸과 대화 입력칸을 혼동하지 마세요."
+    },
+    {
+      "blockId": "ai-entry-privacy-before-input-minimal",
+      "type": "paragraph",
+      "text": "사람의 이름이 없어도 “참가자 여섯 명”처럼 작업에 필요한 조건은 전달할 수 있습니다. 여기서 공개 신청 방식은 계정 메시지로 정해져 있으므로 개인 전화번호가 필요하지 않습니다. 정보가 빠졌다고 AI가 물으면 “자료에 없으니 안내문에서 제외해 줘”라고 답합니다. 입력 전에는 정리한 메모를 한 번 더 읽고, 복사 범위에 다른 사람의 메시지가 붙지 않았는지 확인하세요."
+    },
+    {
+      "blockId": "ai-entry-privacy-before-input-redaction",
+      "type": "table",
+      "caption": "입력 전과 후 · 개인정보는 기호로만 표시한 예시",
+      "columns": [
+        "섞여 있는 내부 메모",
+        "AI에 전달할 내용"
+      ],
+      "rows": [
+        [
+          "담당자 [실제 이름], 개인 번호 [실제 연락처]",
+          "담당자와 개인 연락처는 제외"
+        ],
+        [
+          "참가자별 이름·연락처가 붙은 명단",
+          "정원 6명"
+        ],
+        [
+          "계정 메시지 신청 안내와 로그인 인증번호",
+          "신청 방식만 유지, 인증번호 제외"
+        ],
+        [
+          "주차 문의에 대한 담당자의 미확정 추측",
+          "주차 정보는 제공하지 않음"
+        ]
+      ]
+    },
+    {
+      "blockId": "ai-entry-privacy-before-input-reply",
+      "type": "template",
+      "title": "추가 정보를 요구받았을 때",
+      "text": "개인 연락처와 참가자 명단은 제공하지 않을게. 행사 안내에 필요한 공개 정보만 사용해 줘. 자료에 없는 조건은 추측하지 말고, 확인할 항목으로 따로 적어 줘."
+    },
+    {
+      "blockId": "ai-entry-privacy-before-input-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "The ChatGPT home page",
+          "url": "https://help.openai.com/en/articles/9125172-the-chatgpt-home-page",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

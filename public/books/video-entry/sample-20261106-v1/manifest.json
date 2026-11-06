@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "status": "sample",
+  "subjectId": "video",
+  "levelId": "entry",
+  "title": "영상 편집 입문",
+  "subtitle": "다섯 장면을 촬영하고 30초 영상으로 완성하기",
+  "editionLabel": "WO02 입문 샘플 · 2026-11-06",
+  "chapters": [
+    {
+      "chapterId": "first-bookmark-video",
+      "title": "토요일 책갈피 만들기 · 스마트폰 촬영과 CapCut 편집"
+    }
+  ],
+  "pages": [
+    {
+      "pageId": "video-entry.finished-video",
+      "pageNumber": 1,
+      "chapterId": "first-bookmark-video",
+      "title": "다섯 장면으로 만드는 30초 영상",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.finished-video.json",
+      "contentHash": "2b670477dc5a1cebd6a12135718f5145a032a439ce99d8dab8599291681ddb46"
+    },
+    {
+      "pageId": "video-entry.materials-and-inputs",
+      "pageNumber": 2,
+      "chapterId": "first-bookmark-video",
+      "title": "원본과 연습 자료 준비",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.materials-and-inputs.json",
+      "contentHash": "95f79e53dae126d83ecbb1a01e4dc5cf1101fd4f1a208825332c494596947631"
+    },
+    {
+      "pageId": "video-entry.five-shot-plan",
+      "pageNumber": 3,
+      "chapterId": "first-bookmark-video",
+      "title": "촬영 전에 정하는 다섯 장면",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.five-shot-plan.json",
+      "contentHash": "9055764479522f392e8f5e2edb08feced2d7ee58f4c65d8897bc7fbe0e2d33d0"
+    },
+    {
+      "pageId": "video-entry.frame-size-rate",
+      "pageNumber": 4,
+      "chapterId": "first-bookmark-video",
+      "title": "세로 화면과 화질의 기초",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.frame-size-rate.json",
+      "contentHash": "c7787c35d01362b3d5d14ace168723f4e2e6a0744f64064738e3746527186ee8"
+    },
+    {
+      "pageId": "video-entry.window-light",
+      "pageNumber": 5,
+      "chapterId": "first-bookmark-video",
+      "title": "종이의 색과 무늬가 보이는 자리",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.window-light.json",
+      "contentHash": "9bab3daa48a58d5c1f0b20c91f11e8e1166dc1b9d83ae87a3ce30181b92bdcf7"
+    },
+    {
+      "pageId": "video-entry.steady-and-focused",
+      "pageNumber": 6,
+      "chapterId": "first-bookmark-video",
+      "title": "손이 움직여도 카메라는 안정되게",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.steady-and-focused.json",
+      "contentHash": "862ce74b57829fdef14bd77db87bec2fd5e9e2f138e50d95485fc5fdeb590940"
+    },
+    {
+      "pageId": "video-entry.shoot-materials",
+      "pageNumber": 7,
+      "chapterId": "first-bookmark-video",
+      "title": "첫 장면은 재료 전체",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.shoot-materials.json",
+      "contentHash": "b7335f89bc6168d611c7c929238dc98d83c5e49ee4857b4e891a1d76bd283e94"
+    },
+    {
+      "pageId": "video-entry.shoot-making",
+      "pageNumber": 8,
+      "chapterId": "first-bookmark-video",
+      "title": "무늬와 글씨를 나누어 찍기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.shoot-making.json",
+      "contentHash": "ebe4133f7eb9b5bf8bf6d339cca6d3bb2f3c2307a693c3cbdca229b101473ee9"
+    },
+    {
+      "pageId": "video-entry.shoot-use-finish",
+      "pageNumber": 9,
+      "chapterId": "first-bookmark-video",
+      "title": "쓰임새와 완성 모습으로 마무리",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.shoot-use-finish.json",
+      "contentHash": "f3f381ffeb7fdf7a93ac1e2a80c4aaef4155d15c1033ed855b5c47adfa62dc8d"
+    },
+    {
+      "pageId": "video-entry.inspect-originals",
+      "pageNumber": 10,
+      "chapterId": "first-bookmark-video",
+      "title": "편집 전에 원본 다섯 개 검사",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.inspect-originals.json",
+      "contentHash": "514d6d0cf5bda4f03115fe33746cc21aae703ff237b6265a0df3e9a54514d2da"
+    },
+    {
+      "pageId": "video-entry.capcut-free-boundary",
+      "pageNumber": 11,
+      "chapterId": "first-bookmark-video",
+      "title": "CapCut 설치와 무료 경로",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.capcut-free-boundary.json",
+      "contentHash": "85d6f55dc5a1e290f762f7bbad88dc9b07adbe9c49d70f0f7ea3254aa5099845"
+    },
+    {
+      "pageId": "video-entry.new-project",
+      "pageNumber": 12,
+      "chapterId": "first-bookmark-video",
+      "title": "새 프로젝트에 소재 가져오기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.new-project.json",
+      "contentHash": "790da8b05a652f1efaf78c871531f622c5c1d631cfb324d6498fef54749603cd"
+    },
+    {
+      "pageId": "video-entry.timeline-order",
+      "pageNumber": 13,
+      "chapterId": "first-bookmark-video",
+      "title": "타임라인은 재생 순서표",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.timeline-order.json",
+      "contentHash": "fc2c9fe9b31dce22ad6ea2742f9cb1a3f7786d8d3cd720610f41c291651fb81f"
+    },
+    {
+      "pageId": "video-entry.trim-six-seconds",
+      "pageNumber": 14,
+      "chapterId": "first-bookmark-video",
+      "title": "각 장면을 6초로 다듬기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.trim-six-seconds.json",
+      "contentHash": "0ff9e7a8af9927b18fcefdf8aa04954229b3944801ab80e03ab354706489e597"
+    },
+    {
+      "pageId": "video-entry.split-and-recover",
+      "pageNumber": 15,
+      "chapterId": "first-bookmark-video",
+      "title": "분할과 삭제를 구분하기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.split-and-recover.json",
+      "contentHash": "b29da140e1ba3c58f1a0e11c4ac6a3cd0081d7537afa679af871081b9cba3477"
+    },
+    {
+      "pageId": "video-entry.manual-captions",
+      "pageNumber": 16,
+      "chapterId": "first-bookmark-video",
+      "title": "자막 다섯 개를 직접 입력",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.manual-captions.json",
+      "contentHash": "40b72ca84b797438a4a362e62f7766a2c90010305ca2ab20e98c7a7b9ce8082e"
+    },
+    {
+      "pageId": "video-entry.caption-reading",
+      "pageNumber": 17,
+      "chapterId": "first-bookmark-video",
+      "title": "휴대전화에서 자막을 읽어보기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.caption-reading.json",
+      "contentHash": "025fdc0b695097887fc69cc984a71058f56edcdea8edf49b97917859cc33a386"
+    },
+    {
+      "pageId": "video-entry.own-sound",
+      "pageNumber": 18,
+      "chapterId": "first-bookmark-video",
+      "title": "소리를 한 가지 기준으로 정하기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.own-sound.json",
+      "contentHash": "faf834ceea915141211270f2b70d21dd97fdd7c9b50e16ae7b504d25476126ae"
+    },
+    {
+      "pageId": "video-entry.music-permission",
+      "pageNumber": 19,
+      "chapterId": "first-bookmark-video",
+      "title": "음악이 무료여도 용도를 확인",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.music-permission.json",
+      "contentHash": "2ccea53c5682570a18facabbdb1373c0abb1c6919bff68c3fa85e866b22da9d5"
+    },
+    {
+      "pageId": "video-entry.export-file",
+      "pageNumber": 20,
+      "chapterId": "first-bookmark-video",
+      "title": "편집 결과를 파일로 내보내기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.export-file.json",
+      "contentHash": "d9462d1d79f2fb02062194830d69eb6021e2b9578fed9aa2eb3e66afaab0fdea"
+    },
+    {
+      "pageId": "video-entry.finished-reference",
+      "pageNumber": 21,
+      "chapterId": "first-bookmark-video",
+      "title": "완성본과 대조할 30초 기준표",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.finished-reference.json",
+      "contentHash": "f024ff0396078a00d4a166829a36cf5e41cf1750c93c453cbc49089780dca198"
+    },
+    {
+      "pageId": "video-entry.troubleshooting",
+      "pageNumber": 22,
+      "chapterId": "first-bookmark-video",
+      "title": "막힌 원인에 맞춰 돌아가기",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.troubleshooting.json",
+      "contentHash": "de7750bcab772c089621ccfd40090de0423eadcdbbb68b2cf93fdc0590885847"
+    },
+    {
+      "pageId": "video-entry.playback-check",
+      "pageNumber": 23,
+      "chapterId": "first-bookmark-video",
+      "title": "원본과 완성 파일을 따로 검수",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.playback-check.json",
+      "contentHash": "4b8343b3db318b612fa077e844a538301c6c7003345ad9f921a38547dfe9de0e"
+    },
+    {
+      "pageId": "video-entry.assessment-and-solutions",
+      "pageNumber": 24,
+      "chapterId": "first-bookmark-video",
+      "title": "완성 기준과 다시 할 연습",
+      "src": "/books/video-entry/sample-20261106-v1/pages/video-entry.assessment-and-solutions.json",
+      "contentHash": "f8c2ba023678f3186ba40a6ca6d010e240aba48fe78baa59722050a53dcab7c9"
+    }
+  ],
+  "sources": [
+    {
+      "sourceId": "cc-app",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "CapCut - Video Editor 공식 Android 앱",
+      "url": "https://play.google.com/store/apps/details?hl=ko&id=com.lemon.lvoverseas",
+      "publisher": "Bytedance Pte. Ltd. / Google Play",
+      "note": "공식 개발사·패키지·인앱 구매와 기본 편집 기능 설명 확인. 한국어 Android 설치·출력·앱 버전 미검증.",
+      "ref": "turn14view0"
+    },
+    {
+      "sourceId": "cc-basic",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "CapCut Tutorial for Beginners — mobile phone section",
+      "url": "https://www.capcut.com/resource/capcut-tutorial-for-beginners",
+      "publisher": "CapCut",
+      "note": "모바일 절의 New project → 동영상 선택, Export → 해상도 선택 → 기기 저장 설명만 채택. PC·웹 경로와 일반 홍보성 성과 주장 제외. 영문 공식 문서 확인 / Android 실기 미검증.",
+      "ref": "turn9view3"
+    },
+    {
+      "sourceId": "cc-edit",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "Create Instagram Reels with the CapCut mobile app",
+      "url": "https://www.capcut.com/resource/best-reel-videos",
+      "publisher": "CapCut",
+      "note": "모바일 절의 New project → Add, Split·Delete·드래그 재배열·Text·Audio·Export 설명 확인. 알고리즘·성장·저작권 무제한 홍보 문구는 채택하지 않음. 영문 공식 문서 확인 / Android 실기 미검증.",
+      "ref": "turn15view5"
+    },
+    {
+      "sourceId": "cc-text",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "How Do I Import Subtitles?",
+      "url": "https://www.capcut.com/help/how-to-import-subtitles",
+      "publisher": "CapCut",
+      "note": "모바일 절의 Text → Add Text 수동 입력과 시간 조정 확인. 2026년 문서는 모바일 SRT/TXT 직접 가져오기를 지원하지 않는다고 안내. 영문 공식 문서 확인 / Android 실기 미검증.",
+      "ref": "turn16view0"
+    },
+    {
+      "sourceId": "cc-edit-text",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "Why Can't I Edit or Modify the Text?",
+      "url": "https://www.capcut.com/help/edit-the-text",
+      "publisher": "CapCut",
+      "note": "모바일에서 Text → 대상 텍스트 트랙 선택 → 내용 수정. 앱 데이터 삭제·재설치 시 로컬 프로젝트 소실 경고 확인. 영문 공식 문서 확인 / Android 실기 미검증.",
+      "ref": "turn7search2"
+    },
+    {
+      "sourceId": "cc-voice",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "Adding Voiceovers with CapCut — Record audio",
+      "url": "https://www.capcut.com/resource/how-to-add-voice-in-a-video",
+      "publisher": "CapCut",
+      "note": "공식 모바일 글에서 Record audio 기능과 녹음·음량 조정을 확인. 해당 기능의 현재 한국어 명칭·버튼 위치·계정별 제공 여부는 실기 미검증.",
+      "ref": "turn21view0"
+    },
+    {
+      "sourceId": "cc-pro",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "Why Am I Prompted to Join CapCut Pro When Exporting?",
+      "url": "https://www.capcut.com/help/capcut-pro-export-prompt",
+      "publisher": "CapCut",
+      "note": "Pro 소재·효과·텍스트 스타일 등이 출력 결제를 유발하며 제거·교체하는 경로를 설명. 국가·계정·버전별 무료 출력과 워터마크를 직접 확인하지 않음.",
+      "ref": "turn15view4"
+    },
+    {
+      "sourceId": "cc-pro-conditions",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "CapCut Pro export conditions by platform",
+      "url": "https://www.capcut.com/help/join-capcut-pro-for-exporting",
+      "publisher": "CapCut",
+      "note": "모바일·웹·PC의 조건 설명이 서로 다르고 다른 공식 글과도 워터마크 설명 차이가 있음. 지역·계정·버전 실기 전 무료 무워터마크를 보장하지 않음.",
+      "ref": "turn14search4"
+    },
+    {
+      "sourceId": "cc-plans",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "What's the Difference Between CapCut Standard and CapCut Pro Subscription",
+      "url": "https://www.capcut.com/help/capcut-standard-vs-pro",
+      "publisher": "CapCut",
+      "note": "Standard와 Pro는 구독 설명으로 구분. Standard를 무료 요금제의 이름으로 쓰지 않음. 가격 숫자 미인용.",
+      "ref": "turn9view4"
+    },
+    {
+      "sourceId": "cc-license",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "CapCut Materials License Agreement",
+      "url": "https://www.capcut.com/clause/material-license-agreement?lang=en",
+      "publisher": "CapCut / ByteDance Pte. Ltd.",
+      "note": "2026-01-22 갱신 약관의 Sounds/Commercial Sounds 이용 범위 확인. 개별 곡·지역·추가 이용허락을 대신 확인한 것은 아님.",
+      "ref": "turn16view1"
+    },
+    {
+      "sourceId": "yt-audio",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "오디오 보관함에 있는 음악 및 음향 효과 사용하기",
+      "url": "https://support.google.com/youtube/answer/3376882?hl=ko",
+      "publisher": "Google / YouTube",
+      "note": "트랙별 저작자 표시 조건과 YouTube 밖의 이용 문제에 대한 안내 범위를 확인. 모바일 CapCut의 음악 제공 경로로 사용하지 않음.",
+      "ref": "turn15view3"
+    },
+    {
+      "sourceId": "ytc-free",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "YouTube Create 자세히 알아보기",
+      "url": "https://support.google.com/youtube/answer/13521392?hl=ko",
+      "publisher": "Google / YouTube",
+      "note": "무료·광고 없음, 지원 국가·기기·로그인 조건의 공식 설명 확인. 이 환경의 Android 설치·실행 미검증.",
+      "ref": "turn19view2"
+    },
+    {
+      "sourceId": "ytc-start",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "YouTube Create로 프로젝트 시작 또는 관리하기",
+      "url": "https://support.google.com/youtube/answer/13521789?hl=ko",
+      "publisher": "Google / YouTube",
+      "note": "한국어 Android 도움말: 로그인 → 홈 더하기 → 미디어 선택 → 가져오기. 실기 미검증.",
+      "ref": "turn19view1"
+    },
+    {
+      "sourceId": "ytc-export",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "YouTube Create로 동영상 미리보기, 업로드, 저장하기",
+      "url": "https://support.google.com/youtube/answer/13521602?co=GENIE.Platform%3DAndroid&hl=ko-KO",
+      "publisher": "Google / YouTube",
+      "note": "한국어 Android 도움말: 프로젝트 더보기 → 내보내기 → 화질 → 내보내기. 음악의 기기 저장 제한도 확인. 실기 미검증.",
+      "ref": "turn19search1"
+    }
+  ],
+  "cover": {
+    "assetId": "bookmark-finished",
+    "alt": "SNS·영상·AI 실습에서 함께 사용하는 책갈피 학습 예시",
+    "width": 1122,
+    "height": 1402
+  },
+  "assets": {
+    "ai-before-shoot": {
+      "src": "/api/ebook-assets/b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98.webp",
+      "sha256": "b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98",
+      "bytes": 65592,
+      "width": 1467,
+      "height": 987
+    },
+    "bookmark-drawing": {
+      "src": "/api/ebook-assets/fd23a454b40670fd3c16d55e25ad578ea970bff68738fcff877b3ffa8f389cb0.webp",
+      "sha256": "fd23a454b40670fd3c16d55e25ad578ea970bff68738fcff877b3ffa8f389cb0",
+      "bytes": 147762,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-finished": {
+      "src": "/api/ebook-assets/2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c.webp",
+      "sha256": "2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c",
+      "bytes": 171856,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-in-book": {
+      "src": "/api/ebook-assets/9c6aeba7305286418e44c5bba5128896435bcdc9f7253729644fb3b40073507f.webp",
+      "sha256": "9c6aeba7305286418e44c5bba5128896435bcdc9f7253729644fb3b40073507f",
+      "bytes": 295480,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-lettering": {
+      "src": "/api/ebook-assets/0f5e6ef2ad1e4177037571dbef15212cd33272a89d4f74c15700386212ae3b5b.webp",
+      "sha256": "0f5e6ef2ad1e4177037571dbef15212cd33272a89d4f74c15700386212ae3b5b",
+      "bytes": 119752,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-materials": {
+      "src": "/api/ebook-assets/e3237744f94963a35a948d2b3813dd5c87efc01e8a2d967e54e1d0ecf09676c7.webp",
+      "sha256": "e3237744f94963a35a948d2b3813dd5c87efc01e8a2d967e54e1d0ecf09676c7",
+      "bytes": 150180,
+      "width": 1122,
+      "height": 1402
+    },
+    "sns-caption-anatomy": {
+      "src": "/api/ebook-assets/0fbd290afaed786be64bd02b93d067feb4f1bdaf8adc7208ff3438548cbc09f5.webp",
+      "sha256": "0fbd290afaed786be64bd02b93d067feb4f1bdaf8adc7208ff3438548cbc09f5",
+      "bytes": 59952,
+      "width": 1467,
+      "height": 1067
+    },
+    "sns-platform-roles": {
+      "src": "/api/ebook-assets/f8167d0adf96ed0aa58398087e644fd51e99d6b2841e5ed924cd2b5132a30e3d.webp",
+      "sha256": "f8167d0adf96ed0aa58398087e644fd51e99d6b2841e5ed924cd2b5132a30e3d",
+      "bytes": 63890,
+      "width": 1467,
+      "height": 987
+    },
+    "video-caption-legibility": {
+      "src": "/api/ebook-assets/edf72df3171fe3e0cfa02cac5d44b3cff1f11122da22b2896a379eefb0f5e11b.webp",
+      "sha256": "edf72df3171fe3e0cfa02cac5d44b3cff1f11122da22b2896a379eefb0f5e11b",
+      "bytes": 44850,
+      "width": 1467,
+      "height": 987
+    },
+    "video-shot-distances": {
+      "src": "/api/ebook-assets/39cd43ad58ddf002e0f1c7cf160e9597bceefa13602b5ac02d2d76d9aecdc35c.webp",
+      "sha256": "39cd43ad58ddf002e0f1c7cf160e9597bceefa13602b5ac02d2d76d9aecdc35c",
+      "bytes": 36442,
+      "width": 1467,
+      "height": 987
+    },
+    "video-timeline-30s": {
+      "src": "/api/ebook-assets/925202c9c754eb897b831a87e67a978bca2391cb87db30a4d5c97531573eff47.webp",
+      "sha256": "925202c9c754eb897b831a87e67a978bca2391cb87db30a4d5c97531573eff47",
+      "bytes": 55870,
+      "width": 1467,
+      "height": 1040
+    },
+    "video-trim-vs-split": {
+      "src": "/api/ebook-assets/619ae28a8152a6aead6b942d7dab60930479160be9ffd568b760d49e4ac0a07c.webp",
+      "sha256": "619ae28a8152a6aead6b942d7dab60930479160be9ffd568b760d49e4ac0a07c",
+      "bytes": 55198,
+      "width": 1467,
+      "height": 1067
+    },
+    "video-window-light": {
+      "src": "/api/ebook-assets/0a8ad4813609a226a0ae2d87e7add4d00216709cb23b9b6346d45d39f834a2b1.webp",
+      "sha256": "0a8ad4813609a226a0ae2d87e7add4d00216709cb23b9b6346d45d39f834a2b1",
+      "bytes": 42974,
+      "width": 1467,
+      "height": 987
+    }
+  },
+  "sourceSha256": "9bb80546640364f340569c7bbbdd19716fbf51e937541e9efa96d2c77d64e4c2",
+  "bodyPageCount": 24,
+  "frontMatterExcluded": true
+}

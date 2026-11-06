@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.one-revision",
+  "pageNumber": 22,
+  "chapterId": "first-bookmark-post",
+  "title": "다음 글에서 한 가지 고치기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "한 번에 사진, 첫 문장, 게시 시간까지 모두 바꾸면 무엇 때문에 읽기 쉬워졌는지 설명하기 어렵습니다. 이번에는 준비물 문장만 고칩니다. 관찰한 질문과 수정한 부분이 연결되는지 보세요.",
+      "blockId": "sns-entry.one-revision.b01"
+    },
+    {
+      "type": "table",
+      "caption": "반응에서 수정으로",
+      "columns": [
+        "확인한 내용",
+        "수정 전",
+        "수정 후"
+      ],
+      "rows": [
+        [
+          "준비물을 묻는 질문이 있음",
+          "종이와 펜을 제공해요. 책과 함께 만나요.",
+          "제공 재료: 연노랑 종이·파란 펜\n개인 준비물: 읽던 책 1권"
+        ],
+        [
+          "모임 시간을 다시 물음",
+          "토요일 오후에 만나요.",
+          "2026-11-14(토) 14:00~15:00"
+        ]
+      ],
+      "blockId": "sns-entry.one-revision.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "위 두 수정안을 동시에 적용할 수는 있지만, 비교 연습을 한다면 한 가지를 골라 이유를 남기세요. 반응이 좋아졌더라도 글 한두 개만으로 원인을 확정하지 않습니다. ‘준비물 문장을 찾기 쉬워졌다’는 문장 점검과 ‘신청이 늘었다’는 결과 주장은 필요한 근거가 다릅니다.",
+      "blockId": "sns-entry.one-revision.b03"
+    },
+    {
+      "type": "exercise",
+      "title": "수정 이유 한 줄",
+      "goal": "문제와 수정 행동을 연결한다.",
+      "steps": [
+        "위 수정안 중 하나를 선택합니다.",
+        "‘○○을 물어봐서 ○○ 문장을 고쳤다’로 적습니다.",
+        "사실 카드의 값은 그대로인지 확인합니다."
+      ],
+      "expectedOutput": "수정문과 이유 한 줄",
+      "checks": [
+        "주차 등 새 사실을 덧붙이지 않았는가?",
+        "숫자의 증가만으로 성공을 단정하지 않았는가?"
+      ],
+      "solution": "준비물을 물어봐서 제공 재료와 지참 물품을 두 줄로 나눴다.",
+      "blockId": "sns-entry.one-revision.b04"
+    }
+  ]
+}

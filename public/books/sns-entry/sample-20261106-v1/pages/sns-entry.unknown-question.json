@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.unknown-question",
+  "pageNumber": 19,
+  "chapterId": "first-bookmark-post",
+  "title": "모르는 질문을 받았을 때",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "‘주차할 수 있나요?’라는 질문에는 이 자료만으로 답할 수 없습니다. 답변을 빨리 남기려다 주차 가능 여부를 만들어내면 상대의 이동 계획에 영향을 줄 수 있습니다. 확인한 내용과 확인하지 못한 내용을 구분해 말하는 연습을 합니다.",
+      "blockId": "sns-entry.unknown-question.b01"
+    },
+    {
+      "type": "template",
+      "title": "모르는 질문에 대한 답변",
+      "text": "이 사례에는 주차 정보가 정해져 있지 않습니다. 실제 모집을 진행한다면 장소 운영자에게 확인한 뒤 안내해야 하는 항목입니다. 지금은 교육용 예시로만 봐주세요.",
+      "blockId": "sns-entry.unknown-question.b02"
+    },
+    {
+      "type": "table",
+      "caption": "질문에 따라 다음 행동 정하기",
+      "columns": [
+        "질문",
+        "확인할 곳 또는 행동"
+      ],
+      "rows": [
+        [
+          "주차·엘리베이터가 있나요?",
+          "실제 장소가 확정된 뒤 운영자에게 확인"
+        ],
+        [
+          "전화로 신청할 수 있나요?",
+          "연습 설정에는 연락처가 없으므로 추가하지 않음"
+        ],
+        [
+          "지난 참여자 후기가 있나요?",
+          "실제 후기 자료가 없으므로 만들어 쓰지 않음"
+        ],
+        [
+          "참가비가 무료인가요?",
+          "사실 카드에 있으므로 무료라고 답함"
+        ]
+      ],
+      "blockId": "sns-entry.unknown-question.b03"
+    },
+    {
+      "type": "paragraph",
+      "text": "계정 메시지에서 연락처나 주소를 받았더라도 공개 댓글에 옮길 필요는 없습니다. 질문 내용만 적은 작업 메모로 정리하면 다음 게시물의 소재를 찾을 수 있습니다. 개인 이름을 기록해야만 질문을 분류할 수 있는 것은 아닙니다.",
+      "blockId": "sns-entry.unknown-question.b04"
+    },
+    {
+      "type": "exercise",
+      "title": "답할지 보류할지 판단",
+      "goal": "세 질문을 확인 가능 여부로 분류한다.",
+      "steps": [
+        "무료 여부, 주차 여부, 책 준비 여부를 나눕니다.",
+        "보류한 질문에는 확인할 대상을 적습니다."
+      ],
+      "expectedOutput": "즉시 답변 두 개와 확인 대기 한 개",
+      "checks": [
+        "주차 정보만 확인 대기로 남겼는가?"
+      ],
+      "solution": "참가비와 책 준비는 카드에 있으므로 답합니다. 주차는 장소 정보가 없으므로 확인 전 답변을 보류합니다.",
+      "blockId": "sns-entry.unknown-question.b05"
+    }
+  ]
+}

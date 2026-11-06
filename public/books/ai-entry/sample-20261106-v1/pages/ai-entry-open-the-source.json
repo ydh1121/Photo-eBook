@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-open-the-source",
+  "pageNumber": 14,
+  "chapterId": "first-ai-project",
+  "title": "출처 링크를 열어 주장 확인하기",
+  "blocks": [
+    {
+      "blockId": "ai-entry-open-the-source-source-question",
+      "type": "paragraph",
+      "text": "행사 조건은 제공 자료에서 확인하고 앱 기능은 공식 문서에서 확인합니다. 연습 질문은 “Android용 ChatGPT의 공식 게시자는 누구인가”입니다. 검색 답변이 OpenAI라고 말하면 링크를 열어 설치 안내에 같은 내용이 있는지 읽습니다. 링크 제목에 공식이라는 말이 있어도 주소와 발행자를 확인하세요. 인용이 달려 있다는 사실만으로 해당 문장까지 검증된 것은 아닙니다."
+    },
+    {
+      "blockId": "ai-entry-open-the-source-source-work",
+      "type": "paragraph",
+      "text": "공식 검색 안내는 응답의 인용을 선택해 원문을 여는 방법과, 보이는 경우 Sources에서 출처를 보는 방법을 설명합니다. 원문에서는 앱 설치 항목을 찾아 게시자 이름을 읽고 확인한 날짜를 메모합니다. 검색 메뉴가 보이지 않으면 아래 제공한 OpenAI 도움말 링크를 직접 열어도 같은 검사를 수행할 수 있습니다. 가상의 행사장 주소를 찾는 검색으로 질문을 바꾸지 마세요. 이 연습의 확인 대상은 앱 배포 정보입니다."
+    },
+    {
+      "blockId": "ai-entry-open-the-source-search-prompt",
+      "type": "template",
+      "title": "출처 확인 연습 질문",
+      "text": "Android용 ChatGPT 공식 앱의 게시자가 누구인지 OpenAI 도움말에서 찾아 줘. 그 내용이 적힌 공식 페이지 링크를 함께 보여 줘. 링크를 확인하지 못하면 확인하지 못했다고 말해 줘."
+    },
+    {
+      "blockId": "ai-entry-open-the-source-source-path",
+      "type": "steps",
+      "items": [
+        {
+          "title": "검색 선택",
+          "text": "공식 문서의 경로는 대화 열기 → View all tools → Search → 질문 입력·전송입니다. 입력칸에서 /를 입력해 Search를 고르는 경로도 안내되어 있습니다. 기기에 안 보이면 공식 링크를 직접 엽니다.",
+          "output": "인용이 포함된 답변 또는 공식 도움말"
+        },
+        {
+          "title": "원문 읽기",
+          "text": "응답의 인용 링크를 누릅니다. Sources가 보이면 그 목록에서도 해당 문서를 엽니다.",
+          "output": "help.openai.com의 앱 설치 안내"
+        },
+        {
+          "title": "대조 기록",
+          "text": "문서 제목·발행자·주소·확인 날짜와, 게시자가 OpenAI인지 확인한 결과를 적습니다.",
+          "output": "주장과 원문이 연결된 짧은 기록"
+        }
+      ]
+    },
+    {
+      "blockId": "ai-entry-open-the-source-source-record",
+      "type": "callout",
+      "title": "출처 확인 기록 예시",
+      "text": "확인할 주장: Android 공식 앱 게시자는 OpenAI다. 원문: ChatGPT iOS and Android app FAQ의 설치 안내. 발행자: OpenAI. 확인일: 2026년 11월 6일. 대조 결과: Google Play 게시자를 OpenAI로 확인하라는 문구가 있어 주장과 일치. 원문 주소는 아래 첫 번째 링크에 보관합니다.",
+      "tone": "note"
+    },
+    {
+      "blockId": "ai-entry-open-the-source-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "ChatGPT iOS and Android app FAQ",
+          "url": "https://help.openai.com/en/articles/8142208-chatgpt-ios-and-android-app-faq",
+          "publisher": "OpenAI"
+        },
+        {
+          "title": "Searching the web with ChatGPT",
+          "url": "https://help.openai.com/en/articles/9237897-searching-the-web-with-chatgpt",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

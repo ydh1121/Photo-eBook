@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.new-project",
+  "pageNumber": 12,
+  "chapterId": "first-bookmark-video",
+  "title": "새 프로젝트에 소재 가져오기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "프로젝트는 어떤 원본의 어느 부분을 어떤 순서로 쓸지 저장하는 편집 작업입니다. 완성 동영상 파일과 구분하세요. 공식 모바일 안내에 적힌 경로는 New project → 소재 선택 → Add입니다. 영문 메뉴명 뒤의 한국어 설명은 뜻을 돕기 위한 것이며 실제 한국어 버튼 표기를 확인한 것은 아닙니다.",
+      "blockId": "video-entry.new-project.b01"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "새 작업 시작",
+          "text": "CapCut의 New project(새 프로젝트 만들기)를 선택합니다. 템플릿 적용이나 AI 자동 생성으로 시작하지 않습니다.",
+          "output": "소재 선택 단계"
+        },
+        {
+          "title": "다섯 원본 선택",
+          "text": "재료, 그리기, 글쓰기, 끼우기, 완성 순서로 준비한 원본을 선택합니다. 사진 연습 경로라면 같은 순서의 사진 다섯 장을 고릅니다.",
+          "output": "선택한 소재 다섯 개"
+        },
+        {
+          "title": "가져오기",
+          "text": "공식 문서의 Add(추가)에 해당하는 동작을 실행합니다. 편집 화면에 다섯 장면이 들어왔는지 확인합니다.",
+          "output": "타임라인에 들어온 장면"
+        }
+      ],
+      "blockId": "video-entry.new-project.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "사진 접근 권한 때문에 파일이 보이지 않는다면 필요한 원본에 접근할 수 있는지 기기의 권한 설명을 확인합니다. 원본을 지우거나 앱 데이터를 초기화할 필요는 없습니다. 들어온 장면의 순서가 달라도 다음 쪽에서 바로잡을 수 있습니다.",
+      "blockId": "video-entry.new-project.b03"
+    },
+    {
+      "type": "callout",
+      "title": "메뉴 근거",
+      "text": "영문 공식 모바일 안내 확인 / 한국어 Android 실행 미검증. 메뉴가 다르면 현재 화면의 기능 설명과 공식 도움말을 대조하고, 확인하지 못한 단계는 실행 기록에 남깁니다.",
+      "tone": "note",
+      "blockId": "video-entry.new-project.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Create Instagram Reels with the CapCut mobile app",
+          "url": "https://www.capcut.com/resource/best-reel-videos",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.new-project.b05"
+    }
+  ]
+}

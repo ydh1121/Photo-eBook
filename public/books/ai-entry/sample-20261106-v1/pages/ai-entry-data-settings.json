@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-data-settings",
+  "pageNumber": 8,
+  "chapterId": "first-ai-project",
+  "title": "데이터 설정을 알고 시작하기",
+  "blocks": [
+    {
+      "blockId": "ai-entry-data-settings-settings",
+      "type": "paragraph",
+      "text": "입력 내용을 모델 개선에 사용할지 정하는 설정과, 어떤 내용을 입력할지 판단하는 일은 따로 챙깁니다. 개인 계정의 일반 대화에서 모델 개선에 제공하지 않으려면 공식 문서의 데이터 설정 경로를 따라 해당 항목을 끕니다. 설정을 바꿔도 이 실습에는 개인정보가 필요하지 않습니다. 앞쪽에서 정리한 공개 정보 메모만 사용하세요. 조직 계정은 관리자가 허용한 설정 범위가 다를 수 있습니다."
+    },
+    {
+      "blockId": "ai-entry-data-settings-temporary",
+      "type": "paragraph",
+      "text": "임시 대화는 이 장을 진행하는 데 꼭 필요한 선택은 아닙니다. 현재 공식 안내는 임시 상태를 유지하는 동안 기록에 남지 않고 모델 개선에 쓰이지 않는다고 설명합니다. 대화를 시작하기 전에 개인화 여부를 고르며, 일반 대화로 저장하면 그때부터 계정의 설정을 따릅니다. 안전을 위해 최대 30일 동안 사본이 보관될 수 있어 즉시 완전 삭제와 같은 뜻으로 이해하면 안 됩니다. 연습을 다시 보려면 최종 글을 별도 메모로 남기세요."
+    },
+    {
+      "blockId": "ai-entry-data-settings-data-path",
+      "type": "steps",
+      "items": [
+        {
+          "title": "일반 대화의 데이터 설정",
+          "text": "ChatGPT → 사이드바 → 프로필 아이콘으로 Settings 열기 → Data controls → Improve the model for everyone 끄기.",
+          "output": "해당 항목의 꺼짐 상태"
+        },
+        {
+          "title": "임시 대화를 선택한다면",
+          "text": "새 대화 → Temporary → 첫 메시지 전 Personalized 또는 Unpersonalized 선택 → 메시지 입력. 화면에 이 항목이 없으면 아래 공식 안내를 확인합니다.",
+          "output": "선택한 대화 방식과 개인화 상태"
+        }
+      ]
+    },
+    {
+      "blockId": "ai-entry-data-settings-retention",
+      "type": "callout",
+      "title": "저장하기 전에 구분하기",
+      "text": "임시 대화에서 복사한 최종 글을 메모에 보관하는 것과, 임시 대화 자체를 일반 대화로 저장하는 것은 서로 다른 동작입니다.",
+      "tone": "note"
+    },
+    {
+      "blockId": "ai-entry-data-settings-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "Data controls in ChatGPT",
+          "url": "https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt",
+          "publisher": "OpenAI"
+        },
+        {
+          "title": "Temporary chat in ChatGPT",
+          "url": "https://help.openai.com/en/articles/8914046-temporary-chat-in-chatgpt",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

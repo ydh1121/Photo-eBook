@@ -1,0 +1,385 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "status": "sample",
+  "subjectId": "sns",
+  "levelId": "entry",
+  "title": "SNS 입문",
+  "subtitle": "사진 한 장으로 모임을 설명하고 답하기",
+  "editionLabel": "WO02 입문 샘플 · 2026-11-06",
+  "chapters": [
+    {
+      "chapterId": "first-bookmark-post",
+      "title": "토요일 책갈피 만들기 · 첫 게시물 실습"
+    }
+  ],
+  "pages": [
+    {
+      "pageId": "sns-entry.first-result",
+      "pageNumber": 1,
+      "chapterId": "first-bookmark-post",
+      "title": "사진 한 장에서 시작하는 첫 게시물",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.first-result.json",
+      "contentHash": "ffba17881860a04a53959ed50b96afab5d5312cba0463ab2b10bdada3e1bcc03"
+    },
+    {
+      "pageId": "sns-entry.one-reader",
+      "pageNumber": 2,
+      "chapterId": "first-bookmark-post",
+      "title": "누가 이 글을 읽을까요",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.one-reader.json",
+      "contentHash": "df898fd1bf068ccd25c713ff76c9e12cecc9deb2732be7766537c8c4f20ebbf7"
+    },
+    {
+      "pageId": "sns-entry.useful-promise",
+      "pageNumber": 3,
+      "chapterId": "first-bookmark-post",
+      "title": "첫 문장이 약속하는 정보",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.useful-promise.json",
+      "contentHash": "60fed361404b21b46c97ffde54bfa7c9468f8de8dda573c3c99012a9bfc1ae4d"
+    },
+    {
+      "pageId": "sns-entry.fact-card",
+      "pageNumber": 4,
+      "chapterId": "first-bookmark-post",
+      "title": "문장을 쓰기 전 사실 카드",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.fact-card.json",
+      "contentHash": "26ea89be356b757696b737c02067cb7356653daea392bfdb044b0fc9a00c92fa"
+    },
+    {
+      "pageId": "sns-entry.account-post-feed",
+      "pageNumber": 5,
+      "chapterId": "first-bookmark-post",
+      "title": "계정과 게시물은 무엇이 다른가요",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.account-post-feed.json",
+      "contentHash": "47180167707364352d99a3d4067f9b2db4679681eced2bbaf3232b912ff79ccf"
+    },
+    {
+      "pageId": "sns-entry.platform-choice",
+      "pageNumber": 6,
+      "chapterId": "first-bookmark-post",
+      "title": "같은 모임을 세 플랫폼에서 설명하기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.platform-choice.json",
+      "contentHash": "cffd9b0609dee3030876653edb6443511fec7214617e5c22046a6e9cc92753db"
+    },
+    {
+      "pageId": "sns-entry.first-format",
+      "pageNumber": 7,
+      "chapterId": "first-bookmark-post",
+      "title": "첫 결과물은 사진 한 장과 설명문",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.first-format.json",
+      "contentHash": "b993e9110fc782f0b5426ba6ba6791f8f4030262bbc11b58f4d4820f9c93f165"
+    },
+    {
+      "pageId": "sns-entry.official-app",
+      "pageNumber": 8,
+      "chapterId": "first-bookmark-post",
+      "title": "앱을 준비할 때 확인할 것",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.official-app.json",
+      "contentHash": "11576230e33abfa2e4a106ce80216a86d9906e4be3e8e9a93d67ee95585b1910"
+    },
+    {
+      "pageId": "sns-entry.profile-introduction",
+      "pageNumber": 9,
+      "chapterId": "first-bookmark-post",
+      "title": "프로필에 계정의 주제 담기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.profile-introduction.json",
+      "contentHash": "8dd35e1201b89d46b016667b8edc4dc0f37b482ac710f02c44372c0c4fb5fbaf"
+    },
+    {
+      "pageId": "sns-entry.photo-selection",
+      "pageNumber": 10,
+      "chapterId": "first-bookmark-post",
+      "title": "독자의 질문에 답하는 사진",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.photo-selection.json",
+      "contentHash": "ecb5d0b480ce41b80a09b5d7f15369478d5097ba75932426ec92d34299ddbb5f"
+    },
+    {
+      "pageId": "sns-entry.photo-preparation",
+      "pageNumber": 11,
+      "chapterId": "first-bookmark-post",
+      "title": "잘리는 부분과 불필요한 정보",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.photo-preparation.json",
+      "contentHash": "8fcf5bcdcc02556c8685d3023c48c5ca038a60ffb8dfb221a8b042dca7478e8c"
+    },
+    {
+      "pageId": "sns-entry.caption-structure",
+      "pageNumber": 12,
+      "chapterId": "first-bookmark-post",
+      "title": "본문을 네 덩어리로 나누기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.caption-structure.json",
+      "contentHash": "c8fe95c1ed3aaaca4b9fdd7a849caaf2000fc79a964db0737a8e00431bca057e"
+    },
+    {
+      "pageId": "sns-entry.caption-worked-example",
+      "pageNumber": 13,
+      "chapterId": "first-bookmark-post",
+      "title": "완성 문장과 고친 이유",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.caption-worked-example.json",
+      "contentHash": "f39b4233013abbcc10d3a798534c933a9807370b533be515cb9c21a45fd2f6b4"
+    },
+    {
+      "pageId": "sns-entry.image-description",
+      "pageNumber": 14,
+      "chapterId": "first-bookmark-post",
+      "title": "사진을 보지 않아도 전해지는 설명",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.image-description.json",
+      "contentHash": "3a6fe1aebec18a56d24c343c0ace6a0146618dc418055596f2f8b428db702f0b"
+    },
+    {
+      "pageId": "sns-entry.posting-preparation",
+      "pageNumber": 15,
+      "chapterId": "first-bookmark-post",
+      "title": "사진과 글을 작성 화면에 옮기기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.posting-preparation.json",
+      "contentHash": "f2de3e4b365345b6070a98547182f54545ef0308ee70504a9267c5d7a77461c4"
+    },
+    {
+      "pageId": "sns-entry.audience-setting",
+      "pageNumber": 16,
+      "chapterId": "first-bookmark-post",
+      "title": "누가 보게 할지 정하기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.audience-setting.json",
+      "contentHash": "aeedcbfd75ad3b33d40b038c393ab17c6a74941d593fef4911d0849f1b3b8461"
+    },
+    {
+      "pageId": "sns-entry.after-posting",
+      "pageNumber": 17,
+      "chapterId": "first-bookmark-post",
+      "title": "저장한 뒤 다시 읽는 순서",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.after-posting.json",
+      "contentHash": "fec48dadd2f6bd393ef489bae1795f83a040a15b001c8ee901514cd385371615"
+    },
+    {
+      "pageId": "sns-entry.comment-replies",
+      "pageNumber": 18,
+      "chapterId": "first-bookmark-post",
+      "title": "질문에 필요한 만큼 답하기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.comment-replies.json",
+      "contentHash": "aa750e380d0ddcc26738d9a5a88943789d8b1ed208186977566f6868cf215557"
+    },
+    {
+      "pageId": "sns-entry.unknown-question",
+      "pageNumber": 19,
+      "chapterId": "first-bookmark-post",
+      "title": "모르는 질문을 받았을 때",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.unknown-question.json",
+      "contentHash": "f51dc0a4734ff8b23268b6e69c9e8d9a7583929eb55486e23ae4c5574a0fceeb"
+    },
+    {
+      "pageId": "sns-entry.reaction-meaning",
+      "pageNumber": 20,
+      "chapterId": "first-bookmark-post",
+      "title": "좋아요와 신청은 다른 기록",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.reaction-meaning.json",
+      "contentHash": "08e6e60f298c30ff9ab4ece11e18931461dd6cde143d618babee98bb84799756"
+    },
+    {
+      "pageId": "sns-entry.reaction-log",
+      "pageNumber": 21,
+      "chapterId": "first-bookmark-post",
+      "title": "같은 시간 간격으로 기록하기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.reaction-log.json",
+      "contentHash": "2a63e2b3b56aaf8628f8d1acda37c8df49954c476e514f052351661a1b57e302"
+    },
+    {
+      "pageId": "sns-entry.one-revision",
+      "pageNumber": 22,
+      "chapterId": "first-bookmark-post",
+      "title": "다음 글에서 한 가지 고치기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.one-revision.json",
+      "contentHash": "84739242be51976abdf415fd4223b86b787af2dd0979a15cfecedcd0805d79ca"
+    },
+    {
+      "pageId": "sns-entry.independent-practice",
+      "pageNumber": 23,
+      "chapterId": "first-bookmark-post",
+      "title": "예시를 덮고 한 번 더 만들기",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.independent-practice.json",
+      "contentHash": "fdab837580f02d4452774a59499a24a60593586da3fb34cedd030fcfffa09bbe"
+    },
+    {
+      "pageId": "sns-entry.assessment-solutions",
+      "pageNumber": 24,
+      "chapterId": "first-bookmark-post",
+      "title": "완성 기준과 풀이",
+      "src": "/books/sns-entry/sample-20261106-v1/pages/sns-entry.assessment-solutions.json",
+      "contentHash": "f98b41335143540d3c0027ef234106b099d57e93a38d1c8c9e0189c53fb627ad"
+    }
+  ],
+  "sources": [
+    {
+      "sourceId": "ig-app",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "Instagram 공식 Android 앱",
+      "url": "https://play.google.com/store/apps/details?hl=ko&id=com.instagram.android",
+      "publisher": "Instagram / Google Play",
+      "note": "공식 앱 설명·개발사·광고 및 인앱 구매·사진 권한 설명 확인. 한국어 Android 앱 실행·가입·게시 경로는 미검증.",
+      "ref": "turn14view1"
+    },
+    {
+      "sourceId": "threads",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "Introducing Threads: A New Way to Share With Text",
+      "url": "https://about.fb.com/news/2023/07/introducing-threads-new-app-text-sharing/",
+      "publisher": "Meta",
+      "note": "텍스트 공유와 공개 대화를 위한 서비스라는 설명만 채택. 2023년 발표의 글자 수·영상 길이·로그인 조건을 현재 메뉴나 한도로 사용하지 않음.",
+      "ref": "turn15view0"
+    },
+    {
+      "sourceId": "yt-shorts",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "YouTube Shorts 제작 시작하기",
+      "url": "https://support.google.com/youtube/answer/10059070?hl=ko",
+      "publisher": "Google / YouTube",
+      "note": "스마트폰을 이용한 짧은 동영상 제작·업로드, 공개 범위 설정의 공식 설명 확인. Android 실기 미검증.",
+      "ref": "turn15view2"
+    },
+    {
+      "sourceId": "w3c-alt",
+      "checkedAt": "2026-11-06",
+      "verification": "official-document-checked_device-unverified",
+      "title": "Informative Images",
+      "url": "https://www.w3.org/WAI/tutorials/images/informative/",
+      "publisher": "W3C Web Accessibility Initiative",
+      "note": "정보를 담은 이미지의 의미를 대체 설명에 전달한다는 원칙 확인. 특정 SNS 앱 메뉴의 근거가 아님.",
+      "ref": "turn19view0"
+    },
+    {
+      "sourceId": "ig-post-unverified",
+      "checkedAt": "2026-11-06",
+      "verification": "source-unavailable_device-unverified",
+      "title": "Instagram 사진 게시 도움말 — 원문 확인 대기",
+      "url": "https://help.instagram.com/442418472487929",
+      "publisher": "Instagram",
+      "note": "2026-11-06 공개 웹 조회가 429로 실패. 공식 문서 내용·한국어 Android 메뉴 경로를 확인한 근거로 사용하지 않음. 실기 미검증.",
+      "ref": "turn9view0"
+    },
+    {
+      "sourceId": "ig-alt-unverified",
+      "checkedAt": "2026-11-06",
+      "verification": "source-unavailable_device-unverified",
+      "title": "Instagram 대체 텍스트 도움말 — 원문 확인 대기",
+      "url": "https://help.instagram.com/503708446705527",
+      "publisher": "Instagram",
+      "note": "2026-11-06 공개 웹 조회가 429로 실패. 버튼 이름·위치·전체 경로 미확인. 실기 미검증.",
+      "ref": "turn9view1"
+    },
+    {
+      "sourceId": "ig-privacy-unverified",
+      "checkedAt": "2026-11-06",
+      "verification": "source-unavailable_device-unverified",
+      "title": "Instagram 공개 범위 도움말 — 원문 확인 대기",
+      "url": "https://help.instagram.com/448523408565555",
+      "publisher": "Instagram",
+      "note": "2026-11-06 공개 웹 조회가 429로 실패. 현재 계정 유형별 설정 경로·예외를 확인했다고 주장하지 않음. 실기 미검증.",
+      "ref": "turn9view2"
+    }
+  ],
+  "cover": {
+    "assetId": "bookmark-finished",
+    "alt": "SNS·영상·AI 실습에서 함께 사용하는 책갈피 학습 예시",
+    "width": 1122,
+    "height": 1402
+  },
+  "assets": {
+    "ai-before-shoot": {
+      "src": "/api/ebook-assets/b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98.webp",
+      "sha256": "b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98",
+      "bytes": 65592,
+      "width": 1467,
+      "height": 987
+    },
+    "bookmark-drawing": {
+      "src": "/api/ebook-assets/fd23a454b40670fd3c16d55e25ad578ea970bff68738fcff877b3ffa8f389cb0.webp",
+      "sha256": "fd23a454b40670fd3c16d55e25ad578ea970bff68738fcff877b3ffa8f389cb0",
+      "bytes": 147762,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-finished": {
+      "src": "/api/ebook-assets/2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c.webp",
+      "sha256": "2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c",
+      "bytes": 171856,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-in-book": {
+      "src": "/api/ebook-assets/9c6aeba7305286418e44c5bba5128896435bcdc9f7253729644fb3b40073507f.webp",
+      "sha256": "9c6aeba7305286418e44c5bba5128896435bcdc9f7253729644fb3b40073507f",
+      "bytes": 295480,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-lettering": {
+      "src": "/api/ebook-assets/0f5e6ef2ad1e4177037571dbef15212cd33272a89d4f74c15700386212ae3b5b.webp",
+      "sha256": "0f5e6ef2ad1e4177037571dbef15212cd33272a89d4f74c15700386212ae3b5b",
+      "bytes": 119752,
+      "width": 1122,
+      "height": 1402
+    },
+    "bookmark-materials": {
+      "src": "/api/ebook-assets/e3237744f94963a35a948d2b3813dd5c87efc01e8a2d967e54e1d0ecf09676c7.webp",
+      "sha256": "e3237744f94963a35a948d2b3813dd5c87efc01e8a2d967e54e1d0ecf09676c7",
+      "bytes": 150180,
+      "width": 1122,
+      "height": 1402
+    },
+    "sns-caption-anatomy": {
+      "src": "/api/ebook-assets/0fbd290afaed786be64bd02b93d067feb4f1bdaf8adc7208ff3438548cbc09f5.webp",
+      "sha256": "0fbd290afaed786be64bd02b93d067feb4f1bdaf8adc7208ff3438548cbc09f5",
+      "bytes": 59952,
+      "width": 1467,
+      "height": 1067
+    },
+    "sns-platform-roles": {
+      "src": "/api/ebook-assets/f8167d0adf96ed0aa58398087e644fd51e99d6b2841e5ed924cd2b5132a30e3d.webp",
+      "sha256": "f8167d0adf96ed0aa58398087e644fd51e99d6b2841e5ed924cd2b5132a30e3d",
+      "bytes": 63890,
+      "width": 1467,
+      "height": 987
+    },
+    "video-caption-legibility": {
+      "src": "/api/ebook-assets/edf72df3171fe3e0cfa02cac5d44b3cff1f11122da22b2896a379eefb0f5e11b.webp",
+      "sha256": "edf72df3171fe3e0cfa02cac5d44b3cff1f11122da22b2896a379eefb0f5e11b",
+      "bytes": 44850,
+      "width": 1467,
+      "height": 987
+    },
+    "video-shot-distances": {
+      "src": "/api/ebook-assets/39cd43ad58ddf002e0f1c7cf160e9597bceefa13602b5ac02d2d76d9aecdc35c.webp",
+      "sha256": "39cd43ad58ddf002e0f1c7cf160e9597bceefa13602b5ac02d2d76d9aecdc35c",
+      "bytes": 36442,
+      "width": 1467,
+      "height": 987
+    },
+    "video-timeline-30s": {
+      "src": "/api/ebook-assets/925202c9c754eb897b831a87e67a978bca2391cb87db30a4d5c97531573eff47.webp",
+      "sha256": "925202c9c754eb897b831a87e67a978bca2391cb87db30a4d5c97531573eff47",
+      "bytes": 55870,
+      "width": 1467,
+      "height": 1040
+    },
+    "video-trim-vs-split": {
+      "src": "/api/ebook-assets/619ae28a8152a6aead6b942d7dab60930479160be9ffd568b760d49e4ac0a07c.webp",
+      "sha256": "619ae28a8152a6aead6b942d7dab60930479160be9ffd568b760d49e4ac0a07c",
+      "bytes": 55198,
+      "width": 1467,
+      "height": 1067
+    },
+    "video-window-light": {
+      "src": "/api/ebook-assets/0a8ad4813609a226a0ae2d87e7add4d00216709cb23b9b6346d45d39f834a2b1.webp",
+      "sha256": "0a8ad4813609a226a0ae2d87e7add4d00216709cb23b9b6346d45d39f834a2b1",
+      "bytes": 42974,
+      "width": 1467,
+      "height": 987
+    }
+  },
+  "sourceSha256": "790d28bcc46e578c3e25eeca608465f78d23f15086faf65f975b527d27dce064",
+  "bodyPageCount": 24,
+  "frontMatterExcluded": true
+}

@@ -1,9 +1,10 @@
 # Personal Edu publishing — current handoff
 
 Updated: 2026-11-06 KST
-Phase: WO01 complete; WO02 planned
+Phase: WO01 complete; WO02 active
 Baseline/main: `b26fbad86238c327960ea12cef9a3268cbdd3173`
-Implementation branch: `feat/personal-edu-publishing-foundation-20261106`
+Current branch: `feat/personal-edu-reader-wo02-20261106`
+Current baseline: `983500848d50f9cf8a4290b348e47866515229e5`
 
 The preceding uploaded-media WO is complete (PR #58, deployed code `755ff19188e746ac33282063f91a2cab28da3625`). Continue the new publishing programme from `TASKS.md`; do not reopen its completed analysis or unrelated platform backlog.
 
@@ -20,3 +21,13 @@ SNS has 9 chapters / 38 blocks / 21 sources. Real estate has 10 chapters / 45 bl
 Recovered research, eighteen-volume blueprints, reader/storage designs, source readbacks and selected-skill originals are preserved through the private project index. Do not rerun completed media analysis or recreate the recovered research. Regular textbook manuscripts/published books: 0/18. Next action: start WO02 from the saved reader/publication specification, reconcile book/page IDs, implement the common reader and D1 safeguards, and author actual entry-level sample chapters before producing a regular volume.
 
 D1 inspection found no binding in this Pages project. Billing subscription read is unavailable to the current OAuth connection; do not claim that account-wide usage/plan has been verified. No database or paid plan has been created by WO01. WO02 must reconcile the blueprint and reader specification's example volume/page IDs into one explicit contract before implementation.
+
+## WO02 active checkpoint
+
+The canonical `ebook-reader` owner, stable-ID data model, source builder, guarded D1 service/publisher and local SQLite preview are implemented. Stable IDs: `sns-entry`, `video-entry`, `ai-entry`; edition `sample-20261106-v1`. Three real sample chapters contain 24 body pages each and 329 blocks total. Six JSON/Markdown source files were preserved in Drive and fully byte-readback verified before repository publication. Thirteen original WebP visuals total 1,309,798 bytes; all delivery bytes, five PNG masters and the 16-file diagram archive were also verified. PDF review editions are undergoing 78-page rendering/QA.
+
+Local checks pass: 38 actual SQLite asset cases, four reader model/storage groups, all 13 HTTP image hashes and 72 exact page payloads, canonical boundaries and 24,900 existing Personal Edu static assertions. `scripts/check-ebook-reader.mjs --runtime` and `scripts/check-ebook-samples.mjs --runtime` must run in the new Chromium workflow. The local environment has no Chromium binary; this is not a browser-runtime pass.
+
+`scripts/build-ebook-review.mjs` creates an explicitly labelled review/offline bundle under `/staging/ebook-reader-preview/`, consuming the same owner files and reviewed asset bytes. Its copied-image adapter is for inspection; production `/reader/` manifests still use D1. No production deployment, database, binding or image import has been performed for WO02.
+
+Account usage reads have recovered, but the actual Workers plan remains unverified because the Cloudflare connection lacks Billing Read. Do not infer plan from `usage_model: standard` or a website zone's Free tier. Free-plan verification and a reliable daily proof-renewal process are activation gates. Next: complete exact-candidate Chromium/PDF review, preserve the reviewable artifacts and PR, then update CURRENT/PROJECT_INDEX with this blocker and the exact remote activation steps. Physical Android tool menus remain unexecuted, and regular textbooks completed/published remain 0/18.

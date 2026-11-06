@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.export-file",
+  "pageNumber": 20,
+  "chapterId": "first-bookmark-video",
+  "title": "편집 결과를 파일로 내보내기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "내보내기는 편집 순서와 글자·소리를 실제 재생 파일로 만드는 단계입니다. 공식 모바일 안내는 Export에서 해상도를 선택해 기기에 저장하는 흐름을 설명합니다. 이 과제는 30초·세로 9:16을 유지하고 1080p·30fps를 목표로 삼습니다. 실제 설정 제공 여부는 화면에서 확인합니다.",
+      "blockId": "video-entry.export-file.b01"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "내보내기 전 재생",
+          "text": "처음과 끝뿐 아니라 6·12·18·24초의 장면 전환을 봅니다. 자막이 다음 장면까지 잘못 남아 있는지 확인합니다.",
+          "output": "출력 전 점검"
+        },
+        {
+          "title": "Export 열기",
+          "text": "표시되는 해상도·프레임·기타 조건을 읽습니다. Pro나 결제 요구가 나오면 유료 요소를 제거하고 조건을 다시 확인합니다.",
+          "output": "실제로 선택한 출력값"
+        },
+        {
+          "title": "완료 파일 찾기",
+          "text": "출력 완료 뒤 휴대전화의 사진·파일 앱에서 결과를 찾고 재생합니다. 앱 안의 프로젝트 목록만 보고 출력되었다고 판단하지 않습니다.",
+          "output": "재생 가능한 최종 파일"
+        }
+      ],
+      "blockId": "video-entry.export-file.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "파일 이름은 bookmark_30s_v01처럼 버전을 붙여 원본과 구분합니다. 출력 형식은 실제 저장된 파일 정보로 확인하고, MP4가 아닐 때 확장자만 바꾸지 않습니다. 화면에서 지원하는 형식이나 별도 변환의 필요성을 확인하세요.",
+      "blockId": "video-entry.export-file.b03"
+    },
+    {
+      "type": "callout",
+      "title": "무료 출력의 경계",
+      "text": "공식 문서는 유료 요소 제거를 안내하지만 계정·지역·버전에 따른 출력·워터마크 설명 차이가 있습니다. 이번 Android 환경에서 무료·무워터마크 출력을 검증했다고 표시하지 않습니다.",
+      "tone": "note",
+      "blockId": "video-entry.export-file.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "CapCut Tutorial for Beginners — mobile phone section",
+          "url": "https://www.capcut.com/resource/capcut-tutorial-for-beginners",
+          "publisher": "CapCut"
+        },
+        {
+          "title": "Why Am I Prompted to Join CapCut Pro When Exporting?",
+          "url": "https://www.capcut.com/help/capcut-pro-export-prompt",
+          "publisher": "CapCut"
+        },
+        {
+          "title": "CapCut Pro export conditions by platform",
+          "url": "https://www.capcut.com/help/join-capcut-pro-for-exporting",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.export-file.b05"
+    }
+  ]
+}

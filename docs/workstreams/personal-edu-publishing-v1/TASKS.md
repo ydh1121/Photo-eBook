@@ -50,12 +50,25 @@ The new request is a staged programme. Do not claim that the complete multi-volu
 - Production HTTP: seven subject routes, both changed course snapshots and both SNS images match the verified files. Public SNS recommendations grew from 24 to 49 unique watch links after scrolling to the horizontal end. These are observed live values, not guaranteed counts.
 - Final editorial readback: SNS 1,008 rows and real estate 2,128 rows; one approved wording change in each source, with adjacent cells and formats preserved. The corrected snapshots are byte-identical to the restored source.
 
-## Next WO — WO02 planned
+## Current WO — WO02 active
 
-- [ ] Resolve blueprint/reader example IDs into one stable book, edition, page and anchor contract.
-- [ ] Implement the common reader with selection-to-question saving and last-position restoration across page/edition changes.
-- [ ] Verify actual account plan and usage, implement D1 WebP serving with enforced publication/request budgets, and keep paid activation disabled.
-- [ ] Author one real sample chapter for each entry-level subject, then verify pagination, graphics, exercise reproducibility, accessible controls and small-screen reading.
-- [ ] Record actual mobile-tool menu evidence separately from official-document research. Do not label unexecuted Android steps as tested.
+- [x] Resolve IDs: `sns-entry`, `video-entry`, `ai-entry`; sample edition `sample-20261106-v1`. Page and block IDs are semantic and stable; page numbers are editorial positions.
+- [x] Implement the common reader with selection-to-question saving and last-position restoration across page/edition changes; canonical ownership and static model checks pass.
+- [-] D1 serving/publisher and enforced budgets implemented; actual local SQLite integration passes 38 cases. Actual Workers plan verification, remote binding/import and production activation remain gated by unavailable Billing Read.
+- [-] Author three real sample chapters (24 body pages each), preserve/read back all sources and original visuals, then complete fixed-page PDF and Chromium validation.
+- [x] Record official mobile-tool evidence separately. Physical Android menu execution is explicitly unverified and remains a regular-volume release gate.
 
 Regular textbooks completed/published: **0/18**. The foundation closes WO01 only. WO03–20 and the final subject-page editorial integration remain planned work.
+
+## WO02 working checkpoint
+
+- Branch: `feat/personal-edu-reader-wo02-20261106`, baseline `983500848d50f9cf8a4290b348e47866515229e5`.
+- Three sample chapters target 24 substantive pages each; cover/contents excluded; not regular textbooks.
+- Shared example: a fictional local bookmark workshop, explicitly labelled as an independent learning exercise.
+- Reader owner: `ebook-reader` canonical module plus explicit publication adapter.
+- Initial D1 account read: no project binding; Billing Read unavailable through current OAuth connection; analytics initially rate limited. Keep remote image activation gated until account conditions are verified.
+- Authored samples: SNS 104 blocks, video 113 blocks, AI 112 blocks; 72 substantive body pages total. Cover/contents excluded. Final JSON and Markdown files (six) were preserved and byte-readback verified before snapshots were copied.
+- Visuals: five generated photographs and eight original diagrams; 13 WebP files total 1,309,798 bytes. Full readback verifies 13 delivery files, five PNG masters and the 16-file SVG/PNG diagram archive. No D1 production upload is claimed.
+- Exact-byte local HTTP verification covers every WebP and all 72 page payloads. Local actual SQLite allocation is 1,343,488 bytes. Existing Personal Edu static checks pass (24,900 assertions).
+- Added a clearly labelled offline/review adapter with the same Registry owner. Production manifests retain D1 asset URLs; the review bundle supplies its own copied images for inspection while activation is gated.
+- Next: run the Chromium reader and sample-page workflow, review PDF pages, preserve evidence and update same-ID operational records. Do not mark WO02 production-complete without the remaining account and remote D1 evidence.

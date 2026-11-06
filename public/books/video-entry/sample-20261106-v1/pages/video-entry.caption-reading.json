@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.caption-reading",
+  "pageNumber": 17,
+  "chapterId": "first-bookmark-video",
+  "title": "휴대전화에서 자막을 읽어보기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "편집 화면을 확대하면 잘 보이는 글도 실제 세로 재생에서는 작을 수 있습니다. 휴대전화를 평소 보는 거리로 두고 영상을 재생하세요. 배경과 글자 색이 섞이지 않고, 장면이 넘어가기 전에 한 번 읽을 수 있는지 확인합니다.",
+      "blockId": "video-entry.caption-reading.b01"
+    },
+    {
+      "type": "image",
+      "assetId": "video-caption-legibility",
+      "alt": "밝은 종이 위의 작은 흰 글씨와 어두운 바탕을 둔 큰 두 줄 글씨의 비교",
+      "width": 1467,
+      "height": 987,
+      "caption": "이번 과제의 비교 예시입니다. 읽히지 않는 글자는 크기·배경·문장 길이를 함께 조정합니다.",
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님",
+      "blockId": "video-entry.caption-reading.b02"
+    },
+    {
+      "type": "table",
+      "caption": "발견한 문제와 수정",
+      "columns": [
+        "문제",
+        "수정 방향"
+      ],
+      "rows": [
+        [
+          "종이와 글자가 같은 밝기",
+          "글자 뒤에 단순한 고대비 배경 또는 윤곽 사용"
+        ],
+        [
+          "한 줄이 너무 김",
+          "뜻이 나뉘는 곳에서 두 줄로 정리"
+        ],
+        [
+          "화면 끝에 붙음",
+          "가장자리와 핵심 동작을 피해 안쪽으로 이동"
+        ],
+        [
+          "마지막 글자가 잘림",
+          "실제 재생 화면에서 위치와 크기 재조정"
+        ]
+      ],
+      "blockId": "video-entry.caption-reading.b03"
+    },
+    {
+      "type": "paragraph",
+      "text": "원고의 시간·준비물·정원을 소리 내어 읽고 사실 카드와 맞춰보세요. 수정할 때는 텍스트 줄을 선택해야 합니다. CapCut 공식 도움말은 Text에서 대상 텍스트 트랙을 선택한 뒤 내용을 고치는 방법을 설명합니다.",
+      "blockId": "video-entry.caption-reading.b04"
+    },
+    {
+      "type": "exercise",
+      "title": "무음 재생 점검",
+      "goal": "소리 없이 핵심 안내를 이해한다.",
+      "steps": [
+        "소리를 끄고 30초를 봅니다.",
+        "날짜·시간·책 1권·6명·무료를 찾아 적습니다."
+      ],
+      "expectedOutput": "다섯 정보가 읽히는 자막",
+      "checks": [
+        "작은 글씨를 오래 바라봐야만 읽히지 않는가?",
+        "연습용 표시가 사라지는 구간은 없는가?"
+      ],
+      "blockId": "video-entry.caption-reading.b05"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Why Can't I Edit or Modify the Text?",
+          "url": "https://www.capcut.com/help/edit-the-text",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.caption-reading.b06"
+    }
+  ]
+}

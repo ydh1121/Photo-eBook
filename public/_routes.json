@@ -1,6 +1,8 @@
 {
   "version": 1,
-  "include": ["/*"],
+  "include": [
+    "/*"
+  ],
   "exclude": [
     "/",
     "/index.html",
@@ -35,6 +37,9 @@
     "/ui-dashboard",
     "/ui-dashboard/*",
     "/qa/*",
-    "/staging/*"
+    "/staging/*",
+    "/reader",
+    "/reader/*",
+    "/books/*"
   ]
 }

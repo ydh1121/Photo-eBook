@@ -22,7 +22,8 @@ const LIBRARY_MODULES=[
   'learning-resource-rail',
   'subject-navigation',
   'reference-case-rail',
-  'content-detail-dialog'
+  'content-detail-dialog',
+  'ebook-reader'
 ];
 const LIBRARY_STATES=[
   {name:'desktop-light',viewport:'desktop',theme:'light'},
@@ -93,7 +94,8 @@ async function moduleReady(frame,id){
     'learning-resource-rail':'.edu-discovery[data-platform-module="learning-resource-rail"][data-resource-bound="true"] .edu-discovery-card',
     'subject-navigation':'[data-platform-module="subject-navigation"] .subject-nav a',
     'reference-case-rail':'[data-reference-bound="true"] .edu-reference-card',
-    'content-detail-dialog':'[data-content-detail-bound="true"] .edu-detail-launcher'
+    'content-detail-dialog':'[data-content-detail-bound="true"] .edu-detail-launcher',
+    'ebook-reader':'[data-reader-ready="true"] .ebook-reader__page'
   };
   const minimum={
     'top-chapter-navigation':8,
@@ -111,7 +113,8 @@ async function moduleReady(frame,id){
     'learning-resource-rail':3,
     'subject-navigation':2,
     'reference-case-rail':4,
-    'content-detail-dialog':1
+    'content-detail-dialog':1,
+    'ebook-reader':1
   };
   const selector=selectors[id];
   await wait(()=>frame.locator(selector).count().then(count=>count>=minimum[id]),`${id} readiness failed`);
@@ -164,7 +167,8 @@ async function frameMetrics(page,frame,id,state){
       'learning-guide-section':'.edu-checklist',
       'learning-resource-rail':'.edu-discovery-card',
       'reference-case-rail':'.edu-reference-card',
-      'content-detail-dialog':'.edu-detail-launcher'
+      'content-detail-dialog':'.edu-detail-launcher',
+      'ebook-reader':'.ebook-reader__page'
     }[id];
     if(critical){
       const value=await frame.locator(critical).first().evaluate(node=>getComputedStyle(node).backgroundColor);

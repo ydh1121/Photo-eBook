@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.finished-video",
+  "pageNumber": 1,
+  "chapterId": "first-bookmark-video",
+  "title": "다섯 장면으로 만드는 30초 영상",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "종이와 펜을 놓은 장면에서 시작해 책에 꽂힌 책갈피로 마무리합니다. 다섯 장면을 각각 6초로 연결하고 모임 정보를 자막으로 넣습니다. 완성 파일은 휴대전화에서 처음부터 끝까지 재생해 사진·자막·소리가 의도대로 이어지는지 확인합니다.",
+      "blockId": "video-entry.finished-video.b01"
+    },
+    {
+      "type": "callout",
+      "title": "교육용 자체 기획",
+      "text": "‘토요일 책갈피 만들기’는 연습용 가상 행사이며 실제 모집이 아닙니다. 전 구간에 ‘연습용 · 실제 모집 아님’을 표시하고 영상 설명문에도 같은 사실을 밝힙니다.",
+      "tone": "note",
+      "blockId": "video-entry.finished-video.b02"
+    },
+    {
+      "type": "image",
+      "assetId": "bookmark-finished",
+      "alt": "책에 끼운 연노랑 책갈피의 완성 모습을 보여주는 사진",
+      "width": 1122,
+      "height": 1402,
+      "caption": "30초 영상의 마지막 장면으로 사용할 학습용 제작 예시입니다.",
+      "credit": "Personal Edu · AI 생성 학습 이미지",
+      "blockId": "video-entry.finished-video.b03"
+    },
+    {
+      "type": "table",
+      "caption": "이번 결과물의 기준",
+      "columns": [
+        "항목",
+        "목표"
+      ],
+      "rows": [
+        [
+          "길이·화면",
+          "5장면 × 6초 = 30초 · 세로 9:16"
+        ],
+        [
+          "자막",
+          "활동·일시·준비물·정원·비용·신청 안내 연습"
+        ],
+        [
+          "소리",
+          "직접 녹음한 소리 또는 의도한 무음"
+        ],
+        [
+          "검사",
+          "앱 밖에서 재생하고 원본과 완성본을 구분해 보관"
+        ]
+      ],
+      "blockId": "video-entry.finished-video.b04"
+    },
+    {
+      "type": "paragraph",
+      "text": "사진 앱에서 파일을 열 수 있으면 시작할 수 있습니다. 편집 경험은 필요하지 않습니다. 이 샘플은 공식 문서를 바탕으로 썼으며 실제 Android에서 모든 단계를 실행한 검증본은 아닙니다.",
+      "blockId": "video-entry.finished-video.b05"
+    }
+  ]
+}

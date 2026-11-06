@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.steady-and-focused",
+  "pageNumber": 6,
+  "chapterId": "first-bookmark-video",
+  "title": "손이 움직여도 카메라는 안정되게",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "종이를 움직이는 손과 카메라를 든 손이 함께 흔들리면 무엇을 보여주는지 따라가기 어렵습니다. 휴대전화를 안전한 받침에 기대거나 촬영을 도와줄 사람에게 부탁하세요. 책상 밖으로 떨어질 위치에 세워두지 않습니다.",
+      "blockId": "video-entry.steady-and-focused.b01"
+    },
+    {
+      "type": "image",
+      "assetId": "video-shot-distances",
+      "alt": "재료가 모두 보이는 전체 장면, 손과 종이가 보이는 중간 장면, 파란 무늬가 보이는 가까운 장면",
+      "width": 1467,
+      "height": 987,
+      "caption": "거리마다 전달하는 정보가 달라집니다. 확대 수치를 외우기보다 화면에 무엇이 남는지 살펴보세요.",
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님",
+      "blockId": "video-entry.steady-and-focused.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "찍을 종이와 손이 있는 부분의 선명도를 미리보기에서 확인합니다. 가까이 다가갔더니 초점이 흐려지면 조금 물러나세요. 디지털 확대를 크게 하는 대신 촬영 거리와 종이 위치를 조절해 같은 구도를 비교합니다.",
+      "blockId": "video-entry.steady-and-focused.b03"
+    },
+    {
+      "type": "exercise",
+      "title": "흔들림 점검",
+      "goal": "자막을 읽을 수 있을 만큼 안정된 장면을 만든다.",
+      "steps": [
+        "카메라를 고정한 상태로 손을 움직이며 5초 찍습니다.",
+        "재생하면서 책상 모서리와 책갈피가 함께 흔들리는지 봅니다.",
+        "흔들렸다면 받침을 바꾸고 다시 찍습니다."
+      ],
+      "expectedOutput": "안정된 시험 장면 한 개",
+      "checks": [
+        "배경 전체가 불필요하게 움직이지 않는가?",
+        "손이 종이의 핵심 부분을 계속 가리지 않는가?"
+      ],
+      "blockId": "video-entry.steady-and-focused.b04"
+    }
+  ]
+}

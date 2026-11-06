@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.timeline-order",
+  "pageNumber": 13,
+  "chapterId": "first-bookmark-video",
+  "title": "타임라인은 재생 순서표",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "타임라인은 화면과 소리가 언제 시작하고 끝나는지 보여주는 편집 줄입니다. 왼쪽부터 재생 순서가 이어지고, 현재 위치를 가리키는 선을 재생 헤드라고 부릅니다. 장면 하나를 눌렀을 때 선택 표시가 그 장면에 있는지 확인하고 수정하세요.",
+      "blockId": "video-entry.timeline-order.b01"
+    },
+    {
+      "type": "image",
+      "assetId": "video-timeline-30s",
+      "alt": "0·6·12·18·24·30초 경계에 재료, 그리기, 글쓰기, 끼우기, 완성 장면이 놓인 시간선",
+      "width": 1467,
+      "height": 1040,
+      "caption": "교육용 시간선입니다. CapCut 화면을 촬영한 이미지가 아닙니다.",
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님",
+      "blockId": "video-entry.timeline-order.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "공식 모바일 안내는 장면을 드래그해 순서를 바꾸는 방법을 설명합니다. 잘못 들어온 장면을 이동한 뒤 첫 장면부터 재생해 실제 순서를 확인하세요. 화면 아래의 텍스트 줄은 장면 자체와 별개일 수 있으므로 사진·동영상 줄과 혼동하지 않습니다.",
+      "blockId": "video-entry.timeline-order.b03"
+    },
+    {
+      "type": "table",
+      "caption": "작업 중 확인할 것",
+      "columns": [
+        "확인 대상",
+        "정상 결과"
+      ],
+      "rows": [
+        [
+          "장면 순서",
+          "재료 → 그리기 → 글쓰기 → 끼우기 → 완성"
+        ],
+        [
+          "선택 대상",
+          "고칠 장면에 선택 표시가 있음"
+        ],
+        [
+          "전체 흐름",
+          "같은 종이와 책의 제작 과정으로 읽힘"
+        ]
+      ],
+      "blockId": "video-entry.timeline-order.b04"
+    },
+    {
+      "type": "exercise",
+      "title": "중간 점검",
+      "goal": "다섯 장면이 모두 있는지 확인한다.",
+      "steps": [
+        "아직 자막을 넣지 않은 상태로 재생합니다.",
+        "다섯 장면의 이름을 순서대로 말합니다."
+      ],
+      "expectedOutput": "빠짐없이 정렬된 다섯 장면",
+      "checks": [
+        "순서가 바뀌면 이 단계에서 바로잡았는가?",
+        "같은 장면을 잘못 두 번 넣지 않았는가?"
+      ],
+      "blockId": "video-entry.timeline-order.b05"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Create Instagram Reels with the CapCut mobile app",
+          "url": "https://www.capcut.com/resource/best-reel-videos",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.timeline-order.b06"
+    }
+  ]
+}

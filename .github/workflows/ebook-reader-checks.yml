@@ -1,0 +1,79 @@
+name: Ebook Reader and Sample Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'content/ebooks/**'
+      - 'public/books/**'
+      - 'public/reader/**'
+      - 'public/staging/ebook-reader-preview/**'
+      - 'public/assets/js/platform-modules/ebook-reader*'
+      - 'public/assets/js/reader/**'
+      - 'public/assets/styles/components/ebook-reader*'
+      - 'functions/**/ebook-*'
+      - 'functions/api/ebook-assets/**'
+      - 'migrations/ebook-assets/**'
+      - 'scripts/*ebook*'
+      - 'scripts/ebook/**'
+      - '.github/workflows/ebook-reader-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/ebooks/**'
+      - 'public/books/**'
+      - 'public/reader/**'
+      - 'public/staging/ebook-reader-preview/**'
+      - 'public/assets/js/platform-modules/ebook-reader*'
+      - 'public/assets/js/reader/**'
+      - 'public/assets/styles/components/ebook-reader*'
+      - 'functions/**/ebook-*'
+      - 'functions/api/ebook-assets/**'
+      - 'migrations/ebook-assets/**'
+      - 'scripts/*ebook*'
+      - 'scripts/ebook/**'
+      - '.github/workflows/ebook-reader-checks.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ebook-reader-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify source compilation and real SQLite BLOB handling
+        run: |
+          node scripts/build-ebooks.mjs
+          node scripts/build-ebook-review.mjs
+          git diff --exit-code -- public/books public/staging/ebook-reader-preview functions/lib/ebook-assets-manifest.js
+          node scripts/check-ebook-assets.mjs
+          node scripts/check-ebook-reader.mjs
+          node scripts/check-platform-module-boundaries.mjs
+      - name: Install pinned Chromium test environment
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Exercise canonical reader and every authored sample page
+        run: |
+          node scripts/check-ebook-reader.mjs --runtime
+          node scripts/check-ebook-samples.mjs --runtime
+      - name: Preserve reader and manuscript evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ebook-reader-samples-qa
+          path: |
+            artifacts/ebook-reader
+            artifacts/ebook-qa
+            artifacts/ebook-samples
+          if-no-files-found: warn
+          retention-days: 14
