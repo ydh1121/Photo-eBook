@@ -1,17 +1,44 @@
 {
-  "startedAt": "2026-11-06T06:53:09.300Z",
+  "startedAt": "2026-11-06T09:11:57.086Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-11-06T06:53:09.300Z",
+      "at": "2026-11-06T09:11:57.087Z",
+      "status": "http-ok",
+      "matched": false,
+      "entryMatched": false,
+      "dependencyReady": false,
+      "bytes": 3970
+    },
+    {
+      "attempt": 2,
+      "at": "2026-11-06T09:12:01.293Z",
+      "status": "http-ok",
+      "matched": false,
+      "entryMatched": false,
+      "dependencyReady": false,
+      "bytes": 3970
+    },
+    {
+      "attempt": 3,
+      "at": "2026-11-06T09:12:05.340Z",
+      "status": "http-ok",
+      "matched": false,
+      "entryMatched": false,
+      "dependencyReady": false,
+      "bytes": 3970
+    },
+    {
+      "attempt": 4,
+      "at": "2026-11-06T09:12:09.395Z",
       "status": "http-ok",
       "matched": true,
       "entryMatched": true,
       "dependencyReady": true,
-      "bytes": 3970
+      "bytes": 4322
     }
   ],
   "checks": [
@@ -23,12 +50,12 @@
     {
       "name": "live canonical assets",
       "status": "pass",
-      "detail": "6 Photography/Public + 1 dependency-composed display + 1 shared rail + 4 learning + 2 Library/Editor-only modules"
+      "detail": "6 Photography/Public + 1 dependency-composed display + 1 shared rail + 6 learning + 2 Library/Editor-only modules"
     },
     {
       "name": "live UI Library",
       "status": "pass",
-      "detail": "registry-driven root route with 14 approved modules"
+      "detail": "registry-driven root route with 16 approved modules"
     },
     {
       "name": "live Library theme/viewport",
@@ -43,7 +70,7 @@
     {
       "name": "live Block Editor boundary",
       "status": "pass",
-      "detail": "persistent workspace + 14 approved modules only"
+      "detail": "persistent workspace + 16 approved modules only"
     },
     {
       "name": "live public migration",
@@ -72,10 +99,10 @@
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-11-06T06:54:37.717Z",
-  "sourceSha": "755ff19188e746ac33282063f91a2cab28da3625",
+  "finishedAt": "2026-11-06T09:13:31.392Z",
+  "sourceSha": "b261ab21dba65b8cbb5876960c9cd27a55870a7c",
   "sourceRef": "main",
-  "workflowRunId": "42177247709",
-  "workflowRunNumber": "54",
-  "recordedAt": "2026-11-06T06:54:38.135Z"
+  "workflowRunId": "42193189662",
+  "workflowRunNumber": "55",
+  "recordedAt": "2026-11-06T09:13:31.649Z"
 }
