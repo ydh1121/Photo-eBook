@@ -63,7 +63,7 @@
     const id=`${packId}:${source.id}`;
     return `<article class="curated-card edu-source-card" data-curated-id="${attr(id)}" data-source-id="${attr(source.id)}" data-content-pack="${attr(packId)}">
       <div class="curated-card__body">
-        <div class="edu-source-top"><span class="curated-platform">${esc(source.publisher||'공식 자료')}</span><button type="button" class="curated-bookmark edu-bookmark" aria-label="${attr(source.title)} 저장" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button></div>
+        <div class="edu-source-top"><span class="edu-source-publisher">${esc(source.publisher||'공식 자료')}</span><button type="button" class="curated-bookmark edu-bookmark" aria-label="${attr(source.title)} 저장" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button></div>
         <h3>${esc(source.title)}</h3><p>${esc(source.description||'')}</p>
         ${source.status?`<span class="edu-source-status">${esc(source.status)}</span>`:''}
         ${source.note?`<p class="edu-source-note">${esc(source.note)}</p>`:''}

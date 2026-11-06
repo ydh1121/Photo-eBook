@@ -16,7 +16,10 @@ const LIBRARY_MODULES=[
   'horizontal-rail',
   'accordion',
   'bottom-sheet',
-  'screen-mode-selector'
+  'screen-mode-selector',
+  'learning-guide-hero',
+  'learning-guide-section',
+  'subject-navigation'
 ];
 const LIBRARY_STATES=[
   {name:'desktop-light',viewport:'desktop',theme:'light'},
@@ -81,7 +84,10 @@ async function moduleReady(frame,id){
     'horizontal-rail':'.platform-horizontal-rail__card',
     'accordion':'.platform-accordion__item',
     'bottom-sheet':'.platform-bottom-sheet[data-platform-module="bottom-sheet"]',
-    'screen-mode-selector':'.platform-screen-mode [data-screen-mode-value]'
+    'screen-mode-selector':'.platform-screen-mode [data-screen-mode-value]',
+    'learning-guide-hero':'[data-platform-module="learning-guide-hero"] h1',
+    'learning-guide-section':'[data-platform-module="learning-guide-section"] .edu-checklist',
+    'subject-navigation':'[data-platform-module="subject-navigation"] .subject-nav a'
   };
   const minimum={
     'top-chapter-navigation':8,
@@ -93,7 +99,10 @@ async function moduleReady(frame,id){
     'horizontal-rail':3,
     'accordion':2,
     'bottom-sheet':1,
-    'screen-mode-selector':3
+    'screen-mode-selector':3,
+    'learning-guide-hero':1,
+    'learning-guide-section':1,
+    'subject-navigation':2
   };
   const selector=selectors[id];
   await wait(()=>frame.locator(selector).count().then(count=>count>=minimum[id]),`${id} readiness failed`);
@@ -142,7 +151,8 @@ async function frameMetrics(page,frame,id,state){
     const critical={
       'screen-mode-selector':'.platform-screen-mode',
       'collection-bottom-sheet':'#collectionSheet',
-      'bottom-sheet':'.platform-bottom-sheet__panel'
+      'bottom-sheet':'.platform-bottom-sheet__panel',
+      'learning-guide-section':'.edu-checklist'
     }[id];
     if(critical){
       const value=await frame.locator(critical).first().evaluate(node=>getComputedStyle(node).backgroundColor);
@@ -157,7 +167,10 @@ async function runLibraryMatrix(browser){
   const page=await context.newPage();
   await page.goto(`${BASE}/ui-dashboard/?view=library&ui=${LIBRARY_MODULES[0]}`,{waitUntil:'domcontentloaded',timeout:45000});
   await wait(()=>page.locator('.platform-admin-shell').count().then(Boolean),'Library admin shell missing');
-  await wait(()=>page.evaluate(()=>window.PlatformModuleRegistry?.listFor?.('library')?.length===10),'Library Registry did not expose 10 approved modules');
+  await wait(()=>page.evaluate(ids=>{
+    const actual=window.PlatformModuleRegistry?.listFor?.('library')?.map(def=>def.id)||[];
+    return actual.length===ids.length&&ids.every(id=>actual.includes(id));
+  },LIBRARY_MODULES),`Library Registry did not expose the ${LIBRARY_MODULES.length} approved modules`);
 
   for(const state of LIBRARY_STATES){
     const theme=page.locator(`[data-kit-theme="${state.theme}"]`);
