@@ -1,39 +1,12 @@
 {
-  "startedAt": "2026-11-06T04:47:32.630Z",
+  "startedAt": "2026-11-06T06:53:09.300Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-11-06T04:47:32.630Z",
-      "status": "http-ok",
-      "matched": false,
-      "entryMatched": false,
-      "dependencyReady": false,
-      "bytes": 3382
-    },
-    {
-      "attempt": 2,
-      "at": "2026-11-06T04:47:37.062Z",
-      "status": "http-ok",
-      "matched": false,
-      "entryMatched": false,
-      "dependencyReady": false,
-      "bytes": 3382
-    },
-    {
-      "attempt": 3,
-      "at": "2026-11-06T04:47:41.220Z",
-      "status": "http-ok",
-      "matched": false,
-      "entryMatched": false,
-      "dependencyReady": false,
-      "bytes": 3382
-    },
-    {
-      "attempt": 4,
-      "at": "2026-11-06T04:47:45.334Z",
+      "at": "2026-11-06T06:53:09.300Z",
       "status": "http-ok",
       "matched": true,
       "entryMatched": true,
@@ -99,10 +72,10 @@
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-11-06T04:49:11.278Z",
-  "sourceSha": "7ce547910893eb819e712df3620063edc2980e5d",
+  "finishedAt": "2026-11-06T06:54:37.717Z",
+  "sourceSha": "755ff19188e746ac33282063f91a2cab28da3625",
   "sourceRef": "main",
-  "workflowRunId": "42164564573",
-  "workflowRunNumber": "53",
-  "recordedAt": "2026-11-06T04:49:11.712Z"
+  "workflowRunId": "42177247709",
+  "workflowRunNumber": "54",
+  "recordedAt": "2026-11-06T06:54:38.135Z"
 }
