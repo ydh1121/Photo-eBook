@@ -1,25 +1,26 @@
 {
   "edu-ai-hero": {
-    "version": "v2",
-    "promptSha": "13aa67c4c872b2a63df96082d2ba65c8fafaa9cf042a4dc18845f15352e78285",
-    "pngSha": "fc9d1ca36fc65d582b10658a3843267f21e1e3315f973a38b708aaed1bb9d48b",
-    "webpSha": "61beee5e0dbaffd376cfd23f0d1dc1a8e0cdda85f68095d54acc37482e8a1de1",
+    "version": "v3",
+    "promptSha": "5aec280557bb18e9f18c0c81a913e2fba73e5126ab3aff94ec59918a0a0bb784",
+    "pngSha": "b4cf62d972f4e64dd35dbba63ce48c0ccf1f76b9e765a461c83b82dcc4456e97",
+    "webpSha": "ed668c03979d3289bd5d33072dcf1922f243b208136ff05815a4b56496d09db5",
     "dimensions": {
       "width": 1672,
       "height": 941
     },
     "bytes": {
-      "png": 1937947,
-      "webp": 75634
+      "png": 1931943,
+      "webp": 77666
     },
     "visualQA": {
       "scene": "pass",
       "layout": "pending",
-      "notes": "성인 여성이 휴대폰과 노트북으로 작업을 검토합니다. 얼굴·휴대폰·손이 중앙 가까이 있고 화면 속 행사 이미지와 계획 노트가 일상 작업 맥락을 만듭니다.",
-      "webpDecode": "pass"
+      "notes": "기존 스마트폰 작업 구도·빛·소품을 유지하며 여성의 얼굴 인상을 자연스럽게 성숙하게 조정했습니다. 손·휴대폰·노트북과 상단 여백을 확인했습니다.",
+      "webpDecode": "pass",
+      "webpVisual": "pass"
     },
     "driveMirror": "verified",
-    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "verifiedAt": "2026-11-06T03:13:35.461157+00:00",
     "status": "generated_pending_layout",
     "history": [
       {
@@ -41,6 +42,29 @@
           "layout": "pending",
           "notes": "중년 성인이 휴대폰과 노트북으로 행사 이미지를 준비하는 장면이 분명합니다. 읽을 수 있는 화면 문구 없이 왼쪽과 상단 여백이 확보됐습니다."
         }
+      },
+      {
+        "version": "v2",
+        "promptSha": "13aa67c4c872b2a63df96082d2ba65c8fafaa9cf042a4dc18845f15352e78285",
+        "pngSha": "fc9d1ca36fc65d582b10658a3843267f21e1e3315f973a38b708aaed1bb9d48b",
+        "webpSha": "61beee5e0dbaffd376cfd23f0d1dc1a8e0cdda85f68095d54acc37482e8a1de1",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 1937947,
+          "webp": 75634
+        },
+        "visualQA": {
+          "scene": "pass",
+          "layout": "pending",
+          "notes": "성인 여성이 휴대폰과 노트북으로 작업을 검토합니다. 얼굴·휴대폰·손이 중앙 가까이 있고 화면 속 행사 이미지와 계획 노트가 일상 작업 맥락을 만듭니다.",
+          "webpDecode": "pass"
+        },
+        "driveMirror": "verified",
+        "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+        "status": "generated_pending_layout"
       }
     ]
   },
@@ -225,26 +249,27 @@
     ]
   },
   "edu-community-practice": {
-    "version": "v2",
-    "promptSha": "7fe4020da847042fdbcc046faeeb61d9c417af4f1895ca04842fb2cbd88fb601",
-    "pngSha": "ea1796d8c98d93460a187b7886843713db61d25fc386bf01d80250032752f53c",
-    "webpSha": "4424002016efa9e9f4b5ece1a2f9fbb42d3988daddc56bc7ba7d5f9307b82976",
+    "version": "v3",
+    "promptSha": "110392b165df48da151748533f77095cd644d18bb47d8480e0273c5a42b04f21",
+    "pngSha": "22364504e91867c0321547e8b115502ebd70c39cc9844d02568a0d042cacd78e",
+    "webpSha": "a62e65e522822dc1d4cc2d06e4287a3b3d7025aeccfbfbdf9c00598c89338dad",
     "dimensions": {
       "width": 1672,
       "height": 941
     },
     "bytes": {
-      "png": 2550890,
-      "webp": 154410
+      "png": 2421087,
+      "webp": 139424
     },
     "visualQA": {
       "scene": "pass",
       "layout": "pending",
-      "notes": "성인 남성이 휴대폰을 보여주고 옆의 성인 여성이 집중해서 보는 소규모 실습 장면입니다. 중앙 기기·손·시선이 뚜렷하며 현대적인 모임 공간과 자연스러운 기기를 확인했습니다.",
-      "webpDecode": "pass"
+      "notes": "오른쪽 전경 여성의 얼굴 인상만 자연스럽게 성숙하게 조정했습니다. 남성의 설명 동작, 뒤쪽 여성, 중앙 휴대폰, 삼각대와 빛을 유지했습니다.",
+      "webpDecode": "pass",
+      "webpVisual": "pass"
     },
     "driveMirror": "verified",
-    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "verifiedAt": "2026-11-06T03:13:35.461157+00:00",
     "status": "generated_pending_layout",
     "history": [
       {
@@ -266,6 +291,29 @@
           "layout": "pending",
           "notes": "한 명의 진행자가 두 성인에게 휴대폰 사용을 보여주는 소규모 실습 장면입니다. 각자의 기기, 노트와 탁상 삼각대가 보이고 손과 시선이 자연스럽습니다."
         }
+      },
+      {
+        "version": "v2",
+        "promptSha": "7fe4020da847042fdbcc046faeeb61d9c417af4f1895ca04842fb2cbd88fb601",
+        "pngSha": "ea1796d8c98d93460a187b7886843713db61d25fc386bf01d80250032752f53c",
+        "webpSha": "4424002016efa9e9f4b5ece1a2f9fbb42d3988daddc56bc7ba7d5f9307b82976",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2550890,
+          "webp": 154410
+        },
+        "visualQA": {
+          "scene": "pass",
+          "layout": "pending",
+          "notes": "성인 남성이 휴대폰을 보여주고 옆의 성인 여성이 집중해서 보는 소규모 실습 장면입니다. 중앙 기기·손·시선이 뚜렷하며 현대적인 모임 공간과 자연스러운 기기를 확인했습니다.",
+          "webpDecode": "pass"
+        },
+        "driveMirror": "verified",
+        "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+        "status": "generated_pending_layout"
       }
     ]
   },

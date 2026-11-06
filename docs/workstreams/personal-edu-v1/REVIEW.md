@@ -1,3 +1,17 @@
+# Current release review — 2026-11-06
+
+A bounded independent read-only review found no additional release blocker in the inspected implementation. The corrected post-deploy checker matches the approved 14-module Library contract, shared learning rail consumers, restricted accordion/bottom-sheet consumers and photography's absence of all three portable primitives. Readiness waits for learning owner scripts so old production HTML cannot satisfy the new generation check.
+
+The reviewed notice handling retains last successful data and never treats fetch failure as proof of closure. Local Dot viewing is cancelled; actual video analysis remains deferred to user-uploaded files.
+
+The prepared source revision passes 15,504 static assertions, 40 video-parser checks, 77 official-notice checks, module boundaries, syntax, deterministic rebuilding and diff whitespace checks. Two edited native Sheets were fully read back with content/byte equality and 212 formula ranges verified. There are 45 chapters, 194 blocks and 48 source records.
+
+Previous exact remote HEAD `f37fd524a5eb0cef9b2ccd66dab7207f0b158536` passed all seven checks and 57/57 runtime cases. The new source/image revision still requires its own CI, v3 page screenshots and actual production verification before release completion.
+
+## Historical initial review
+
+The dated pending statements below describe the initial review, not the later f37fd52 result or the current release checkpoint.
+
 # Personal Edu V1 — code review
 
 Reviewed: 2026-11-06

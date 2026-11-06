@@ -39,7 +39,7 @@ function contract(payload){
   }
 }
 
-await check('five subject snapshots contain nine verified playable URLs',()=>{
+await check('five subject snapshots contain nine URLs with verified page metadata',()=>{
   assert.equal(snapshot.schemaVersion,1);assert.equal(snapshot.source,'verified-recommendations');assert.equal(snapshot.verification,'youtube-page-metadata');
   assert.deepEqual(Object.keys(snapshot.subjects),subjects);let count=0;
   for(const [subject,record] of Object.entries(snapshot.subjects)){

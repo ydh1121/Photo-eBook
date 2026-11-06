@@ -6,9 +6,9 @@
       "label": "영상",
       "route": "/video/",
       "title": "스마트폰 영상 촬영과 편집",
-      "sourceSha256": "dcbe727c54ee7bf3f079d31efd8a4475a5e26270e0b7e35f6ef00791b2b5abe9",
+      "sourceSha256": "ed65809a7a9f2373de07ebe2b183f01fb18a3a6dc2d74416a74292cc0e34fea9",
       "chapters": 9,
-      "blocks": 36,
+      "blocks": 37,
       "sources": 12,
       "reviewedAt": "2026-11-06",
       "heroImage": "/assets/images/generated/personal-edu-v1/video-hero.webp?v=d46f8322e663"
@@ -23,7 +23,7 @@
       "blocks": 38,
       "sources": 7,
       "reviewedAt": "2026-11-06",
-      "heroImage": "/assets/images/generated/personal-edu-v1/ai-hero.webp?v=61beee5e0dba"
+      "heroImage": "/assets/images/generated/personal-edu-v1/ai-hero.webp?v=ed668c03979d"
     },
     {
       "id": "community",
@@ -42,9 +42,9 @@
       "label": "부동산",
       "route": "/real-estate/",
       "title": "집과 동네를 읽는 부동산 기초",
-      "sourceSha256": "8a50730aed90be5e4a777bcde170da1801e59563373a0a527eaff28e81420052",
+      "sourceSha256": "6c54d07742ea75e0c05a7de4d49b21bcc6292a88f797044013418bb159d41898",
       "chapters": 9,
-      "blocks": 38,
+      "blocks": 39,
       "sources": 10,
       "reviewedAt": "2026-11-06",
       "heroImage": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp?v=a0587c516c55"

@@ -13,8 +13,10 @@ fs.mkdirSync(OUT,{recursive:true});
 const expectedPhoto=['top-chapter-navigation','filter-chip-rail','horizontal-card-rail','collection-bottom-sheet','device-handoff-accordion','floating-action'];
 const expectedPortable=['horizontal-rail','accordion','bottom-sheet'];
 const expectedSharedDisplay=['screen-mode-selector'];
-const expectedNonPublic=[...expectedPortable];
-const expectedLibrary=[...expectedPhoto,...expectedPortable,...expectedSharedDisplay];
+const expectedSharedPortable=['horizontal-rail'];
+const expectedLearning=['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail'];
+const expectedNonPublic=['accordion','bottom-sheet'];
+const expectedLibrary=[...expectedPhoto,...expectedPortable,...expectedSharedDisplay,...expectedLearning];
 const report={startedAt:new Date().toISOString(),base:BASE,entryMarker:ENTRY_MARKER,registryMarker:REGISTRY_MARKER,attempts:[],checks:[]};
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function assert(value,message){if(!value)throw new Error(message);}
@@ -34,7 +36,9 @@ async function waitForCanonicalLibrary(){
     const at=new Date().toISOString();
     try{
       const html=await fetchText(`${BASE}/ui-dashboard/`);
-      const entryMatched=html.includes(ENTRY_MARKER)&&html.includes('/assets/js/platform-modules/module-registry-v1.js');
+      const entryMatched=html.includes(ENTRY_MARKER)&&[
+        'module-registry-v1.js','learning-guide-v1.js','subject-navigation-v1.js','learning-resource-rail-v1.js'
+      ].every(file=>html.includes(`/assets/js/platform-modules/${file}`));
       let dependencyReady=false;
       if(entryMatched){
         const registry=await fetchText(`${BASE}/assets/js/platform-modules/module-registry-v1.js`);
@@ -46,7 +50,7 @@ async function waitForCanonicalLibrary(){
       report.attempts.push({attempt,at,status:'http-ok',matched,entryMatched,dependencyReady,bytes:html.length});
       console.log(`[deploy ${attempt}/${ATTEMPTS}] HTTP OK; canonical-library=${entryMatched}; dependency-generation=${dependencyReady}`);
       if(matched)return html;
-      lastError=entryMatched?'canonical dependency generation not live yet':`latest HTML did not contain ${ENTRY_MARKER} + module registry`;
+      lastError=entryMatched?'canonical dependency generation not live yet':`latest HTML did not contain ${ENTRY_MARKER}, module registry and learning owners`;
     }catch(error){
       lastError=error?.message||String(error);
       report.attempts.push({attempt,at,status:'error',error:lastError});
@@ -130,6 +134,7 @@ async function verifyLiveAssets(){
   const portableModules=await fetchText(`${BASE}/assets/js/platform-modules/portable-primitives-v1.js`);
   expectedPortable.forEach(id=>assert(portableModules.includes(`id:'${id}'`),`live portable primitive asset is missing ${id}`));
   assert(portableModules.includes("const consumers=['library','editor']"),'live portable consumer boundary is stale');
+  assert(portableModules.includes("consumers:['public','library','editor','export']"),'live shared horizontal-rail consumer contract is stale');
 
   const extension=await fetchText(`${BASE}/assets/js/platform-modules/portable-primitives-extension-v2.js`);
   assert(!extension.includes('function renderScreenMode')&&!extension.includes('function hydrateScreenMode'),'duplicate screen-mode implementation remains in portable extension');
@@ -152,7 +157,7 @@ async function verifyLiveAssets(){
   const screenCss=await fetchText(`${BASE}/assets/styles/platform-modules/screen-mode-segmented-v1.css`);
   assert(!screenCss.includes('.platform-screen-mode__options button'),'screen-mode CSS paints a duplicate chip implementation');
 
-  pass('live canonical assets',`${expectedPhoto.length} Photography/Public + ${expectedSharedDisplay.length} dependency-composed display + ${expectedNonPublic.length} Library/Editor-only modules`);
+  pass('live canonical assets',`${expectedPhoto.length} Photography/Public + ${expectedSharedDisplay.length} dependency-composed display + ${expectedSharedPortable.length} shared rail + ${expectedLearning.length} learning + ${expectedNonPublic.length} Library/Editor-only modules`);
 }
 
 async function verifyLiveBrowser(){
@@ -179,6 +184,7 @@ async function verifyLiveBrowser(){
     assert(new Set(library.buttons).size===library.buttons.length,'live Library selector contains duplicate module buttons');
     assert(library.entries.every(item=>item.status==='approved'),'non-approved module leaked into live Library');
     assert(expectedNonPublic.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('library')&&item.consumers.includes('editor')&&!item.consumers.includes('public'))),'Library/Editor-only consumer boundary regressed');
+    assert([...expectedSharedPortable,...expectedLearning].every(id=>library.entries.some(item=>item.id===id&&['public','library','editor','export'].every(consumer=>item.consumers.includes(consumer)))),'shared learning/rail consumer boundary regressed');
     assert(expectedSharedDisplay.every(id=>library.entries.some(item=>item.id===id&&item.consumers.includes('public')&&item.consumers.includes('library')&&item.consumers.includes('editor'))),'shared display consumer boundary regressed');
     const screenEntry=library.entries.find(item=>item.id==='screen-mode-selector');
     assert(screenEntry?.dependencies?.some(item=>item.id==='filter-chip-rail'&&item.kind==='composition'&&item.required===true),'live screen-mode dependency graph is missing filter-chip-rail');
@@ -302,10 +308,10 @@ async function verifyLiveBrowser(){
       nav:document.querySelectorAll('.nav-shell[data-platform-module="top-chapter-navigation"] .nav-chip').length
     }));
     assert(expectedPhoto.every(id=>publicState.modules.some(item=>item.id===id&&item.status==='approved')),'live public consumer cannot resolve approved Photography common modules');
-    assert(expectedNonPublic.every(id=>!publicState.modules.some(item=>item.id===id)),'Library/Editor-only module leaked into Photography Public consumer');
+    assert(expectedPortable.every(id=>!publicState.modules.some(item=>item.id===id)),'portable primitive leaked into Photography Public consumer');
     assert(publicState.nav>=8,'live public top navigation is not using canonical module');
     await page.screenshot({path:path.join(OUT,'live-public-canonical-nav.png'),fullPage:false});
-    pass('live public migration','Photography canonical modules remain public; shared display remains public-capable by dependency contract; portable Library/Editor-only boundary remains closed');
+    pass('live public migration','Photography canonical modules remain public; all three portable primitives remain absent from photography; shared rail is approved for learning consumers only');
 
     await context.close();
   }finally{

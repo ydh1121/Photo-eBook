@@ -11,7 +11,7 @@ import {isDeepStrictEqual} from 'node:util';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const baseline='16669aca400a343d772680e47e08a2a48ca708e7';
 const origin='https://photo-ebook.pages.dev';
-const expected={video:36,ai:38,community:41,'real-estate':38,auction:39};
+const expected={video:37,ai:38,community:41,'real-estate':39,auction:39};
 const ids=Object.keys(expected);
 const practice={video:'editing',ai:'images',community:'education','real-estate':'inspection',auction:'inspection'};
 const types=new Set(['prose','cards','steps','checklist','template','table','callout','related']);
@@ -342,7 +342,7 @@ for(const id of ids){
 }
 check(counts.courses===5,'inventory','expected five complete courses');
 check(counts.chapters===45,'inventory',`expected 45 chapters, received ${counts.chapters}`);
-check(counts.blocks===192,'inventory',`expected 192 blocks, received ${counts.blocks}`);
+check(counts.blocks===194,'inventory',`expected 194 blocks, received ${counts.blocks}`);
 const context=validateRenderers(courses);
 const photoChapters=validatePhotography(context);
 validateCatalog(courses,photoChapters);
