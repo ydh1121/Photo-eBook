@@ -26,3 +26,5 @@
 /staging/public-renderer/ /staging/public-renderer/index.html 200
 /staging/snapshot-v2 /staging/snapshot-v2.html 200
 /staging/snapshot-v2/ /staging/snapshot-v2.html 200
+/reader /reader/index.html 200
+/reader/ /reader/index.html 200

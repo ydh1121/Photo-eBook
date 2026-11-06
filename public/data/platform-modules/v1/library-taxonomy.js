@@ -8,6 +8,7 @@
       {id:'accordion',label:'아코디언',modules:['device-handoff-accordion','accordion']},
       {id:'bottom-popup',label:'하단 팝업',modules:['collection-bottom-sheet','bottom-sheet']},
       {id:'detail-popup',label:'상세 팝업',modules:['content-detail-dialog']},
+      {id:'reading',label:'교재 읽기',modules:['ebook-reader']},
       {id:'action',label:'버튼 / 액션',modules:['floating-action']},
       {id:'display',label:'화면 / 표시',modules:['screen-mode-selector']}
     ]

@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.manual-captions",
+  "pageNumber": 16,
+  "chapterId": "first-bookmark-video",
+  "title": "자막 다섯 개를 직접 입력",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "말이 없는 장면에도 행사 정보를 설명하는 글을 넣을 수 있습니다. 이 과제는 수동 입력을 사용합니다. 공식 모바일 도움말의 경로는 Text → Add Text입니다. 화면에 들어갈 문장을 직접 적고 각 문장이 나타나는 시간을 맞춥니다.",
+      "blockId": "video-entry.manual-captions.b01"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "첫 글자 넣기",
+          "text": "Text(글자) → Add Text(글자 추가)에서 ‘토요일 책갈피 만들기’를 입력합니다. 첫 장면의 0~6초 동안 보이게 조정합니다.",
+          "output": "첫 제목 자막"
+        },
+        {
+          "title": "나머지 네 문장 입력",
+          "text": "3쪽 시간표의 문장을 한 개씩 넣습니다. 다음 문장이 시작할 때 이전 문장이 겹쳐 남지 않는지 확인합니다.",
+          "output": "다섯 개의 안내 자막"
+        },
+        {
+          "title": "연습 표시 유지",
+          "text": "‘연습용 · 실제 모집 아님’을 별도 글자로 넣어 0~30초에 걸쳐 보이게 합니다. 핵심 활동을 가리지 않는 위치를 고릅니다.",
+          "output": "전 구간에 남는 사례 표시"
+        }
+      ],
+      "blockId": "video-entry.manual-captions.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "공식 도움말은 현재 모바일 앱에서 SRT·TXT 자막 파일을 직접 가져오는 경로를 지원하지 않는다고 안내합니다. 제공 자막표는 직접 입력할 문장과 시간을 대조하는 자료입니다. PC의 파일 가져오기 경로를 모바일 버튼처럼 설명하지 않습니다.",
+      "blockId": "video-entry.manual-captions.b03"
+    },
+    {
+      "type": "callout",
+      "title": "직접 입력을 쓰는 이유",
+      "text": "자동 자막은 음성을 인식하는 기능입니다. 이 사례의 날짜·정원·신청 안내를 정확하게 넣는 일은 직접 입력과 대조로 마칠 수 있습니다. 유료 자동 자막이나 AI 음성은 필수로 쓰지 않습니다.",
+      "tone": "note",
+      "blockId": "video-entry.manual-captions.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "How Do I Import Subtitles?",
+          "url": "https://www.capcut.com/help/how-to-import-subtitles",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.manual-captions.b05"
+    }
+  ]
+}

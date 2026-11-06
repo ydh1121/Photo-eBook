@@ -312,6 +312,7 @@ function validatePage(course){
 }
 function validateGenerated(courses,rawSources){
   const manifest=json('public/content-packs/personal-edu-manifest.json');
+  const publications=json('public/books/catalog.json');
   if(manifest){check(manifest.schemaVersion===1,'manifest','schemaVersion must be 1');check(same(manifest.courses?.map(item=>item.id),ids),'manifest','course inventory/order mismatch');}
   for(const course of courses.values())attempt(`${course.id} generated output`,()=>{
     const base=`public/content-packs/${course.id}`,compiled=json(`${base}/data/course.json`);
@@ -343,6 +344,8 @@ function validateGenerated(courses,rawSources){
       check(same(data?.guide,compiled),base,'JS snapshot and JSON snapshot differ');
       check(same(data?.nav,course.chapters.map(item=>({id:item.id,'칩':item.label,'제목':item.title,'설명':item.description}))),base,'snapshot chapter navigation differs from source');
       check(data?.content?.hero_title===course.hero.title&&data?.content?.hero_subtitle===course.hero.description,base,'snapshot hero content mismatch');
+      const expectedBooks=(publications?.books||[]).filter(book=>book.subjectId===course.id&&['sample','published'].includes(book.status)).map(({bookId,editionId,status,title,bodyPages,readerUrl})=>({bookId,editionId,status,title,bodyPages,readerUrl,publishedUrl:new URL(readerUrl,origin).href}));
+      check(same(data?.publications||[],expectedBooks),base,'reader entry differs from the preserved publication catalog');
       check(typeof window.contentPackImageFor==='function'&&window.contentPackImageFor()===versioned(hero),base,'pack image adapter mismatch');
     }
     const entry=manifest?.courses?.find(item=>item.id===course.id);

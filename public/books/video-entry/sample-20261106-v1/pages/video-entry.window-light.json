@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.window-light",
+  "pageNumber": 5,
+  "chapterId": "first-bookmark-video",
+  "title": "종이의 색과 무늬가 보이는 자리",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "창에서 들어오는 부드러운 빛이 종이 옆면을 비추게 책상을 배치해보세요. 창을 정면 배경으로 두면 종이가 어둡게 보일 수 있습니다. 카메라를 움직이기 전에 종이의 방향을 조금 돌려 파란 무늬와 손 그림자가 어떻게 바뀌는지 비교합니다.",
+      "blockId": "video-entry.window-light.b01"
+    },
+    {
+      "type": "image",
+      "assetId": "video-window-light",
+      "alt": "창 옆 책상에 종이를 놓고 빛의 옆 방향에서 휴대전화로 촬영하는 배치도",
+      "width": 1467,
+      "height": 987,
+      "caption": "교육용 배치도입니다. 실제 카메라 앱 화면이나 촬영 결과의 증거는 아닙니다.",
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님",
+      "blockId": "video-entry.window-light.b02"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "배경 정리",
+          "text": "책·종이·펜 외에 활동을 설명하지 않는 물건을 치웁니다. 밝은 무지 배경을 쓰면 종이와 손이 구분되는지 판단하기 쉽습니다.",
+          "output": "주제가 분명한 촬영 자리"
+        },
+        {
+          "title": "빛 비교",
+          "text": "같은 종이를 창 쪽과 반대쪽에서 각각 짧게 찍습니다. 파란 선과 손 그림자가 더 잘 보이는 쪽을 고릅니다.",
+          "output": "비교한 시험 장면 두 개"
+        },
+        {
+          "title": "흰 부분 검사",
+          "text": "종이가 너무 밝아 무늬가 사라지거나 너무 어두워 파란 선이 묻히는지 재생해봅니다.",
+          "output": "무늬가 보이는 밝기"
+        }
+      ],
+      "blockId": "video-entry.window-light.b03"
+    },
+    {
+      "type": "paragraph",
+      "text": "이 실습은 조명 장비 구매를 전제로 하지 않습니다. 현재 자리에서 비교할 수 있는 방향과 거리를 바꾸는 데 집중하세요. 한 장면마다 빛을 크게 바꾸면 편집할 때 종이 색이 달라 보일 수 있으므로 같은 자리를 유지합니다.",
+      "blockId": "video-entry.window-light.b04"
+    }
+  ]
+}

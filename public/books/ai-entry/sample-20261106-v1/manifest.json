@@ -1,0 +1,363 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "status": "sample",
+  "subjectId": "ai",
+  "levelId": "entry",
+  "title": "AI 활용 입문",
+  "subtitle": "확인된 자료로 모임 안내문과 촬영 준비표 만들기",
+  "editionLabel": "2026년 11월 · 본문 24쪽 샘플 장",
+  "chapters": [
+    {
+      "chapterId": "first-ai-project",
+      "title": "처음 질문하고 확인하며 작은 결과물 완성하기"
+    }
+  ],
+  "pages": [
+    {
+      "pageId": "ai-entry-project-outcome",
+      "pageNumber": 1,
+      "chapterId": "first-ai-project",
+      "title": "안내문과 촬영 준비표를 함께 만들기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-project-outcome.json",
+      "contentHash": "9a5be6886545bdb51f3a7debedc960704b23daccf52e429c92775289121332f2"
+    },
+    {
+      "pageId": "ai-entry-fact-card",
+      "pageNumber": 2,
+      "chapterId": "first-ai-project",
+      "title": "이 자료만 행사 사실로 사용하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-fact-card.json",
+      "contentHash": "df12ce56ce66e8ba5979e3ad664f1699d419181b552d5d92f159386c70711697"
+    },
+    {
+      "pageId": "ai-entry-roles-and-evidence",
+      "pageNumber": 3,
+      "chapterId": "first-ai-project",
+      "title": "AI에게 맡길 일과 직접 확인할 일",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-roles-and-evidence.json",
+      "contentHash": "66f4743387a4fe50fd777287dacc9522de2671d3c2622fe18500123d6bff5d0c"
+    },
+    {
+      "pageId": "ai-entry-privacy-before-input",
+      "pageNumber": 4,
+      "chapterId": "first-ai-project",
+      "title": "입력할 정보만 따로 복사하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-privacy-before-input.json",
+      "contentHash": "62a702de87739e5e965eaba4366ccf8ff163a1bae735f65fe32f68841d07499e"
+    },
+    {
+      "pageId": "ai-entry-official-app",
+      "pageNumber": 5,
+      "chapterId": "first-ai-project",
+      "title": "공식 Android 앱 준비하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-official-app.json",
+      "contentHash": "d4e8d3e8e9b6cb75926a1a38477cd8e9544cc53a2f5c9642767c2b5889ce4429"
+    },
+    {
+      "pageId": "ai-entry-free-route",
+      "pageNumber": 6,
+      "chapterId": "first-ai-project",
+      "title": "무료 텍스트 대화로 끝내기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-free-route.json",
+      "contentHash": "8b4f723ba0465339f36d15e32bcdf71b90fe39c9178b4e25973efd06636cbd7b"
+    },
+    {
+      "pageId": "ai-entry-conversation-actions",
+      "pageNumber": 7,
+      "chapterId": "first-ai-project",
+      "title": "입력·후속 질문·복사 익히기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-conversation-actions.json",
+      "contentHash": "6e6546cee1a534af5a3b73eb773b70bd261042172bade7c9bed4132efe7ed7cd"
+    },
+    {
+      "pageId": "ai-entry-data-settings",
+      "pageNumber": 8,
+      "chapterId": "first-ai-project",
+      "title": "데이터 설정을 알고 시작하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-data-settings.json",
+      "contentHash": "294a308c5101349aee3cee0ec85ea7fdfdc6440d87816abcc207bf438ba1b373"
+    },
+    {
+      "pageId": "ai-entry-first-question",
+      "pageNumber": 9,
+      "chapterId": "first-ai-project",
+      "title": "짧은 첫 질문을 보내기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-first-question.json",
+      "contentHash": "f2f13645ac984b61c947662d74d19faffd8c5c8966d7309368c3460fec67e2dc"
+    },
+    {
+      "pageId": "ai-entry-first-response-review",
+      "pageNumber": 10,
+      "chapterId": "first-ai-project",
+      "title": "그럴듯한 초안에서 없는 정보 찾기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-first-response-review.json",
+      "contentHash": "9c833f38069b9715e99f4d881f32bbe1c6783bf7dfbafd86d655f1be0affd696"
+    },
+    {
+      "pageId": "ai-entry-complete-request",
+      "pageNumber": 11,
+      "chapterId": "first-ai-project",
+      "title": "목적·대상·자료·형식으로 요청하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-complete-request.json",
+      "contentHash": "e4b72f23c2c1368afb25586ffbe3261000b8f9fe2f272a00c4df9b909250f540"
+    },
+    {
+      "pageId": "ai-entry-improved-draft",
+      "pageNumber": 12,
+      "chapterId": "first-ai-project",
+      "title": "개선된 초안을 항목별로 읽기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-improved-draft.json",
+      "contentHash": "3fbd86eb101b7d99d931545a04a4d2697923c426d4e8561a6bff99b3140e2faa"
+    },
+    {
+      "pageId": "ai-entry-fact-comparison",
+      "pageNumber": 13,
+      "chapterId": "first-ai-project",
+      "title": "숫자·이름·날짜를 직접 대조하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-fact-comparison.json",
+      "contentHash": "7a4561e5ab65e7b6b50ac8b4eae6fc03ed1a8c834135468c90d388268d802055"
+    },
+    {
+      "pageId": "ai-entry-open-the-source",
+      "pageNumber": 14,
+      "chapterId": "first-ai-project",
+      "title": "출처 링크를 열어 주장 확인하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-open-the-source.json",
+      "contentHash": "67bb4267736b398787e10c762e1ad5ae8b054058eeceebc1971ae3cb3343e8ed"
+    },
+    {
+      "pageId": "ai-entry-repair-wrong-answer",
+      "pageNumber": 15,
+      "chapterId": "first-ai-project",
+      "title": "없는 정보와 틀린 답변 고치기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-repair-wrong-answer.json",
+      "contentHash": "92ec9af62971ca802e3d460f1af6c0781a67af73c6b5c70cb1192f63e75d8e94"
+    },
+    {
+      "pageId": "ai-entry-edit-tone-and-length",
+      "pageNumber": 16,
+      "chapterId": "first-ai-project",
+      "title": "사실을 고정하고 문장 다듬기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-edit-tone-and-length.json",
+      "contentHash": "ea5b5b479bb8ab440e8c42bd94d9141f8bb217bee881a1ef2c8462f5030eca02"
+    },
+    {
+      "pageId": "ai-entry-final-notice",
+      "pageNumber": 17,
+      "chapterId": "first-ai-project",
+      "title": "검사를 마친 안내문 완성하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-final-notice.json",
+      "contentHash": "110f4491eeb3d0916b89e8a53d3c380bb547c6c9d9fe67c3de160dfcf6161c79"
+    },
+    {
+      "pageId": "ai-entry-shoot-request",
+      "pageNumber": 18,
+      "chapterId": "first-ai-project",
+      "title": "안내문을 촬영 준비표로 바꾸기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-shoot-request.json",
+      "contentHash": "4bd32cd6fb54993b426b34f87c8ca95d10d6db0262b361f4294a2866744b1211"
+    },
+    {
+      "pageId": "ai-entry-shot-plan",
+      "pageNumber": 19,
+      "chapterId": "first-ai-project",
+      "title": "다섯 장면의 준비표 완성예",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-shot-plan.json",
+      "contentHash": "e4da9a5aef079b15e51c7cf0eaf51365bbb08400a479a6ab9d972cb8b8b883f4"
+    },
+    {
+      "pageId": "ai-entry-pre-shoot-check",
+      "pageNumber": 20,
+      "chapterId": "first-ai-project",
+      "title": "촬영 전에 사람이 확인할 것",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-pre-shoot-check.json",
+      "contentHash": "3bd1a1337934f5265164f73f523d8d76c617dbaada096d76b009588fc05ab4c7"
+    },
+    {
+      "pageId": "ai-entry-recover-and-continue",
+      "pageNumber": 21,
+      "chapterId": "first-ai-project",
+      "title": "멈춘 지점에서 실습 이어가기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-recover-and-continue.json",
+      "contentHash": "02cdf28e8062a372a3f97b5aa4a706c132045cde90d0173dbde202af68d98810"
+    },
+    {
+      "pageId": "ai-entry-independent-task",
+      "pageNumber": 22,
+      "chapterId": "first-ai-project",
+      "title": "조건을 바꿔 혼자 완성하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-independent-task.json",
+      "contentHash": "d8b495f69480511198dd8b3913910f0460342e8ecc5b856d6f65f7fbe8d2a2e3"
+    },
+    {
+      "pageId": "ai-entry-independent-solution",
+      "pageNumber": 23,
+      "chapterId": "first-ai-project",
+      "title": "내 결과와 해설 비교하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-independent-solution.json",
+      "contentHash": "785946a5e485d01258e2b51def01c04ee9bfbddfc66ba7d39cff895a6b3331cc"
+    },
+    {
+      "pageId": "ai-entry-save-and-reuse",
+      "pageNumber": 24,
+      "chapterId": "first-ai-project",
+      "title": "최종 글과 수정 이유를 보관하기",
+      "src": "/books/ai-entry/sample-20261106-v1/pages/ai-entry-save-and-reuse.json",
+      "contentHash": "7c6bd97f1d4ca0e2315288a176a3ca4d3c2bdee1578cd8e1eb1d7e632d0b5439"
+    }
+  ],
+  "sources": [
+    {
+      "sourceId": "openai-mobile",
+      "title": "ChatGPT iOS and Android app FAQ",
+      "url": "https://help.openai.com/en/articles/8142208-chatgpt-ios-and-android-app-faq",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "공식 앱 설치와 게시자 확인",
+        "Android 버전 경로",
+        "대화 기록과 응답 복사"
+      ]
+    },
+    {
+      "sourceId": "openai-free",
+      "title": "ChatGPT Free Tier FAQ",
+      "url": "https://help.openai.com/en/articles/9275245-chatgpt-free-tier-faq",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "무료 이용 범위",
+        "유료 플랜의 높은 사용 한도",
+        "도구별 한도 안내"
+      ]
+    },
+    {
+      "sourceId": "openai-data",
+      "title": "Data controls in ChatGPT",
+      "url": "https://help.openai.com/en/articles/7730893-data-controls-in-chatgpt",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "모바일 데이터 설정 경로",
+        "개인 계정 모델 개선 설정"
+      ]
+    },
+    {
+      "sourceId": "openai-temporary",
+      "title": "Temporary chat in ChatGPT",
+      "url": "https://help.openai.com/en/articles/8914046-temporary-chat-in-chatgpt",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "임시 대화 시작",
+        "개인화 선택",
+        "기록과 모델 개선 및 보관 조건"
+      ]
+    },
+    {
+      "sourceId": "openai-prompts",
+      "title": "Prompt engineering best practices for ChatGPT",
+      "url": "https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "구체적인 요청과 필요한 맥락",
+        "결과를 읽고 후속 요청으로 개선"
+      ]
+    },
+    {
+      "sourceId": "openai-search",
+      "title": "Searching the web with ChatGPT",
+      "url": "https://help.openai.com/en/articles/9237897-searching-the-web-with-chatgpt",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "검색 시작 경로",
+        "인용과 출처 열기",
+        "검색 결과 재확인"
+      ]
+    },
+    {
+      "sourceId": "openai-accuracy",
+      "title": "Does ChatGPT tell the truth?",
+      "url": "https://help.openai.com/en/articles/8313428-does-chatgpt-tell-the-truth",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "틀린 사실과 존재하지 않는 출처 가능성",
+        "중요 정보의 직접 확인"
+      ]
+    },
+    {
+      "sourceId": "openai-start",
+      "title": "What is ChatGPT: FAQ",
+      "url": "https://help.openai.com/en/articles/12677804-what-is-chatgpt-faq",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "메시지 입력과 전송",
+        "New chat로 새 대화 시작"
+      ]
+    },
+    {
+      "sourceId": "openai-home",
+      "title": "The ChatGPT home page",
+      "url": "https://help.openai.com/en/articles/9125172-the-chatgpt-home-page",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "브라우저 사용",
+        "로그아웃 상태의 기록 제한"
+      ]
+    },
+    {
+      "sourceId": "openai-login",
+      "title": "Why can't I log in to ChatGPT?",
+      "url": "https://help.openai.com/en/articles/7426629-why-cant-i-log-in-to-chatgpt",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "처음 가입한 방식으로 로그인",
+        "Android 로그인 화면과 제조사별 차이"
+      ]
+    },
+    {
+      "sourceId": "openai-troubleshoot",
+      "title": "Troubleshooting the ChatGPT mobile app",
+      "url": "https://help.openai.com/en/articles/7910461-troubleshooting-the-chatgpt-mobile-app",
+      "publisher": "OpenAI",
+      "checkedAt": "2026-11-06",
+      "supports": [
+        "앱 멈춤과 연결 오류 해결",
+        "재설치로 사용 한도가 바뀌지 않음"
+      ]
+    }
+  ],
+  "cover": {
+    "assetId": "bookmark-finished",
+    "alt": "SNS·영상·AI 실습에서 함께 사용하는 책갈피 학습 예시",
+    "width": 1122,
+    "height": 1402
+  },
+  "assets": {
+    "ai-before-shoot": {
+      "src": "/assets/ebooks/v1/b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98.webp",
+      "sha256": "b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98",
+      "bytes": 65592,
+      "width": 1467,
+      "height": 987
+    },
+    "bookmark-finished": {
+      "src": "/assets/ebooks/v1/2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c.webp",
+      "sha256": "2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c",
+      "bytes": 171856,
+      "width": 1122,
+      "height": 1402
+    }
+  },
+  "sourceSha256": "b27bce8925a9468338a4ae58ec7d85432b97cb8114b0a8cc17939a6d29da34fa",
+  "bodyPageCount": 24,
+  "frontMatterExcluded": true
+}

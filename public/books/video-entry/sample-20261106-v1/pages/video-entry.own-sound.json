@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.own-sound",
+  "pageNumber": 18,
+  "chapterId": "first-bookmark-video",
+  "title": "소리를 한 가지 기준으로 정하기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "이번 기본 결과물은 직접 녹음한 소리 또는 의도한 무음으로 완성합니다. 펜이 종이에 닿는 소리처럼 활동과 연결되는 소리는 남길 수 있습니다. 배경의 상점 음악이나 다른 사람의 대화가 함께 들어갔다면 해당 부분을 다시 촬영하거나 소리를 제거하는 선택을 합니다.",
+      "blockId": "video-entry.own-sound.b01"
+    },
+    {
+      "type": "template",
+      "title": "선택 실습용 짧은 음성 원고",
+      "text": "연습용 책갈피 모임을 소개합니다.\n종이에 무늬와 짧은 글을 적어보세요.\n읽던 책에 끼우면 작은 책갈피가 됩니다.\n이 영상은 실제 모집 안내가 아닙니다.",
+      "blockId": "video-entry.own-sound.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "직접 설명을 더하고 싶다면 공식 모바일 글에서 안내하는 Record audio 기능을 찾습니다. 조용한 자리에서 한 문장씩 말하고 녹음 뒤 바로 재생하세요. 현재 앱의 한국어 이름·입구·권한 요청은 실제 화면을 확인해야 하며 이 샘플에서는 실행하지 못했습니다.",
+      "blockId": "video-entry.own-sound.b03"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "원래 소리 듣기",
+          "text": "다섯 장면의 원본 소리를 듣고 유지·제거할 부분을 적습니다.",
+          "output": "소리 사용 메모"
+        },
+        {
+          "title": "선택한 소리만 남기기",
+          "text": "말소리가 있다면 내용이 들리도록 조정하고 장면마다 갑자기 커지지 않는지 이어서 듣습니다. 고정된 음량 숫자를 정답으로 쓰지 않습니다.",
+          "output": "들어본 30초 편집"
+        },
+        {
+          "title": "선택 기록",
+          "text": "사진 영상에 녹음을 넣지 않았다면 ‘의도한 무음’이라고 기록합니다. 재생하지 않은 음성을 검수 완료로 쓰지 않습니다.",
+          "output": "소리 검사 상태"
+        }
+      ],
+      "blockId": "video-entry.own-sound.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Adding Voiceovers with CapCut — Record audio",
+          "url": "https://www.capcut.com/resource/how-to-add-voice-in-a-video",
+          "publisher": "CapCut"
+        }
+      ],
+      "blockId": "video-entry.own-sound.b05"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.assessment-and-solutions",
+  "pageNumber": 24,
+  "chapterId": "first-bookmark-video",
+  "title": "완성 기준과 다시 할 연습",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "이 장의 결과는 촬영·편집·검수를 연결한 30초 영상입니다. 아래 네 항목을 따로 점검하세요. 사진 자료로 편집을 끝냈다면 편집 과제는 평가하되 촬영은 미실행으로 남깁니다. 앱 화면을 직접 확인하지 않은 교재 제작 과정과 학습자가 실제 수행한 과정도 구분합니다.",
+      "blockId": "video-entry.assessment-and-solutions.b01"
+    },
+    {
+      "type": "table",
+      "caption": "30초 영상의 평가 기준",
+      "columns": [
+        "기준",
+        "완료",
+        "수정 후 재확인",
+        "아직 없음"
+      ],
+      "rows": [
+        [
+          "장면",
+          "5장면에 재료·과정·사용·완성이 보임",
+          "한 장면이 흐리거나 역할이 중복",
+          "필요 장면이 빠짐"
+        ],
+        [
+          "편집",
+          "각 6초·합계 30초, 순서가 맞음",
+          "길이·순서·빈 구간 오류",
+          "편집 결과가 없음"
+        ],
+        [
+          "안내",
+          "자막과 사실 카드가 일치, 연습 표시 유지",
+          "일시·준비물 또는 표시가 틀림",
+          "자막이 없음"
+        ],
+        [
+          "출력·검수",
+          "저장 파일을 재생하고 소리·권리 상태 기록",
+          "파일은 있으나 일부 검사 미실행",
+          "출력 파일 없음"
+        ]
+      ],
+      "blockId": "video-entry.assessment-and-solutions.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "풀이 1. 10초 원본의 2~8초는 6초입니다. 풀이 2. 분할한 조각은 그대로 남으므로 필요 없는 부분을 선택해 삭제해야 합니다. 풀이 3. 무료 음악이어도 외부 게시 조건이 불명확하면 음악을 제외합니다. 풀이 4. 자막이 다음 장면까지 남으면 글자 줄의 끝 시각을 고칩니다.",
+      "blockId": "video-entry.assessment-and-solutions.b03"
+    },
+    {
+      "type": "exercise",
+      "title": "다른 소재로 한 번 더",
+      "goal": "같은 편집 원리로 새 결과를 만든다.",
+      "steps": [
+        "책갈피 대신 직접 만든 카드나 작은 물건을 고릅니다.",
+        "다섯 장면의 역할과 한 줄 설명을 새로 씁니다.",
+        "원본 보관부터 재생 검사까지 다시 진행합니다."
+      ],
+      "expectedOutput": "자신의 소재를 사용한 30초 영상",
+      "checks": [
+        "이 샘플의 모임 정보를 새 소재에 그대로 붙이지 않았는가?",
+        "실제 한 작업만 완료라고 기록했는가?"
+      ],
+      "blockId": "video-entry.assessment-and-solutions.b04"
+    },
+    {
+      "type": "paragraph",
+      "text": "이 장은 본문 24쪽의 입문 샘플입니다. 실제 조판과 화면 검수, Android 메뉴·무료 출력 실행 확인을 거쳐 보완해야 하며 400쪽 정규 교재가 완성되었다는 뜻은 아닙니다.",
+      "blockId": "video-entry.assessment-and-solutions.b05"
+    }
+  ]
+}

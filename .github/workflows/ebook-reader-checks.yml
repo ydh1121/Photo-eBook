@@ -1,0 +1,73 @@
+name: Ebook Reader and Sample Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'content/ebooks/**'
+      # Any deployable asset can consume the shared Pages Free file budget.
+      - 'public/**'
+      - 'scripts/*ebook*'
+      - 'scripts/ebook/**'
+      - 'cloudflare-pages.json'
+      - '.github/workflows/ebook-reader-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/ebooks/**'
+      - 'public/**'
+      - 'scripts/*ebook*'
+      - 'scripts/ebook/**'
+      - 'cloudflare-pages.json'
+      - '.github/workflows/ebook-reader-checks.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ebook-reader-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify static publication, exact bytes and Free file budgets
+        run: |
+          node scripts/build-ebooks.mjs
+          node scripts/build-ebook-review.mjs
+          git diff --exit-code -- public/books public/assets/ebooks public/reader public/staging/ebook-reader-preview
+          if [ -n "$(git ls-files --others --exclude-standard -- public/books public/assets/ebooks public/reader public/staging/ebook-reader-preview)" ]; then
+            echo "Generated publication files are missing from the committed public output."
+            exit 1
+          fi
+          node scripts/check-ebook-assets.mjs
+          node scripts/check-ebook-reader.mjs
+          node scripts/check-platform-module-boundaries.mjs
+      - name: Install pinned Chromium test environment
+        id: browser
+        timeout-minutes: 5
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Exercise canonical reader interactions
+        run: node scripts/check-ebook-reader.mjs --runtime
+      - name: Verify every authored sample page
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: node scripts/check-ebook-samples.mjs --runtime
+      - name: Preserve reader and manuscript evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ebook-reader-samples-qa
+          path: |
+            artifacts/ebook-reader
+            artifacts/ebook-qa
+            artifacts/ebook-samples
+          if-no-files-found: warn
+          retention-days: 14

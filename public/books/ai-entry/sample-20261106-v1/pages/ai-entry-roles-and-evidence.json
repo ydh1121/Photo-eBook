@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-roles-and-evidence",
+  "pageNumber": 3,
+  "chapterId": "first-ai-project",
+  "title": "AI에게 맡길 일과 직접 확인할 일",
+  "blocks": [
+    {
+      "blockId": "ai-entry-roles-and-evidence-roles",
+      "type": "paragraph",
+      "text": "행사 자료를 짧은 글로 바꾸거나 촬영 목록으로 정리하는 일에는 AI를 이용합니다. 날짜가 맞는지, 종이가 실제 준비됐는지, 촬영 장소를 사용할 수 있는지는 사람이 확인해야 합니다. 잘 읽히는 문장을 얻는 일과 그 문장의 사실을 확정하는 일을 나누면 무엇을 고쳐야 하는지 분명해집니다. 이번 실습에서는 글을 만드는 동안에도 자료표를 닫지 않고 가까이 둡니다."
+    },
+    {
+      "blockId": "ai-entry-roles-and-evidence-search",
+      "type": "paragraph",
+      "text": "검색은 이미 공개된 문서를 찾아 확인할 때 씁니다. ChatGPT 앱을 누가 배포하는지 알고 싶다면 공식 안내를 엽니다. 가상 모임의 주차장을 찾는 검색은 하지 않습니다. 공개된 원문이 없는 항목이기 때문입니다. AI가 자신 있게 답하거나 출처처럼 보이는 주소를 붙여도 내용이 맞는다는 보장은 없습니다. 주소를 열어 해당 문장이 실제로 있는지 읽어야 합니다."
+    },
+    {
+      "blockId": "ai-entry-roles-and-evidence-jobs",
+      "type": "table",
+      "caption": "같은 질문도 근거가 다릅니다",
+      "columns": [
+        "확인할 것",
+        "확인할 곳"
+      ],
+      "rows": [
+        [
+          "행사 날짜·정원·참가비",
+          "이 장의 공통 행사 자료"
+        ],
+        [
+          "공식 ChatGPT 앱 게시자",
+          "OpenAI 도움말의 설치 안내"
+        ],
+        [
+          "영상에 쓸 장면 순서",
+          "이 실습에서 정한 촬영 계획"
+        ],
+        [
+          "실제 재료·빛·촬영 가능 여부",
+          "촬영 전에 직접 확인할 환경"
+        ]
+      ]
+    },
+    {
+      "blockId": "ai-entry-roles-and-evidence-sort",
+      "type": "exercise",
+      "title": "판단해 보기",
+      "goal": "확정 자료와 새로 생긴 주장을 구분합니다.",
+      "steps": [
+        "“무료 모임이므로 주차도 무료다”라는 문장을 읽습니다.",
+        "자료표에서 이를 뒷받침하는 항목을 찾습니다."
+      ],
+      "expectedOutput": "“참가비 무료”와 “주차 무료”를 구분한 한 문장",
+      "checks": [
+        "주차 정보가 없다는 이유를 적었는가"
+      ],
+      "solution": "참가비가 무료라는 사실로 주차 조건을 알 수 없습니다. 주차 문장을 빼고 확인할 항목으로 남깁니다."
+    },
+    {
+      "blockId": "ai-entry-roles-and-evidence-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "Does ChatGPT tell the truth?",
+          "url": "https://help.openai.com/en/articles/8313428-does-chatgpt-tell-the-truth",
+          "publisher": "OpenAI"
+        },
+        {
+          "title": "Searching the web with ChatGPT",
+          "url": "https://help.openai.com/en/articles/9237897-searching-the-web-with-chatgpt",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

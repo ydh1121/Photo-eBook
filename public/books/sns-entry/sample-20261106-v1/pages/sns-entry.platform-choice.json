@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.platform-choice",
+  "pageNumber": 6,
+  "chapterId": "first-bookmark-post",
+  "title": "같은 모임을 세 플랫폼에서 설명하기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "플랫폼마다 사용할 수 있는 형식이 겹치므로 한 가지 용도로 단정할 필요는 없습니다. 이번 과제에서는 독자가 받을 정보를 기준으로 역할을 나눕니다. 완성 모습을 보여주는 사진, 손의 움직임을 보여주는 동영상, 경험과 질문을 주고받는 글을 각각 준비하는 방식입니다.",
+      "blockId": "sns-entry.platform-choice.b01"
+    },
+    {
+      "type": "table",
+      "caption": "이번 사례에서 맡길 역할",
+      "columns": [
+        "플랫폼",
+        "준비할 내용",
+        "추가 작업"
+      ],
+      "rows": [
+        [
+          "Instagram",
+          "책갈피 사진 한 장과 모임 조건",
+          "사진 선택·설명문·공개 범위 확인"
+        ],
+        [
+          "YouTube",
+          "책갈피를 만드는 30초 동영상",
+          "촬영·편집·제목·영상 재생 검사"
+        ],
+        [
+          "Threads",
+          "책갈피를 만드는 이유와 독자의 경험 질문",
+          "짧은 경험 글·답글 확인"
+        ]
+      ],
+      "blockId": "sns-entry.platform-choice.b02"
+    },
+    {
+      "type": "image",
+      "assetId": "sns-platform-roles",
+      "alt": "한 소재를 사진 설명, 30초 동영상, 경험 질문으로 나눈 도해",
+      "width": 1467,
+      "height": 987,
+      "caption": "형식별 역할은 이번 수업의 편집 제안입니다. 플랫폼의 기능을 제한하는 뜻은 아닙니다.",
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님",
+      "blockId": "sns-entry.platform-choice.b03"
+    },
+    {
+      "type": "paragraph",
+      "text": "Instagram 공식 앱은 피드·사진·짧은 동영상을, Meta는 Threads의 텍스트 공유와 대화를 설명합니다. YouTube 도움말에는 Shorts 제작 안내가 있습니다. 이 자료만으로 특정 형식의 조회수가 더 높다고 결론 내리지는 않습니다.",
+      "blockId": "sns-entry.platform-choice.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Instagram 공식 Android 앱",
+          "url": "https://play.google.com/store/apps/details?hl=ko&id=com.instagram.android",
+          "publisher": "Instagram / Google Play"
+        },
+        {
+          "title": "Introducing Threads: A New Way to Share With Text",
+          "url": "https://about.fb.com/news/2023/07/introducing-threads-new-app-text-sharing/",
+          "publisher": "Meta"
+        },
+        {
+          "title": "YouTube Shorts 제작 시작하기",
+          "url": "https://support.google.com/youtube/answer/10059070?hl=ko",
+          "publisher": "Google / YouTube"
+        }
+      ],
+      "blockId": "sns-entry.platform-choice.b05"
+    }
+  ]
+}

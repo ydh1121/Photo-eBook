@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-complete-request",
+  "pageNumber": 11,
+  "chapterId": "first-ai-project",
+  "title": "목적·대상·자료·형식으로 요청하기",
+  "blocks": [
+    {
+      "blockId": "ai-entry-complete-request-structure",
+      "type": "paragraph",
+      "text": "이번에는 독자가 누구이고 무엇을 알아야 하는지 설명합니다. 목적은 모임 안내문 작성, 대상은 동네 성인 독자, 자료는 확정된 행사 조건입니다. 형식은 제목과 짧은 소개, 항목별 안내로 정합니다. 이 네 가지를 적으면 답변을 평가할 기준도 함께 생깁니다. “좋게 써 줘”라고 했을 때보다 빠진 항목을 찾거나 수정할 이유를 말하기 쉽습니다."
+    },
+    {
+      "blockId": "ai-entry-complete-request-constraint",
+      "type": "paragraph",
+      "text": "자료를 넣을 때는 바꿔도 되는 표현과 그대로 둘 사실을 구분합니다. 제목 아래 소개 문장은 새로 써도 되지만 시간과 비용은 그대로 두도록 요청하세요. 확인되지 않은 항목은 본문 밖에 모으게 합니다. 한 번에 완벽한 답을 얻으려고 복잡한 역할 이름을 붙일 필요는 없습니다. 전달할 자료와 결과의 모양을 분명히 적고, 나온 글을 읽은 뒤 추가로 고칩니다. 아래 요청은 그대로 복사해 사용해도 됩니다."
+    },
+    {
+      "blockId": "ai-entry-complete-request-full-prompt",
+      "type": "template",
+      "title": "자료를 모두 넣은 요청",
+      "text": "동네 성인 독자가 읽을 모임 안내문을 써 줘.\n목적: 날짜, 준비물, 신청 방식을 쉽게 찾게 하기.\n형식: 제목 → 소개 2문장 이내 → 일시·장소·정원·참가비·제공 재료·준비물·신청 방법을 항목별로 정리.\n말투: 차분한 존댓말. 과장, 후기, 추천 문구는 넣지 않기.\n아래 사실의 값은 바꾸지 말고, 없는 정보는 추측하지 마.\n글의 앞뒤에 실제 모집이 아닌 가상의 자체 기획 실습임을 밝혀 줘.\n\n가상의 자체 기획 실습이며 실제 모집이 아닙니다.\n행사명: 토요일 책갈피 만들기\n일시: 2026년 11월 14일(토) 14:00~15:00\n장소: 부산의 동네 모임 공간(연습용 가상 장소)\n정원: 6명\n참가비: 무료\n제공 재료: 연노랑 종이, 파란 펜\n개인 준비물: 읽던 책 1권\n신청 방법: 계정 메시지로 '책갈피' 보내기\n제공하지 않은 정보: 상호, 주소, 연락처, 예약 URL, 후기, 주차, 엘리베이터\n제공하지 않은 정보는 만들어 쓰지 않습니다.\n\n완성문 아래에 “추가로 확인할 정보”를 따로 적어 줘. 확인할 정보가 아직 확정된 것처럼 안내문에 넣지는 마."
+    },
+    {
+      "blockId": "ai-entry-complete-request-sources",
+      "type": "sources",
+      "items": [
+        {
+          "title": "Prompt engineering best practices for ChatGPT",
+          "url": "https://help.openai.com/en/articles/10032626-prompt-engineering-best-practices-for-chatgpt",
+          "publisher": "OpenAI"
+        }
+      ]
+    }
+  ]
+}

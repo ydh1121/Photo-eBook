@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.music-permission",
+  "pageNumber": 19,
+  "chapterId": "first-bookmark-video",
+  "title": "음악이 무료여도 용도를 확인",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "음악을 누를 수 있다는 사실과 외부에 올려도 되는 이용허락은 구분해야 합니다. 이 기본 과제는 음악 없이도 끝낼 수 있습니다. 음악을 추가하는 선택 실습에서는 곡별 허용 용도·게시 플랫폼·저작자 표시 조건을 읽고 근거를 보관하세요.",
+      "blockId": "video-entry.music-permission.b01"
+    },
+    {
+      "type": "table",
+      "caption": "공식 안내에서 확인한 구분",
+      "columns": [
+        "자료",
+        "확인할 조건"
+      ],
+      "rows": [
+        [
+          "CapCut Sounds",
+          "개인 오락·비상업적 이용 조건"
+        ],
+        [
+          "CapCut Commercial Sounds",
+          "약관에 열거된 CapCut·TikTok·TikTok for Business 밖의 이용은 별도 권리 확인"
+        ],
+        [
+          "YouTube 오디오 보관함",
+          "트랙별 저작자 표시 조건, YouTube 외 사용의 별도 확인"
+        ],
+        [
+          "직접 녹음",
+          "내가 만든 소리인지, 배경에 다른 음악·대화가 들어갔는지"
+        ]
+      ],
+      "blockId": "video-entry.music-permission.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "CapCut의 2026-01-22 소재 약관을 기준으로 정리했습니다. 공식 홍보 글의 ‘copyright-free’ 한 문장만으로 Instagram이나 YouTube에서도 모든 음악을 제한 없이 쓸 수 있다고 판단하지 않습니다. 실제로 사용할 곡과 계정에 적용되는 약관을 다시 확인하세요.",
+      "blockId": "video-entry.music-permission.b03"
+    },
+    {
+      "type": "template",
+      "title": "음악 사용 기록",
+      "text": "곡명·제작자:\n받은 곳과 원문 링크:\n확인일:\n허용 용도·게시 플랫폼:\n필요한 출처 문구:\n이번 영상에 사용 / 사용하지 않음:",
+      "blockId": "video-entry.music-permission.b04"
+    },
+    {
+      "type": "exercise",
+      "title": "음악 선택 판단",
+      "goal": "허용 범위가 불명확할 때 다음 행동을 정한다.",
+      "steps": [
+        "무료로 보이는 곡의 외부 게시 조건을 찾지 못했다고 가정합니다.",
+        "이번 과제를 마칠 방법을 적습니다."
+      ],
+      "expectedOutput": "음악을 빼고 직접 녹음 또는 무음으로 완성",
+      "checks": [
+        "무료라는 이유로 외부 사용 가능을 단정하지 않았는가?"
+      ],
+      "blockId": "video-entry.music-permission.b05"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "CapCut Materials License Agreement",
+          "url": "https://www.capcut.com/clause/material-license-agreement?lang=en",
+          "publisher": "CapCut / ByteDance Pte. Ltd."
+        },
+        {
+          "title": "오디오 보관함에 있는 음악 및 음향 효과 사용하기",
+          "url": "https://support.google.com/youtube/answer/3376882?hl=ko",
+          "publisher": "Google / YouTube"
+        }
+      ],
+      "blockId": "video-entry.music-permission.b06"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.reaction-log",
+  "pageNumber": 21,
+  "chapterId": "first-bookmark-post",
+  "title": "같은 시간 간격으로 기록하기",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "게시 직후와 이틀 뒤의 수치를 같은 기준으로 비교하면 시간이 더 지난 글에 유리합니다. 연습에서는 작성 당일과 24시간 뒤처럼 확인할 시점을 정해둡니다. 24시간은 이 과제에서 정한 관찰 간격이며 성과를 보장하는 운영 규칙이 아닙니다.",
+      "blockId": "sns-entry.reaction-log.b01"
+    },
+    {
+      "type": "table",
+      "caption": "설명용 가상 반응 기록 — 실제 계정 실적 아님",
+      "columns": [
+        "항목",
+        "게시 직후",
+        "24시간 뒤"
+      ],
+      "rows": [
+        [
+          "게시 상태",
+          "연습용 가정",
+          "연습용 가정"
+        ],
+        [
+          "좋아요",
+          "0",
+          "4"
+        ],
+        [
+          "댓글",
+          "0",
+          "2"
+        ],
+        [
+          "저장수",
+          "확인 불가",
+          "확인 불가"
+        ],
+        [
+          "댓글 내용",
+          "없음",
+          "준비물 질문 1건·시간 질문 1건"
+        ],
+        [
+          "수정할 점",
+          "아직 판단 보류",
+          "준비물을 별도 줄로 표시"
+        ]
+      ],
+      "blockId": "sns-entry.reaction-log.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "댓글 2개를 참가 신청 2명으로 계산하지 않습니다. 누가 무엇을 물었는지 보면 안내문을 고칠 근거가 생깁니다. 반응이 모두 0이어도 날짜와 준비물이 읽히는지 스스로 점검하고, 이해하기 어려운 문장 하나를 고쳐 기록할 수 있습니다.",
+      "blockId": "sns-entry.reaction-log.b03"
+    },
+    {
+      "type": "template",
+      "title": "내 기록에 남길 항목",
+      "text": "게시물 파일명 또는 링크:\n실제 게시 / 메모 연습:\n게시 시각과 확인 시각:\n화면에서 확인한 항목과 값:\n반복된 질문 또는 스스로 발견한 문제:\n다음에 고칠 한 문장:",
+      "blockId": "sns-entry.reaction-log.b04"
+    },
+    {
+      "type": "callout",
+      "title": "가상 수치의 용도",
+      "text": "위 0·4·2는 기록 방법을 설명하기 위해 만든 값입니다. 실제 성과·예상 반응·이 수업의 효과로 인용하지 않습니다.",
+      "tone": "note",
+      "blockId": "sns-entry.reaction-log.b05"
+    }
+  ]
+}

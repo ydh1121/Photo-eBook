@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "bookId": "video-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "video-entry.inspect-originals",
+  "pageNumber": 10,
+  "chapterId": "first-bookmark-video",
+  "title": "편집 전에 원본 다섯 개 검사",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "촬영한 자리에서 원본을 확인하면 다시 찍기 쉽습니다. 완성 영상을 만든 뒤 흐린 장면을 발견하면 순서와 자막을 다시 맞춰야 할 수 있습니다. 각 파일에서 사용할 6초를 찾고 시작·끝 시각을 메모하세요.",
+      "blockId": "video-entry.inspect-originals.b01"
+    },
+    {
+      "type": "table",
+      "caption": "설명용 원본 점검 예시",
+      "columns": [
+        "파일",
+        "원본 길이 예시",
+        "사용 구간 예시",
+        "판단"
+      ],
+      "rows": [
+        [
+          "01_materials",
+          "10초",
+          "2~8초",
+          "손이 빠진 뒤 재료가 보임"
+        ],
+        [
+          "02_drawing",
+          "10초",
+          "1~7초",
+          "무늬와 펜 끝이 보임"
+        ],
+        [
+          "03_lettering",
+          "10초",
+          "2~8초",
+          "글 적는 동작이 끊기지 않음"
+        ],
+        [
+          "04_in-book",
+          "10초",
+          "1~7초",
+          "끼우는 동작과 결과가 이어짐"
+        ],
+        [
+          "05_finished",
+          "10초",
+          "2~8초",
+          "제목 없이도 완성품이 보임"
+        ]
+      ],
+      "blockId": "video-entry.inspect-originals.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "위 길이와 구간은 계산을 설명하기 위한 예시입니다. 자신의 파일이 9초라면 그 안에서 6초를 고릅니다. 안정된 구간이 3초뿐이라면 속도를 억지로 늦추기 전에 다시 찍거나 편집 연습용 사진으로 대체할지 정하세요.",
+      "blockId": "video-entry.inspect-originals.b03"
+    },
+    {
+      "type": "checklist",
+      "items": [
+        "다섯 파일을 실제로 재생했다.",
+        "각 파일에서 사용할 구간을 정했다.",
+        "개인정보·상점 음악·다른 사람 목소리 등 불필요한 내용이 있는지 들었다.",
+        "사진을 썼다면 사진 영상임을 기록했다."
+      ],
+      "blockId": "video-entry.inspect-originals.b04"
+    },
+    {
+      "type": "callout",
+      "title": "다음 단계로 가는 기준",
+      "text": "다섯 장면에서 모두 사용할 부분을 확보했으면 편집을 시작합니다. 한 장면이라도 대상이 안 보이거나 파일이 열리지 않으면 그 원본부터 다시 준비하세요.",
+      "tone": "note",
+      "blockId": "video-entry.inspect-originals.b05"
+    }
+  ]
+}

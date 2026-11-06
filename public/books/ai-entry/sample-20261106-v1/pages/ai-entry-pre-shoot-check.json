@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "bookId": "ai-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "ai-entry-pre-shoot-check",
+  "pageNumber": 20,
+  "chapterId": "first-ai-project",
+  "title": "촬영 전에 사람이 확인할 것",
+  "blocks": [
+    {
+      "blockId": "ai-entry-pre-shoot-check-physical",
+      "type": "paragraph",
+      "text": "촬영 준비표를 들고 실제 물건을 펼쳐 놓습니다. 종이와 펜이 있다고 표시만 하지 말고 펜으로 작은 선을 그어 보세요. 책갈피를 끼울 책도 직접 가져옵니다. 영상에 이름이나 연락처가 적힌 쪽지가 보이면 치우고, 다른 사람의 손이나 목소리를 담게 된다면 촬영 범위를 미리 정합니다. 이번 과제는 재료와 작업하는 손만 보여 주어도 다섯 장면을 설명할 수 있습니다."
+    },
+    {
+      "blockId": "ai-entry-pre-shoot-check-phone",
+      "type": "paragraph",
+      "text": "스마트폰 상태도 글만으로 확정할 수 없습니다. 배터리와 저장 공간을 확인하고 렌즈를 닦은 뒤, 실제로 사용할 자리에서 짧게 찍어 재생해 봅니다. 글씨가 안 읽히면 종이와 카메라 사이의 거리를 바꾸고, 손이 빛을 가리면 물건의 방향을 조정하세요. 기기의 카메라 메뉴와 저장 방식은 모델마다 다를 수 있습니다. 이 준비표는 촬영 성공을 대신 확인해 주지 않으므로 직접 본 결과에만 체크합니다."
+    },
+    {
+      "blockId": "ai-entry-pre-shoot-check-check-diagram",
+      "type": "image",
+      "assetId": "ai-before-shoot",
+      "alt": "사실 카드 대조, 장면과 자막 대조, 현장 직접 확인의 세 가지 촬영 전 점검을 보여주는 직접 제작 도해",
+      "caption": "AI가 작성한 표를 실제 준비와 연결할 때는 원자료, 장면, 현장을 각각 확인합니다.",
+      "width": 1467,
+      "height": 987,
+      "credit": "Personal Edu · 직접 제작 학습 도해 · 실제 앱 화면 아님"
+    },
+    {
+      "blockId": "ai-entry-pre-shoot-check-practical-check",
+      "type": "checklist",
+      "items": [
+        "연노랑 종이·파란 펜·읽던 책 1권을 실제로 펼쳤습니다.",
+        "펜으로 선을 그어 보고 필요한 면을 준비했습니다.",
+        "스마트폰 배터리와 저장 공간을 확인했습니다.",
+        "화면 안의 이름·연락처·개인 메모를 치웠습니다.",
+        "촬영 장소 사용과 다른 사람의 등장 여부를 확인했습니다.",
+        "짧은 시험 촬영을 재생해 글씨와 손의 동작을 확인했습니다."
+      ]
+    },
+    {
+      "blockId": "ai-entry-pre-shoot-check-physical-record",
+      "type": "template",
+      "title": "직접 확인한 결과 기록",
+      "text": "확인한 날짜:\n아직 준비되지 않은 물건:\n시험 촬영에서 잘 안 보인 부분:\n바꾼 위치나 거리:\n다시 촬영할 장면:\n실제 촬영을 하지 않았다면: 촬영 준비표 작성까지만 완료"
+    }
+  ]
+}

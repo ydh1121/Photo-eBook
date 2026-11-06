@@ -93,6 +93,15 @@ async function publicStructure(page,pack){
     const sources=await page.locator('.edu-source-card').evaluateAll(nodes=>nodes.map(n=>({title:n.querySelector('h3')?.textContent.trim(),url:n.querySelector('.curated-open')?.href,date:n.querySelector('.edu-source-footer')?.textContent})));
     assert(sources.every(s=>s.title&&/^https?:\/\//.test(s.url)&&/\d{4}-\d{2}-\d{2}/.test(s.date)),'a source card is missing its title, link or checked date');
   }
+  const entry=page.locator('[data-ebook-entry]'),expectedBook=['sns','video','ai'].includes(pack.id)?`${pack.id}-entry`:null;
+  assert(await entry.count()===(expectedBook?1:0),'subject has an incorrect number of published sample entries');
+  if(expectedBook){
+    assert(await entry.getAttribute('data-ebook-entry')===expectedBook,'sample entry belongs to another subject');
+    const destination=new URL(await entry.getAttribute('href'),BASE);
+    assert(destination.pathname==='/reader/'&&destination.searchParams.get('book')===expectedBook&&destination.searchParams.get('edition')==='sample-20261106-v1','sample entry does not reach the common reader');
+    assert((await entry.textContent()).includes('샘플')&&(await entry.textContent()).includes('본문 24쪽'),'sample entry implies a completed regular textbook');
+    const box=await entry.boundingBox();assert(box&&box.height>=44,'sample entry has an undersized touch target');
+  }
   return {chapters:structure.length,viewport:await overflow(page,`${pack.id} body`)};
 }
 
@@ -531,6 +540,9 @@ async function standalone(browser,metadata,exported,orderedAssets){
     const duplicates=await page.locator('[id]').evaluateAll(nodes=>{const counts=new Map();for(const n of nodes)counts.set(n.id,(counts.get(n.id)||0)+1);return [...counts].filter(([,n])=>n>1).map(([id])=>id);});
     assert(duplicates.length===0,`duplicate exported DOM IDs: ${duplicates.join(', ')}`);
     const facts=await page.locator('.hero__fact').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().top));assert(facts.length===4&&Math.max(...facts)-Math.min(...facts)<=2,'desktop hero facts lost their four-column layout');
+    const publication=page.locator('[data-ebook-entry="video-entry"]');
+    assert(await publication.count()===1&&await publication.getAttribute('href')==='https://photo-ebook.pages.dev/reader/?book=video-entry&edition=sample-20261106-v1','portable hero does not link to its published reader');
+    assert(await publication.getAttribute('target')==='_blank'&&(await publication.getAttribute('rel')).includes('noopener'),'portable publication link does not open safely in a new tab');
     await wait(()=>page.locator('.hero__image').evaluate(n=>n.complete&&n.naturalWidth>0),'standalone hero image missing');
     const fields=page.locator('.edu-checklist');const first=fields.nth(0).locator('input').first(),second=fields.nth(1).locator('input').first();
     await first.check();assert(!await second.isChecked(),'exported instances share checklist state');

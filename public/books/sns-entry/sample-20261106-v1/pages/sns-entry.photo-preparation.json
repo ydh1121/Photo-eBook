@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.photo-preparation",
+  "pageNumber": 11,
+  "chapterId": "first-bookmark-post",
+  "title": "잘리는 부분과 불필요한 정보",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "SNS의 미리보기에서는 사진 가장자리가 다르게 보일 수 있습니다. 책갈피가 화면 끝에 붙어 있으면 일부가 잘렸을 때 의미가 약해집니다. 원본을 남겨 두고 편집본을 만든 뒤, 실제 작성 화면에서 책갈피 전체와 책의 관계가 보이는지 확인하세요.",
+      "blockId": "sns-entry.photo-preparation.b01"
+    },
+    {
+      "type": "steps",
+      "items": [
+        {
+          "title": "원본 보관",
+          "text": "휴대전화 사진 앱에서 원본이 남도록 사본으로 편집합니다. 사본 저장 방법은 기기의 사진 앱에 표시된 설명을 따릅니다.",
+          "output": "원본과 편집본"
+        },
+        {
+          "title": "주제 주변 정리",
+          "text": "책갈피가 분명하게 보이는 범위를 남깁니다. 펜이나 손을 모두 지워야 하는 것은 아닙니다. 활동을 설명하는 부분은 유지합니다.",
+          "output": "용도가 보이는 사진"
+        },
+        {
+          "title": "배경 확대 검사",
+          "text": "책의 본문, 택배 송장, 휴대전화 알림, 다른 사람 얼굴처럼 공개할 필요가 없는 정보가 있는지 확대해 살핍니다.",
+          "output": "공개할 사진 선택"
+        }
+      ],
+      "blockId": "sns-entry.photo-preparation.b02"
+    },
+    {
+      "type": "paragraph",
+      "text": "사진에 행사 일시를 크게 적는다면 설명문에도 같은 내용을 써두세요. 이미지 속 글씨만으로 모든 정보를 전달하면 작은 화면에서 놓치거나 사진을 볼 수 없는 독자가 정보를 받기 어렵습니다. 이 장에서는 사진은 활동을 보여주고 본문은 조건을 설명하게 나눕니다.",
+      "blockId": "sns-entry.photo-preparation.b03"
+    },
+    {
+      "type": "checklist",
+      "items": [
+        "원본을 덮어쓰지 않았다.",
+        "책갈피의 모양과 쓰임새를 볼 수 있다.",
+        "읽을 필요가 없는 개인정보가 보이지 않는다.",
+        "작성 화면에서 잘린 부분을 다시 살폈다."
+      ],
+      "blockId": "sns-entry.photo-preparation.b04"
+    }
+  ]
+}

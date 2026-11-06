@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "workOrder": "WO02",
+  "status": "implemented_samples_verified_remote_activation_pending",
+  "implementationCommit": "3e0ebd901d33f7fc12f256578ee4b842ce9f3f08",
+  "pullRequest": "https://github.com/ydh1121/Photo-eBook/pull/60",
+  "pullRequestState": "draft_unmerged",
+  "preview": {
+    "id": "03b475ac-09f4-4050-ad6d-aec96c7fabf2",
+    "url": "https://03b475ac.photo-ebook.pages.dev/staging/ebook-reader-preview/",
+    "scope": "Canonical reader with explicit copied-image review adapter, not remote D1"
+  },
+  "ci": {
+    "status": "pass",
+    "checkedAt": "2026-11-06T11:08:24.889325+00:00",
+    "workflows": [
+      {
+        "name": "Platform Library Architecture Checks",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42206202183"
+      },
+      {
+        "name": "Canonical Admin Parity",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42206202203"
+      },
+      {
+        "name": "Platform Library Generalization Checks",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42206202051"
+      },
+      {
+        "name": "UI Visual Matrix",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42206202081"
+      },
+      {
+        "name": "Ebook Reader and Sample Checks",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42206201902"
+      },
+      {
+        "name": "Platform Library Checks",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42206202041"
+      },
+      {
+        "name": "Personal Edu Runtime Checks",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42206201925"
+      }
+    ]
+  },
+  "automatedReader": {
+    "passed": 17,
+    "total": 17,
+    "browserGroups": 13,
+    "modelGroups": 4
+  },
+  "assetIntegration": {
+    "passed": 38,
+    "total": 38,
+    "scope": "Actual local SQLite; no remote D1 claim"
+  },
+  "sampleRuntime": {
+    "passed": 7,
+    "total": 7,
+    "mobilePages": 72,
+    "mobileViewport": {
+      "width": 375,
+      "height": 812
+    },
+    "desktopViewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "portableReviewImage": true,
+    "uncaughtErrors": 0
+  },
+  "samples": [
+    {
+      "bookId": "sns-entry",
+      "bodyPages": 24,
+      "blocks": 104
+    },
+    {
+      "bookId": "video-entry",
+      "bodyPages": 24,
+      "blocks": 113
+    },
+    {
+      "bookId": "ai-entry",
+      "bodyPages": 24,
+      "blocks": 112
+    }
+  ],
+  "regularVolumes": {
+    "completed": 0,
+    "published": 0,
+    "planned": 18,
+    "minimumSubstantivePages": 400,
+    "targetSubstantivePages": 420
+  },
+  "visuals": {
+    "photographs": 5,
+    "diagrams": 8,
+    "webpCount": 13,
+    "webpBytes": 1309798,
+    "localDatabaseAllocationBytes": 1343488
+  },
+  "pdf": {
+    "count": 3,
+    "physicalPagesEach": 26,
+    "coverPagesEach": 1,
+    "contentsPagesEach": 1,
+    "bodyPagesEach": 24,
+    "sourceItemsMatched": 1449,
+    "missingSourceItems": 0,
+    "sourceLinks": 50,
+    "contentsLinks": 72,
+    "allPagesRendered": 78,
+    "visualReview": "Every page on contact sheets plus recorded full-size spot checks"
+  },
+  "preservation": {
+    "sourceOriginals": 6,
+    "imageObjectsIncludingArchive": 19,
+    "pdfs": 3,
+    "portableReviewArchive": true,
+    "manuscriptVisualQaArchive": true,
+    "finalReaderCiArchive": true,
+    "fullByteReadbacks": true,
+    "privateIdsOmitted": true
+  },
+  "remoteD1": {
+    "active": false,
+    "accountPlan": "unknown",
+    "subscriptionRead": "403: current OAuth connection cannot cover the endpoint; Billing Read-capable API token required",
+    "dailyProofRenewal": "unresolved",
+    "databaseCreated": false,
+    "imagesImported": false,
+    "paidPlanChanged": false
+  },
+  "production": {
+    "workOrder": "WO01",
+    "commit": "b261ab21dba65b8cbb5876960c9cd27a55870a7c",
+    "wo02Deployed": false
+  },
+  "limitations": [
+    "Physical Android/Galaxy app execution and Safari not tested",
+    "Official app-menu sources do not establish native execution",
+    "The three 24-page samples do not count as regular volumes",
+    "Review images do not prove remote D1 delivery"
+  ],
+  "existingRuntime": {
+    "passed": 69,
+    "total": 69,
+    "referenceCases": {
+      "passed": 12,
+      "total": 12
+    },
+    "runId": 42206201925
+  },
+  "browserVisualReview": {
+    "priorAllMobilePagesOnContactSheets": 72,
+    "finalExactByteMatches": 39,
+    "finalUpperUiOnlyPixelDifferences": 33,
+    "finalFullSizeComparedPairs": [
+      "video-entry-13",
+      "video-entry-05"
+    ],
+    "noNewVisualBlockerObserved": true,
+    "scope": "Existing all-page contact-sheet review plus final image byte/pixel comparison and two actual full-size pairs; not a new full-text reading of every final page"
+  }
+}

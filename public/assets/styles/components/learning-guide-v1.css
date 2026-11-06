@@ -1,6 +1,14 @@
 /* New learning components. Photography geometry is owned by its existing CSS. */
 html[data-learning-guide="true"],html[data-learning-guide="true"] body{touch-action:pan-x pan-y pinch-zoom;text-size-adjust:100%;-webkit-text-size-adjust:100%}
 [data-platform-module="learning-guide-hero"] h1{white-space:pre-line}
+.edu-publications{display:grid;gap:.65rem;max-width:42rem;margin-top:1rem}
+.edu-publication{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:72px;padding:.9rem 1.1rem;border:1px solid rgba(255,255,255,.5);border-radius:var(--r-sm,12px);background:#f7faff;color:#15243d;text-decoration:none;word-break:keep-all;overflow-wrap:anywhere}
+.edu-publication__copy{min-width:0}
+.edu-publication__meta{display:block;font-size:12px;line-height:1.5;color:#4b5c75}
+.edu-publication strong{display:block;margin-top:.2rem;font-size:17px;line-height:1.5;color:#15243d}
+.edu-publication__action{flex:none;display:flex;align-items:center;gap:.4rem;color:#174ca3;font-size:14px;font-weight:700;white-space:nowrap}
+.edu-publication:hover{background:#e9f1ff}
+.edu-publication:focus-visible{outline:3px solid #93bbff;outline-offset:4px}
 .edu-chapter{--edu-border:rgba(94,111,140,.18);--edu-surface:var(--card,#fff)}
 .edu-chapter-heading{padding-top:clamp(3.4rem,7vw,6rem);padding-bottom:1rem}
 .edu-chapter-heading>p{margin:1rem 0 0;color:var(--secondary);font-size:18px;line-height:1.7}
@@ -78,6 +86,9 @@ html[data-theme="dark"] .edu-chapter .group-card{background:var(--edu-surface)}
 html[data-theme="dark"] .edu-chapter .edu-callout{background:rgba(94,139,221,.1)}
 .edu-chapter :is(button,a,input,pre,[tabindex]):focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:640px){
+  .edu-publication{padding:.85rem .9rem;gap:.7rem}
+  .edu-publication strong{font-size:16px}
+  .edu-publication__action{font-size:13px}
   .hero[data-hero-layout="learning"] .hero__body{padding-top:7.5rem;padding-bottom:calc(3.5rem + var(--safe-bottom))}
   .hero[data-hero-layout="learning"] .hero__eyebrow{font-size:16px}
   .hero[data-hero-layout="learning"] h1{font-size:clamp(36px,10.6vw,44px);line-height:1.08;max-width:100%}

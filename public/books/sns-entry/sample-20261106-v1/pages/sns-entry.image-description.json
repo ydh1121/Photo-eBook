@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "bookId": "sns-entry",
+  "editionId": "sample-20261106-v1",
+  "pageId": "sns-entry.image-description",
+  "pageNumber": 14,
+  "chapterId": "first-bookmark-post",
+  "title": "사진을 보지 않아도 전해지는 설명",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "사진의 대체 설명은 사진이 전달하는 정보를 글로 제공합니다. W3C는 이미지가 가진 정보와 문맥에 맞게 대체 텍스트를 작성하도록 설명합니다. 이 사진에서는 책갈피의 모양과 쓰임새가 중요합니다. 카메라 기종이나 모든 물건의 위치를 길게 나열할 필요는 없습니다.",
+      "blockId": "sns-entry.image-description.b01"
+    },
+    {
+      "type": "template",
+      "title": "사진 대체 설명 예시",
+      "text": "크림색 책 사이에 연노랑 종이 책갈피가 꽂혀 있다. 책 위로 나온 부분에 파란 잎무늬가 보인다. 책갈피 만들기 활동의 완성 예시다.",
+      "blockId": "sns-entry.image-description.b02"
+    },
+    {
+      "type": "table",
+      "caption": "본문과 대체 설명의 차이",
+      "columns": [
+        "본문",
+        "사진 대체 설명"
+      ],
+      "rows": [
+        [
+          "언제, 어디서, 무엇을 준비할지 설명",
+          "사진에 보이는 완성 형태와 쓰임새 설명"
+        ],
+        [
+          "사진 밖의 행사 조건 포함",
+          "사진에 없는 후기·장소 정보를 추측하지 않음"
+        ]
+      ],
+      "blockId": "sns-entry.image-description.b03"
+    },
+    {
+      "type": "paragraph",
+      "text": "Instagram의 대체 텍스트 입력 경로는 현재 한국어 Android 화면으로 확인하지 못했습니다. 해당 항목이 보이면 준비한 설명을 넣고 저장 결과를 점검하세요. 항목을 찾지 못하면 사진 설명을 본문에 덧붙여 전달하고, 메뉴 확인 상태는 미확인으로 남깁니다.",
+      "blockId": "sns-entry.image-description.b04"
+    },
+    {
+      "type": "sources",
+      "items": [
+        {
+          "title": "Informative Images",
+          "url": "https://www.w3.org/WAI/tutorials/images/informative/",
+          "publisher": "W3C Web Accessibility Initiative"
+        },
+        {
+          "title": "Instagram 대체 텍스트 도움말 — 원문 확인 대기",
+          "url": "https://help.instagram.com/503708446705527",
+          "publisher": "Instagram"
+        }
+      ],
+      "blockId": "sns-entry.image-description.b05"
+    }
+  ]
+}
