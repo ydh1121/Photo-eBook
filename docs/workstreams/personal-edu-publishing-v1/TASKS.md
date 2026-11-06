@@ -81,7 +81,7 @@ Regular textbooks completed/published: **0/18**. WO01 and the WO02 production re
 - [ ] Verify current tool/menu evidence, address physical Android execution before claiming a verified mobile walkthrough, and complete full-edition editorial, source, image, reader and publication-budget QA.
 - [ ] Publish the first regular volume only after these gates pass; increment the regular-volume count at that release.
 
-The release owner is finishing the separate private operational closeout: final report/archive preservation, same-ID CURRENT/PROJECT_INDEX updates and a separate external readback receipt. This public tracker does not assert that final readback has already completed. Finish that record before the final project handoff; no production merge or D1 activation remains pending.
+The final release report and evidence archive have been preserved and completely byte-readback verified. CURRENT and PROJECT_INDEX were updated using their existing IDs and their complete bytes were read back successfully. Keep final IDs, hashes and the integrity receipt in the private project records. No production merge, D1 activation or recurring account-attestation step remains pending.
 
 ## Historical WO02 candidate checkpoint — 2026-11-06
 

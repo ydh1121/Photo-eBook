@@ -25,7 +25,7 @@ The current release contains SNS 24 body pages / 104 blocks, video 24 / 113 and 
 
 The current candidate received three direct mobile-PNG spot checks (SNS 13, video 17 and AI 19), with no blocking layout defect observed in those viewports. This is not a claim that every page was manually reread at full size. Production mobile-width execution was not repeated: its exact page/image bytes match the candidate tested at 375 × 812. Physical Android/Galaxy app execution and Safari remain unperformed; current mobile-menu evidence is official documentation plus browser checks.
 
-Final private report/archive preservation and same-ID CURRENT/PROJECT_INDEX updates are handled separately by the release owner, with an external readback receipt completed before the final project handoff. This public release record does not assert that those final operational readbacks have already completed. No production merge, daily D1 attestation or database activation remains pending. The next manuscript and its acceptance criteria are in [HANDOFF.md](HANDOFF.md#wo03-acceptance-criteria).
+The final private report/archive and same-ID CURRENT/PROJECT_INDEX updates passed complete-byte readback. Their final IDs and hashes are recorded separately in private project evidence, rather than copied into this public release record. No production merge, daily D1 attestation or database activation remains pending. The next manuscript and its acceptance criteria are in [HANDOFF.md](HANDOFF.md#wo03-acceptance-criteria).
 
 ## Historical WO02 — candidate checkpoint, 2026-11-06
 

@@ -28,7 +28,7 @@ The structured release record is [qa/wo02-static-release.json](qa/wo02-static-re
 
 ### Next action
 
-The release owner completes the final private report/archive preservation and same-ID CURRENT/PROJECT_INDEX updates, then records their readback in a separate external receipt before the final project handoff. This document does not claim those final operational readbacks have already completed. Production verification and PR #60 merge are complete.
+The final report and evidence archive are preserved and completely byte-readback verified. The same-ID CURRENT/PROJECT_INDEX updates also passed full-byte readback, with source/folder identities and prior checkpoints preserved. Final operational IDs, hashes and the separate integrity receipt belong in the private project records. Production verification, PR #60 merge and the operational readbacks are complete.
 
 Begin WO03 from the preserved SNS entry blueprint and approved editorial contracts. Set the body-page budget to 420 with a hard editorial minimum of 400; write the complete exercises, independent tasks and solutions, create the required teaching visuals, and verify current menus and full-edition reading quality. Keep `sample-20261106-v1` intact and increment the regular count only when the completed regular edition passes its release gates.
 

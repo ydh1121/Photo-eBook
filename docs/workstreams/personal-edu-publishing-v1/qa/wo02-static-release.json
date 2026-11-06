@@ -322,9 +322,10 @@
   },
   "operationalRecordBoundary": {
     "productionReleaseComplete": true,
-    "finalPrivateCurrentAndIndexReadbackClaimedHere": false,
+    "finalPrivateCurrentAndIndexReadbackClaimedHere": true,
     "separateExternalReceiptRequired": true,
-    "ownerAction": "Complete final report/archive preservation, same-ID CURRENT/PROJECT_INDEX updates and their separate readback receipt before the final project handoff. Private identifiers and receipts remain outside Git."
+    "ownerAction": "Preserve the verified same-ID operational records and their separate external integrity receipt in private project evidence. No private identifiers or final operational-file hashes are included here.",
+    "releaseReportAndArchiveFullByteReadback": true
   },
   "limitations": [
     "No physical Android/Galaxy app or Safari execution is claimed.",
