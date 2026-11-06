@@ -54,6 +54,23 @@
     "Actual Instagram/YouTube video playback analysis is deferred until user-uploaded files; zero videos have been reviewed."
   ],
   "production": {
-    "status": "pending merge and deployed revision verification"
+    "status": "verified",
+    "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+    "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+    "checkedAt": "2026-11-06T04:56:40.881658+00:00",
+    "evidence": "qa/production-verification.json",
+    "liveModuleGatePassed": true,
+    "allSevenCommitChecksPassed": true,
+    "runtimePassed": 57,
+    "runtimeRun": 42164564491
+  },
+  "releaseCheckpoint": {
+    "commit": "9834fafc020d65375f736571ebc06a61b22a1353",
+    "allSevenChecksPassed": true,
+    "runtimePassed": 57,
+    "runtimeFailed": 0,
+    "workflowRun": 42164245595,
+    "artifactId": 13478840499,
+    "artifactSha256": "a6df5723fe54add4ea27a431494aa686bda7fc0539ef4c68b0639ac03f8e3ebe"
   }
 }

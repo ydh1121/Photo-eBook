@@ -6,7 +6,17 @@ The reviewed notice handling retains last successful data and never treats fetch
 
 The prepared source revision passes 15,504 static assertions, 40 video-parser checks, 77 official-notice checks, module boundaries, syntax, deterministic rebuilding and diff whitespace checks. Two edited native Sheets were fully read back with content/byte equality and 212 formula ranges verified. There are 45 chapters, 194 blocks and 48 source records.
 
-Exact implementation HEAD `a769a098c024ff45c47c9eff24286da90a479565` passed all seven checks and 57/57 runtime cases. Artifact `13478550572` from run `42163541942` contains 56 screenshots and no runtime diagnostics. AI hero and community practice v3 layouts passed desktop/mobile visual review; the other eight accepted v2 layouts are preserved. Manual preview review confirms the six-topic horizontal rail and 45-second storyboard. Metadata-only final checks and actual production verification remain the release gate. See `qa/release-qa.json`.
+Exact implementation HEAD `a769a098c024ff45c47c9eff24286da90a479565` passed all seven checks and 57/57 runtime cases. Artifact `13478550572` from run `42163541942` contains 56 screenshots and no runtime diagnostics. AI hero and community practice v3 layouts passed desktop/mobile visual review; the other eight accepted v2 layouts are preserved. Manual preview review confirms the six-topic horizontal rail and 45-second storyboard. The metadata-only release checkpoint and actual production gates subsequently passed; details follow. See `qa/release-qa.json`.
+
+## Production verification
+
+PR #57 was merged at tested HEAD `9834fafc020d65375f736571ebc06a61b22a1353` after all seven checks and 57/57 runtime cases passed. Cloudflare production deployment `7d9fd907-9144-4b1d-8531-59e705a51981` serves merge commit `7ce547910893eb819e712df3620063edc2980e5d`; deployment completed at 2026-11-06T04:47:43.013488Z.
+
+All seven commit checks also passed on the deployed merge, including the repeated 57/57 runtime suite (run 42164564491). The actual production module pipeline passed 11/11 checks. Manual cloud-browser review verified six subject routes, the active selection fill/SVG close button, aligned FAB centers, the real-estate storyboard, and the live 부산/교육 filter (20 matching notices at the check). Ten deployed images were downloaded through their rendered page elements and matched byte-for-byte with Git assets.
+
+All four official-notice providers returned `ok` without stale or partial results. Five subject video endpoints returned `verified-recommendations` with `isFallback:true`; this is a working recommendation fallback, not proof of live YouTube search or actual video playback. Source/file metadata is kept separate from later uploaded-video analysis.
+
+See `qa/production-verification.json` for timestamped observations and limits. The original review's pending statements below are retained only as historical review evidence.
 
 ## Historical initial review
 

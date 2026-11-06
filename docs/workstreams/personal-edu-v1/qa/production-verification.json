@@ -1,0 +1,427 @@
+{
+  "status": "verified",
+  "checkedAt": "2026-11-06T04:56:40.881658+00:00",
+  "url": "https://photo-ebook.pages.dev/",
+  "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+  "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+  "deploymentUrl": "https://7d9fd907.photo-ebook.pages.dev",
+  "deployedAt": "2026-11-06T04:47:43.013488Z",
+  "testedPrHead": "9834fafc020d65375f736571ebc06a61b22a1353",
+  "pullRequest": 57,
+  "routes": [
+    {
+      "route": "/",
+      "title": null,
+      "heading": "사진으로 먹고살기, 첫 12개월",
+      "chapters": 10,
+      "subjectMenuRows": 1
+    },
+    {
+      "route": "/video/",
+      "title": "스마트폰 영상 촬영과 편집 | Personal Edu",
+      "heading": "휴대폰으로 찍고,\n한 편으로 완성하세요",
+      "chapters": 9,
+      "subjectMenuRows": 1
+    },
+    {
+      "route": "/ai/",
+      "title": "프롬프트부터 배우는 AI 활용 | Personal Edu",
+      "heading": "하고 싶은 일을,\nAI에게 구체적으로",
+      "chapters": 9,
+      "subjectMenuRows": 1
+    },
+    {
+      "route": "/community/",
+      "title": "작은 모임 기획과 커뮤니티 운영 | Personal Edu",
+      "heading": "사람이 다시 찾아오는\n작은 모임 만들기",
+      "chapters": 9,
+      "subjectMenuRows": 1
+    },
+    {
+      "route": "/real-estate/",
+      "title": "집과 동네를 읽는 부동산 기초 | Personal Edu",
+      "heading": "집과 동네를 읽고,\n쓸모 있는 정보를 전하세요",
+      "chapters": 9,
+      "subjectMenuRows": 1
+    },
+    {
+      "route": "/auction/",
+      "title": "서류와 비용으로 배우는 첫 경매 공부 | Personal Edu",
+      "heading": "서류를 읽고 비용을 계산하는,\n첫 경매 공부",
+      "chapters": 9,
+      "subjectMenuRows": 1
+    }
+  ],
+  "images": [
+    {
+      "route": "/video/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/video-hero.webp?v=d46f8322e663",
+      "bytes": 50342,
+      "sha256": "d46f8322e6630e3561dc08d18ad9e7eabe0f628fc028acc830c2c8291f4d32f7",
+      "matchesRepository": true
+    },
+    {
+      "route": "/video/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/video-practice.webp?v=78f2dc26fc54",
+      "bytes": 167864,
+      "sha256": "78f2dc26fc5446febca0f836311b3e3e334d9719a5f0cb6f4ae6c3eed7b645bf",
+      "matchesRepository": true
+    },
+    {
+      "route": "/ai/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/ai-hero.webp?v=ed668c03979d",
+      "bytes": 77666,
+      "sha256": "ed668c03979d3289bd5d33072dcf1922f243b208136ff05815a4b56496d09db5",
+      "matchesRepository": true
+    },
+    {
+      "route": "/ai/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/ai-practice.webp?v=8c84d51ddb92",
+      "bytes": 167442,
+      "sha256": "8c84d51ddb92459cfa81e1d18d991f3029ba7e56ee7b6a108b55c92651577c04",
+      "matchesRepository": true
+    },
+    {
+      "route": "/community/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/community-hero.webp?v=f09875915fa8",
+      "bytes": 130638,
+      "sha256": "f09875915fa880950a5af1f5e47893d966054745f5b02e466556ac95c4183345",
+      "matchesRepository": true
+    },
+    {
+      "route": "/community/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/community-practice.webp?v=a62e65e52282",
+      "bytes": 139424,
+      "sha256": "a62e65e522822dc1d4cc2d06e4287a3b3d7025aeccfbfbdf9c00598c89338dad",
+      "matchesRepository": true
+    },
+    {
+      "route": "/real-estate/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/real-estate-hero.webp?v=a0587c516c55",
+      "bytes": 161312,
+      "sha256": "a0587c516c55868fbd3d1bc1687d8258aba0b0600ed2546cc75203734ecaf573",
+      "matchesRepository": true
+    },
+    {
+      "route": "/real-estate/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/real-estate-practice.webp?v=27e026b54223",
+      "bytes": 86306,
+      "sha256": "27e026b54223acec2352d3bb0854edab1c5606bb1a4703d48e5a7cc49d3065e5",
+      "matchesRepository": true
+    },
+    {
+      "route": "/auction/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/auction-hero.webp?v=6dd7d5fed807",
+      "bytes": 107116,
+      "sha256": "6dd7d5fed8074efc5417e20dab79529ae6d8265cc62bb09028a2047c5f4f8c78",
+      "matchesRepository": true
+    },
+    {
+      "route": "/auction/",
+      "url": "https://photo-ebook.pages.dev/assets/images/generated/personal-edu-v1/auction-practice.webp?v=7c3f423d2a8e",
+      "bytes": 101278,
+      "sha256": "7c3f423d2a8ebfbad7b7f7b52c6525e0ec223e69f8e06807dee9a8043f985fda",
+      "matchesRepository": true
+    }
+  ],
+  "allTenImagesMatchRepository": true,
+  "ui": {
+    "subjectFabAndCollectionCenterEqual": true,
+    "buttonGapPx": 12,
+    "selectionFill": "rgb(49, 95, 201)",
+    "selectionText": "rgb(255, 255, 255)",
+    "closeIcon": "svg",
+    "regionTypeFilter": {
+      "region": "busan",
+      "type": "education",
+      "resultCount": 20
+    }
+  },
+  "liveModuleGate": {
+    "status": "pass",
+    "checksPassed": 11,
+    "workflowRunId": "42164564573",
+    "sourceSha": "7ce547910893eb819e712df3620063edc2980e5d"
+  },
+  "discovery": [
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-videos?subject=video",
+      "ok": true,
+      "items": 2,
+      "source": "verified-recommendations",
+      "isFallback": true,
+      "statusCounts": {},
+      "partial": null,
+      "stale": null,
+      "providers": []
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-videos?subject=ai",
+      "ok": true,
+      "items": 2,
+      "source": "verified-recommendations",
+      "isFallback": true,
+      "statusCounts": {},
+      "partial": null,
+      "stale": null,
+      "providers": []
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-videos?subject=community",
+      "ok": true,
+      "items": 2,
+      "source": "verified-recommendations",
+      "isFallback": true,
+      "statusCounts": {},
+      "partial": null,
+      "stale": null,
+      "providers": []
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-videos?subject=real-estate",
+      "ok": true,
+      "items": 2,
+      "source": "verified-recommendations",
+      "isFallback": true,
+      "statusCounts": {},
+      "partial": null,
+      "stale": null,
+      "providers": []
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-videos?subject=auction",
+      "ok": true,
+      "items": 1,
+      "source": "verified-recommendations",
+      "isFallback": true,
+      "statusCounts": {},
+      "partial": null,
+      "stale": null,
+      "providers": []
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-opportunities?subject=video",
+      "ok": true,
+      "items": 32,
+      "source": null,
+      "isFallback": null,
+      "statusCounts": {
+        "open": 7,
+        "unknown": 7,
+        "closed": 18
+      },
+      "partial": false,
+      "stale": false,
+      "providers": [
+        {
+          "id": "kcmf-busan",
+          "status": "ok"
+        },
+        {
+          "id": "busan-seo-learning",
+          "status": "ok"
+        },
+        {
+          "id": "bizinfo",
+          "status": "ok"
+        },
+        {
+          "id": "busan-learning-voucher",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-opportunities?subject=ai",
+      "ok": true,
+      "items": 24,
+      "source": null,
+      "isFallback": null,
+      "statusCounts": {
+        "open": 5,
+        "unknown": 4,
+        "closed": 15
+      },
+      "partial": false,
+      "stale": false,
+      "providers": [
+        {
+          "id": "kcmf-busan",
+          "status": "ok"
+        },
+        {
+          "id": "busan-seo-learning",
+          "status": "ok"
+        },
+        {
+          "id": "bizinfo",
+          "status": "ok"
+        },
+        {
+          "id": "busan-learning-voucher",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-opportunities?subject=community",
+      "ok": true,
+      "items": 12,
+      "source": null,
+      "isFallback": null,
+      "statusCounts": {
+        "open": 2,
+        "unknown": 2,
+        "closed": 8
+      },
+      "partial": false,
+      "stale": false,
+      "providers": [
+        {
+          "id": "kcmf-busan",
+          "status": "ok"
+        },
+        {
+          "id": "busan-seo-learning",
+          "status": "ok"
+        },
+        {
+          "id": "bizinfo",
+          "status": "ok"
+        },
+        {
+          "id": "busan-learning-voucher",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-opportunities?subject=real-estate",
+      "ok": true,
+      "items": 7,
+      "source": null,
+      "isFallback": null,
+      "statusCounts": {
+        "closed": 7
+      },
+      "partial": false,
+      "stale": false,
+      "providers": [
+        {
+          "id": "kcmf-busan",
+          "status": "ok"
+        },
+        {
+          "id": "busan-seo-learning",
+          "status": "ok"
+        },
+        {
+          "id": "bizinfo",
+          "status": "ok"
+        },
+        {
+          "id": "busan-learning-voucher",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "url": "https://photo-ebook.pages.dev/api/learning-opportunities?subject=auction",
+      "ok": true,
+      "items": 7,
+      "source": null,
+      "isFallback": null,
+      "statusCounts": {
+        "closed": 7
+      },
+      "partial": false,
+      "stale": false,
+      "providers": [
+        {
+          "id": "kcmf-busan",
+          "status": "ok"
+        },
+        {
+          "id": "busan-seo-learning",
+          "status": "ok"
+        },
+        {
+          "id": "bizinfo",
+          "status": "ok"
+        },
+        {
+          "id": "busan-learning-voucher",
+          "status": "ok"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Live video discovery currently uses verified metadata recommendations; no successful upstream search is claimed.",
+    "Actual video playback analysis remains deferred to user-uploaded files.",
+    "Actual Galaxy/Safari hardware was not tested."
+  ],
+  "postMergeChecks": {
+    "checkedAt": "2026-11-06T05:01:00Z",
+    "deployedCommit": "7ce547910893eb819e712df3620063edc2980e5d",
+    "allSevenChecksPassed": true,
+    "checks": [
+      {
+        "name": "Cloudflare Pages",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://dash.cloudflare.com/?to=/7c52434598072e9bce77aa00bafa1ed3/pages/view/photo-ebook/7d9fd907-9144-4b1d-8531-59e705a51981",
+        "completedAt": "2026-11-06T04:47:43Z"
+      },
+      {
+        "name": "verify-library-architecture",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42164564613/job/127717886929",
+        "completedAt": "2026-11-06T04:47:42Z"
+      },
+      {
+        "name": "verify-live-pages",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42164564573/job/127717886861",
+        "completedAt": "2026-11-06T04:49:17Z"
+      },
+      {
+        "name": "runtime",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42164564491/job/127717886812",
+        "completedAt": "2026-11-06T04:59:12Z"
+      },
+      {
+        "name": "validate",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42164564645/job/127717886755",
+        "completedAt": "2026-11-06T04:48:38Z"
+      },
+      {
+        "name": "parity",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42164564438/job/127717886345",
+        "completedAt": "2026-11-06T04:47:47Z"
+      },
+      {
+        "name": "generalization",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42164564445/job/127717886333",
+        "completedAt": "2026-11-06T04:48:08Z"
+      }
+    ],
+    "runtime": {
+      "passed": 57,
+      "failed": 0,
+      "runId": 42164564491,
+      "artifactId": 13478678572,
+      "artifactSha256": "450987af7522bfdb9bfbad0508b9da43f21164566e5f219913f0a66e7e184c11"
+    }
+  }
+}

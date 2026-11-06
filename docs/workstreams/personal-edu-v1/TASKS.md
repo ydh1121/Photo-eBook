@@ -5,7 +5,7 @@ Branch: `feat/personal-edu-subjects-v1`
 Baseline main: `16669aca400a343d772680e47e08a2a48ca708e7`
 PR: https://github.com/ydh1121/Photo-eBook/pull/57
 Last verified implementation: `a769a098c024ff45c47c9eff24286da90a479565`
-Release state: open draft PR; not merged; `main` still matches the baseline above.
+Release state: PR #57 merged; production code `7ce547910893eb819e712df3620063edc2980e5d` verified.
 
 This is an independent workstream. Do not resume or modify the older platform-library workstream merely because its handoff still says active.
 
@@ -37,19 +37,19 @@ This is an independent workstream. Do not resume or modify the older platform-li
 - [ ] Deferred follow-up: analyze actual video files after the user uploads them to the designated Drive folder. Instagram/YouTube playback remains unverified; existing product work continues independently.
 - [x] Apply the six-chapter filming exercise update through the two native Sheets, verify all 1,500 changed-source rows and 212 dependent formulas, then restore snapshots and provenance. Five sources now contain 3,731 rows; content is 45 chapters / 194 blocks / 48 sources.
 - [x] Record ten image layout passes and repository-applied status after visual review; production verification follows deployment.
-- [-] Final implementation checks passed at `a769a09`; update PR/review evidence and confirm checks on the metadata-only release checkpoint.
-- [ ] Merge tested revision and verify actual production deployment and all six routes.
-- [ ] Finalize repository and Drive restart records with exact revision, evidence and next action.
+- [x] Final release checkpoint `9834faf` passed all seven checks and 57/57 runtime cases; PR/review evidence updated.
+- [x] Merge tested revision and verify production deployment `7d9fd907`, six routes, 11/11 live module checks, four notice providers, five video responses and ten image hashes.
+- [x] Finalize repository and same-ID Drive restart records with exact revision, evidence and next action; complete-byte readbacks pass. Actual video analysis remains deferred.
 
 ## Current checkpoint
 
-- PR #57 remains unmerged. Implementation `a769a098c024ff45c47c9eff24286da90a479565` passed all seven checks and 57/57 runtime cases; evidence is in `qa/release-qa.json`.
-- Verified preview: https://f082425a.photo-ebook.pages.dev/. The metadata-only release checkpoint records completed image layout QA and is the next expected merge candidate after required checks.
-- All ten learning image layouts passed. Two v3 images were inspected from the new runtime artifact; the other eight retain the accepted v2 layouts. Original photography image slots and chapter-navigation owners are preserved.
-- Native source revision is verified and built: 45 chapters / 194 blocks / 48 sources, 3,731 source rows, 212 dependent formulas. These are authored filming exercises; no claim of actual channel viewing is made.
-- Local Dot is cancelled. Actual video analysis resumes only from user-uploaded files. No automatic folder monitoring or new recurring task is configured.
-- Production remains pending merge, actual deployment identity, six-route checks, live discovery responses and image hashes. Do not infer production status from preview checks.
-- Private source/asset IDs and video-upload instructions remain in the Drive index. CODE1/Order remains read-only.
+- PR #57 merged after all seven checks passed on `9834fafc020d65375f736571ebc06a61b22a1353`.
+- Production code `7ce547910893eb819e712df3620063edc2980e5d` is deployed at https://photo-ebook.pages.dev/ in Cloudflare deployment `7d9fd907-9144-4b1d-8531-59e705a51981`.
+- The production module gate passed 11/11; six subject routes and all ten deployed learning image bytes were independently checked. Detailed results are in `qa/production-verification.json`.
+- Live official-notice providers all responded normally. Video discovery currently returns the verified metadata recommendation fallback; no successful upstream search or actual video viewing is claimed.
+- Source Sheets, snapshots and generated pages match: 45 chapters / 194 blocks / 48 sources, 3,731 rows and 212 verified dependent formula ranges.
+- Actual video analysis is the only deferred content task. Local Dot is cancelled. The user will upload files; no automatic monitoring or recurring task exists.
+- Private source/asset IDs and upload instructions remain in the Drive index. CODE1/Order remains read-only.
 
 ## Invariants
 

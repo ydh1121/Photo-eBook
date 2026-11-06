@@ -80,7 +80,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-ai-practice": {
     "version": "v2",
@@ -139,7 +145,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-auction-hero": {
     "version": "v2",
@@ -198,7 +210,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-auction-practice": {
     "version": "v2",
@@ -257,7 +275,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-community-hero": {
     "version": "v2",
@@ -316,7 +340,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-community-practice": {
     "version": "v3",
@@ -399,7 +429,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-real-estate-hero": {
     "version": "v2",
@@ -458,7 +494,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-real-estate-practice": {
     "version": "v2",
@@ -517,7 +559,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-video-hero": {
     "version": "v2",
@@ -576,7 +624,13 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   },
   "edu-video-practice": {
     "version": "v2",
@@ -635,6 +689,12 @@
     ],
     "ready": true,
     "appliedTo": "repository learning-page assets",
-    "deploymentVerification": "pending production release"
+    "deploymentVerification": {
+      "status": "pass",
+      "commit": "7ce547910893eb819e712df3620063edc2980e5d",
+      "deploymentId": "7d9fd907-9144-4b1d-8531-59e705a51981",
+      "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
+      "matchesDeployedBytes": true
+    }
   }
 }

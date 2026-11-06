@@ -1,53 +1,47 @@
 # Personal Edu V1 — handoff
 
 Updated: 2026-11-06 UTC
-Phase: final implementation and image QA passed; release checkpoint and production verification next
-Branch: `feat/personal-edu-subjects-v1`
-PR: https://github.com/ydh1121/Photo-eBook/pull/57
-Baseline main: `16669aca400a343d772680e47e08a2a48ca708e7`
-Last verified implementation: `a769a098c024ff45c47c9eff24286da90a479565`
-Verified preview: https://f082425a.photo-ebook.pages.dev/
-Release state: open draft PR; implementation pushed and verified; metadata-only release checkpoint is being prepared.
+Phase: product release verified; actual video analysis deferred to user uploads
+PR: https://github.com/ydh1121/Photo-eBook/pull/57 — merged
+Tested PR HEAD: `9834fafc020d65375f736571ebc06a61b22a1353`
+Deployed code: `7ce547910893eb819e712df3620063edc2980e5d`
+Production: https://photo-ebook.pages.dev/
+Cloudflare deployment: `7d9fd907-9144-4b1d-8531-59e705a51981`
+Deployed at: 2026-11-06T04:47:43.013488Z
 
-## Exact next action
+## Next action
 
-1. Push the metadata-only release checkpoint and confirm all seven checks on its exact HEAD. Root owns commit/push/merge.
-2. Ready and merge PR #57 at that tested HEAD. Verify the actual Cloudflare production revision and all six routes, live discovery responses and image hashes.
-3. Update Drive CURRENT/PROJECT_INDEX/source/image manifests and this workstream with exact release evidence. Private IDs are found only through the Drive index.
+The requested product work is deployed and verified. Continue actual video analysis after the user supplies files in the designated Drive upload folder. Find the folder and reference archive through the private PROJECT_INDEX.json. Do not retry local Dot or cloud Instagram/YouTube playback. Do not poll the folder or configure recurring tasks. Actual videos reviewed: zero.
 
-The user's stray period was not a task change. Continue this workstream; do not resume CODE1/Order or the unrelated platform-library backlog.
+The user's stray period was not a task change. This workstream is independent of CODE1/Order and the older platform-library backlog. CODE1/Order remains read-only.
 
-## Deferred video analysis
+## Released product
 
-The user cancelled local Dot viewing. Do not retry local Dot or cloud Instagram/YouTube playback. Actual analysis resumes from files uploaded by the user to the designated project Drive folder. No folder polling, automatic viewing or new recurring task is configured. Actual video playback reviewed: zero. Account/profile/title/thumbnail/metadata records are not playback evidence.
+- Photography stays at `/`; new paths are `/video/`, `/ai/`, `/community/`, `/real-estate/`, `/auction/`. No new homepage.
+- One-row subject menu with native horizontal overflow, non-sticky main menu, aligned subject/collection FABs, filled active selection, equal close-button insets and centered SVG icon.
+- Original photography chapter-navigation owner, sticky lifecycle, motion and saved data preserved.
+- Shared learning hero/section, subject navigation and resource rail modules use the same Registry owners in Library, Editor, Public and declared-dependency export consumers. Saved/checklist state is isolated per subject and Editor instance.
+- 45 chapters, 194 blocks, 48 sources, 49 related links. Five native source Sheets contain 3,731 rows. The two filming updates were read back and byte-matched before snapshots/build; 212 dependent formula ranges passed.
+- Six filming topics, a 45-second storyboard, next-action examples, production brief, inquiry handling and 24-hour/seven-day reflection are authored practice exercises. They are not claims of observed channel patterns.
+- Ten learning images applied: eight accepted v2 scenes and two v3 image edits. All ten actual deployed WebP files match repository bytes. The original 48 photography image slots are preserved.
+- Official education/support notices use region/type filters, source/deadline closure and separate unknown/failure states. A failed request never proves closure.
 
-The private archive preserves 18 Instagram accounts, six YouTube channels and twelve representative video references. The former local Dot instructions are superseded history. The upload folder and README are registered through PROJECT_INDEX.json. Existing product implementation and deployment proceed independently.
+## Verified evidence
 
-## Prepared final revision
+- Tested PR HEAD: all seven checks pass; Personal Edu runtime 57/57 pass. Run https://github.com/ydh1121/Photo-eBook/actions/runs/42164245595
+- Implementation: 15,504 static assertions, 40 video-parser checks, 77 official-notice checks, canonical boundaries, deterministic build and syntax checks pass.
+- Deployed merge: all seven commit checks pass; repeated runtime 57/57 pass, run https://github.com/ydh1121/Photo-eBook/actions/runs/42164564491
+- Actual production module gate: 11/11 pass, run https://github.com/ydh1121/Photo-eBook/actions/runs/42164564573
+- Six production routes inspected. The subject picker and region/type filters work. Both FAB centers match with a 12px vertical gap. Ten production image bytes/SHA values match.
+- Four official providers responded normally. At the recorded check, video had 32 notices (7 open, 7 unknown, 18 closed); AI 24; community 12; real-estate and auction 7 closed each. These counts are a dated verification, not permanent inventory.
+- All five live video APIs returned the verified metadata recommendation fallback (2/2/2/2/1 items). Successful upstream YouTube search is not claimed.
 
-- Two targeted v3 assets: AI hero and community practice. Scene, decode, visual and all four Drive PNG/WebP byte readbacks passed. The other eight learning assets and 48 original photography image slots are preserved. Actual v3 desktop/mobile page crops passed at `a769a09`; image statuses record repository-applied assets and await production verification.
-- Native source Sheets updated first: video 749 rows, real-estate 751 rows. Full value readback, codec content/byte equality and 212 dependent VLOOKUP formula ranges passed. The other three sources retain their existing hashes; five sources total 3,731 rows.
-- Accepted six-chapter update adds six filming subjects, a 45-second shot plan, three next-action examples, a production brief, inquiry handling and 24-hour/seven-day reflection. These are authored practice examples. They contain no claim of observed channel performance.
-- Public content now has five courses, 45 chapters, 194 blocks, 48 source records and 49 related-content links. Existing eight block types, chapter IDs and checklist IDs are retained.
-- The builder regenerated the routes/packs with source hashes and image-content cache keys.
-- The production checker now waits for the new learning owners, expects 14 approved Library modules, permits horizontal-rail in learning consumers and keeps accordion/bottom-sheet restricted. Photography still must contain none of the three portable primitives.
+Evidence: `qa/release-qa.json`, `qa/production-verification.json`, `REVIEW.md`. The automated live-deploy workflow records its own status in the pre-existing platform-library QA file; that does not reopen its unrelated backlog. A later docs-only main commit may differ from the deployed code SHA; compare runtime trees before treating that as a failed deployment.
 
-## Verification
+## Limits and resume rules
 
-Implementation `a769a09`: all seven commit checks and 57/57 Personal Edu runtime checks passed.
-Runtime evidence: https://github.com/ydh1121/Photo-eBook/actions/runs/42163541942
-The 56-screenshot artifact SHA is recorded in `qa/release-qa.json`. Both v3 page crops passed visual review. The preview also renders the six-topic content rail and 45-second storyboard.
+Actual Galaxy/Safari hardware was not tested. Static-server discovery tests use fixtures; live responses were checked separately. The standalone dependency fixture is not a new HTML/ZIP export product.
 
-Current local revision: 15,504 static assertions passed (including 20 photography owner checks), 40 video parser checks and 77 official-notice checks passed, canonical boundary check and JavaScript syntax passed, deterministic rebuild and diff whitespace checks passed. A read-only reviewer confirmed the live-check contract update and found no additional blocking defect in the reviewed scope. The metadata-only release checkpoint must retain green required checks; production verification is still pending.
+Local Dot is cancelled. The private archive preserves 18 Instagram accounts, six YouTube channels and twelve representative metadata references. Actual file analysis must cite file names and time ranges, distinguish visible actions from inference, and enter native source Sheets before validated snapshots/build when accepted into lessons.
 
-Browser suite limitations: static-server API fixtures do not prove live upstream availability; the standalone dependency fixture is not an HTML/ZIP export product. Actual Galaxy/Safari hardware was not tested. Live YouTube parsing must report fallback honestly when upstream search is unavailable.
-
-## Product invariants
-
-Photography stays at `/`; no new homepage. New paths are `/video/`, `/ai/`, `/community/`, `/real-estate/`, `/auction/`. The one-row subject menu scrolls away; its picker button follows the collection FAB's measured center. The original photography chapter-navigation owner and motion remain intact.
-
-Canonical `learning-guide-hero`, `learning-guide-section`, `subject-navigation` and `learning-resource-rail` serve Library, Editor, Public and declared-dependency export consumers. Cards compose horizontal rails and filter chips. Saved resources reuse existing collection keys with subject-prefixed IDs; checklist writes merge latest state. Native source Sheets are edited before validated snapshots and generated packs.
-
-Notice requests cannot imply closure on fetch failure. Use source/deadline evidence, retain last successful results and display verification state. New learning pages allow pinch zoom. Private family/commercial details, credential values and Drive source IDs stay outside Git. CODE1/Order remains read-only.
-
-Read `AGENTS.md`, `TASKS.md`, specs 20/21/22/23, `REVIEW.md`, actual Git/PR/check status and the private Drive index when resuming. Historical implementation findings are retained in Git history and REVIEW.md.
+Read AGENTS.md and this workstream's TASKS.md, compare actual Git/PR/deployment state, then read the private Drive CURRENT/PROJECT_INDEX records. Preserve both original photography folder names and IDs. Keep private family, financial, commercial and authentication details outside Git and public content.
