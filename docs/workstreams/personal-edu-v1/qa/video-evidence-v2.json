@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-11-06T06:06:59.197686+00:00",
-  "phase": "local-static-passed-runtime-and-deployment-pending",
+  "checkedAt": "2026-11-06T07:05:44.222241+00:00",
+  "phase": "complete-production-evidence-and-operational-readbacks-verified",
   "baselineCommit": "2d3eb05a55de303d349ba0c8caadb86dfde3bb09",
   "course": {
     "chapters": 45,
@@ -12,7 +12,12 @@
     "realEstateSnapshotSha256": "50a7c47836bb01694f992aa166053b13f00559d2cfee467dfb0d62f3d4b85e31",
     "nativeChangedRows": 1016,
     "primitiveValues": 735,
-    "sourceReadbackByteIdentical": true
+    "sourceReadbackByteIdentical": true,
+    "nativeTotalRows": 3996,
+    "realEstateSources": 14,
+    "dependentFormulaRangesVerified": 124,
+    "otherFourSourceRecordsPreserved": true,
+    "priorSourceHistoryPreserved": true
   },
   "metadataIndex": {
     "video": 138,
@@ -42,8 +47,541 @@
     "learningSameQueryNextCursor": null
   },
   "notes": [
-    "Metadata verification does not claim playback of every discovered video.",
-    "Instagram items are verified public post metadata, not a profile-wide authenticated crawler.",
-    "Native source/evidence identifiers and supplied media remain private."
-  ]
+    "Counts are dated metadata observations and can change; record counts across subjects are not a global unique-video or playback count.",
+    "Public YouTube metadata discovery and known Instagram post metadata do not claim that every indexed video was watched.",
+    "Instagram references are verified public post metadata, not an authenticated profile-wide crawler.",
+    "Supplied media analysis used frames, captions/captures and machine-generated transcripts; no direct listening was performed.",
+    "Source identities, uploaded filenames and private information remain outside the repository.",
+    "Premerge runtime attempt 1 was cancelled during APT setup, before application tests. Attempt 2 and the separate deployed-merge run each passed 59/59.",
+    "The current production release, live module gate, private analysis archive and same-ID operational-record readbacks are verified.",
+    "Preview counts, controlled runtime fixture counts and actual production counts are recorded separately.",
+    "Local Dot remains cancelled; no recurring monitoring or authenticated social-media playback retries are configured.",
+    "AI first displayed 13 stored metadata references; the later refreshed view displayed 20 and automatic loading reached 32 unique cards. Both observations are preserved."
+  ],
+  "schemaVersion": 2,
+  "pullRequest": {
+    "number": 58,
+    "url": "https://github.com/ydh1121/Photo-eBook/pull/58",
+    "status": "merged",
+    "mergedAt": "2026-11-06T06:52:54Z",
+    "mergeCommit": "755ff19188e746ac33282063f91a2cab28da3625"
+  },
+  "implementationCommit": "19b7f9e350e0f08371f977fce15a141e3737a6c7",
+  "previewUrl": "https://6bcea703.photo-ebook.pages.dev",
+  "branch": "feat/personal-edu-video-evidence-v2",
+  "mediaAnalysis": {
+    "status": "completed",
+    "suppliedMediaAndMatchedCapturesReviewed": true,
+    "presenterLedSequenceReviewed": true,
+    "methods": [
+      "video-frame-inspection",
+      "captions-and-matched-captures",
+      "machine-generated-transcripts"
+    ],
+    "directListening": false,
+    "machineTranscriptAndVisibleTextCompared": true,
+    "detailedEvidence": "private-project-records",
+    "privateIdentifiersAndUploadNamesPublished": false
+  },
+  "ci": {
+    "commit": "755ff19188e746ac33282063f91a2cab28da3625",
+    "allChecks": {
+      "passed": 7,
+      "failed": 0
+    },
+    "personalEduRuntime": {
+      "runId": 42177247757,
+      "jobId": 127758426281,
+      "runUrl": "https://github.com/ydh1121/Photo-eBook/actions/runs/42177247757",
+      "status": "pass",
+      "passed": 59,
+      "failed": 0,
+      "diagnostics": [],
+      "screenshots": 58,
+      "startedAt": "2026-11-06T06:53:22.861Z",
+      "finishedAt": "2026-11-06T06:55:18.793Z",
+      "artifactId": 13484320131,
+      "artifactSha256": "b03d38e9d0a1f693bd95025c160620432f7e1b35311e7b8614f47c6359ef6785",
+      "artifactDigestMatched": true,
+      "limitations": [
+        "Static-server checks use bundled content, not the production APIs.",
+        "The standalone export fixture verifies declared canonical dependencies. It is not an HTML/ZIP export product."
+      ]
+    },
+    "premerge": {
+      "commit": "19b7f9e350e0f08371f977fce15a141e3737a6c7",
+      "allChecksPassed": 7,
+      "runId": 42174475738,
+      "jobId": 127756864626,
+      "successfulAttempt": 2,
+      "passed": 59,
+      "failed": 0,
+      "diagnostics": [],
+      "screenshots": 58,
+      "artifactId": 13483239822,
+      "artifactSha256": "51deb5e039b24aedda93d7d1cc9064a01fc0c39acef9011e194795119ae64e8a",
+      "artifactDigestMatched": true,
+      "attempt1": {
+        "status": "cancelled",
+        "stage": "APT browser dependency installation",
+        "applicationTestsExecuted": false,
+        "applicationArtifactProduced": false
+      },
+      "manualVisualReview": {
+        "screenshotsInspected": 9,
+        "blockingIssues": []
+      }
+    }
+  },
+  "previewDiscovery": {
+    "testedSha": "531ce77b2c5924652e9c97155bd115d239bbc11a",
+    "preview": "https://33b9a090.photo-ebook.pages.dev",
+    "subjects": [
+      {
+        "id": "real-estate",
+        "initial": 19,
+        "afterFirstAutoLoad": 33,
+        "uniqueAfterFirstAutoLoad": 33,
+        "afterSecondAutoLoad": 51,
+        "uniqueAfterSecondAutoLoad": 51
+      },
+      {
+        "id": "video",
+        "initial": 20,
+        "more": true,
+        "status": "20개 영상 · 마지막 확인 11. 06. 15:11",
+        "unique": 20
+      },
+      {
+        "id": "ai",
+        "initial": 20,
+        "more": true,
+        "status": "20개 영상 · 마지막 확인 11. 06. 15:11",
+        "unique": 20
+      },
+      {
+        "id": "community",
+        "initial": 19,
+        "more": true,
+        "status": "19개 영상 · 마지막 확인 11. 06. 15:12",
+        "unique": 19
+      },
+      {
+        "id": "auction",
+        "initial": 29,
+        "more": true,
+        "status": "29개 영상 · 마지막 확인 11. 06. 15:12",
+        "unique": 29
+      }
+    ],
+    "interactions": [
+      {
+        "check": "instagramFilter",
+        "count": 8,
+        "allInstagram": true,
+        "closedReferenceMarked": true
+      },
+      {
+        "check": "hashtagClickSearch",
+        "count": 2,
+        "query": "#신림원룸",
+        "status": "2개 영상 · 마지막 확인 2026. 11. 06. · 확인해 둔 영상 자료",
+        "titles": [
+          "신림역 5분 복층 1.5룸",
+          "서울 보증금 1,000만 원 신축 첫 입주"
+        ]
+      },
+      {
+        "check": "captionSearch",
+        "count": 1,
+        "query": "예산",
+        "summaries": [
+          "지역·준공연도·월세로 시작해 수납과 옵션을 보여주는 영상입니다. 캡션에는 가격 문의 댓글, 예산·위치를 적은 DM, 저장 안내가 보입니다."
+        ],
+        "titles": [
+          "영등포역 원룸 오피스텔 월세 70만 원"
+        ]
+      }
+    ]
+  },
+  "previewLayout": {
+    "active": "자료",
+    "busy": "false",
+    "noticeCards": 32,
+    "results": 459.046875,
+    "scrollY": 19671,
+    "stage": 512,
+    "status": "passed",
+    "targetDocumentTop": 19743.40625,
+    "targetViewportTop": 72.40625,
+    "beforeDocumentTop": 19743.40625,
+    "beforeStage": 512,
+    "testedSha": "19b7f9e350e0f08371f977fce15a141e3737a6c7",
+    "preview": "https://6bcea703.photo-ebook.pages.dev/video/",
+    "firstClickOnly": true,
+    "documentTopDelta": 0,
+    "photographyNavigationOwnerChanged": false,
+    "correctiveSecondClick": false,
+    "resultsBefore": 0
+  },
+  "runtimeRegression": {
+    "status": "passed-premerge-and-postmerge",
+    "checks": [
+      "Delayed notice responses preserve the first chapter-click destination within 2px and retain the active menu before any target scroll correction.",
+      "Horizontal wheel loading adds unique records; an HTTP failure retains the cursor for retry; exhausted sources terminate.",
+      "Visible platform control, caption search, hashtag click and query reset preserve the selected source."
+    ],
+    "firstChapterJump": {
+      "landingTop": 72.34375,
+      "loadedTop": 72.34375,
+      "lateNotices": 3,
+      "deltaPx": 0.0
+    },
+    "paginationFixture": {
+      "initial": 16,
+      "final": 48,
+      "cursors": [
+        0,
+        3,
+        6,
+        6,
+        9
+      ],
+      "firstChapterJump": {
+        "landingTop": 72.34375,
+        "loadedTop": 72.34375,
+        "lateNotices": 3
+      }
+    },
+    "searchFixture": {
+      "instagram": 8,
+      "captionMatches": 1,
+      "hashtagMatches": 8
+    }
+  },
+  "production": {
+    "status": "verified",
+    "commit": "755ff19188e746ac33282063f91a2cab28da3625",
+    "deploymentId": "4d0da2f7-2e73-4911-ae73-276c2cdfb97f",
+    "deploymentUrl": "https://4d0da2f7.photo-ebook.pages.dev",
+    "base": "https://photo-ebook.pages.dev",
+    "deployedAt": "2026-11-06T06:53:11.203244Z",
+    "checkedAt": "2026-11-06T07:04:18.104Z",
+    "cloudBrowser": {
+      "subjectHeadingsVerified": true,
+      "learningChaptersPerSubject": 9,
+      "resourceScriptVersion": "v4",
+      "photographyImageRendered": true,
+      "realEstate": {
+        "initial": 17,
+        "afterFirstAutoLoad": 31,
+        "afterSecondAutoLoad": 47,
+        "uniqueInitial": 17,
+        "uniqueAfterFirstAutoLoad": 31,
+        "uniqueAfterSecondAutoLoad": 47,
+        "instagramFilter": {
+          "count": 8,
+          "allInstagram": true,
+          "closedReferenceMarked": true
+        },
+        "hashtagSearch": {
+          "query": "#신림원룸",
+          "count": 2
+        },
+        "captionSearch": {
+          "query": "예산",
+          "count": 1
+        },
+        "observation": {
+          "id": "real-estate",
+          "initial": 17,
+          "more": true,
+          "status": "17개 영상 · 마지막 확인 11. 06. 15:54",
+          "trackTop": 736.65625,
+          "unique": 17,
+          "viewport": 936,
+          "afterFirstAutoLoad": {
+            "count": 31,
+            "unique": 31
+          },
+          "afterSecondAutoLoad": {
+            "count": 47,
+            "unique": 47
+          }
+        }
+      },
+      "otherSubjectCountRecords": {
+        "status": "verified",
+        "subjects": [
+          {
+            "id": "video",
+            "initial": 20,
+            "more": true,
+            "status": "20개 영상 · 마지막 확인 11. 06. 16:00",
+            "unique": 20
+          },
+          {
+            "id": "ai",
+            "initial": 20,
+            "more": true,
+            "status": "20개 영상 · 마지막 확인 11. 06. 16:03",
+            "unique": 20,
+            "firstObservedInitial": 13,
+            "firstObservedStatus": "13개 영상 · 마지막 확인 2026. 11. 06. · 확인해 둔 영상 자료",
+            "afterAutoLoad": {
+              "busy": "false",
+              "count": 32,
+              "status": "32개 영상 · 마지막 확인 11. 06. 16:04",
+              "unique": 32
+            }
+          },
+          {
+            "id": "community",
+            "initial": 19,
+            "more": true,
+            "status": "19개 영상 · 마지막 확인 11. 06. 16:01",
+            "unique": 19
+          },
+          {
+            "id": "auction",
+            "initial": 29,
+            "more": true,
+            "status": "29개 영상 · 마지막 확인 11. 06. 16:02",
+            "unique": 29
+          }
+        ]
+      },
+      "observedFrom": "2026-11-06T06:54:05.402Z",
+      "completedAt": "2026-11-06T07:04:18.104Z",
+      "initialCounts": {
+        "real-estate": 17,
+        "video": 20,
+        "ai": 20,
+        "community": 19,
+        "auction": 29
+      },
+      "interactions": [
+        {
+          "allInstagram": true,
+          "busy": "false",
+          "check": "instagramFilter",
+          "closedReferenceMarked": true,
+          "count": 8,
+          "tags": [
+            "#동작구부동산",
+            "#원룸",
+            "#관악구부동산",
+            "#영등포부동산",
+            "#영등포원룸",
+            "#영등포오피스텔",
+            "#부동산",
+            "#공인중개사",
+            "#집투어",
+            "#신림복층",
+            "#신림원룸",
+            "#신림역원룸",
+            "#관악구원룸",
+            "#2호선자취방",
+            "#자취방구하기"
+          ]
+        },
+        {
+          "check": "hashtagClickSearch",
+          "count": 2,
+          "query": "#신림원룸",
+          "status": "2개 영상 · 마지막 확인 2026. 11. 06. · 확인해 둔 영상 자료"
+        },
+        {
+          "check": "captionSearch",
+          "count": 1,
+          "query": "예산",
+          "summaries": [
+            "지역·준공연도·월세로 시작해 수납과 옵션을 보여주는 영상입니다. 캡션에는 가격 문의 댓글, 예산·위치를 적은 DM, 저장 안내가 보입니다."
+          ],
+          "titles": [
+            "영등포역 원룸 오피스텔 월세 70만 원"
+          ]
+        },
+        {
+          "check": "aiAutomaticLoading",
+          "before": {
+            "count": 20,
+            "status": "20개 영상 · 마지막 확인 11. 06. 16:03",
+            "top": 735.765625
+          },
+          "after": {
+            "busy": "false",
+            "count": 32,
+            "status": "32개 영상 · 마지막 확인 11. 06. 16:04",
+            "unique": 32
+          }
+        }
+      ],
+      "course": {
+        "chapters": [
+          {
+            "id": "intro",
+            "title": "한 편의 영상이 문의로 이어지기까지"
+          },
+          {
+            "id": "content",
+            "title": "첫 장면에 궁금할 이유를 담으세요"
+          },
+          {
+            "id": "inspection",
+            "title": "열어 보고, 써 보고, 함께 걸어보세요"
+          },
+          {
+            "id": "prices",
+            "title": "내 영상에 설명과 자막을 입히세요"
+          },
+          {
+            "id": "contract",
+            "title": "영상에서 글로, 글에서 문의로"
+          },
+          {
+            "id": "neighborhood",
+            "title": "소개할 집이 없는 날에도 이어가세요"
+          },
+          {
+            "id": "documents",
+            "title": "소개할 정보의 근거를 갖추세요"
+          },
+          {
+            "id": "education",
+            "title": "내 영상으로 피드백받는 수업을 찾으세요"
+          },
+          {
+            "id": "roadmap",
+            "title": "게시하고 답하면서 다음 편을 정하세요"
+          }
+        ],
+        "hero": "보고 싶은 집을 담고,\n문의로 이어가세요",
+        "resourceScript": "/assets/js/platform-modules/learning-resource-rail-v1.js?v=4"
+      },
+      "photography": {
+        "chapters": 10,
+        "fabCenterDelta": 0,
+        "fabGap": 12,
+        "hero": "사진으로 먹고살기,\n첫 12개월",
+        "subjectLinks": 6
+      }
+    },
+    "liveModuleGate": {
+      "runId": 42177247709,
+      "jobId": 127758425862,
+      "runUrl": "https://github.com/ydh1121/Photo-eBook/actions/runs/42177247709",
+      "base": "https://photo-ebook.pages.dev",
+      "status": "pass",
+      "passed": 11,
+      "failed": 0,
+      "startedAt": "2026-11-06T06:53:09.300Z",
+      "finishedAt": "2026-11-06T06:54:37.717Z",
+      "artifactId": 13484200425,
+      "artifactSha256": "3323c3b2489e8d0943ba424fe7724582da7ee8df2234040139c023096e0f9f8e",
+      "artifactDigestMatched": true,
+      "checks": [
+        {
+          "name": "live dashboard entry",
+          "status": "pass",
+          "detail": "builder-library-reference-v1.js"
+        },
+        {
+          "name": "live canonical assets",
+          "status": "pass",
+          "detail": "6 Photography/Public + 1 dependency-composed display + 1 shared rail + 4 learning + 2 Library/Editor-only modules"
+        },
+        {
+          "name": "live UI Library",
+          "status": "pass",
+          "detail": "registry-driven root route with 14 approved modules"
+        },
+        {
+          "name": "live Library theme/viewport",
+          "status": "pass",
+          "detail": "dark + mobile shared preview"
+        },
+        {
+          "name": "live Block Lab boundary",
+          "status": "pass",
+          "detail": "persistent workspace + research-only"
+        },
+        {
+          "name": "live Block Editor boundary",
+          "status": "pass",
+          "detail": "persistent workspace + 14 approved modules only"
+        },
+        {
+          "name": "live public migration",
+          "status": "pass",
+          "detail": "Photography canonical modules remain public; all three portable primitives remain absent from photography; shared rail is approved for learning consumers only"
+        },
+        {
+          "name": "live top-nav runtime parity",
+          "status": "pass",
+          "detail": "Photography/Public and Library share canonical liquid owner, native pan, remount recovery, and Breeze easing"
+        },
+        {
+          "name": "live Library runtime feedback gate",
+          "status": "pass",
+          "detail": "top-nav family skin, filter horizontal drag/pan, preview frame, rail content preservation and primitive controls passed on live Pages"
+        },
+        {
+          "name": "live Library module family gate",
+          "status": "pass",
+          "detail": "grouped accordion/popup tabs, standalone screen mode, portable rail fade/drag, bottom-sheet shell parity and filter outer paint passed on live Pages"
+        },
+        {
+          "name": "live UI visual matrix gate",
+          "status": "pass",
+          "detail": "10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states and Block Lab mobile control rail passed on live Pages"
+        }
+      ]
+    },
+    "supportingLiveReports": [
+      {
+        "status": "pass",
+        "passed": 13,
+        "failed": 0,
+        "name": "library-runtime-feedback-v1"
+      },
+      {
+        "status": "pass",
+        "passed": 9,
+        "failed": 0,
+        "name": "library-module-family-controls-v1"
+      },
+      {
+        "status": "pass",
+        "summary": {
+          "libraryStates": 56,
+          "adminStates": 12,
+          "totalStates": 68
+        },
+        "name": "ui-visual-matrix-v1"
+      },
+      {
+        "status": "pass",
+        "name": "block-lab-mobile-controls-v1"
+      }
+    ]
+  },
+  "historicalBaseline": {
+    "pullRequest": 57,
+    "productionCommit": "7ce547910893eb819e712df3620063edc2980e5d",
+    "productionEvidence": "qa/production-verification.json",
+    "runtimePassed": 57,
+    "mediaAnalysisAtThatRelease": "deferred-awaiting-user-files",
+    "supersededByCurrentCompletedAnalysis": true
+  },
+  "operationalClosure": {
+    "status": "complete",
+    "privateAnalysisArchive": "uploaded-and-full-byte-hash-readback-verified",
+    "archiveFileCount": 284,
+    "summaryAndFourStandaloneFiles": "full-byte-hash-readback-verified",
+    "currentAndProjectIndexReadbacks": "same-id-updates-full-byte-hash-verified",
+    "operationalReadbacksVerifiedAt": "2026-11-06T07:17:52.582767+00:00",
+    "publicImplementationAndReleaseGates": "complete",
+    "privateIdentifiersPublished": false
+  }
 }

@@ -1,4 +1,59 @@
-# Current release review — 2026-11-06
+# Current release review — PR #58, 2026-11-06
+
+Tested implementation: `19b7f9e350e0f08371f977fce15a141e3737a6c7`
+Deployed merge: `755ff19188e746ac33282063f91a2cab28da3625`
+PR: https://github.com/ydh1121/Photo-eBook/pull/58 — merged 2026-11-06T06:52:54Z
+Current preview: https://6bcea703.photo-ebook.pages.dev/
+Production: https://photo-ebook.pages.dev/
+Cloudflare deployment: `4d0da2f7-2e73-4911-ae73-276c2cdfb97f` — completed 2026-11-06T06:53:11.203244Z
+Status: complete; production, automated release gates, private evidence and operational readbacks verified
+
+## Current evidence and release limits
+
+The uploaded-reference analysis and the real-estate source rewrite are complete. Analysis used video frames, captions/captures and machine-generated transcripts, including detailed presenter-led sequence comparison; direct listening was not performed. Source SHA `50a7c47836bb01694f992aa166053b13f00559d2cfee467dfb0d62f3d4b85e31` is restored byte-identically from 1,016 native rows; 735 primitive values and 124 dependent formula ranges were checked. The current five-course inventory is 45 chapters, 196 blocks, 52 source records, 57 related links and 3,996 source rows. Real-estate has 9 chapters, 41 blocks and 14 sources. Other sources and prior history remain intact.
+
+The public metadata index contains 517 subject records (138/126/85/107/61). The real-estate subset contains 99 YouTube records and 8 unambiguous Instagram references from supplied captures. Metadata provenance and actual media analysis are separate: indexed titles, captions and hashtags do not establish playback, followers, inquiries or conversion outcomes. Private source identities, uploaded filenames and detailed media evidence are not included in public records.
+
+| Gate | Current evidence |
+| --- | --- |
+| Source readback and generated inventory | Passed for the current source SHA and totals above. |
+| Local static and parser checks | 16,531 static assertions, 55 video contracts, 77 notice checks, canonical boundaries, syntax and diff checks passed. |
+| Current commit checks | All seven passed at both `19b7f9e` and the deployed merge. |
+| Premerge Personal Edu runtime | Run 42174475738 attempt 2 passed 59/59, zero diagnostics. Attempt 1 was cancelled during APT installation before application tests; it is not counted as a runtime failure or pass. |
+| Deployed-merge Personal Edu runtime | Run 42177247757 independently passed 59/59, zero diagnostics, 58 screenshots. |
+| Actual preview discovery | Verified at `531ce77`: real-estate 19 → 33 → 51 with distinct IDs, other subjects 20/20/19/29 initially, further loading available. |
+| Actual preview search | Instagram filter 8; hashtag click 2; caption query 1; captured closure reference label retained. |
+| Actual preview first-click chapter navigation | Verified at `19b7f9e`: late notice insertion changes the target document top by 0px and leaves the correct menu active. |
+| Current production delivery | Merge `755ff19188e746ac33282063f91a2cab28da3625` deployed successfully; subject headings, nine learning chapters, v4 scripts and original photography image rendering checked. |
+| Actual production discovery | Final initial video/AI/community/real-estate/auction counts 20/20/19/17/29, all distinct and with further loading; real-estate 17 → 31 → 47 and AI 20 → 32 preserve uniqueness. |
+| Actual production search | Instagram-only filter 8; hashtag query 2; caption query 1; captured closure label retained. |
+| Photography production preservation | 10 chapters, six subject links, FAB center delta 0px and vertical gap 12px. |
+| Actual production module gate | Run 42177247709 passed 11/11; supporting feedback 13/13, family 9/9, visual matrix 68 states and mobile controls passed. |
+| Manual premerge visual review | Nine screenshots inspected; no blocking finding. This does not claim all 58 artifact screenshots were manually inspected. |
+
+## Resolved discovery and layout findings
+
+The original new-subject API could stop after a small recommendation fallback. The follow-up preserves the photography API/legacy helper and adds a separate bounded metadata collector with modern YouTube renderers, genuine continuations, 12 queries per subject, honest indexed fallback and explicit exhaustion. The UI merges by ID, loads near the horizontal end, retains a failed cursor, and offers manual retry. Search and platform filtering use the canonical shared rail and filter owners in all declared consumers.
+
+A review identified cache-key scope mixing between a whole-subject fallback and an explicitly selected sparse topic. Cache keys now include selection scope and platform; tests cover both request orders. Featured metadata keeps the curriculum's initial priority, while reviewed exclusions are applied to refreshed/live results.
+
+Actual cloud-browser inspection then reproduced a first-click navigation failure: late education notices inserted height above the resources chapter, leaving it around 455px below the viewport top and returning the active menu to education. A second click worked after the notices had loaded. An intermediate test-side `scrollIntoView` could conceal this product defect, so it is not accepted as evidence of a successful first click.
+
+The correction belongs to the common resource module: live notices reserve a 32rem result stage and stable status-line space from initial render; cards and empty state occupy the same stage. No photography navigation owner or navigation-replay logic was changed. The delayed-notice fixture checks destination position and selected menu before scrolling to the video rail.
+
+At the fresh `19b7f9e` preview, the target document top was 19,743.40625px before and after 32 notices arrived. The stage remained 512px, results occupied 459.046875px, and the target settled at viewport top 72.40625px with 자료 active. This was the first menu click. These preview measurements were subsequently supported by both 59-case runtime passes, whose delayed-notice fixture preserved 72.34375px → 72.34375px. Actual production inspection and the live module gate are recorded separately above.
+
+## Operational closure and limits
+
+The implementation, PR merge, deployed revision and public release gates are verified. The private analysis/release archive contains 284 files and passed complete remote byte/hash verification, as did its summary and four standalone evidence files. CURRENT and PROJECT_INDEX were updated at their existing IDs and verified byte-identically with prior history preserved. This WO is closed. All five subjects' dated production counts are recorded. AI initially displayed 13 stored metadata references, then 20 in a refreshed view, and 32 after automatic loading; the first and later observations remain distinct in JSON evidence. Preview and controlled fixture counts are not substituted for these production observations.
+
+Static runtime discovery tests use controlled fixtures, while the live module gate targets production. The 517-record index does not imply that every indexed video was played. Actual Galaxy/Safari hardware remains untested. Local Dot is cancelled, and no recurring monitoring or authenticated social-media playback retry is configured.
+
+Current public evidence: `qa/video-evidence-v2.json`. The records below preserve the archived PR #57 reviews, including their historical pending/deferred statements. Their source counts, CI passes and production deployment are not PR #58 results.
+
+## Historical review archive — PR #57
+
+### Archived PR #57 release review — 2026-11-06
 
 A bounded independent read-only review found no additional release blocker in the inspected implementation. The corrected post-deploy checker matches the approved 14-module Library contract, shared learning rail consumers, restricted accordion/bottom-sheet consumers and photography's absence of all three portable primitives. Readiness waits for learning owner scripts so old production HTML cannot satisfy the new generation check.
 
@@ -8,7 +63,7 @@ The prepared source revision passes 15,504 static assertions, 40 video-parser ch
 
 Exact implementation HEAD `a769a098c024ff45c47c9eff24286da90a479565` passed all seven checks and 57/57 runtime cases. Artifact `13478550572` from run `42163541942` contains 56 screenshots and no runtime diagnostics. AI hero and community practice v3 layouts passed desktop/mobile visual review; the other eight accepted v2 layouts are preserved. Manual preview review confirms the six-topic horizontal rail and 45-second storyboard. The metadata-only release checkpoint and actual production gates subsequently passed; details follow. See `qa/release-qa.json`.
 
-## Production verification
+#### Production verification
 
 PR #57 was merged at tested HEAD `9834fafc020d65375f736571ebc06a61b22a1353` after all seven checks and 57/57 runtime cases passed. Cloudflare production deployment `7d9fd907-9144-4b1d-8531-59e705a51981` serves merge commit `7ce547910893eb819e712df3620063edc2980e5d`; deployment completed at 2026-11-06T04:47:43.013488Z.
 
@@ -18,11 +73,11 @@ All four official-notice providers returned `ok` without stale or partial result
 
 See `qa/production-verification.json` for timestamped observations and limits. The original review's pending statements below are retained only as historical review evidence.
 
-## Historical initial review
+#### Historical initial review
 
 The dated pending statements below describe the initial review, not the later f37fd52 result or the current release checkpoint.
 
-# Personal Edu V1 — code review
+### Personal Edu V1 — code review
 
 Reviewed: 2026-11-06
 Branch: `feat/personal-edu-subjects-v1`
@@ -30,7 +85,7 @@ Baseline: `16669aca400a343d772680e47e08a2a48ca708e7`
 Latest source inspection: `215ed05c25f4bd2fda4469e0f6f8695b959b0c05` plus the runtime-check working-tree updates
 Review stage: pre-deployment review; latest runtime CI and mobile visual QA pending
 
-## Verification status
+#### Verification status
 
 | Evidence | Status at this checkpoint |
 | --- | --- |
@@ -42,7 +97,7 @@ Review stage: pre-deployment review; latest runtime CI and mobile visual QA pend
 | Mobile image/layout inspection in the actual pages | **Pending.** File existence and valid WebP headers do not establish cropping, legibility or visual quality. |
 | Production revision and deployed-page verification | **Pending.** This document does not claim a production deployment. |
 
-## Scope and method
+#### Scope and method
 
 This review covers the new subject navigation, learning modules, shared bookmark adapter, content-pack loading, photography hero extraction, and their Library / Editor / Public consumer wiring.
 
@@ -61,9 +116,9 @@ The review used source inspection and comparison with the baseline and the canon
 
 The files were being edited during review. “Confirmed in source” means the correction was visible in the working tree at the last read; it does not assert that a browser test passed. The older platform-library backlog is outside this review.
 
-## Findings
+#### Findings
 
-### R1 — checklist updates could erase another chapter's progress
+##### R1 — checklist updates could erase another chapter's progress
 
 Priority: P1
 Status: correction confirmed in source; runtime verification pending
@@ -75,7 +130,7 @@ The change handler now rereads the latest stored object before setting its own f
 
 Required verification: change a checkbox in two different chapters, reload, and confirm both remain checked. Repeat on a second subject and confirm its checklist is independent.
 
-### R2 — saved source cards did not restore their bookmark state
+##### R2 — saved source cards did not restore their bookmark state
 
 Priority: P1
 Status: correction confirmed in source; runtime verification pending
@@ -95,7 +150,7 @@ Required verification:
 4. Save two sources with the same source ID in different packs; confirm both survive independently.
 5. Exercise a Library / Editor bookmark and confirm production localStorage is unchanged.
 
-### R3 — approved modules were absent from non-page consumers
+##### R3 — approved modules were absent from non-page consumers
 
 Priority: P1
 Status: loader correction confirmed in source; consumer execution pending
@@ -107,7 +162,7 @@ The working tree now includes the new owners in Library, the shared module previ
 
 Required verification: insert and interact with all three new module IDs through Library → Editor → Public, and verify the declared owner/dependency set in an isolated export consumer. Script inclusion alone is not a passing consumer test.
 
-### R4 — learning owner files omit layout and dark-theme dependencies
+##### R4 — learning owner files omit layout and dark-theme dependencies
 
 Priority: P2
 Status: correction confirmed in source; standalone rendering pending
@@ -124,7 +179,7 @@ Both style owners are now included in the shared `foundation` declaration for th
 
 Required verification: render the hero and section without the photography page's full stylesheet, at desktop width and in a dark document. Confirm four desktop facts and readable card text.
 
-### R5 — repeated module instances can duplicate DOM IDs
+##### R5 — repeated module instances can duplicate DOM IDs
 
 Priority: P2
 Status: correction confirmed in source; repeated-instance runtime checks pending
@@ -142,7 +197,7 @@ The checklist storage initially had the same missing reusable-instance scope. Tw
 
 Required verification: both insert each module twice and duplicate it through the Editor's duplicate action. Confirm unique IDs, each FAB opens its own labelled dialog, checklist state remains independent after export/reload, and chapter links still address the intended public section after export.
 
-### R6 — collection reference icon CSS belongs to the wrong owner
+##### R6 — collection reference icon CSS belongs to the wrong owner
 
 Priority: P2
 Status: correction confirmed in source; standalone rendering pending
@@ -156,7 +211,7 @@ The new icon is `aria-hidden`, and the surrounding thumbnail link initially had 
 
 Required verification: render the collection as a standalone module with a saved source lacking a thumbnail. Confirm its icon layout and the thumbnail link's accessible name.
 
-### R7 — undefined text color token
+##### R7 — undefined text color token
 
 Priority: P2
 Status: correction confirmed in source
@@ -164,7 +219,7 @@ Owner: `learning-guide-v1.css`
 
 The first learning stylesheet used `--muted`, which is not a repository token. Those references now use the existing `--secondary` token. Dark-token availability remains the separate R4 issue.
 
-### R8 — history restoration could retain an outdated source bookmark
+##### R8 — history restoration could retain an outdated source bookmark
 
 Priority: P2
 Status: event-wiring correction confirmed in source; browser reproduction and latest CI pending
@@ -176,7 +231,7 @@ Persistent Public / Export consumers now call `syncBookmarks()` on `pageshow`, a
 
 Required verification: run that sequence, inspect the recorded history-restoration mode, and confirm the button, count and collection agree. Merely enabling the browser's cache does not prove that a particular navigation used it.
 
-## Confirmed design boundaries
+#### Confirmed design boundaries
 
 - The photography hero now calls the canonical hero renderer with the same title, subtitle, image, labels and values. The source diff does not change the photography chapter navigation owner.
 - Section composition resolves through the active pack's ordered section definitions. The photography pack retains its existing section IDs and order.
@@ -187,7 +242,7 @@ Required verification: run that sequence, inspect the recorded history-restorati
 - Links and author-supplied text pass through URL filtering and escaping in the new learning renderer. New internal related links remain rooted subject routes and chapter anchors.
 - The source publisher now uses the scoped `.edu-source-publisher` class and matching learning CSS, avoiding the existing `.curated-platform` positioning rules. New bookmarks still obtain publisher metadata directly from the source record.
 
-## Focused runtime acceptance checks
+#### Focused runtime acceptance checks
 
 Run these after the source corrections and generated routes are present:
 
@@ -207,7 +262,7 @@ Run these after the source corrections and generated routes are present:
 
 The default learning preview still contains checklist and template blocks without a source-card fixture. The public-resource checks exercise source bookmarks, but Library / Editor bookmark-store isolation needs explicit source-card test props before it can be reported as tested. This is a coverage limit, not an observed storage failure.
 
-## Personal Edu static validation
+#### Personal Edu static validation
 
 Owner: `scripts/check-personal-edu.mjs`
 Execution date: 2026-11-06
@@ -235,7 +290,7 @@ The validator checks:
 
 Eight negative cases were injected into memory without changing repository files: a missing source reference, unsupported block type, broken cross-subject anchor, household disclosure, income guarantee, HTTP source URL, truncated course and photography-data drift. Every case produced the expected validation failure. No browser interaction or network availability result is implied by these checks.
 
-## Read-only runtime-test review
+#### Read-only runtime-test review
 
 Owner: `scripts/check-personal-edu-runtime.mjs`
 Review date: 2026-11-06
@@ -256,6 +311,6 @@ The runtime script removes only Playwright's default back-forward-cache disablin
 
 The script also contains a clipboard comparison against the visible template text and a declared-dependency fixture built from Registry provenance. These are source-confirmed test paths whose execution remains pending. The dependency fixture copies canonical owners and referenced images and mounts the actual exported block props in isolation; it is a QA fixture, not an HTML/ZIP export product. The existing Editor JSON download/import is tested separately.
 
-## Release checkpoint
+#### Release checkpoint
 
 All concrete implementation and runtime-test design issues listed in this review have source corrections. The module boundary/dependency command and full Personal Edu static validation have recorded passing runs. **The latest runtime CI and mobile image/layout inspection remain pending.** Browser interaction, the isolated dependency fixture, HTTP route behavior and production revision verification must be recorded from their actual results before closing this review as a release record.
