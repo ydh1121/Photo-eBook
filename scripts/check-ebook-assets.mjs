@@ -1,129 +1,134 @@
+#!/usr/bin/env node
+/* Static publication QA. Local HTTP checks are not Cloudflare deployment proof. */
 import assert from 'node:assert/strict';
-import {readFileSync, mkdirSync, writeFileSync} from 'node:fs';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import {request as httpRequest} from 'node:http';
 import {createHash} from 'node:crypto';
-import {openLocalD1} from './ebook/sqlite-d1-adapter.mjs';
-import {EBOOK_LIMITS, validateBudgetAttestation, calculateAssetPublicationBudget} from '../functions/lib/ebook-asset-budget.js';
-import {publishEbookAssets} from '../functions/lib/ebook-asset-publisher.js';
-import {createEbookAssetHandler} from '../functions/lib/ebook-asset-service.js';
+import {EBOOK_ASSET_PREFIX,EBOOK_STATIC_LIMITS,readPublicInventory,mergePublicInventory,assessStaticPublication,regularVolumeProjection} from './ebook/static-publication-budget.mjs';
+import {startEbookPreviewServer} from './ebook/preview-server.mjs';
 
-const results = [];
-async function test(name, fn) { await fn(); results.push({name, pass: true}); }
-const now = Date.parse('2026-11-06T12:00:00Z');
-const proof = {plan: 'free', planVerified: true, accountUsageComplete: true, observedAt: '2026-11-06T11:00:00Z', accountStorageBytes: 1000000, accountRequestsToday: 100, accountRowsReadToday: 100, accountRowsWrittenToday: 10};
-// A real checked-in WebP tests binary type conversion and exact byte serving.
-const body = new Uint8Array(readFileSync(new URL('../public/assets/images/generated/personal-edu-v1/sns-hero.webp', import.meta.url)));
-const hash = createHash('sha256').update(body).digest('hex');
-const record = {assetId: 'test-photo', sha256: hash, bytes: body.length, width: 1536, height: 1024, mimeType: 'image/webp', body};
-const schema = readFileSync(new URL('../migrations/ebook-assets/0001-assets.sql', import.meta.url), 'utf8');
-const newDatabase = () => {const database = openLocalD1(); database.sqlite.exec(schema); return database;};
-const db = newDatabase();
-const noQueries = {prepare() {throw new Error('unexpected database access');}};
-const totalChanges = database => database.sqlite.prepare('SELECT total_changes() AS n').get().n;
-const assets = {[hash]: record}, env = {EBOOK_ASSETS_ENABLED: 'true', EBOOK_ASSETS_DB: db, EBOOK_BUDGET_ATTESTATION: JSON.stringify(proof)};
-const cached = new Map(); const cache = {async match(r) {return cached.get(r.url)?.clone() || null;}, async put(r, response) {cached.set(r.url, response.clone());}};
-const handler = createEbookAssetHandler({assets, now: () => now, cache});
-const url = 'https://example.test/api/ebook-assets/' + hash + '.webp';
-const request = (options = {}, overrides = {}) => handler({request: new Request(url, options), env: {...env, ...overrides}});
+const root=path.resolve(import.meta.dirname,'..'),out=path.join(root,'artifacts/ebook-qa');
+const read=file=>fs.readFileSync(path.join(root,file));
+const json=file=>JSON.parse(read(file));
+const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
+const encode=value=>JSON.stringify(value,null,2)+'\n';
+const results=[];
+const report={scope:'Approved WebP originals, static publication bytes, Free file limits and local HTTP only; live Pages headers/routing are a separate deployment check.',results};
+async function test(name,fn){await fn();results.push({name,pass:true});console.log('PASS '+name);}
+const metadata=count=>Array.from({length:count},(_,i)=>({path:`fixture/${i}.txt`,bytes:1}));
+const single=(file,bytes)=>assessStaticPublication([{path:file,bytes}]);
+const assets=json('content/ebooks/v1/assets.json'),catalog=json('public/books/catalog.json');
+const glob=pattern=>new RegExp('^'+pattern.split('*').map(v=>v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('.*')+'$');
+const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let server,fixtureServer,fixture;
+try{
+  await test('approved-source-and-canonical-static-copy-bytes',()=>{
+    const ids=new Set(),hashes=new Map();
+    for(const asset of assets){
+      assert(!ids.has(asset.assetId));ids.add(asset.assetId);
+      assert.equal(asset.sourcePath,`content/ebooks/v1/assets/${asset.assetId}.webp`);
+      assert.equal(asset.servedPath,`${EBOOK_ASSET_PREFIX}${asset.sha256}.webp`);
+      const original=read(asset.sourcePath),published=read('public'+asset.servedPath);
+      assert(original.equals(published));assert.equal(hash(original),asset.sha256);assert.equal(original.length,asset.bytes);
+      assert.equal(original.subarray(0,4).toString(),'RIFF');assert.equal(original.subarray(8,12).toString(),'WEBP');
+      assert(Number.isInteger(asset.width)&&asset.width>0&&Number.isInteger(asset.height)&&asset.height>0);
+      if(hashes.has(asset.sha256))assert.deepEqual(hashes.get(asset.sha256),[asset.bytes,asset.width,asset.height]);
+      hashes.set(asset.sha256,[asset.bytes,asset.width,asset.height]);
+    }
+    report.currentOriginals={records:assets.length,uniqueWebps:hashes.size,bytes:[...hashes.values()].reduce((n,v)=>n+v[0],0)};
+  });
+  await test('retained-static-assets-have-hash-names-and-exact-webp-bytes',()=>{
+    const directory='public'+EBOOK_ASSET_PREFIX;
+    for(const name of fs.readdirSync(path.join(root,directory))){
+      assert(/^[a-f0-9]{64}\.webp$/.test(name),'Only delivery WebP files belong in the public asset directory');
+      const bytes=read(directory+name);assert.equal(hash(bytes),name.slice(0,-5));
+      assert.equal(bytes.subarray(0,4).toString(),'RIFF');assert.equal(bytes.subarray(8,12).toString(),'WEBP');
+    }
+  });
+  await test('source-manuscripts-and-page-hashes-remain-exact',()=>{
+    const provenance=json('content/ebooks/v1/source-provenance.json');
+    for(const book of catalog.books){
+      const raw=read(`content/ebooks/v1/sources/${book.bookId}.json`),source=JSON.parse(raw),manifest=json('public'+book.manifestUrl);
+      const proof=provenance.books.find(v=>v.bookId===book.bookId&&v.editionId===book.editionId);
+      assert.equal(hash(raw),proof.sourceSha256);assert.equal(manifest.sourceSha256,proof.sourceSha256);
+      for(const ref of manifest.pages){
+        const bytes=read('public'+ref.src),sourcePage=source.pages.find(p=>p.pageId===ref.pageId);
+        assert.equal(bytes.toString('utf8'),encode(sourcePage));assert.equal(hash(bytes),ref.contentHash);
+      }
+    }
+  });
+  await test('manifests-include-only-used-static-assets',()=>{
+    for(const book of catalog.books){
+      const source=json(`content/ebooks/v1/sources/${book.bookId}.json`),manifest=json('public'+book.manifestUrl);
+      const used=new Set(source.cover?[source.cover.assetId]:[]);
+      for(const page of source.pages)for(const block of page.blocks)if(block.type==='image')used.add(block.assetId);
+      assert.deepEqual(Object.keys(manifest.assets).sort(),[...used].sort());
+      for(const item of Object.values(manifest.assets)){assert.equal(item.src,`${EBOOK_ASSET_PREFIX}${item.sha256}.webp`);const bytes=read('public'+item.src);assert.equal(hash(bytes),item.sha256);assert.equal(bytes.length,item.bytes);}
+    }
+  });
+  await test('reader-catalog-uses-approved-book-metadata',()=>{
+    const html=read('public/reader/index.html').toString(),start='<!-- ebook-catalog:start -->',end='<!-- ebook-catalog:end -->';
+    assert.equal(html.split(start).length,2);assert.equal(html.split(end).length,2);
+    const section=html.slice(html.indexOf(start)+start.length,html.indexOf(end));
+    for(const book of catalog.books){assert(section.includes(`href="${escape(book.readerUrl)}"`));assert(section.includes(escape(book.title)));assert(section.includes(escape(book.subtitle)));assert(section.includes(`본문 ${book.bodyPages}쪽`));}
+    assert.equal((section.match(/<li>/g)||[]).length,catalog.books.length);
+  });
+  await test('ebook-routes-bypass-functions',()=>{
+    const routes=json('public/_routes.json');assert.equal(routes.version,1);
+    for(const pathname of ['/reader','/reader/','/books/catalog.json',...assets.map(a=>a.servedPath),...catalog.books.map(b=>b.manifestUrl)])assert(routes.exclude.some(pattern=>glob(pattern).test(pathname)),`Static path invokes a Function: ${pathname}`);
+    assert(fs.existsSync(path.join(root,'public/404.html')),'Pages must have a real missing-asset fallback');
+  });
+  await test('unshipped-ebook-database-paths-are-retired',()=>{
+    for(const file of ['functions/api/ebook-assets/[asset].js','functions/lib/ebook-asset-budget.js','functions/lib/ebook-asset-publisher.js','functions/lib/ebook-asset-service.js','functions/lib/ebook-assets-manifest.js','migrations/ebook-assets/0001-assets.sql','scripts/ebook/sqlite-d1-adapter.mjs'])assert(!fs.existsSync(path.join(root,file)),file+' is still active');
+    for(const file of ['scripts/ebook/preview-server.mjs','scripts/build-ebooks.mjs'])assert(!/EBOOK_BUDGET_ATTESTATION|EBOOK_ASSETS_DB|node:sqlite|\/api\/ebook-assets\//.test(read(file).toString()));
+  });
+  await test('actual-public-tree-fits-free-and-reader-budgets',()=>{
+    const inventory=readPublicInventory(path.join(root,'public')),budget=assessStaticPublication(inventory);assert(budget.ok,JSON.stringify(budget.failures));
+    assert(!inventory.some(v=>v.path==='publication-budget.json'||v.path.startsWith('artifacts/')));
+    report.publicationBudget=budget;report.regularVolumeProjection=regularVolumeProjection(budget);
+  });
+  await test('exact-free-file-count-is-accepted-with-warning',()=>{const b=assessStaticPublication(metadata(20000));assert(b.ok);assert.equal(b.remainingFiles,0);assert(b.warnings.some(v=>v.code==='pages_file_count_near_limit'));});
+  await test('free-file-count-overflow-is-blocked',()=>{const b=assessStaticPublication(metadata(20001));assert(!b.ok);assert(b.failures.some(v=>v.code==='pages_file_count'));});
+  await test('file-count-warning-starts-at-ninety-percent',()=>{assert.equal(assessStaticPublication(metadata(17999)).warnings.length,0);assert.equal(assessStaticPublication(metadata(18000)).warnings.length,1);});
+  await test('exact-pages-single-file-limit-is-accepted',()=>assert(single('downloads/large.pdf',25*1024*1024).ok));
+  await test('pages-single-file-overflow-is-blocked',()=>assert(!single('downloads/large.pdf',25*1024*1024+1).ok));
+  await test('single-file-early-warning-is-not-an-invented-total-cap',()=>{const b=assessStaticPublication([{path:'a.pdf',bytes:EBOOK_STATIC_LIMITS.warnFileBytes},{path:'b.pdf',bytes:EBOOK_STATIC_LIMITS.warnFileBytes}]);assert(b.ok);assert.equal(b.warnings.length,2);assert(b.totalBytes>EBOOK_STATIC_LIMITS.maxFileBytes);});
+  await test('reader-manifest-bound-is-enforced',()=>{assert(single('books/b/e/manifest.json',262144).ok);assert(!single('books/b/e/manifest.json',262145).ok);});
+  await test('reader-page-bound-is-enforced',()=>{assert(single('books/b/e/pages/p.json',524288).ok);assert(!single('books/b/e/pages/p.json',524289).ok);});
+  await test('project-webp-delivery-bound-is-enforced',()=>{const name=EBOOK_ASSET_PREFIX.slice(1)+'a'.repeat(64)+'.webp';assert(single(name,1500000).ok);assert(!single(name,1500001).ok);});
+  await test('unexpected-master-or-unhashed-delivery-file-is-blocked',()=>assert(!single(EBOOK_ASSET_PREFIX.slice(1)+'original.png',100).ok));
+  await test('retained-editions-and-assets-are-counted-while-replacements-are-not-doubled',()=>{const merged=mergePublicInventory([{path:'books/old.json',bytes:10},{path:'books/new.json',bytes:20}],[{path:'books/new.json',bytes:30},{path:'assets/extra.webp',bytes:40}]);const b=assessStaticPublication(merged);assert.equal(b.fileCount,3);assert.equal(b.totalBytes,80);});
+  await test('unsafe-path-size-and-duplicate-publication-records-are-rejected',()=>{
+    assert.throws(()=>single('../private.txt',1));assert.throws(()=>single('/outside.txt',1));assert.throws(()=>single('a.txt',NaN));assert.throws(()=>single('a.txt',-1));
+    assert.throws(()=>mergePublicInventory([],[{path:'a',bytes:1},{path:'a',bytes:1}]));
+  });
+  fixture=fs.mkdtempSync(path.join(os.tmpdir(),'ebook-static-check-'));fs.mkdirSync(path.join(fixture,'public'));
+  fs.writeFileSync(path.join(fixture,'private.txt'),'private fixture');fs.writeFileSync(path.join(fixture,'public/index.html'),'static fixture');
+  await test('inventory-rejects-symlinks',()=>{const link=path.join(fixture,'public/leak.txt');fs.symlinkSync(path.join(fixture,'private.txt'),link);assert.throws(()=>readPublicInventory(path.join(fixture,'public')),/symlink/);fs.unlinkSync(link);});
+  await test('future-volume-scenarios-remain-explicit-estimates',()=>{const forecast=regularVolumeProjection({fileCount:522});assert.equal(forecast.kind,'estimate_only');assert(forecast.scenarios.some(v=>v.editionSets===1&&v.additionalUniqueImages===7560&&v.estimatedFiles===15660));assert(forecast.scenarios.some(v=>v.editionSets===2&&v.additionalUniqueImages===7560&&!v.withinFileLimit));});
 
-await test('missing account verification fails closed', () => assert.equal(validateBudgetAttestation(null, now).ok, false));
-await test('Paid plan never silently uses Free proof', () => assert.equal(validateBudgetAttestation({...proof, plan: 'paid'}, now).ok, false));
-await test('incomplete account traffic is rejected', () => assert.equal(validateBudgetAttestation({...proof, accountUsageComplete: false}, now).ok, false));
-await test('future proof rejected', () => assert.equal(validateBudgetAttestation({...proof, observedAt: '2026-11-06T13:00:00Z'}, now).ok, false));
-await test('UTC day change expires proof', () => assert.equal(validateBudgetAttestation(proof, Date.parse('2026-11-07T00:01:00Z')).reason, 'budget_day_changed'));
-await test('large account usage rejected', () => assert.equal(validateBudgetAttestation({...proof, accountRequestsToday: 70001}, now).ok, false));
-await test('old and new editions share storage budget', () => assert.equal(calculateAssetPublicationBudget({assets: [record], existingBytes: 399999999, accountBytes: 100}).ok, false));
-await test('same hash is charged once', () => assert.equal(calculateAssetPublicationBudget({assets: [record, record], existingBytes: 0, accountBytes: 0}).newAssets, 1));
-await test('existing hash needs no new bytes', () => assert.equal(calculateAssetPublicationBudget({assets: [record], existingBytes: body.length, accountBytes: body.length, existingHashes: [hash]}).newBytes, 0));
-await test('publication budget separates reuse and promotion', () => {
-  const reused = calculateAssetPublicationBudget({assets: [record, record], existingAssets: [{sha256: hash, published: 1}]});
-  assert.equal(reused.reusedAssets, 1); assert.equal(reused.republishedAssets, 0); assert.equal(reused.estimatedWriteRows, 0); assert.equal(reused.newBytes, 0);
-  const staged = calculateAssetPublicationBudget({assets: [record], existingAssets: [{sha256: hash, published: 0}]});
-  assert.equal(staged.republishedAssets, 1); assert.equal(staged.reusedAssets, 0); assert.equal(staged.estimatedWriteRows, 2); assert.equal(staged.newBytes, 0);
-  assert.equal(reused.estimatedReadRows, staged.estimatedReadRows);
-});
-await test('unknown database size rejected', () => assert.equal(calculateAssetPublicationBudget({assets: [record], existingBytes: NaN, accountBytes: 0}).ok, false));
-await test('oversized BLOB rejected before import', () => assert.equal(calculateAssetPublicationBudget({assets: [{...record, bytes: 1500001}]}).ok, false));
-await test('publisher requires account proof', async () => assert.rejects(() => publishEbookAssets(db, [record], {attestation: null, existingDatabaseBytes: 0, now}), /account_verification_required/));
-await test('publisher requires observed database size before access', async () => assert.rejects(() => publishEbookAssets(noQueries, [record], {attestation: proof, now}), /publication_storage_evidence/));
-await test('publication batch cap rejects before access', async () => {
-  await assert.rejects(() => publishEbookAssets(noQueries, Array(EBOOK_LIMITS.maxPublicationRecords + 1).fill(record), {attestation: proof, existingDatabaseBytes: 0, now}), /publication_budget_failed/);
-});
-await test('publication reserves read budget before access', async () => {
-  await assert.rejects(() => publishEbookAssets(noQueries, [record], {attestation: {...proof, accountRowsReadToday: EBOOK_LIMITS.maxAccountReadsAtActivation}, existingDatabaseBytes: 0, now}), /publication_read_budget/);
-});
-await test('duplicate hash with conflicting metadata rejected before access', async () => {
-  await assert.rejects(() => publishEbookAssets(noQueries, [record, {...record, width: record.width + 1}], {attestation: proof, existingDatabaseBytes: 0, now}), /publication_budget_failed/);
-});
-await test('damaged binary rejected before any write', async () => {await assert.rejects(() => publishEbookAssets(db, [{...record, body: body.slice(1)}], {attestation: proof, existingDatabaseBytes: 0, now}), /integrity/); assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM ebook_assets').get().n, 0);});
-await test('binary import and full SQLite readback', async () => {const r = await publishEbookAssets(db, [record], {attestation: proof, existingDatabaseBytes: 0, now}); assert.equal(r.fullByteReadbackMatches, true); assert.equal(db.sqlite.prepare('SELECT typeof(body) AS type FROM ebook_assets').get().type, 'blob');});
-await test('unchanged published asset performs zero writes and full readback', async () => {
-  const before = totalChanges(db);
-  const r = await publishEbookAssets(db, [record], {attestation: proof, existingDatabaseBytes: body.length, now});
-  assert.equal(db.sqlite.prepare('SELECT COUNT(*) AS n FROM ebook_assets').get().n, 1);
-  assert.equal(totalChanges(db), before); assert.equal(r.estimatedWriteRows, 0); assert.equal(r.reusedAssets, 1); assert.equal(r.fullByteReadbackMatches, true);
-});
-await test('unchanged asset still needs stored metadata to match', async () => {
-  const before = totalChanges(db);
-  await assert.rejects(() => publishEbookAssets(db, [{...record, width: record.width + 1}], {attestation: proof, existingDatabaseBytes: body.length, now}), /publication_asset_metadata/);
-  assert.equal(totalChanges(db), before);
-});
-await test('unpublished asset promotion is budgeted and writes once', async () => {
-  const local = newDatabase();
-  try {
-    await publishEbookAssets(local, [record], {attestation: proof, existingDatabaseBytes: 0, now});
-    local.sqlite.prepare('UPDATE ebook_assets SET published = 0').run(); const before = totalChanges(local);
-    const r = await publishEbookAssets(local, [record], {attestation: proof, existingDatabaseBytes: body.length, now});
-    assert.equal(r.republishedAssets, 1); assert.equal(r.estimatedWriteRows, 2); assert.equal(r.newBytes, 0); assert.equal(r.fullByteReadbackMatches, true);
-    assert.equal(totalChanges(local) - before, 1); assert.equal(local.sqlite.prepare('SELECT published FROM ebook_assets').get().published, 1);
-  } finally {local.close();}
-});
-await test('corrupt staged bytes cannot become published', async () => {
-  const local = newDatabase();
-  try {
-    await publishEbookAssets(local, [record], {attestation: proof, existingDatabaseBytes: 0, now});
-    local.sqlite.prepare('UPDATE ebook_assets SET published = 0, body = zeroblob(byte_length)').run(); const before = totalChanges(local);
-    await assert.rejects(() => publishEbookAssets(local, [record], {attestation: proof, existingDatabaseBytes: body.length, now}), /publication_stored_asset_integrity/);
-    assert.equal(totalChanges(local), before); assert.equal(local.sqlite.prepare('SELECT published FROM ebook_assets').get().published, 0);
-  } finally {local.close();}
-});
-await test('corrupt published bytes fail reuse readback without writes', async () => {
-  const local = newDatabase();
-  try {
-    await publishEbookAssets(local, [record], {attestation: proof, existingDatabaseBytes: 0, now});
-    local.sqlite.prepare('UPDATE ebook_assets SET body = zeroblob(byte_length)').run(); const before = totalChanges(local);
-    await assert.rejects(() => publishEbookAssets(local, [record], {attestation: proof, existingDatabaseBytes: body.length, now}), /publication_readback_failed/);
-    assert.equal(totalChanges(local), before);
-  } finally {local.close();}
-});
-await test('disabled delivery performs no D1 access', async () => {const r = await request({}, {EBOOK_ASSETS_ENABLED: 'false', EBOOK_ASSETS_DB: {prepare() {throw Error('unexpected query');}}}); assert.equal(r.status, 503);});
-await test('unverified delivery performs no D1 access', async () => {const r = await request({}, {EBOOK_BUDGET_ATTESTATION: '{}'}); assert.equal(r.status, 503);});
-await test('GET yields original WebP bytes and immutable ETag', async () => {const r = await request(); assert.equal(r.status, 200); assert.equal(r.headers.get('Content-Type'), 'image/webp'); assert.equal(r.headers.get('ETag'), '"' + hash + '"'); assert.deepEqual(new Uint8Array(await r.arrayBuffer()), body);});
-await test('Cache API hit still consumes project request budget', async () => {const before = db.sqlite.prepare('SELECT requests FROM ebook_asset_daily_usage').get().requests; const r = await request(); assert.equal(r.status, 200); assert.equal(db.sqlite.prepare('SELECT requests FROM ebook_asset_daily_usage').get().requests, before + 1);});
-await test('conditional request returns bodyless 304', async () => {const r = await request({headers: {'If-None-Match': '"' + hash + '"'}}); assert.equal(r.status, 304); assert.equal((await r.arrayBuffer()).byteLength, 0);});
-await test('HEAD returns metadata without body', async () => {const r = await request({method: 'HEAD'}); assert.equal(r.status, 200); assert.equal(r.headers.get('Content-Length'), String(body.length)); assert.equal((await r.arrayBuffer()).byteLength, 0);});
-await test('allowlisted missing row is 404 for HEAD and conditional GET', async () => {
-  const local = newDatabase();
-  try {
-    assert.equal((await request({method: 'HEAD'}, {EBOOK_ASSETS_DB: local})).status, 404);
-    assert.equal((await request({headers: {'If-None-Match': '"' + hash + '"'}}, {EBOOK_ASSETS_DB: local})).status, 404);
-  } finally {local.close();}
-});
-await test('unpublished row is 404 for HEAD and conditional GET', async () => {
-  const local = newDatabase();
-  try {
-    await publishEbookAssets(local, [record], {attestation: proof, existingDatabaseBytes: 0, now});
-    local.sqlite.prepare('UPDATE ebook_assets SET published = 0').run();
-    assert.equal((await request({method: 'HEAD'}, {EBOOK_ASSETS_DB: local})).status, 404);
-    assert.equal((await request({headers: {'If-None-Match': '"' + hash + '"'}}, {EBOOK_ASSETS_DB: local})).status, 404);
-  } finally {local.close();}
-});
-await test('unknown hash never queries D1', async () => {const r = await handler({request: new Request('https://example.test/api/ebook-assets/' + '0'.repeat(64) + '.webp'), env: {...env, EBOOK_ASSETS_DB: {prepare() {throw Error('unexpected query');}}}}); assert.equal(r.status, 404);});
-await test('query strings do not multiply cache keys', async () => {const r = await handler({request: new Request(url + '?v=1'), env}); assert.equal(r.status, 404);});
-await test('unsupported methods and ranges are explicit', async () => {assert.equal((await request({method: 'POST'})).status, 405); assert.equal((await request({headers: {Range: 'bytes=0-10'}})).status, 416);});
-await test('database integrity failure is not cached', async () => {cached.clear(); db.sqlite.prepare('UPDATE ebook_assets SET body = zeroblob(byte_length)').run(); const r = await request(); assert.equal(r.status, 503); assert.equal(cached.size, 0);});
-await test('atomic daily cap stops excess requests', async () => {db.sqlite.prepare('UPDATE ebook_asset_daily_usage SET requests = ?').run(EBOOK_LIMITS.maxDailyAssetRequests); assert.equal((await request()).status, 429); assert.equal(db.sqlite.prepare('SELECT requests FROM ebook_asset_daily_usage').get().requests, EBOOK_LIMITS.maxDailyAssetRequests);});
-await test('binding outage gives finite failure', async () => {const r = await request({}, {EBOOK_ASSETS_DB: {prepare() {throw new Error('offline');}}}); assert.equal(r.status, 503);});
-db.close();
-const report = {scope: 'Actual local SQLite BLOB and SQL integration; no remote Cloudflare plan or D1 assertion', passed: results.length, total: results.length, results};
-const output = process.env.EBOOK_QA_DIR || 'artifacts/ebook-qa'; mkdirSync(output, {recursive: true}); writeFileSync(output + '/assets.json', JSON.stringify(report, null, 2));
-console.log(JSON.stringify({passed: results.length, total: results.length, report: output + '/assets.json'}));
+  server=await startEbookPreviewServer({port:0});
+  await test('local-static-preview-has-no-database-or-account-proof',async()=>{const health=await fetch(server.url+'/__ebook-preview__/health').then(r=>r.json());assert.equal(health.mode,'local-static');assert.equal(health.providerVerification,false);assert.equal(health.webpFiles,report.publicationBudget.ebook.webpFiles);assert(!('db' in server));assert(!/attestation|account|token/i.test(JSON.stringify(health)));});
+  await test('all-original-webps-serve-exact-static-http-bytes',async()=>{for(const asset of assets){const r=await fetch(server.url+asset.servedPath);assert.equal(r.status,200);assert.equal(r.headers.get('content-type'),'image/webp');assert.equal(r.headers.get('x-ebook-preview'),'local-static');assert.match(r.headers.get('cache-control'),/immutable/);assert.equal(hash(Buffer.from(await r.arrayBuffer())),asset.sha256);}});
+  await test('local-head-has-metadata-and-no-body',async()=>{for(const asset of assets){const r=await fetch(server.url+asset.servedPath,{method:'HEAD'});assert.equal(r.status,200);assert.equal(Number(r.headers.get('content-length')),asset.bytes);assert.equal((await r.arrayBuffer()).byteLength,0);}});
+  await test('local-conditional-get-uses-existing-static-bytes',async()=>{const url=server.url+assets[0].servedPath,first=await fetch(url);await first.arrayBuffer();const r=await fetch(url,{headers:{'If-None-Match':first.headers.get('etag')}});assert.equal(r.status,304);assert.equal((await r.arrayBuffer()).byteLength,0);});
+  await test('missing-static-image-stays-404-for-get-head-and-conditional',async()=>{const url=server.url+EBOOK_ASSET_PREFIX+'0'.repeat(64)+'.webp';for(const options of [{},{method:'HEAD'},{headers:{'If-None-Match':'*'}}])assert.equal((await fetch(url,options)).status,404);});
+  await test('retired-api-and-private-source-tree-are-not-static-file-origins',async()=>{assert.equal((await fetch(server.url+'/api/ebook-assets/'+assets[0].sha256+'.webp')).status,404);assert.equal((await fetch(server.url+'/'+assets[0].sourcePath)).status,404);});
+  await test('catalog-and-manifest-local-cache-policy-revalidates',async()=>{for(const url of ['/books/catalog.json',catalog.books[0].manifestUrl]){const r=await fetch(server.url+url);assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/(?:no-cache|must-revalidate)/);assert(!/immutable/.test(r.headers.get('cache-control')));await r.arrayBuffer();}});
+  await test('preview-rejects-writes',async()=>assert.equal((await fetch(server.url+assets[0].servedPath,{method:'POST',body:'not a file'})).status,405));
+  fixtureServer=await startEbookPreviewServer({port:0,repoRoot:fixture});
+  await test('runtime-realpath-does-not-follow-a-late-external-symlink',async()=>{fs.symlinkSync(path.join(fixture,'private.txt'),path.join(fixture,'public/leak.txt'));assert.equal((await fetch(fixtureServer.url+'/leak.txt')).status,403);});
+  await test('encoded-traversal-is-rejected-before-file-resolution',async()=>{
+    const status=await new Promise((resolve,reject)=>{const req=httpRequest(fixtureServer.url,{path:'/%2e%2e/private.txt'},r=>{r.resume();resolve(r.statusCode);});req.on('error',reject);req.end();});assert.equal(status,400);
+  });
+  await test('local-preview-close-is-idempotent',async()=>{await fixtureServer.close();await fixtureServer.close();fixtureServer=null;});
+  report.status='pass';
+}catch(error){report.status='fail';report.error=error.stack||String(error);process.exitCode=1;console.error(error);}
+finally{
+  await fixtureServer?.close();await server?.close();if(fixture)fs.rmSync(fixture,{recursive:true,force:true});
+  fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'assets.json'),encode(report));
+  if(report.publicationBudget)fs.writeFileSync(path.join(out,'publication-budget.json'),encode({...report.publicationBudget,regularVolumeProjection:report.regularVolumeProjection}));
+  console.log(JSON.stringify({status:report.status,checks:results.length,publicFiles:report.publicationBudget?.fileCount,report:'artifacts/ebook-qa/assets.json'}));
+}

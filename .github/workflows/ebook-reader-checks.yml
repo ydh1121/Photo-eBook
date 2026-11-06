@@ -5,33 +5,20 @@ on:
   pull_request:
     paths:
       - 'content/ebooks/**'
-      - 'public/books/**'
-      - 'public/reader/**'
-      - 'public/staging/ebook-reader-preview/**'
-      - 'public/assets/js/platform-modules/ebook-reader*'
-      - 'public/assets/js/reader/**'
-      - 'public/assets/styles/components/ebook-reader*'
-      - 'functions/**/ebook-*'
-      - 'functions/api/ebook-assets/**'
-      - 'migrations/ebook-assets/**'
+      # Any deployable asset can consume the shared Pages Free file budget.
+      - 'public/**'
       - 'scripts/*ebook*'
       - 'scripts/ebook/**'
+      - 'cloudflare-pages.json'
       - '.github/workflows/ebook-reader-checks.yml'
   push:
     branches: [main]
     paths:
       - 'content/ebooks/**'
-      - 'public/books/**'
-      - 'public/reader/**'
-      - 'public/staging/ebook-reader-preview/**'
-      - 'public/assets/js/platform-modules/ebook-reader*'
-      - 'public/assets/js/reader/**'
-      - 'public/assets/styles/components/ebook-reader*'
-      - 'functions/**/ebook-*'
-      - 'functions/api/ebook-assets/**'
-      - 'migrations/ebook-assets/**'
+      - 'public/**'
       - 'scripts/*ebook*'
       - 'scripts/ebook/**'
+      - 'cloudflare-pages.json'
       - '.github/workflows/ebook-reader-checks.yml'
 
 permissions:
@@ -50,11 +37,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Verify source compilation and real SQLite BLOB handling
+      - name: Verify static publication, exact bytes and Free file budgets
         run: |
           node scripts/build-ebooks.mjs
           node scripts/build-ebook-review.mjs
-          git diff --exit-code -- public/books public/staging/ebook-reader-preview functions/lib/ebook-assets-manifest.js
+          git diff --exit-code -- public/books public/assets/ebooks public/reader public/staging/ebook-reader-preview
+          if [ -n "$(git ls-files --others --exclude-standard -- public/books public/assets/ebooks public/reader public/staging/ebook-reader-preview)" ]; then
+            echo "Generated publication files are missing from the committed public output."
+            exit 1
+          fi
           node scripts/check-ebook-assets.mjs
           node scripts/check-ebook-reader.mjs
           node scripts/check-platform-module-boundaries.mjs

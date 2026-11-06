@@ -10,6 +10,18 @@
 /index.html
   Cache-Control: no-store, no-cache, must-revalidate
 
+/reader
+  Cache-Control: no-cache
+
+/reader/*
+  Cache-Control: no-cache
+
+/books/*
+  Cache-Control: no-cache
+
+/assets/ebooks/v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /block-lab
   Cache-Control: no-store, no-cache, must-revalidate
   X-Robots-Tag: noindex, nofollow, noarchive

@@ -1,25 +1,25 @@
 # Personal Edu publishing — current handoff
 
-Updated: 2026-11-06 KST
+Updated: 2026-11-07 KST
 Phase: WO01 complete; WO02 active
 Programme baseline: `b26fbad86238c327960ea12cef9a3268cbdd3173`
 Current branch: `feat/personal-edu-reader-wo02-20261106`
 WO02 baseline: `983500848d50f9cf8a4290b348e47866515229e5`
-Reviewed checkpoint: `3e0ebd901d33f7fc12f256578ee4b842ce9f3f08`, [PR #60](https://github.com/ydh1121/Photo-eBook/pull/60)
+Historical reviewed checkpoint: `3e0ebd901d33f7fc12f256578ee4b842ce9f3f08`, [PR #60](https://github.com/ydh1121/Photo-eBook/pull/60)
 
 ## Resume here
 
-The WO02 candidate contains the shared reader, three actual 24-body-page sample chapters, original visuals, fixed-page review PDFs and guarded D1 code. The [review preview](https://03b475ac.photo-ebook.pages.dev/staging/ebook-reader-preview/) has been verified. It is an explicitly labelled copied-image adapter using the canonical reader; production manifests still point to D1.
+The user has now supplied a Workers **Free / Current plan** screen and clarified that the earlier D1 image request reflected unfamiliarity with Cloudflare products. A more suitable structure is authorized. The current decision uses **Pages static files for the reader, catalog, page JSON and immutable WebP**. Original manuscripts and image masters remain in Drive. Saved questions and reading positions remain local to the browser. The plan-unknown and daily-D1-proof blockers are superseded for this route; do not ask for the same plan proof or activate another project's database/bucket.
 
-The new reader workflow passes on the exact implementation candidate: 17 reader checks, 38 SQLite asset checks and seven sample groups, including all 72 mobile body pages and portable image delivery. All seven workflow runs pass, including existing Personal Edu runtime 69/69 and reference-case browser checks 12/12. Production verification remains pending. PDF creation and review are complete; all three final PDFs are preserved and full-byte readback matches the approved originals. The actual Workers plan remains unknown because subscription reads return 403 without Billing Read, so remote D1 activation remains blocked. Regular textbooks completed/published: **0/18**.
+The active change keeps all six preserved source files, 72 authored page payloads and stable IDs unchanged. It switches image references to `/assets/ebooks/v1/<sha>.webp`, adds static file/size budget checks and connects the three samples from their subject pages through the canonical learning hero. Candidate and production verification for this revision remain pending. Do not report the historical copied-image preview or SQLite checks as this revision's deployment evidence.
 
-Candidate CI and artifact preservation are complete. Follow the remote activation steps below. Do not report this preview checkpoint as WO02 production completion.
+The previous implementation `3e0ebd9` passed seven workflows and its sample/PDF preservation is complete. All three sample books contain 24 body pages; regular textbooks completed/published remain **0/18**. Continue with the release steps below, then WO03.
 
 ## Preserved programme and release history
 
 The preceding uploaded-media WO is complete (PR #58, deployed code `755ff19188e746ac33282063f91a2cab28da3625`). Continue the new publishing programme from `TASKS.md`; do not reopen its completed analysis or unrelated platform backlog.
 
-The user requests a reference-case horizontal rail with detailed popups, an SNS subject, an eighteen-volume textbook programme (three subjects × six levels, minimum 400 pages each), shared reader with saved text questions and reading position, original visuals preserved in Drive and compressed WebP served from D1 within free allowances, and substantial Korean editorial improvements. Work is explicitly split into quality-focused WOs.
+The user requests a reference-case horizontal rail with detailed popups, an SNS subject, an eighteen-volume textbook programme (three subjects × six levels, minimum 400 pages each), shared reader with saved text questions and reading position, original visuals preserved in Drive and compressed WebP served within free allowances (the original D1 choice was superseded by the 2026-11-07 clarification), and substantial Korean editorial improvements. Work is explicitly split into quality-focused WOs.
 
 WO01 produces the research/edition contracts and the reference/SNS foundation. Textbook production and reader implementation follow the research stage. Do not publish placeholder books as regular editions or count screen height as authored pages.
 
@@ -33,7 +33,7 @@ Recovered research, eighteen-volume blueprints, reader/storage designs, source r
 
 WO01's D1 inspection found no binding in this Pages project, and Billing subscription reads were unavailable to that OAuth connection. WO01 did not create a database or change a paid plan. The current account gate is recorded below; recovered design observations are not a fresh account attestation.
 
-## WO02 active checkpoint
+## Historical WO02 checkpoint — 2026-11-06
 
 The canonical `ebook-reader` owner, stable-ID data model, source builder, guarded D1 service/publisher and local SQLite preview are implemented. Stable IDs are `sns-entry`, `video-entry` and `ai-entry`; the sample edition is `sample-20261106-v1`. Semantic page/block IDs are distinct from authored page numbers and viewport reflow.
 
@@ -52,19 +52,15 @@ Local checks pass: 38 actual SQLite asset cases, four reader model/storage group
 
 `scripts/build-ebook-review.mjs` produces `/staging/ebook-reader-preview/` with the same owner files, exact page JSON and its own reviewed image copies. The verified PR preview is evidence for this review adapter. No WO02 production deployment or remote D1 database creation, migration, binding, image import or activation has been performed. The local SQLite fixture's synthetic proof must never be reused as account evidence.
 
-## Remote D1 activation — ordered remaining steps
+## Static publication — ordered remaining steps
 
-1. **Close candidate evidence.** The exact `3e0ebd9` reader/asset/sample CI, three PDFs and full artifact readbacks are complete. All seven final-candidate workflows now pass; existing runtime 69/69 and reference cases 12/12. Preserve those exact-candidate results. Documentation-only follow-ups do not replace the tested implementation SHA.
-2. **Verify the real account plan.** Obtain read access that can establish the current Workers plan. Subscription reads currently return 403 because OAuth cannot cover that endpoint; an authorized API token with Billing Read or an independently supplied current Workers plan record is needed. Reconnecting the same OAuth scope does not resolve this limitation. `usage_model: standard`, a website zone's Free label and small observed usage do not establish Workers Free. Keep activation disabled while the plan is unknown or fails the existing gate; do not change subscriptions to make the gate pass.
-3. **Collect complete, current account usage.** Record the intended project environment, existing bindings, database count and allocation, all-account D1 storage/read/write usage, and combined Workers/Pages Functions requests. Include other projects and retained editions. Check the current constants in `functions/lib/ebook-asset-budget.js`; the publisher requires explicit observed database size and reserves its own reads/writes.
-4. **Prove daily renewal before enabling delivery.** Create `EBOOK_BUDGET_ATTESTATION` only from real plan and complete usage observations. It must be on the same UTC day as the request and no more than 24 hours old. The previous proof becomes invalid at 00:00 UTC (09:00 KST), even if recently issued. Establish and test renewal, application to the serving environment and monitoring of expiry/failure. A missing renewal must leave delivery disabled rather than reuse yesterday's proof. A one-time environment value is not a durable renewal process.
-5. **Prepare the dedicated remote database after the gates pass.** Use only this project's intended D1 database, apply `migrations/ebook-assets/0001-assets.sql`, and configure the dedicated `EBOOK_ASSETS_DB` binding in the intended environment. Keep `EBOOK_ASSETS_ENABLED` off while preparing and importing. Do not use another project's database or modify CODE1/Order.
-6. **Import and verify real bytes.** Use `publishEbookAssets()` with current attestation and measured allocation, at most 20 input records per call. Verify metadata and every stored SHA-256, then remeasure actual database/account use. Unchanged published assets perform no writes; staged-to-published assets consume the reserved write budget. Local SQLite results do not substitute for these remote checks.
-7. **Enable a verified candidate and then validate production.** With a valid binding and fresh proof, enable image serving in the intended review environment, verify all 13 hashes over HTTP plus HEAD/conditional and failure behaviour, and complete the reader/image review. Promote only the verified final revision. Record actual production deployment and byte/UI evidence before marking remote D1 delivery or WO02 complete.
-8. **Close the operational record.** Update the private CURRENT/PROJECT_INDEX and release receipts with the final candidate, CI, PDFs, source preservation, account evidence, renewal process and actual deployment result. Keep private IDs and account data outside Git.
+1. Finish the source-preserving static adapter, catalog-driven reader entries and the full `public/` file/size inventory. Keep `/assets/*`, `/books/*` and reader routes excluded from Functions. Add immutable caching only to hash-named images.
+2. Run fresh source, asset, reader, sample and shared-module checks on the exact candidate. Preserve all 72 page hashes and 13 image hashes. Current PDF/source receipts remain valid because their bytes have not changed.
+3. Verify the actual Cloudflare candidate. After required checks pass, merge PR #60 and verify the production commit, all delivered image bytes, cache headers and reader behaviour from SNS/video/AI. No paid upgrade, D1 binding, R2 bucket or new media subscription is part of this release.
+4. Preserve the current deployment report and update the private CURRENT/PROJECT_INDEX using their existing IDs. Keep the user plan screen and account details in private evidence, and preserve earlier checkpoints as history.
 
-The implementation contract is [EBOOK-PUBLICATION-V1.md](../../library/platform-modules/EBOOK-PUBLICATION-V1.md). No account permission, resource, billing or remote activation change is implied by these planned steps.
+The current implementation contract is [EBOOK-PUBLICATION-V1.md](../../library/platform-modules/EBOOK-PUBLICATION-V1.md). Historical D1 budget logic and synthetic SQLite proofs are neither required nor valid evidence for static delivery.
 
 ## WO03 entry condition
 
-After the WO02 quality, preservation and remote-delivery gates are resolved, start the first approved regular volume from the preserved eighteen-volume blueprints. WO03 must produce at least 400 substantive authored body pages with complete worked exercises, independent tasks and solutions, original teaching visuals, current tool/menu evidence and full-edition review. Physical Android menu execution is still unperformed and must be addressed before a regular volume claims a verified mobile walkthrough. The current 24-page chapters remain samples; regular volumes completed/published remain **0/18**.
+After the WO02 quality, preservation and production-delivery checks are complete, start the first approved regular volume from the preserved eighteen-volume blueprints. WO03 must produce at least 400 substantive authored body pages with complete worked exercises, independent tasks and solutions, original teaching visuals, current tool/menu evidence and full-edition review. Physical Android menu execution is still unperformed and must be addressed before a regular volume claims a verified mobile walkthrough. The current 24-page chapters remain samples; regular volumes completed/published remain **0/18**.

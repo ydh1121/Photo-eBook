@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Verify authored samples against real local SQLite delivery, then Chromium. */
+/* Verify authored samples against actual static files, then Chromium. */
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -11,13 +11,13 @@ const root=path.resolve(import.meta.dirname,'..'),out=path.join(root,'artifacts/
 const json=file=>JSON.parse(fs.readFileSync(path.join(root,file),'utf8'));
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const catalog=json('public/books/catalog.json'),assets=json('content/ebooks/v1/assets.json');
-const report={scope:'Authored samples in local SQLite-backed preview; no remote D1 or physical Android assertion',checks:[],pages:[],screenshots:[],errors:[]};
+const report={scope:'Authored samples in local static preview; live Cloudflare HTTP and physical Android are separate checks',checks:[],pages:[],screenshots:[],errors:[]};
 const pass=(name,detail)=>{report.checks.push({name,status:'pass',detail});console.log('PASS '+name);};
 let server,browser;
 try{
   server=await startEbookPreviewServer({port:0});
-  for(const asset of assets){const response=await fetch(server.url+asset.servedPath);assert.equal(response.status,200);const bytes=new Uint8Array(await response.arrayBuffer());assert.equal(bytes.length,asset.bytes);assert.equal(hash(bytes),asset.sha256);assert.equal(response.headers.get('X-Ebook-Preview'),'local-sqlite');}
-  pass('all-original-webp-bytes-through-sqlite-http',{images:assets.length,bytes:assets.reduce((n,a)=>n+a.bytes,0)});
+  for(const asset of assets){const response=await fetch(server.url+asset.servedPath);assert.equal(response.status,200);const bytes=new Uint8Array(await response.arrayBuffer());assert.equal(bytes.length,asset.bytes);assert.equal(hash(bytes),asset.sha256);assert.equal(response.headers.get('X-Ebook-Preview'),'local-static');}
+  pass('all-original-webp-bytes-through-static-http',{images:assets.length,bytes:assets.reduce((n,a)=>n+a.bytes,0)});
   assert.equal(catalog.regularBooksCompleted,0);assert.equal(catalog.samples,3);
   for(const book of catalog.books){
     const manifest=await fetch(server.url+book.manifestUrl).then(r=>r.json());assert.equal(manifest.pages.length,24);assert.equal(manifest.frontMatterExcluded,true);
@@ -36,7 +36,7 @@ try{
         await page.locator('[data-reader-ready="true"]').waitFor();
         for(const img of await page.locator('[data-reader-page] img').all()){await img.scrollIntoViewIfNeeded();await img.evaluate(el=>el.decode());}
         const state=await page.evaluate(()=>({state:PersonalEduReaderEntryV1.instance.api.getState(),viewport:innerWidth,width:document.documentElement.scrollWidth,bodyWidth:document.querySelector('[data-reader-page]').scrollWidth,bodyClient:document.querySelector('[data-reader-page]').clientWidth,readingHeight:document.querySelector('[data-reader-reading]').clientHeight,images:[...document.querySelectorAll('[data-reader-page] img')].map(img=>({ok:img.complete&&img.naturalWidth>0,url:img.src})),external:[...document.querySelectorAll('[data-reader-page] a[href^="https:"]')].map(a=>({target:a.target,rel:a.rel})),folio:document.querySelector('.ebook-reader__folio').textContent}));
-        assert.equal(state.state.pageId,ref.pageId);assert(state.width<=state.viewport+1&&state.bodyWidth<=state.bodyClient+1,'Page overflows mobile width');assert(state.readingHeight>=240,'Tools crowd out reading');assert(state.images.every(img=>img.ok&&img.url.includes('/api/ebook-assets/')),'Sample image delivery failed');assert(state.external.every(a=>a.target==='_blank'&&a.rel.includes('noopener')),'Sources must open a separate safe tab');assert(state.folio.includes(String(ref.pageNumber)),'Authored page footer missing');
+        assert.equal(state.state.pageId,ref.pageId);assert(state.width<=state.viewport+1&&state.bodyWidth<=state.bodyClient+1,'Page overflows mobile width');assert(state.readingHeight>=240,'Tools crowd out reading');assert(state.images.every(img=>img.ok&&new URL(img.url).origin===new URL(server.url).origin&&/^\/assets\/ebooks\/v1\/[a-f0-9]{64}\.webp$/.test(new URL(img.url).pathname)),'Sample static image delivery failed');assert(state.external.every(a=>a.target==='_blank'&&a.rel.includes('noopener')),'Sources must open a separate safe tab');assert(state.folio.includes(String(ref.pageNumber)),'Authored page footer missing');
         await page.locator('[data-reader-reading]').evaluate(el=>el.scrollTop=0);
         const file=`${book.bookId}-${String(ref.pageNumber).padStart(2,'0')}-mobile.png`;await page.screenshot({path:path.join(out,file)});
         report.pages.push({bookId:book.bookId,pageId:ref.pageId,pageNumber:ref.pageNumber,images:state.images.length,readingHeight:state.readingHeight,overflow:false});report.screenshots.push(file);

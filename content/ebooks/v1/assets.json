@@ -6,7 +6,7 @@
     "width": 1467,
     "height": 987,
     "sourcePath": "content/ebooks/v1/assets/ai-before-shoot.webp",
-    "servedPath": "/api/ebook-assets/b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98.webp"
+    "servedPath": "/assets/ebooks/v1/b31909eb432acc556464c373be7696c0c1ef9b6ef1b469e2549cae7666059b98.webp"
   },
   {
     "assetId": "bookmark-drawing",
@@ -15,7 +15,7 @@
     "width": 1122,
     "height": 1402,
     "sourcePath": "content/ebooks/v1/assets/bookmark-drawing.webp",
-    "servedPath": "/api/ebook-assets/fd23a454b40670fd3c16d55e25ad578ea970bff68738fcff877b3ffa8f389cb0.webp"
+    "servedPath": "/assets/ebooks/v1/fd23a454b40670fd3c16d55e25ad578ea970bff68738fcff877b3ffa8f389cb0.webp"
   },
   {
     "assetId": "bookmark-finished",
@@ -24,7 +24,7 @@
     "width": 1122,
     "height": 1402,
     "sourcePath": "content/ebooks/v1/assets/bookmark-finished.webp",
-    "servedPath": "/api/ebook-assets/2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c.webp"
+    "servedPath": "/assets/ebooks/v1/2ae4466b1e255f242ecf041d249f8b96767e8d4dc2b6e51a54375ef4ebdff50c.webp"
   },
   {
     "assetId": "bookmark-in-book",
@@ -33,7 +33,7 @@
     "width": 1122,
     "height": 1402,
     "sourcePath": "content/ebooks/v1/assets/bookmark-in-book.webp",
-    "servedPath": "/api/ebook-assets/9c6aeba7305286418e44c5bba5128896435bcdc9f7253729644fb3b40073507f.webp"
+    "servedPath": "/assets/ebooks/v1/9c6aeba7305286418e44c5bba5128896435bcdc9f7253729644fb3b40073507f.webp"
   },
   {
     "assetId": "bookmark-lettering",
@@ -42,7 +42,7 @@
     "width": 1122,
     "height": 1402,
     "sourcePath": "content/ebooks/v1/assets/bookmark-lettering.webp",
-    "servedPath": "/api/ebook-assets/0f5e6ef2ad1e4177037571dbef15212cd33272a89d4f74c15700386212ae3b5b.webp"
+    "servedPath": "/assets/ebooks/v1/0f5e6ef2ad1e4177037571dbef15212cd33272a89d4f74c15700386212ae3b5b.webp"
   },
   {
     "assetId": "bookmark-materials",
@@ -51,7 +51,7 @@
     "width": 1122,
     "height": 1402,
     "sourcePath": "content/ebooks/v1/assets/bookmark-materials.webp",
-    "servedPath": "/api/ebook-assets/e3237744f94963a35a948d2b3813dd5c87efc01e8a2d967e54e1d0ecf09676c7.webp"
+    "servedPath": "/assets/ebooks/v1/e3237744f94963a35a948d2b3813dd5c87efc01e8a2d967e54e1d0ecf09676c7.webp"
   },
   {
     "assetId": "sns-caption-anatomy",
@@ -60,7 +60,7 @@
     "width": 1467,
     "height": 1067,
     "sourcePath": "content/ebooks/v1/assets/sns-caption-anatomy.webp",
-    "servedPath": "/api/ebook-assets/0fbd290afaed786be64bd02b93d067feb4f1bdaf8adc7208ff3438548cbc09f5.webp"
+    "servedPath": "/assets/ebooks/v1/0fbd290afaed786be64bd02b93d067feb4f1bdaf8adc7208ff3438548cbc09f5.webp"
   },
   {
     "assetId": "sns-platform-roles",
@@ -69,7 +69,7 @@
     "width": 1467,
     "height": 987,
     "sourcePath": "content/ebooks/v1/assets/sns-platform-roles.webp",
-    "servedPath": "/api/ebook-assets/f8167d0adf96ed0aa58398087e644fd51e99d6b2841e5ed924cd2b5132a30e3d.webp"
+    "servedPath": "/assets/ebooks/v1/f8167d0adf96ed0aa58398087e644fd51e99d6b2841e5ed924cd2b5132a30e3d.webp"
   },
   {
     "assetId": "video-caption-legibility",
@@ -78,7 +78,7 @@
     "width": 1467,
     "height": 987,
     "sourcePath": "content/ebooks/v1/assets/video-caption-legibility.webp",
-    "servedPath": "/api/ebook-assets/edf72df3171fe3e0cfa02cac5d44b3cff1f11122da22b2896a379eefb0f5e11b.webp"
+    "servedPath": "/assets/ebooks/v1/edf72df3171fe3e0cfa02cac5d44b3cff1f11122da22b2896a379eefb0f5e11b.webp"
   },
   {
     "assetId": "video-shot-distances",
@@ -87,7 +87,7 @@
     "width": 1467,
     "height": 987,
     "sourcePath": "content/ebooks/v1/assets/video-shot-distances.webp",
-    "servedPath": "/api/ebook-assets/39cd43ad58ddf002e0f1c7cf160e9597bceefa13602b5ac02d2d76d9aecdc35c.webp"
+    "servedPath": "/assets/ebooks/v1/39cd43ad58ddf002e0f1c7cf160e9597bceefa13602b5ac02d2d76d9aecdc35c.webp"
   },
   {
     "assetId": "video-timeline-30s",
@@ -96,7 +96,7 @@
     "width": 1467,
     "height": 1040,
     "sourcePath": "content/ebooks/v1/assets/video-timeline-30s.webp",
-    "servedPath": "/api/ebook-assets/925202c9c754eb897b831a87e67a978bca2391cb87db30a4d5c97531573eff47.webp"
+    "servedPath": "/assets/ebooks/v1/925202c9c754eb897b831a87e67a978bca2391cb87db30a4d5c97531573eff47.webp"
   },
   {
     "assetId": "video-trim-vs-split",
@@ -105,7 +105,7 @@
     "width": 1467,
     "height": 1067,
     "sourcePath": "content/ebooks/v1/assets/video-trim-vs-split.webp",
-    "servedPath": "/api/ebook-assets/619ae28a8152a6aead6b942d7dab60930479160be9ffd568b760d49e4ac0a07c.webp"
+    "servedPath": "/assets/ebooks/v1/619ae28a8152a6aead6b942d7dab60930479160be9ffd568b760d49e4ac0a07c.webp"
   },
   {
     "assetId": "video-window-light",
@@ -114,6 +114,6 @@
     "width": 1467,
     "height": 987,
     "sourcePath": "content/ebooks/v1/assets/video-window-light.webp",
-    "servedPath": "/api/ebook-assets/0a8ad4813609a226a0ae2d87e7add4d00216709cb23b9b6346d45d39f834a2b1.webp"
+    "servedPath": "/assets/ebooks/v1/0a8ad4813609a226a0ae2d87e7add4d00216709cb23b9b6346d45d39f834a2b1.webp"
   }
 ]

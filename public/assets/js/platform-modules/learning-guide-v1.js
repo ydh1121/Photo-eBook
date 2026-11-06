@@ -27,9 +27,10 @@
   function cardRail(items,label,renderItem,context={}){
     return registry.renderDependency('learning-guide-section','horizontal-rail',{items,ariaLabel:label,framed:false},{...context,renderItem});
   }
-  function renderHero(props={}){
+  function renderHero(props={},context={}){
     const learning=props.layout==='learning';
     const mobileFocus=Number.isFinite(props.mobileImageFocus)?Math.max(0,Math.min(100,props.mobileImageFocus)):50;
+    const publications=(Array.isArray(props.publications)?props.publications:[]).filter(book=>book&&['sample','published'].includes(book.status)&&book.title&&Number.isInteger(book.bodyPages)&&book.bodyPages>0).map(book=>({...book,href:safeUrl(context.consumer==='export'?(book.publishedUrl||book.readerUrl):book.readerUrl)})).filter(book=>book.href&&(context.consumer!=='export'||/^https:\/\//i.test(book.href)));
     return `<header class="hero" data-platform-module="learning-guide-hero"${learning?` data-hero-layout="learning" style="--hero-mobile-focus:${mobileFocus}% center"`:''}>
       <img class="hero__image" src="${attr(safeUrl(props.image))}" alt="${attr(props.imageAlt||'')}" fetchpriority="high">
       <div class="hero__body">
@@ -37,6 +38,7 @@
         <h1>${esc(props.title||'')}</h1>
         <p>${esc(props.description||'')}</p>
         <div class="hero__facts">${(props.facts||[]).map(item=>`<div class="hero__fact"><span>${esc(item.label)}</span><strong>${esc(item.value)}</strong></div>`).join('')}</div>
+        ${publications.length?`<div class="edu-publications" aria-label="전자책 교재">${publications.map(book=>`<a class="edu-publication" href="${attr(book.href)}" data-ebook-entry="${attr(book.bookId||'')}"${/^https?:\/\//i.test(book.href)?' target="_blank" rel="noopener noreferrer"':''}><span class="edu-publication__copy"><span class="edu-publication__meta">${book.status==='sample'?'전자책 샘플':'전자책 정규 교재'} · 본문 ${book.bodyPages}쪽</span><strong>${esc(book.title)}</strong></span><span class="edu-publication__action">${book.status==='sample'?'샘플 읽기':'교재 읽기'} <span aria-hidden="true">${/^https?:\/\//i.test(book.href)?'↗':'→'}</span></span></a>`).join('')}</div>`:''}
       </div>
     </header>`;
   }
@@ -147,8 +149,8 @@
     if(persist)window.addEventListener('pageshow',syncBookmarks);
     return ()=>{children.forEach(child=>child.cleanup());root.removeEventListener('change',change);root.removeEventListener('click',click);document.removeEventListener('content-bookmarks-changed',storeChange);window.removeEventListener('pageshow',syncBookmarks);delete root.dataset.learningBound;};
   }
-  const heroPreview={layout:'learning',mobileImageFocus:50,eyebrow:'실습 가이드',title:'배운 내용을\n작은 결과물로',description:'목표를 정하고 직접 만든 결과물을 점검해 보세요.',image:'/assets/images/generated/personal-edu-v1/video-hero.webp',imageAlt:'스마트폰 촬영 실습을 묘사한 AI 생성 이미지',facts:[{label:'도구',value:'지금 쓰는 스마트폰'},{label:'결과물',value:'첫 실습 한 편'},{label:'학습',value:'실습과 피드백'},{label:'기록',value:'다음 작업에 재사용'}]};
+  const heroPreview={layout:'learning',mobileImageFocus:50,eyebrow:'실습 가이드',title:'배운 내용을\n작은 결과물로',description:'목표를 정하고 직접 만든 결과물을 점검해 보세요.',image:'/assets/images/generated/personal-edu-v1/video-hero.webp',imageAlt:'스마트폰 촬영 실습을 묘사한 AI 생성 이미지',facts:[{label:'도구',value:'지금 쓰는 스마트폰'},{label:'결과물',value:'첫 실습 한 편'},{label:'학습',value:'실습과 피드백'},{label:'기록',value:'다음 작업에 재사용'}],publications:[{bookId:'video-entry',status:'sample',title:'영상 편집 입문',bodyPages:24,readerUrl:'/reader/?book=video-entry&edition=sample-20261106-v1',publishedUrl:'https://photo-ebook.pages.dev/reader/?book=video-entry&edition=sample-20261106-v1'}]};
   const sectionPreview={packId:'preview',index:0,chapter:{id:'practice',label:'실습',title:'작은 결과물을 완성해 보세요',description:'목표와 확인 기준을 함께 적습니다.',outcome:'검토할 결과물 한 개',blocks:[{type:'checklist',id:'preview',title:'완성 후 점검',items:['사용할 목적을 적었다','결과물을 직접 확인했다']},{type:'template',title:'실습 기록',text:'목적: [사용 목적]\n결과: [만든 결과물]\n다음 수정: [한 가지]'}]},sources:[]};
-  registry.register({id:'learning-guide-hero',label:'학습 가이드 표지',category:'content',status:'approved',source:'public-extracted',sourceRoute:'/',version:1,consumers,ownerFiles:[owner,...foundation,css],previewProps:heroPreview,editorProps:heroPreview,render:renderHero});
+  registry.register({id:'learning-guide-hero',label:'학습 가이드 표지',category:'content',status:'approved',source:'public-extracted',sourceRoute:'/',version:2,consumers,ownerFiles:[owner,...foundation,css],previewProps:heroPreview,editorProps:heroPreview,render:renderHero});
   registry.register({id:'learning-guide-section',label:'학습·실습 본문',category:'content',status:'approved',source:'platform-core',version:3,consumers,isolateInstances:true,dependencies:[{id:'horizontal-rail',kind:'composition',required:true},{id:'learning-resource-rail',kind:'composition',required:true},{id:'reference-case-rail',kind:'composition',required:true}],ownerFiles:['public/assets/js/core/content-bookmark-store.js',owner,...foundation,css],previewProps:sectionPreview,editorProps:sectionPreview,render:renderSection,hydrate:hydrateSection});
 })();

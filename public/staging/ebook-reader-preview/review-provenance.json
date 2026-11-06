@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
   "kind": "explicit-portable-review-adapter",
-  "remoteD1Verified": false,
+  "productionDelivery": "pages-static",
+  "providerVerification": false,
   "ownerFiles": [
     "public/assets/js/platform-modules/module-registry-v1.js",
     "public/assets/styles/components/ebook-reader-v1.css",
@@ -12,15 +13,15 @@
   "publications": [
     {
       "file": "ai-entry.html",
-      "sha256": "7ab05e43bd7424688f25f0949f71381c3066584e02da6889e710febbb31c4723"
+      "sha256": "af90e6e29fcd5e30d9f315a817af62b315bcfc2ea95f363944a3f5cc530c86b1"
     },
     {
       "file": "sns-entry.html",
-      "sha256": "3aacce7ff95df7a361bca72aa1f2dbf06544d5d26b74b4b4721d939d1d859967"
+      "sha256": "d854b4538850cd7d7236e06dabc6e4bd54f3f6aa83b58390a8279d377bad5ed7"
     },
     {
       "file": "video-entry.html",
-      "sha256": "69b8b2d0e38da471b9291ee7b86f0a9adb07c174e41de294e6041fae5cf8de0c"
+      "sha256": "0ba7de0b5ff9df716a9d5c5ed94959e664b547a31f6929460953bc2608b2cd98"
     }
   ]
 }

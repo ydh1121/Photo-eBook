@@ -6,6 +6,10 @@ on:
     paths:
       - 'public/index.html'
       - 'public/_routes.json'
+      - 'public/_headers'
+      - 'public/books/**'
+      - 'public/reader/**'
+      - 'public/assets/ebooks/**'
       - 'public/_redirects'
       - 'public/block-lab/**'
       - 'public/editor-lab/**'
@@ -31,6 +35,7 @@ on:
       - 'public/assets/styles/navigation/**'
       - 'public/assets/styles/ui/**'
       - 'scripts/check-live-ui-dashboard-deploy.mjs'
+      - 'scripts/check-live-ebooks.mjs'
       - 'scripts/check-top-nav-runtime-parity.mjs'
       - 'scripts/check-library-runtime-feedback-v1.mjs'
       - 'scripts/check-library-module-family-controls-v1.mjs'
@@ -149,6 +154,11 @@ jobs:
           test "$feedback_status" = pass
           test "$family_status" = pass
           test "$matrix_status" = pass
+      - name: Verify published textbook bytes and static cache policy
+        if: ${{ !cancelled() }}
+        env:
+          EBOOK_LIVE_URL: https://photo-ebook.pages.dev
+        run: node scripts/check-live-ebooks.mjs
       - name: Record live deployment result
         if: always()
         shell: bash
@@ -171,6 +181,14 @@ jobs:
             checks:[]
           };
           if(fs.existsSync(source))report=JSON.parse(fs.readFileSync(source,'utf8'));
+          const ebookSource='artifacts/ebook-live/report.json';
+          let ebook={status:'fail',error:'live textbook report was not created'};
+          if(fs.existsSync(ebookSource))ebook=JSON.parse(fs.readFileSync(ebookSource,'utf8'));
+          const ebookOk=ebook.status==='pass'&&ebook.sourceSha===process.env.GITHUB_SHA;
+          report.checks=Array.isArray(report.checks)?report.checks:[];
+          report.checks.push({name:'live textbook static publication',status:ebookOk?'pass':'fail',detail:ebookOk?ebook.summary:(ebook.error||'textbook checks failed or belong to another revision')});
+          report.ebookPublication={status:ebookOk?'pass':'fail',sourceSha:ebook.sourceSha||null,summary:ebook.summary||null};
+          if(!ebookOk){report.status='fail';report.error=[report.error,ebook.error||'live textbook static publication failed'].filter(Boolean).join('\n');}
           const status={
             ...report,
             sourceSha:process.env.GITHUB_SHA,
@@ -197,6 +215,7 @@ jobs:
           name: platform-live-deploy
           path: |
             artifacts/platform-live-deploy
+            artifacts/ebook-live
             artifacts/library-runtime-feedback-v1
             artifacts/library-module-family-controls-v1
             artifacts/ui-visual-matrix-v1

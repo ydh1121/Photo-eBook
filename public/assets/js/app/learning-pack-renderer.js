@@ -1,5 +1,5 @@
 /* Composition only. Visual and interaction owners are canonical modules. */
-function hero(data){return window.PlatformModuleRegistry.render('learning-guide-hero',data.guide.hero,{consumer:'public'});}
+function hero(data){return window.PlatformModuleRegistry.render('learning-guide-hero',{...data.guide.hero,publications:data.publications||[]},{consumer:'public'});}
 function learningProps(guide,chapter,index){
   const discovery=[];
   if(chapter.id==='education')discovery.push({kind:'opportunities',live:true});

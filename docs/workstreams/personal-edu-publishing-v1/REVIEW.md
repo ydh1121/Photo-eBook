@@ -1,6 +1,12 @@
 # Personal Edu publishing — review record
 
-## WO02 — candidate checkpoint, 2026-11-06
+## Current revision — 2026-11-07 KST
+
+The user supplied Workers Free plan proof and authorized an appropriate storage design after clarifying the earlier D1 choice. Pages static image delivery now supersedes the never-activated D1 prototype. The active revision preserves manuscript/page bytes and reader anchors, connects catalog-driven sample entries through the canonical hero and checks whole-deployment file/size limits. Fresh candidate and production verification are pending; the historical results below are not substituted for them. Regular textbooks completed/published remain **0/18**.
+
+The authoritative remaining release steps are in [HANDOFF.md](HANDOFF.md#static-publication--ordered-remaining-steps). The old D1 budget-attestation and database-import steps below are retained only as historical checkpoint evidence.
+
+## Historical WO02 — candidate checkpoint, 2026-11-06
 
 Status: implementation, all seven final-candidate workflows and review artifacts verified; remote D1 activation pending. This is not a production-completion record. Regular textbooks completed/published: **0/18**.
 
