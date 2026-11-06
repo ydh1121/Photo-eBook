@@ -60,6 +60,7 @@ jobs:
           node scripts/check-platform-module-boundaries.mjs
       - name: Install pinned Chromium test environment
         id: browser
+        timeout-minutes: 5
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
