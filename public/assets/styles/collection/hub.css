@@ -387,3 +387,7 @@ body.collection-open{position:fixed!important;left:0;right:0;width:100%!importan
   .collection-settings__summary{grid-template-columns:auto 1fr auto auto;gap:7px}.collection-settings__summary>div:last-child{display:none}
 }
 @media(prefers-reduced-motion:reduce){.collection-sheet{transition:none}.collection-fab{transition:none}}
+
+/* Generated source cards without an external thumbnail. */
+.collection-reference-icon{display:grid;place-items:center;width:100%;height:100%;background:rgba(100,138,200,.1);color:var(--accent)}
+.collection-reference-icon svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}

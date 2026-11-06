@@ -55,6 +55,9 @@
     await loadScript('/assets/js/platform-modules/module-registry-v1.js');
     await loadScript('/assets/js/platform-modules/photo-public-module-source-v1.js');
     await loadScript('/assets/js/platform-modules/photo-core-modules-v1.js');
+    await loadScript('/assets/js/core/content-bookmark-store.js');
+    await loadScript('/assets/js/platform-modules/learning-guide-v1.js');
+    await loadScript('/assets/js/platform-modules/subject-navigation-v1.js');
     await loadScript('/assets/js/platform-modules/module-style-runtime-v1.js');
     return window.PlatformModuleRegistry;
   }

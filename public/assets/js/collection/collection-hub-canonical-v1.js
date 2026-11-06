@@ -114,6 +114,7 @@
     if(type==='article')$$(`.curated-card[data-curated-id="${CSS.escape(id)}"]`).forEach(card=>card.dataset.favorite=active?'true':'false');
   }
   function setFavorite(type,item,nextState){
+    if(window.ContentBookmarkStore){try{window.ContentBookmarkStore.set(type,item,nextState);return;}catch{}}
     const idsKey=type==='video'?VIDEO_IDS_KEY:ARTICLE_IDS_KEY,itemsKey=type==='video'?VIDEO_ITEMS_KEY:ARTICLE_ITEMS_KEY,set=idSet(idsKey),items=readObject(itemsKey),id=String(item?.id||'');if(!id)return;
     if(nextState){set.add(id);items[id]={...item,savedAt:item.savedAt||nowIso()};}else{set.delete(id);delete items[id];}
     writeArray(idsKey,[...set]);writeObject(itemsKey,items);syncFavoriteButtons(type,id,nextState);updateLibraryCounts();renderLibrary();
@@ -121,7 +122,10 @@
   function bindFavoriteDelegation(){
     if(document.documentElement.dataset.v27FavoriteDelegated==='true')return;document.documentElement.dataset.v27FavoriteDelegated='true';
     document.addEventListener('click',event=>{
-      const videoButton=event.target.closest('.skill-video-bookmark'),articleButton=event.target.closest('.curated-bookmark');if(!videoButton&&!articleButton)return;event.preventDefault();event.stopImmediatePropagation();
+      const videoButton=event.target.closest('.skill-video-bookmark'),articleButton=event.target.closest('.curated-bookmark');
+      if(!videoButton&&!articleButton)return;
+      if(articleButton?.classList.contains('edu-bookmark'))return;
+      event.preventDefault();event.stopImmediatePropagation();
       if(videoButton){const item=videoItemFromCard(videoButton.closest('[data-video-id]'));setFavorite('video',item,!idSet(VIDEO_IDS_KEY).has(item.id));}
       else{const item=articleItemFromCard(articleButton.closest('.curated-card'));setFavorite('article',item,!idSet(ARTICLE_IDS_KEY).has(item.id));}
     },true);
@@ -197,4 +201,9 @@
   window.addEventListener('pageshow',()=>setTimeout(initialize,80),{passive:true});
 
   window.PhotoCollectionHub={open:openLibrary,close:closeLibrary,render:renderLibrary,getItems:allSavedItems};
+  document.addEventListener('content-bookmarks-changed',event=>{
+    if(!event.detail?.persistent)return;
+    const {type,id,selected}=event.detail;
+    syncFavoriteButtons(type,id,selected);updateLibraryCounts();renderLibrary();
+  });
 })();

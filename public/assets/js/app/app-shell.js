@@ -3,12 +3,14 @@ const QUESTION_DEVICE_KEY='photoRoadmapDeviceKeyV1';
 
 function renderApp(data){
   window.__SITE_DATA=data;
-
+  const pack=window.getContentPack?.();
+  if(pack?.id){window.__CONTENT_PACK_ID=pack.id;document.documentElement.dataset.contentPack=pack.id;}
   const navMap=new Map((data.nav||[]).map(n=>[n.id,n]));
-  const order=['intro','market','education','skills','portfolio','gear','plan','scripts','iphone','sources'];
-  const renderers={intro:introSection,market:marketSection,education:educationSection,skills:skillsSection,portfolio:portfolioSection,gear:gearSection,plan:planSection,scripts:scriptsSection,iphone:iphoneSection,sources:sourcesSection};
-
-  const sections=order.filter(id=>navMap.has(id)).map((id,index)=>renderers[id](data,navMap.get(id),index)).join('');
+  const sections=(pack?.sections||[]).filter(item=>navMap.has(item.id)).map((item,index)=>{
+    const renderer=window[item.renderer];
+    if(typeof renderer!=='function')throw new Error('본문을 표시하지 못했습니다.');
+    return renderer(data,navMap.get(item.id),index);
+  }).join('');
   const app=$('#app');
   app.innerHTML=hero(data)+nav(data)+sections;
   app.hidden=false;
@@ -18,6 +20,7 @@ function renderApp(data){
   setupNavigation();
   setupCopyButtons();
   setupQuestionDrawer();
+  document.dispatchEvent(new CustomEvent('content-pack-rendered',{detail:{packId:pack?.id||'photography'}}));
 }
 
 function setupCopyButtons(){

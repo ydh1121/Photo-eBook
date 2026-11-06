@@ -38,13 +38,16 @@
   function freshModuleBlock(moduleId){
     const definition=modules.get(moduleId);
     if(!definition||!modules.canConsume(moduleId,'editor'))return null;
+    const instanceId=uid('ui_module');
+    const content=modules.editorProps(moduleId);
+    if(definition.isolateInstances)content.instanceId=instanceId;
     return registry.normalize({
-      id:uid('ui_module'),
+      id:instanceId,
       type:'ui-module',
       variant:moduleId,
       status:'approved',
       enabled:true,
-      content:modules.editorProps(moduleId),
+      content,
       aiPolicy:normalizeAiPolicy({mode:'full'}),
       revision:{version:1,updatedAt:new Date().toISOString(),updatedBy:'editor-lab'}
     });
@@ -204,7 +207,7 @@
     const block=selectedBlock();if(!block)return;
     inspector.querySelector('[data-edit-variant]')?.addEventListener('change',event=>mutate(()=>{
       block.variant=event.target.value;
-      if(block.type==='ui-module')block.content=modules.editorProps(block.variant);
+      if(block.type==='ui-module'){block.content=modules.editorProps(block.variant);if(modules.get(block.variant)?.isolateInstances)block.content.instanceId=block.id;}
     }));
     inspector.querySelector('[data-ai-mode]')?.addEventListener('change',event=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);block.aiPolicy.mode=event.target.value;},{inspectorToo:false}));
     inspector.querySelector('[data-ai-fact-state]')?.addEventListener('change',event=>mutate(()=>{block.aiPolicy=normalizeAiPolicy(block.aiPolicy);block.aiPolicy.factState=event.target.value;},{inspectorToo:false}));

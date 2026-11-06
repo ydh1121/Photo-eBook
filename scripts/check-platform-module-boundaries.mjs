@@ -120,7 +120,7 @@ expect(preview.includes('/assets/js/platform-modules/portable-primitives-extensi
 const publicIndex=read('public/index.html');
 expect(publicIndex.includes('/assets/js/ui/liquid-controller.js?v=3'),'Photography Public must load the current canonical liquid owner.');
 expect(publicIndex.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Photography Public must load the transitive dependency-aware Registry.');
-expect(publicIndex.includes('/assets/js/app/postload-enhancements.js?v=5'),'Photography Public must load the current screen-mode bridge loader.');
+expect(publicIndex.includes('/assets/js/app/postload-enhancements.js?v=6'),'Photography Public must load the current screen-mode bridge loader and shared bookmark storage.');
 
 const previewJs=read('public/ui-dashboard/module-preview/module-preview-v1.js');
 expect(previewJs.includes("const consumer=params.get('embed')==='editor'?'editor':'library'"),'Library and Editor must share one preview host.');
