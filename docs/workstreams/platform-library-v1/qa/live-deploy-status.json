@@ -1,17 +1,44 @@
 {
-  "startedAt": "2026-08-27T17:50:59.026Z",
+  "startedAt": "2026-11-06T04:47:32.630Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-08-27T17:50:59.026Z",
+      "at": "2026-11-06T04:47:32.630Z",
+      "status": "http-ok",
+      "matched": false,
+      "entryMatched": false,
+      "dependencyReady": false,
+      "bytes": 3382
+    },
+    {
+      "attempt": 2,
+      "at": "2026-11-06T04:47:37.062Z",
+      "status": "http-ok",
+      "matched": false,
+      "entryMatched": false,
+      "dependencyReady": false,
+      "bytes": 3382
+    },
+    {
+      "attempt": 3,
+      "at": "2026-11-06T04:47:41.220Z",
+      "status": "http-ok",
+      "matched": false,
+      "entryMatched": false,
+      "dependencyReady": false,
+      "bytes": 3382
+    },
+    {
+      "attempt": 4,
+      "at": "2026-11-06T04:47:45.334Z",
       "status": "http-ok",
       "matched": true,
       "entryMatched": true,
       "dependencyReady": true,
-      "bytes": 3382
+      "bytes": 3970
     }
   ],
   "checks": [
@@ -23,12 +50,12 @@
     {
       "name": "live canonical assets",
       "status": "pass",
-      "detail": "6 Photography/Public + 1 dependency-composed display + 3 Library/Editor-only modules"
+      "detail": "6 Photography/Public + 1 dependency-composed display + 1 shared rail + 4 learning + 2 Library/Editor-only modules"
     },
     {
       "name": "live UI Library",
       "status": "pass",
-      "detail": "registry-driven root route with 10 approved modules"
+      "detail": "registry-driven root route with 14 approved modules"
     },
     {
       "name": "live Library theme/viewport",
@@ -43,12 +70,12 @@
     {
       "name": "live Block Editor boundary",
       "status": "pass",
-      "detail": "persistent workspace + 10 approved modules only"
+      "detail": "persistent workspace + 14 approved modules only"
     },
     {
       "name": "live public migration",
       "status": "pass",
-      "detail": "Photography canonical modules remain public; shared display remains public-capable by dependency contract; portable Library/Editor-only boundary remains closed"
+      "detail": "Photography canonical modules remain public; all three portable primitives remain absent from photography; shared rail is approved for learning consumers only"
     },
     {
       "name": "live top-nav runtime parity",
@@ -72,10 +99,10 @@
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-08-27T17:52:26.308Z",
-  "sourceSha": "bfcc79faa8c9a08f6f302ce8eea4b60ada9cf2f3",
+  "finishedAt": "2026-11-06T04:49:11.278Z",
+  "sourceSha": "7ce547910893eb819e712df3620063edc2980e5d",
   "sourceRef": "main",
-  "workflowRunId": "33100483375",
-  "workflowRunNumber": "52",
-  "recordedAt": "2026-08-27T17:52:26.794Z"
+  "workflowRunId": "42164564573",
+  "workflowRunNumber": "53",
+  "recordedAt": "2026-11-06T04:49:11.712Z"
 }
