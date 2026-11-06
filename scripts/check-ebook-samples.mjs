@@ -55,7 +55,9 @@ try{
       await page.waitForFunction(id=>{const el=document.querySelector('[data-reader-ready="true"]');return el?.dataset.readerCurrentPage===id&&el.querySelector('[data-reader-reading]')?.getAttribute('aria-busy')==='false';},firstPage);
       assert.equal(await page.locator('[data-reader-page]').count(),1);
       const image=page.locator('[data-reader-page] img').first();await image.evaluate(img=>img.decode());
-      assert((await image.getAttribute('src')).startsWith('assets/'),'Portable review did not use its explicit local image adapter');
+      const imageUrl=new URL(await image.getAttribute('src'),page.url());
+      const assetBase=new URL('/staging/ebook-reader-preview/assets/',server.url);
+      assert(imageUrl.origin===assetBase.origin&&imageUrl.pathname.startsWith(assetBase.pathname)&&/^[a-f0-9]{64}\.webp$/.test(imageUrl.pathname.slice(assetBase.pathname.length)),'Portable review did not use its explicit local image adapter');
     }
     pass('portable-review-uses-same-owner-and-local-original-images',{editions:3});
     assert.deepEqual(report.errors,[]);pass('no-uncaught-reader-page-errors');
