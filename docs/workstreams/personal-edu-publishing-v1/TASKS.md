@@ -18,13 +18,13 @@ The new request is a staged programme. Do not claim that the complete multi-volu
 - [x] Read actual repository and same-ID operational records; confirm previous release and clean baseline.
 - [x] Read the live COPY_GUIDE and existing editorial contracts.
 - [x] Compare primary publisher/course/institution curricula and current mobile-tool documentation.
-- [-] Preserve selected source skills with fixed revisions, licences and adoption decisions in the project folder.
+- [x] Preserve selected source skills with fixed revisions, licences and adoption decisions in the project folder.
 - [x] Define eighteen distinct volume outcomes, substantive page accounting, practice and verification criteria.
 - [x] Add reference cards with detailed analysis in a reusable, accessible dialog.
 - [x] Author the SNS source in a new native Sheet using the established four-tab template; read back before snapshot publication.
 - [x] Add SNS to the existing subject catalog, builder, discovery and static routing without a new home page.
 - [x] Generate and preserve SNS visuals under the existing image pipeline.
-- [ ] Validate module boundaries, public/editor/library/export behaviour, source provenance and mobile layout.
+- [-] Validate module boundaries, public/editor/library/export behaviour, source provenance and mobile layout.
 - [ ] Publish and verify the exact foundation revision; update durable operations records.
 
 ## Invariants
@@ -45,4 +45,5 @@ The new request is a staged programme. Do not claim that the complete multi-volu
 - Discovery: SNS adds 129 unique public-metadata videos across 12 topics. Existing five subject catalogs and notice facts preserved.
 - Selected skills: six repositories, 35 original files with pinned revisions and licences; private archive saved.
 - Two generated SNS images: originals and WebP saved remotely and byte-readback verified; layout QA pending.
-- Static gates: Personal Edu full validation, reference cases, canonical boundary, 58 video checks, 79 opportunity checks and diff whitespace passed. Runtime/preview/production remain pending.
+- Static gates: Personal Edu full validation, reference cases, canonical boundary, 58 video checks, 79 opportunity checks and diff whitespace passed. Previous candidate CI passed 69 public-runtime checks and 12 reference-case checks; the generalization check exposed an obsolete fixed nine-chapter assumption. It now reads expected chapter counts from the generated manifest and includes SNS. Verify all checks again on the corrected head before merging.
+- Final editorial readback: SNS 1,008 rows and real estate 2,128 rows; one approved wording change in each source, with adjacent cells and formats preserved. The corrected snapshots are byte-identical to the restored source.

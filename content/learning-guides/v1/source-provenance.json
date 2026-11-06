@@ -7,8 +7,8 @@
   },
   {
     "id": "sns",
-    "snapshotSha256": "4861c2824c43e58b30bd9aeb21917e4c1051bb6c593ad41a4e1bdbba9effd32e",
-    "verifiedAt": "2026-11-06T08:35:58.521482+00:00",
+    "snapshotSha256": "70de0d023bc6fc2e95d8e0f0eb4b5402173ee10fce89506d56e945165603414b",
+    "verifiedAt": "2026-11-06T09:02:45.732Z",
     "sourceKind": "native-google-sheets"
   },
   {
@@ -25,8 +25,8 @@
   },
   {
     "id": "real-estate",
-    "snapshotSha256": "4c8b54a3e55098161f762a73530f951c94229988881225f1b96be74c667756a7",
-    "verifiedAt": "2026-11-06T08:26:24.060950+00:00",
+    "snapshotSha256": "8c11afbe30c72121e80012e69fe82364c901f1453d8e5b2a6dc991d4e724c7fc",
+    "verifiedAt": "2026-11-06T09:02:45.831Z",
     "sourceKind": "native-google-sheets"
   },
   {
