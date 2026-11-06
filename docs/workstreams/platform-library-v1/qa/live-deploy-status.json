@@ -1,39 +1,12 @@
 {
-  "startedAt": "2026-11-06T09:11:57.086Z",
+  "startedAt": "2026-11-06T15:43:24.759Z",
   "base": "https://photo-ebook.pages.dev",
   "entryMarker": "builder-library-reference-v1.js",
   "registryMarker": "PlatformModuleRegistry",
   "attempts": [
     {
       "attempt": 1,
-      "at": "2026-11-06T09:11:57.087Z",
-      "status": "http-ok",
-      "matched": false,
-      "entryMatched": false,
-      "dependencyReady": false,
-      "bytes": 3970
-    },
-    {
-      "attempt": 2,
-      "at": "2026-11-06T09:12:01.293Z",
-      "status": "http-ok",
-      "matched": false,
-      "entryMatched": false,
-      "dependencyReady": false,
-      "bytes": 3970
-    },
-    {
-      "attempt": 3,
-      "at": "2026-11-06T09:12:05.340Z",
-      "status": "http-ok",
-      "matched": false,
-      "entryMatched": false,
-      "dependencyReady": false,
-      "bytes": 3970
-    },
-    {
-      "attempt": 4,
-      "at": "2026-11-06T09:12:09.395Z",
+      "at": "2026-11-06T15:43:24.759Z",
       "status": "http-ok",
       "matched": true,
       "entryMatched": true,
@@ -96,13 +69,33 @@
       "name": "live UI visual matrix gate",
       "status": "pass",
       "detail": "10 Library modules × desktop/mobile × light/dark plus Editor/Block Lab/QA responsive theme states and Block Lab mobile control rail passed on live Pages"
+    },
+    {
+      "name": "live textbook static publication",
+      "status": "pass",
+      "detail": {
+        "checks": 23,
+        "passed": 23,
+        "images": 13,
+        "bodyPages": 72
+      }
     }
   ],
   "status": "pass",
-  "finishedAt": "2026-11-06T09:13:31.392Z",
-  "sourceSha": "b261ab21dba65b8cbb5876960c9cd27a55870a7c",
+  "finishedAt": "2026-11-06T15:44:40.314Z",
+  "ebookPublication": {
+    "status": "pass",
+    "sourceSha": "bd03c5ded77946a95d720800771a8a4df026a1af",
+    "summary": {
+      "checks": 23,
+      "passed": 23,
+      "images": 13,
+      "bodyPages": 72
+    }
+  },
+  "sourceSha": "bd03c5ded77946a95d720800771a8a4df026a1af",
   "sourceRef": "main",
-  "workflowRunId": "42193189662",
-  "workflowRunNumber": "55",
-  "recordedAt": "2026-11-06T09:13:31.649Z"
+  "workflowRunId": "42245654836",
+  "workflowRunNumber": "56",
+  "recordedAt": "2026-11-06T15:44:58.261Z"
 }
