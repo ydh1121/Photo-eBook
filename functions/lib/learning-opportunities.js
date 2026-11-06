@@ -1,5 +1,4 @@
-import catalog from '../../content/discovery/v1/notices-sources.json' with { type: 'json' };
-import bootstrap from '../../content/discovery/v1/notices-bootstrap.json' with { type: 'json' };
+import {noticeSources as catalog,noticeBootstrap as bootstrap} from './learning-discovery-catalog.js';
 
 // This collector reads only the reviewed, public source pages in the catalog.
 // It does not submit applications or infer a reader's eligibility.

@@ -58,6 +58,7 @@
     await loadScript('/assets/js/platform-modules/portable-primitives-v1.js');
     await loadScript('/assets/js/platform-modules/portable-primitives-extension-v2.js');
     await loadScript('/assets/js/platform-modules/portable-primitives-composition-v3.js');
+    await loadScript('/assets/js/platform-modules/filter-chip-rail-edge-repair-v1.js');
     await loadScript('/assets/js/core/content-bookmark-store.js');
     await loadScript('/assets/js/platform-modules/learning-resource-rail-v1.js');
     await loadScript('/assets/js/platform-modules/learning-guide-v1.js');

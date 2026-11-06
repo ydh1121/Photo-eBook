@@ -43,7 +43,7 @@
     const description=props.description||(notice?'지역과 종류를 골라 공고를 확인하세요. 접수 기간이 지나거나 원문에서 종료되면 마감으로 표시됩니다.':'실습과 연결되는 영상을 모았습니다. 북마크에 저장해 두고 따라 해보세요.');
     return `<section class="edu-discovery" data-platform-module="${ID}" data-resource-kind="${notice?'opportunities':'videos'}" data-resource-pack="${attr(props.packId||'guide')}">
       <header class="edu-discovery__head"><div><h3>${esc(title)}</h3><p>${esc(description)}</p></div>${live?'<button type="button" class="edu-resource-refresh">새로고침</button>':''}</header>
-      ${filters(props).map(([key,options,label])=>`<div class="edu-discovery__filter" data-resource-filter="${key}"><span>${label}</span>${registry.renderDependency(ID,'filter-chip-rail',filterProps(options,label),context)}</div>`).join('')}
+      ${filters(props).map(([key,options,label])=>`<div class="edu-discovery__filter" data-resource-filter="${key}"><span>${label}</span><div class="edu-discovery__filter-control">${registry.renderDependency(ID,'filter-chip-rail',filterProps(options,label),context)}</div></div>`).join('')}
       <p class="edu-resource-status" role="status">${items.length?`${items.length}개 자료${props.sample?' · 미리보기 예시':''}`:live?(notice?'공고를 확인하고 있습니다.':'추천 영상을 불러오고 있습니다.'):'0개 자료'}</p>
       <div class="edu-discovery__results">${items.length?rail(items,props,context):''}</div>
       <p class="edu-resource-empty"${items.length?' hidden':''}>${live?'':notice?'이 조건에 맞는 공고가 없습니다.':'추천 영상이 없습니다.'}</p>

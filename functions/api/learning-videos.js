@@ -1,4 +1,4 @@
-import snapshot from '../../public/content-discovery/learning-videos.json' with {type:'json'};
+import {videoCatalog as snapshot} from '../lib/learning-discovery-catalog.js';
 import {searchLearningYouTube,json} from '../lib/video-discovery.js';
 
 const TOPICS=snapshot.subjects;

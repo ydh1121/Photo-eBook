@@ -331,12 +331,13 @@ async function resourceFixture(module){
 async function commonPipeline(browser){
   const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
   const page=await context.newPage();page.setDefaultTimeout(16000);observe(page,'canonical-pipeline');
-  let metadata=null,exported=null;
+  let metadata=null,exported=null,orderedAssets=null;
   try{
     if(!await check('common/registry-and-library',async()=>{
       await page.goto(`${BASE}/ui-dashboard/`,{waitUntil:'domcontentloaded'});
       await wait(()=>page.evaluate(()=>Boolean(window.PlatformModuleRegistry?.get('subject-navigation'))),'new Registry entries are missing');
       metadata=await page.evaluate(ids=>ids.map(id=>({id,provenance:window.PlatformModuleRegistry.provenance(id),closure:window.PlatformModuleRegistry.dependencyClosure(id,'export').map(key=>window.PlatformModuleRegistry.provenance(key))})),MODULES);
+      orderedAssets=await page.evaluate(ids=>window.PlatformModuleRegistry.assetFiles(ids,'export'),MODULES);
       for(const item of metadata){assert(item.provenance.status==='approved',`${item.id}: not approved`);for(const consumer of ['public','library','editor','export'])assert(item.provenance.consumers.includes(consumer),`${item.id}: missing ${consumer} consumer`);assert(item.closure.every(d=>d.ownerFiles.length>0),`${item.id}: missing canonical owners`);}
       for(const id of MODULES){const frame=await libraryModule(page,id);const module=frame.locator(`body [data-platform-module="${id}"]`);assert(await module.count()===1&&await module.isVisible(),`${id}: Library module root is missing, duplicated or empty`);if(id==='learning-guide-section'){const input=module.locator('.edu-checklist input').first();await input.check();assert(await input.isChecked(),'Library checklist is inert');}if(id==='learning-resource-rail')await resourceFixture(module);if(id==='subject-navigation'){const fab=module.locator('.subject-fab');await fab.click();const dialog=module.locator('dialog');await dialog.waitFor({state:'visible'});await dialogFocusLoop(page,dialog);await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});}}
       await shot(page,'canonical-library');return metadata;
@@ -375,16 +376,16 @@ async function commonPipeline(browser){
       observe(importedPage,'canonical-editor-import');
       try{const tool=await editorWorkspace(importedPage);await openEditorUtility(tool,'#editorImport');await tool.locator('#editorImport').setInputFiles(path.join(OUT,'editor-export.json'));for(const id of MODULES)await editorFrames(tool,id,['learning-guide-section','subject-navigation'].includes(id)?2:1,exported.blocks);await tool.locator('[data-editor-mode="preview"]').click();await editorFrames(tool,'learning-guide-section',2,exported.blocks);const input=tool.frameLocator('[data-platform-editor-module-frame="learning-guide-section"]').first().locator('.edu-checklist input').first();await input.check();assert(await input.isChecked(),'imported learning module is inert');await shot(importedPage,'canonical-editor-import');}finally{await fresh.close();}
     },page);
-    await standalone(browser,metadata,exported);
+    await standalone(browser,metadata,exported,orderedAssets);
   }finally{await context.close();}
 }
 
-async function standalone(browser,metadata,exported){
+async function standalone(browser,metadata,exported,orderedAssets){
   const directory=path.join(OUT,'standalone');fs.mkdirSync(directory,{recursive:true});
   // The Registry exposes dependencyClosure + provenance, rather than an HTML exporter.
   // This fixture only copies those owners byte-for-byte, plus the Registry bootstrap
   // and content-referenced images. No application, Library or preview CSS is added.
-  const owners=[...new Set(metadata.flatMap(item=>item.closure.flatMap(d=>d.ownerFiles)))];
+  const owners=orderedAssets;assert(Array.isArray(owners)&&owners.length>0,'Registry did not resolve an ordered asset manifest');
   const registry='public/assets/js/platform-modules/module-registry-v1.js';
   const contentAssets=[];
   function assets(value){if(typeof value==='string'&&value.startsWith('/assets/images/'))contentAssets.push(`public${value}`);else if(Array.isArray(value))value.forEach(assets);else if(value&&typeof value==='object')Object.values(value).forEach(assets);}
@@ -394,7 +395,7 @@ async function standalone(browser,metadata,exported){
   const payload=JSON.stringify(exported.blocks).replace(/</g,'\\u003c');
   const css=owners.filter(f=>f.endsWith('.css')).map(f=>`<link rel="stylesheet" href="/${f.slice(7)}">`).join('\n');
   const scripts=[registry,...owners.filter(f=>f.endsWith('.js')&&f!==registry)].map(f=>`<script defer src="/${f.slice(7)}"></script>`).join('\n');
-  const html=`<!doctype html><html lang="ko" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Canonical export dependency fixture</title>${css}${scripts}<script defer src="/fixture.js"></script></head><body><main id="export-root"></main></body></html>`;
+  const html=`<!doctype html><html lang="ko" data-theme="dark" data-theme-choice="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Canonical export dependency fixture</title>${css}${scripts}<script defer src="/fixture.js"></script></head><body><main id="export-root"></main></body></html>`;
   fs.writeFileSync(path.join(directory,'index.html'),html);
   fs.writeFileSync(path.join(directory,'fixture.js'),`const blocks=${payload};for(const block of blocks){const host=document.createElement('div');host.dataset.exportBlock=block.id;document.getElementById('export-root').appendChild(host);window.PlatformModuleRegistry.mount(host,block.variant,block.content,{consumer:'export'});}document.documentElement.dataset.exportReady='true';\n`);
   fs.writeFileSync(path.join(directory,'dependency-manifest.json'),JSON.stringify({kind:'qa-fixture-not-product-export',canonicalFiles:manifest},null,2)+'\n');
@@ -408,6 +409,8 @@ async function standalone(browser,metadata,exported){
     await wait(()=>page.locator('html').getAttribute('data-export-ready').then(v=>v==='true'),'export dependency fixture did not mount');
     assert(errors.length===0,`standalone errors: ${errors.join('; ')}`);
     assert(missing.length===0,`standalone missing dependencies: ${JSON.stringify(missing)}`);
+    assert(await page.locator('html').getAttribute('data-theme')==='dark','standalone dark choice was not applied');
+    const filterOwner=await page.evaluate(()=>{const definition=window.PlatformModuleRegistry.get('filter-chip-rail');return {hydrate:definition.hydrate.name,composition:definition.ownerFiles.some(file=>file.endsWith('/portable-primitives-composition-v3.js'))};});assert(filterOwner.hydrate==='hydrateFilter'&&filterOwner.composition,'portable filter lost its canonical composition owner');
     const duplicates=await page.locator('[id]').evaluateAll(nodes=>{const counts=new Map();for(const n of nodes)counts.set(n.id,(counts.get(n.id)||0)+1);return [...counts].filter(([,n])=>n>1).map(([id])=>id);});
     assert(duplicates.length===0,`duplicate exported DOM IDs: ${duplicates.join(', ')}`);
     const facts=await page.locator('.hero__fact').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().top));assert(facts.length===4&&Math.max(...facts)-Math.min(...facts)<=2,'desktop hero facts lost their four-column layout');

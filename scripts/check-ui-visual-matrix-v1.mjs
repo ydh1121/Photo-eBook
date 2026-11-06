@@ -19,6 +19,7 @@ const LIBRARY_MODULES=[
   'screen-mode-selector',
   'learning-guide-hero',
   'learning-guide-section',
+  'learning-resource-rail',
   'subject-navigation'
 ];
 const LIBRARY_STATES=[
@@ -87,6 +88,7 @@ async function moduleReady(frame,id){
     'screen-mode-selector':'.platform-screen-mode [data-screen-mode-value]',
     'learning-guide-hero':'[data-platform-module="learning-guide-hero"] h1',
     'learning-guide-section':'[data-platform-module="learning-guide-section"] .edu-checklist',
+    'learning-resource-rail':'.edu-discovery[data-platform-module="learning-resource-rail"][data-resource-bound="true"] .edu-discovery-card',
     'subject-navigation':'[data-platform-module="subject-navigation"] .subject-nav a'
   };
   const minimum={
@@ -102,6 +104,7 @@ async function moduleReady(frame,id){
     'screen-mode-selector':3,
     'learning-guide-hero':1,
     'learning-guide-section':1,
+    'learning-resource-rail':3,
     'subject-navigation':2
   };
   const selector=selectors[id];
@@ -152,7 +155,8 @@ async function frameMetrics(page,frame,id,state){
       'screen-mode-selector':'.platform-screen-mode',
       'collection-bottom-sheet':'#collectionSheet',
       'bottom-sheet':'.platform-bottom-sheet__panel',
-      'learning-guide-section':'.edu-checklist'
+      'learning-guide-section':'.edu-checklist',
+      'learning-resource-rail':'.edu-discovery-card'
     }[id];
     if(critical){
       const value=await frame.locator(critical).first().evaluate(node=>getComputedStyle(node).backgroundColor);

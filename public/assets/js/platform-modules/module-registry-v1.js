@@ -125,6 +125,17 @@
     roots.forEach(definition=>dependencyClosure(definition.id,consumer,{allowCandidate}));
     return true;
   }
+  function assetFiles(ids,consumer,options={}){
+    const modules=[...new Map((Array.isArray(ids)?ids:[ids]).flatMap(id=>dependencyClosure(id,consumer,options)).map(def=>[def.id,def])).values()];
+    const files=[...new Set(modules.flatMap(def=>def.ownerFiles))],scripts=files.filter(file=>file.endsWith('.js'));
+    const next=new Map(scripts.map(file=>[file,new Set()])),degree=new Map(scripts.map(file=>[file,0]));
+    // Each canonical owner list declares its own bootstrap order. Shared patch
+    // files must run after every base owner that precedes them in any list.
+    modules.forEach(def=>{const ordered=[...new Set(def.ownerFiles.filter(file=>file.endsWith('.js')))];for(let i=1;i<ordered.length;i++){const before=ordered[i-1],after=ordered[i];if(!next.get(before).has(after)){next.get(before).add(after);degree.set(after,degree.get(after)+1);}}});
+    const pending=new Set(scripts),ordered=[];
+    while(pending.size){const file=scripts.find(item=>pending.has(item)&&degree.get(item)===0);if(!file)throw new Error('Circular platform asset bootstrap order');pending.delete(file);ordered.push(file);for(const after of next.get(file))degree.set(after,degree.get(after)-1);}
+    return [...files.filter(file=>!file.endsWith('.js')),...ordered];
+  }
   function hydrationResult(hydration){
     return {
       cleanup:typeof hydration==='function'?hydration:typeof hydration?.cleanup==='function'?hydration.cleanup:()=>{},
@@ -151,6 +162,7 @@
     dependencyClosure(id,consumer='library',options={}){
       return dependencyClosure(id,String(consumer||'library'),options).map(definition=>definition.id);
     },
+    assetFiles(ids,consumer='library',options={}){return assetFiles(ids,String(consumer||'library'),options);},
     validateDependencyGraph(consumer='library',options={}){
       return validateDependencyGraph(String(consumer||'library'),options);
     },

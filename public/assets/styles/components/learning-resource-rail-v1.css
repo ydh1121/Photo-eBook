@@ -10,7 +10,7 @@
 .edu-discovery [hidden]{display:none!important}
 .edu-discovery__filter{display:flex;align-items:center;gap:.7rem;min-width:0;margin:.6rem 0}
 .edu-discovery__filter>span{font-size:12px;flex:none;color:var(--resource-muted);width:25px}
-.edu-discovery__filter>[data-platform-module]{min-width:0;max-width:100%}
+.edu-discovery__filter-control{flex:1;min-width:0;padding-inline:20px}
 .edu-resource-status{font-size:12px;line-height:1.75;color:var(--resource-muted);margin:1rem 0}
 .edu-resource-empty{padding:1.5rem;border:1px dashed var(--resource-line);border-radius:18px;font-size:14px;line-height:1.8;color:var(--resource-muted)}
 .edu-discovery-card{background:var(--resource-surface);border:1px solid var(--resource-line);border-radius:22px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 26px rgba(32,48,78,.06);color:var(--resource-ink)}

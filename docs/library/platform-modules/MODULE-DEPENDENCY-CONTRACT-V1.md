@@ -127,6 +127,8 @@ Portable Export는 module ID 하나를 export할 때 다음 순서로 dependency
 5. consumer boundary 검증
 6. required runtime/style/assets 포함
 
+여러 module의 owner 파일을 합칠 때는 `PlatformModuleRegistry.assetFiles(ids, consumer)`를 사용한다. 각 canonical `ownerFiles`의 JS 순서를 제약으로 삼아 안정적인 위상 정렬을 수행한다. 공유 patch 파일은 같은 파일보다 앞에 선언된 모든 base owner 뒤에 실행되어야 한다. 모듈 closure를 단순히 펼친 첫 등장 순서는 이 조건을 보장하지 않는다. 파일 순서가 순환하면 임의 정렬하지 않고 오류를 반환한다.
+
 수동으로 "이 모듈은 아마 이 CSS가 필요하다"고 파일 목록을 추측하는 방식은 금지한다.
 
 ## QA contract

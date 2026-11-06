@@ -193,6 +193,13 @@ function validateRenderers(courses){
     check(html.includes('data-notice-status="unknown"'),'resource status','unknown status became open/closed');
     check(!html.includes('<script>')&&!html.includes('javascript:')&&html.includes('&lt;script&gt;'),'resource content','untrusted content was not escaped/filtered');
   });
+  attempt('portable canonical bootstrap order',()=>{
+    const files=registry.assetFiles(['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail'],'export');
+    unique(files,'portable assets');
+    const at=name=>files.indexOf(`public/assets/js/platform-modules/${name}.js`);
+    check(at('photo-core-modules-v1')<at('portable-primitives-composition-v3'),'portable assets','filter base owner executes after its composition patch');
+    check(at('portable-primitives-v1')<at('portable-primitives-extension-v2')&&at('portable-primitives-extension-v2')<at('portable-primitives-composition-v3'),'portable assets','rail bootstrap order changed');
+  });
   return context;
 }
 function git(args){return execFileSync('git',args,{cwd:root,encoding:'utf8',maxBuffer:24*1024*1024,stdio:['ignore','pipe','pipe']});}
