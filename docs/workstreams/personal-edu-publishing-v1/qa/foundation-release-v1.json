@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "workOrder": "WO01",
+  "status": "deployed_and_verified",
+  "recordedAt": "2026-11-06T09:21:45.820Z",
+  "pullRequest": "https://github.com/ydh1121/Photo-eBook/pull/59",
+  "implementationCommit": "9a2e6c493cc13d1402e0e0a836a9c3c55776357c",
+  "mergeCommit": "b261ab21dba65b8cbb5876960c9cd27a55870a7c",
+  "production": {
+    "url": "https://photo-ebook.pages.dev/",
+    "deploymentId": "eaf07711-7bc4-4bf4-a807-9932b39ea3f3",
+    "deploymentUrl": "https://eaf07711.photo-ebook.pages.dev",
+    "deployedAt": "2026-11-06T09:12:00.831164Z"
+  },
+  "checks": {
+    "candidate": 7,
+    "candidatePassed": 7,
+    "postMerge": 7,
+    "postMergePassed": 7,
+    "publicRuntime": 69,
+    "publicRuntimePassed": 69,
+    "referenceCases": 12,
+    "referenceCasesPassed": 12,
+    "liveModule": 11,
+    "liveModulePassed": 11,
+    "staticAssertions": 24900,
+    "videoDiscovery": 58,
+    "opportunityDiscovery": 79,
+    "liveRuntimeFeedback": 14,
+    "liveModuleFamilies": 9,
+    "liveVisualMatrixStates": 76
+  },
+  "runs": {
+    "candidateRuntime": "https://github.com/ydh1121/Photo-eBook/actions/runs/42192469635",
+    "postMergeRuntime": "https://github.com/ydh1121/Photo-eBook/actions/runs/42193189689",
+    "liveModules": "https://github.com/ydh1121/Photo-eBook/actions/runs/42193189662"
+  },
+  "nativeReadback": {
+    "sns": {
+      "rows": 1008,
+      "primitiveRows": 749,
+      "snapshotSha256": "70de0d023bc6fc2e95d8e0f0eb4b5402173ee10fce89506d56e945165603414b"
+    },
+    "realEstate": {
+      "rows": 2128,
+      "primitiveRows": 1479,
+      "snapshotSha256": "8c11afbe30c72121e80012e69fe82364c901f1453d8e5b2a6dc991d4e724c7fc"
+    },
+    "contentAndBytesMatch": true
+  },
+  "content": {
+    "sns": {
+      "chapters": 9,
+      "blocks": 38,
+      "sources": 21
+    },
+    "realEstate": {
+      "chapters": 10,
+      "blocks": 45,
+      "sources": 14,
+      "detailedCases": 11,
+      "profileCards": 12
+    },
+    "learningCourseTotals": {
+      "courses": 6,
+      "chapters": 55,
+      "blocks": 238,
+      "sources": 73
+    }
+  },
+  "productionHttp": {
+    "routesMatched": 7,
+    "changedCourseSnapshotsMatched": 2,
+    "newWebpFilesMatched": 2,
+    "requestsPassed": 13,
+    "checkedAt": "2026-11-06T09:14:47.310234+00:00"
+  },
+  "productionBrowser": {
+    "viewport": {
+      "width": 375,
+      "height": 812
+    },
+    "snsVideoPagination": [
+      24,
+      49
+    ],
+    "uniqueWatchUrlsAfter": 49,
+    "caseDialogRect": {
+      "x": 12,
+      "y": 18,
+      "width": 351,
+      "height": 788
+    },
+    "readingPositionBeforeAndAfterClose": 8216,
+    "triggerFocusRestored": true,
+    "bodyScrollReleased": true
+  },
+  "programme": {
+    "researchedOfficialSources": 39,
+    "comparedCurricula": 14,
+    "plannedVolumes": 18,
+    "targetBodyPagesPerVolume": 420,
+    "minimumBodyPagesPerVolume": 400,
+    "completedRegularBooks": 0,
+    "publishedRegularBooks": 0,
+    "nextWorkOrder": "WO02"
+  },
+  "limitations": [
+    "Public source research does not mean access to complete paid books or courses.",
+    "No physical Android/Galaxy or Safari execution.",
+    "The shared ebook reader and D1 image serving are planned, not implemented.",
+    "Account billing/whole-account usage has not been verified; no paid plan or database activated.",
+    "External metadata counts vary by time and cache. CI fixture counts are not production counts.",
+    "Portable dependency fixtures do not constitute a newly delivered HTML/ZIP export product."
+  ]
+}
