@@ -1,8 +1,8 @@
 # Personal Edu V1 — tasks
 
 Updated: 2026-11-06 KST
-Branch: `feat/personal-edu-subjects-v1`
-Baseline main: `16669aca400a343d772680e47e08a2a48ca708e7`
+Branch: `feat/personal-edu-video-evidence-v2`
+Baseline main: `2d3eb05a55de303d349ba0c8caadb86dfde3bb09`
 PR: https://github.com/ydh1121/Photo-eBook/pull/57
 Last verified implementation: `a769a098c024ff45c47c9eff24286da90a479565`
 Release state: PR #57 merged; production code `7ce547910893eb819e712df3620063edc2980e5d` verified.
@@ -34,14 +34,23 @@ This is an independent workstream. Do not resume or modify the older platform-li
 - [x] Push final source revision `a769a09`; all seven checks and 57/57 runtime cases pass. Inspect both v3 images in actual desktop/mobile page screenshots.
 - [x] Preserve the seven-file real-estate reference archive and local viewing handoff in Drive; all seven full-byte/SHA readbacks passed.
 - [x] Cancel local Dot reference viewing as requested; retain previous instructions only as superseded history. No new polling or recurring task is configured.
-- [ ] Deferred follow-up: analyze actual video files after the user uploads them to the designated Drive folder. Instagram/YouTube playback remains unverified; existing product work continues independently.
+- [x] Uploaded-reference follow-up received and analyzed. Original media and detailed evidence remain in the private project folder; no cloud playback or Dot retries are needed.
 - [x] Apply the six-chapter filming exercise update through the two native Sheets, verify all 1,500 changed-source rows and 212 dependent formulas, then restore snapshots and provenance. Five sources now contain 3,731 rows; content is 45 chapters / 194 blocks / 48 sources.
 - [x] Record ten image layout passes and repository-applied status after visual review; production verification follows deployment.
 - [x] Final release checkpoint `9834faf` passed all seven checks and 57/57 runtime cases; PR/review evidence updated.
 - [x] Merge tested revision and verify production deployment `7d9fd907`, six routes, 11/11 live module checks, four notice providers, five video responses and ten image hashes.
 - [x] Finalize repository and same-ID Drive restart records with exact revision, evidence and next action; complete-byte readbacks pass. Actual video analysis remains deferred.
 
-## Current checkpoint
+## Uploaded-reference follow-up
+
+- [x] Inspect supplied videos and matched captures; record direct observations, audio availability, and detailed presenter-led sequence. Keep automatic transcription distinct from direct listening.
+- [x] Rewrite the real-estate curriculum around room-tour production, publication, and inquiry handling through the native source Sheet. All 1,016 changed source rows restore byte-identically; the course now has 9 chapters and 41 blocks.
+- [x] Expand the public metadata index to 517 items and repair pagination, duplicate handling, fallback continuation, keyword/hashtag search, source filters, and end-of-rail loading. Local video contracts pass 55/55.
+- [x] Inspect the live baseline: new subject rails expose 2/2/2/2/1 videos; the same video query returns 12 from the photography API but only 2 fallback records from the learning API.
+- [ ] Validate source readback, shared modules, relevant discovery results, browser behavior, and production delivery.
+- [ ] Preserve the analysis and restart records in the private project folder.
+
+## Previous release checkpoint
 
 - PR #57 merged after all seven checks passed on `9834fafc020d65375f736571ebc06a61b22a1353`.
 - Production code `7ce547910893eb819e712df3620063edc2980e5d` is deployed at https://photo-ebook.pages.dev/ in Cloudflare deployment `7d9fd907-9144-4b1d-8531-59e705a51981`.

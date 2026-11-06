@@ -190,6 +190,7 @@ async function discoveryModules(browser){
   ];
   await page.route('**/api/learning-opportunities?**',route=>route.fulfill({status:unavailable?503:200,contentType:'application/json',body:JSON.stringify(unavailable?{ok:false}:{ok:true,items,lastCheckedAt:new Date(start).toISOString(),providers:[{id:'fixture',status:'ok',checkedAt:new Date(start).toISOString()}]})}));
   const videos=['one','two','three','four'].map((id,i)=>({id,title:`QA 실습 영상 ${i+1}`,url:`https://www.youtube.com/watch?v=5T6J3FyLKAU&qa=${id}`,platform:'YouTube',description:'가로 레일과 북마크를 검증하는 테스트 영상입니다.',checkedAt:new Date(start).toISOString()}));
+  await page.route('**/content-discovery/learning-videos.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({checkedAt:new Date(start).toISOString(),subjects:{video:{items:[]}}})}));
   await page.route('**/api/learning-videos?**',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({ok:true,items:videos,checkedAt:new Date(start).toISOString(),source:'fixture',nextCursor:null})}));
   try{
     await check('discovery/region-type-filters-deadline-failure-and-bookmark',async()=>{
@@ -223,6 +224,44 @@ async function discoveryModules(browser){
       await page.locator('#collectionFab').click();await page.locator('#collectionSheet').waitFor({state:'visible'});const tab=page.locator('#collectionSheet [data-library-tab="video"]');await tab.click();await wait(()=>page.locator('#collectionSheet .collection-item[data-library-type="video"]').count().then(n=>n===1),'recommended video is absent from the original collection');
       const saved=page.locator('#collectionSheet .collection-item[data-library-type="video"]');assert((await saved.locator('strong').textContent()).includes('QA 실습 영상'),'wrong video restored');await saved.getByRole('button',{name:'삭제',exact:true}).click();await counts(page,1);await closeCollection(page);assert(await feed.locator('.edu-resource-save').first().getAttribute('aria-pressed')==='false','video removal did not sync to source');
       await shot(page,'mobile375-recommended-videos-fixture');return geometry;
+    },page);
+  }finally{await context.close();}
+}
+
+async function videoDiscoveryPaging(browser){
+  const context=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true}),page=await context.newPage();observe(page,'video-discovery-paging');page.setDefaultTimeout(15000);
+  const checkedAt='2026-11-06T12:00:00Z',calls=[];let failPage=false;
+  const videos=Array.from({length:40},(_,i)=>({id:`qavideo${String(i).padStart(4,'0')}`,title:`QA 촬영 영상 ${i+1}`,url:`https://www.youtube.com/watch?v=qavideo${String(i).padStart(4,'0')}`,platform:'YouTube',description:i===0?'자막과 컷편집을 연습하는 자료입니다.':'촬영 순서와 편집 구성을 살펴보는 테스트 자료입니다.',hashtags:i===0?['#컷편집']:['#촬영'],checkedAt}));
+  const instagram=Array.from({length:8},(_,i)=>({id:`ig-qa-post-${i}`,title:`QA 임장 게시물 ${i+1}`,url:`https://www.instagram.com/p/qa_post_${i}/`,platform:'Instagram',description:i===0?'테라스와 창문이 보이는 집':'복층 구조와 실내 공간',caption:i===0?'테라스와 창문이 보이는 집':'복층 구조와 실내 공간',hashtags:['#원룸'],checkedAt}));
+  await page.route('**/content-discovery/learning-videos.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({checkedAt,subjects:{video:{items:[...videos,...instagram]}}})}));
+  await page.route('**/api/learning-videos?**',async route=>{
+    const params=new URL(route.request().url()).searchParams,cursor=Number(params.get('cursor')||0),query=params.get('q')||'',platform=params.get('platform')||'all';calls.push({cursor,query,platform});
+    if(failPage&&cursor===6&&!query&&platform==='all'){await route.fulfill({status:503,contentType:'application/json',body:'{"ok":false}'});return;}
+    let items,nextCursor=null;
+    if(platform==='instagram'||query){items=(platform==='instagram'?instagram:[...videos,...instagram]).filter(item=>[item.title,item.caption,item.description,...item.hashtags].join(' ').includes(query.replace(/^#/,'')));}
+    else{items=videos.slice(cursor/3*12,cursor/3*12+12);nextCursor=cursor<9?cursor+3:null;}
+    await route.fulfill({contentType:'application/json',body:JSON.stringify({ok:true,items,checkedAt,source:'fixture',cursor,nextCursor})});
+  });
+  try{
+    await check('discovery/automatic-pagination-deduplication-and-retry',async()=>{
+      await openPack(page,PACKS.find(p=>p.id==='video'));await jump(page,'resources');const feed=page.locator('#app [data-resource-kind="videos"]');await feed.scrollIntoViewIfNeeded();
+      await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'initial metadata page never settled');await wait(()=>feed.locator('.edu-discovery-card').count().then(count=>count>=12),'initial metadata index is still sparse');
+      const before=await feed.locator('.edu-discovery-card').count();await feed.locator('.platform-horizontal-rail__track').evaluate(node=>{node.scrollLeft=node.scrollWidth;});
+      await wait(()=>calls.some(call=>call.cursor===3),'horizontal end did not trigger the next cursor');await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'append did not settle');
+      assert(await feed.locator('.edu-discovery-card').count()>before,'automatic page did not add cards');
+      const ids=await feed.locator('.edu-discovery-card').evaluateAll(nodes=>nodes.map(node=>node.dataset.resourceId));assert(new Set(ids).size===ids.length,'overlapping metadata pages duplicated cards');
+      failPage=true;await feed.locator('.edu-resource-more').click();await wait(()=>feed.getAttribute('data-resource-state').then(value=>value==='stale'),'failed next page did not retain its retry state');
+      const retained=await feed.locator('.edu-discovery-card').count();assert(retained>=ids.length,'failed page discarded earlier metadata');assert(await feed.locator('.edu-resource-more').isVisible(),'failed page removed the retry control');
+      failPage=false;await feed.locator('.edu-resource-more').click();await wait(()=>calls.filter(call=>call.cursor===6).length>=2,'retry skipped or discarded the failed cursor');await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'retry did not settle');
+      assert(await feed.locator('.edu-discovery-card').count()>=retained,'retry discarded the retained index');await feed.locator('.edu-resource-more').click();await wait(()=>feed.locator('.edu-resource-more').isHidden(),'exhausted source keeps a fake endless cursor');
+      assert(await feed.locator('.edu-resource-end').isVisible(),'end of metadata has no clear state');await overflow(page,'video metadata pagination');await shot(page,'mobile375-video-metadata-pagination');return {initial:before,final:await feed.locator('.edu-discovery-card').count(),cursors:calls.map(call=>call.cursor)};
+    },page);
+    await check('discovery/platform-caption-and-hashtag-search',async()=>{
+      const feed=page.locator('#app [data-resource-kind="videos"]');await feed.locator('[data-resource-filter="platform"] [data-platform-filter-id="instagram"]').click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'Instagram filter did not settle');
+      assert(await feed.locator('.edu-discovery-card').count()===8,'platform selection did not isolate Instagram metadata');assert(await feed.locator('.edu-discovery-card__image--instagram').count()===8,'missing Instagram thumbnails have no stable placeholder');
+      const input=feed.getByRole('searchbox',{name:'영상 검색'});await input.fill('테라스');await input.press('Enter');await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'caption search did not settle');assert(await feed.locator('.edu-discovery-card').count()===1,'caption text is not searchable');
+      await feed.locator('.edu-resource-tag').first().click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'hashtag search did not settle');assert(await input.inputValue()==='#원룸','clicking a hashtag did not update the search');assert(await feed.locator('.edu-discovery-card').count()===8,'hashtag search lost matching posts');
+      await feed.locator('.edu-resource-reset').click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'search reset did not settle');assert(await input.inputValue()==='','search reset kept a hidden query');assert(await feed.locator('[data-resource-filter="platform"] [data-platform-filter-id="instagram"]').getAttribute('aria-pressed')==='true','reset unexpectedly changed the chosen platform');await overflow(page,'Instagram metadata search');await shot(page,'mobile375-instagram-caption-search');return {instagram:8,captionMatches:1,hashtagMatches:8};
     },page);
   }finally{await context.close();}
 }
@@ -438,6 +477,7 @@ try{
   await publicMatrix(browser);
   await subjectRoundtrip(browser);
   await discoveryModules(browser);
+  await videoDiscoveryPaging(browser);
   await commonPipeline(browser);
   await check('runtime/no-uncaught-browser-errors',async()=>{assert(report.diagnostics.length===0,`uncaught browser errors: ${JSON.stringify(report.diagnostics)}`);});
 }catch(error){report.checks.push({name:'runner',status:'fail',error:error.stack||String(error)});console.error(error);}
