@@ -20,7 +20,9 @@ const LIBRARY_MODULES=[
   'learning-guide-hero',
   'learning-guide-section',
   'learning-resource-rail',
-  'subject-navigation'
+  'subject-navigation',
+  'reference-case-rail',
+  'content-detail-dialog'
 ];
 const LIBRARY_STATES=[
   {name:'desktop-light',viewport:'desktop',theme:'light'},
@@ -89,7 +91,9 @@ async function moduleReady(frame,id){
     'learning-guide-hero':'[data-platform-module="learning-guide-hero"] h1',
     'learning-guide-section':'[data-platform-module="learning-guide-section"] .edu-checklist',
     'learning-resource-rail':'.edu-discovery[data-platform-module="learning-resource-rail"][data-resource-bound="true"] .edu-discovery-card',
-    'subject-navigation':'[data-platform-module="subject-navigation"] .subject-nav a'
+    'subject-navigation':'[data-platform-module="subject-navigation"] .subject-nav a',
+    'reference-case-rail':'[data-reference-bound="true"] .edu-reference-card',
+    'content-detail-dialog':'[data-content-detail-bound="true"] .edu-detail-launcher'
   };
   const minimum={
     'top-chapter-navigation':8,
@@ -105,7 +109,9 @@ async function moduleReady(frame,id){
     'learning-guide-hero':1,
     'learning-guide-section':1,
     'learning-resource-rail':3,
-    'subject-navigation':2
+    'subject-navigation':2,
+    'reference-case-rail':4,
+    'content-detail-dialog':1
   };
   const selector=selectors[id];
   await wait(()=>frame.locator(selector).count().then(count=>count>=minimum[id]),`${id} readiness failed`);
@@ -156,7 +162,9 @@ async function frameMetrics(page,frame,id,state){
       'collection-bottom-sheet':'#collectionSheet',
       'bottom-sheet':'.platform-bottom-sheet__panel',
       'learning-guide-section':'.edu-checklist',
-      'learning-resource-rail':'.edu-discovery-card'
+      'learning-resource-rail':'.edu-discovery-card',
+      'reference-case-rail':'.edu-reference-card',
+      'content-detail-dialog':'.edu-detail-launcher'
     }[id];
     if(critical){
       const value=await frame.locator(critical).first().evaluate(node=>getComputedStyle(node).backgroundColor);

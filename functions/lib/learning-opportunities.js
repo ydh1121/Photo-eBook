@@ -2,7 +2,7 @@ import {noticeSources as catalog,noticeBootstrap as bootstrap} from './learning-
 
 // This collector reads only the reviewed, public source pages in the catalog.
 // It does not submit applications or infer a reader's eligibility.
-export const SUBJECTS = Object.freeze(['video', 'ai', 'community', 'real-estate', 'auction']);
+export const SUBJECTS = Object.freeze(['video', 'ai', 'community', 'real-estate', 'auction', 'sns']);
 export const PROVIDERS = Object.freeze(catalog.providers);
 export const CACHE_SECONDS = 600;
 export const LAST_GOOD_SECONDS = 7 * 86400;
@@ -18,7 +18,10 @@ const SUBJECT_PATTERNS = {
   ai: /\bAI\b|인공지능|생성형|챗\s*GPT|ChatGPT|제미나이|프롬프트|디지털\s*(?:전환|교육|활용)/i,
   community: /커뮤니티|공동체|마을|네트워킹|모임|소통|온라인\s*(?:판로|홍보|플랫폼)|SNS|마케팅|로컬\s*크리에이터|시민.*콘텐츠/i,
   'real-estate': /부동산|주택|집수리|인테리어|도시재생|임대차|등기|건축물|임장/,
-  auction: /경매|공매|권리분석|온비드/
+  auction: /경매|공매|권리분석|온비드/,
+  // General AI, media production and programming threads are not SNS courses.
+  // Threads needs a social/account/writing context when the platform name stands alone.
+  sns: /\bSNS\b|인스타(?:그램)?|instagram|유튜브|youtube|릴스|\breels\b|쇼츠|\bshorts\b|소셜\s*(?:미디어|네트워크|마케팅)|온라인.{0,20}(?:홍보|마케팅)|(?:디지털|콘텐츠)\s*마케팅|(?:퍼스널|개인)\s*브랜딩|(?:스레드|쓰레드|threads)\s*(?:앱|계정|마케팅|글쓰기|게시물)|(?:메타|인스타(?:그램)?)\s*(?:의\s*)?(?:스레드|쓰레드|threads)/i
 };
 const OPEN_LABEL = /^(?:접수중|접수 중|모집중|모집 중|신청중|신청 중|신청하기|수강신청)$/;
 const CLOSED_LABEL = /^(?:접수마감|접수 마감|모집마감|모집 마감|신청마감|신청 마감|접수종료|접수 종료|종료|마감|조기마감|조기 마감|정원마감|정원 마감|모집완료|취소|폐강)$/;
@@ -447,6 +450,9 @@ export async function getLearningOpportunities(context, filters, options = {}) {
   const budget = { count: 0 };
   const results = await Promise.all(providers.map(async provider => ({ provider, result: await cachedProvider(provider, context, { now, cache, fetcher: options.fetcher || fetch, budget }) })));
   const items = unique(results.flatMap(({ result }) => result.items))
+    // A still-valid provider cache can predate the new SNS classification.
+    // Add only the new tag, keeping its original verification time and status evidence.
+    .map(item => filters.subject === 'sns' && !item.subjects?.includes('sns') && subjectTags(item.title, item.summary).includes('sns') ? { ...item, subjects: [...(item.subjects || []), 'sns'] } : item)
     .filter(item => item.title && SUBJECTS.includes(filters.subject) && item.subjects?.includes(filters.subject) && (filters.region === 'all' || item.region === filters.region) && (filters.type === 'all' || item.type === filters.type))
     .map(item => ({ ...item, ...computeStatus(item, now) }))
     .sort((a, b) => ({ open: 0, upcoming: 1, unknown: 2, closed: 3 }[a.status] - { open: 0, upcoming: 1, unknown: 2, closed: 3 }[b.status]) || (Date.parse(b.checkedAt) - Date.parse(a.checkedAt)) || a.id.localeCompare(b.id));

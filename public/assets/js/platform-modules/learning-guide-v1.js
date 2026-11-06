@@ -46,6 +46,8 @@
     const head=`<article class="guide-block edu-block edu-block--${attr(block.type||'prose')}">`;
     let body='';
     switch(block.type){
+      case 'case-studies':
+        body=registry.renderDependency('learning-guide-section','reference-case-rail',{...block,instanceId:`${context.instancePrefix||'guide'}-${id}`},context);break;
       case 'cards':
         body=`${title}${cardRail(block.items||[],block.title||'학습 카드',item=>`<div class="group-card edu-card">${item.eyebrow?`<div class="eyebrow">${esc(item.eyebrow)}</div>`:''}<h4>${esc(item.title)}</h4>${paras(item.body)}${item.bullets?.length?`<ul>${item.bullets.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${item.meta?`<p class="micro">${esc(item.meta)}</p>`:''}${item.link?link(item.link,'edu-text-link'):''}</div>`,context)}`;break;
       case 'steps':
@@ -89,7 +91,7 @@
     return `<section id="${attr(chapterId)}" class="chapter edu-chapter" data-chapter="${attr(chapterId)}" data-platform-module="learning-guide-section" data-learning-pack="${attr(packId)}">
       ${heading}<div class="section grouped"><div class="content edu-reading">
         ${chapter.outcome?`<div class="edu-outcome"><span>이번 장의 결과물</span><strong>${esc(chapter.outcome)}</strong></div>`:''}
-        <div class="guide-stack">${(chapter.blocks||[]).map((block,i)=>renderBlock(block,{...context,blockId:`${chapter.id}-${i}`})).join('')}</div>
+        <div class="guide-stack">${(chapter.blocks||[]).map((block,i)=>renderBlock(block,{...context,instancePrefix:props.instanceId||packId,blockId:`${chapter.id}-${i}`})).join('')}</div>
         ${cited.length?`<aside class="edu-evidence"><span>이 장의 근거</span><div>${cited.map(source=>link({label:source.title,url:source.url})).join('')}</div></aside>`:''}
         ${discovery}${resources}
       </div></div>
@@ -100,8 +102,10 @@
     if(!root||root.dataset.learningBound==='true')return;
     root.dataset.learningBound='true';
     const children=[];
-    root.querySelectorAll('[data-platform-module="horizontal-rail"]').forEach(node=>{if(!node.closest('[data-platform-module="learning-resource-rail"]'))children.push(registry.hydrateDependency('learning-guide-section',node,'horizontal-rail',{},context));});
+    root.querySelectorAll('[data-platform-module="horizontal-rail"]').forEach(node=>{if(!node.closest('[data-platform-module="learning-resource-rail"],[data-platform-module="reference-case-rail"]'))children.push(registry.hydrateDependency('learning-guide-section',node,'horizontal-rail',{},context));});
     root.querySelectorAll('[data-platform-module="learning-resource-rail"]').forEach((node,index)=>children.push(registry.hydrateDependency('learning-guide-section',node,'learning-resource-rail',{...(props.discovery||[])[index],packId:props.packId},context)));
+    const caseBlocks=(props.chapter?.blocks||[]).filter(block=>block.type==='case-studies');
+    root.querySelectorAll('[data-platform-module="reference-case-rail"]').forEach((node,index)=>{const block=caseBlocks[index];if(block)children.push(registry.hydrateDependency('learning-guide-section',node,'reference-case-rail',{...block,instanceId:`${props.instanceId||props.packId||'guide'}-${block.id}`},context));});
     const key=`personalEduPracticeV1:${props.packId||root.dataset.learningPack||'guide'}${props.instanceId?`:${props.instanceId}`:''}`;
     const persist=context.consumer==='public'||context.consumer==='export';
     let saved={};
@@ -146,5 +150,5 @@
   const heroPreview={layout:'learning',mobileImageFocus:50,eyebrow:'실습 가이드',title:'배운 내용을\n작은 결과물로',description:'목표를 정하고 직접 만든 결과물을 점검해 보세요.',image:'/assets/images/generated/personal-edu-v1/video-hero.webp',imageAlt:'스마트폰 촬영 실습을 묘사한 AI 생성 이미지',facts:[{label:'도구',value:'지금 쓰는 스마트폰'},{label:'결과물',value:'첫 실습 한 편'},{label:'학습',value:'실습과 피드백'},{label:'기록',value:'다음 작업에 재사용'}]};
   const sectionPreview={packId:'preview',index:0,chapter:{id:'practice',label:'실습',title:'작은 결과물을 완성해 보세요',description:'목표와 확인 기준을 함께 적습니다.',outcome:'검토할 결과물 한 개',blocks:[{type:'checklist',id:'preview',title:'완성 후 점검',items:['사용할 목적을 적었다','결과물을 직접 확인했다']},{type:'template',title:'실습 기록',text:'목적: [사용 목적]\n결과: [만든 결과물]\n다음 수정: [한 가지]'}]},sources:[]};
   registry.register({id:'learning-guide-hero',label:'학습 가이드 표지',category:'content',status:'approved',source:'public-extracted',sourceRoute:'/',version:1,consumers,ownerFiles:[owner,...foundation,css],previewProps:heroPreview,editorProps:heroPreview,render:renderHero});
-  registry.register({id:'learning-guide-section',label:'학습·실습 본문',category:'content',status:'approved',source:'platform-core',version:2,consumers,isolateInstances:true,dependencies:[{id:'horizontal-rail',kind:'composition',required:true},{id:'learning-resource-rail',kind:'composition',required:true}],ownerFiles:['public/assets/js/core/content-bookmark-store.js',owner,...foundation,css],previewProps:sectionPreview,editorProps:sectionPreview,render:renderSection,hydrate:hydrateSection});
+  registry.register({id:'learning-guide-section',label:'학습·실습 본문',category:'content',status:'approved',source:'platform-core',version:3,consumers,isolateInstances:true,dependencies:[{id:'horizontal-rail',kind:'composition',required:true},{id:'learning-resource-rail',kind:'composition',required:true},{id:'reference-case-rail',kind:'composition',required:true}],ownerFiles:['public/assets/js/core/content-bookmark-store.js',owner,...foundation,css],previewProps:sectionPreview,editorProps:sectionPreview,render:renderSection,hydrate:hydrateSection});
 })();

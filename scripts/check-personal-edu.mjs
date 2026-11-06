@@ -11,11 +11,12 @@ import {isDeepStrictEqual} from 'node:util';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const baseline='16669aca400a343d772680e47e08a2a48ca708e7';
 const origin='https://photo-ebook.pages.dev';
-const expected={video:37,ai:38,community:41,'real-estate':41,auction:39};
+const expected={video:37,sns:38,ai:38,community:41,'real-estate':45,auction:39};
+const chapterCounts=Object.fromEntries(Object.keys(expected).map(id=>[id,id==='real-estate'?10:9]));
 const ids=Object.keys(expected);
-const practice={video:'editing',ai:'images',community:'education','real-estate':'inspection',auction:'inspection'};
-const types=new Set(['prose','cards','steps','checklist','template','table','callout','related']);
-const officialDomains=['go.kr','gov.kr','ac.kr','samsung.com','samsungsvc.co.kr','support.google.com','help.openai.com','kcmf.or.kr','docs.band.us','edu.sbiz.or.kr','kamco.or.kr','capcut.com','vrew.ai'];
+const practice={video:'editing',sns:'content',ai:'images',community:'education','real-estate':'inspection',auction:'inspection'};
+const types=new Set(['prose','cards','steps','checklist','template','table','callout','related','case-studies']);
+const officialDomains=['go.kr','gov.kr','ac.kr','samsung.com','samsungsvc.co.kr','support.google.com','help.openai.com','kcmf.or.kr','docs.band.us','edu.sbiz.or.kr','kamco.or.kr','capcut.com','vrew.ai','about.fb.com','facebook.com','instagram.com','threads.com','play.google.com','work24.go.kr','busan.go.kr','bsseogu.go.kr'];
 const args=process.argv.slice(2);
 if(args.length===1&&args[0]==='--help'){
   console.log('Usage: node scripts/check-personal-edu.mjs [--drafts <directory>]\nDefault: validate reviewed sources, generated output, links, canonical renderers and photography baseline.\n--drafts: validate the supplied authoring drafts plus renderers/catalog/baseline; generated output is explicitly skipped.');
@@ -111,6 +112,27 @@ function validateBlock(block,where,courseId,interactiveIds){
       if(block.caption!==undefined)check(typeof block.caption==='string',`${where}.caption`,'table caption must be text when provided');break;
     }
     case 'related':list(block.items,`${where}.items`,{min:1}).forEach((item,i)=>link(item,`${where}.items[${i}]`,courseId));break;
+    case 'case-studies':{
+      slug(block.id,`${where}.id`);
+      const cases=list(block.items,`${where}.items`,{min:1});
+      unique(cases.map(item=>item.id),`${where}.items`);
+      cases.forEach((item,i)=>{
+        const at=`${where}.items[${i}]`;
+        slug(item.id,`${at}.id`);check(['analysis','profile'].includes(item.kind),at,'unknown evidence kind');
+        for(const key of ['title','kicker','summary','evidenceLabel'])text(item[key],`${at}.${key}`);
+        if(item.observedAt)date(item.observedAt,`${at}.observedAt`);
+        for(const key of ['url','profileUrl'])if(item[key])externalUrl(item[key],`${at}.${key}`);
+        if(item.kind==='profile')externalUrl(item.profileUrl,`${at}.profileUrl`);
+        strings(item.tags,`${at}.tags`);
+        list(item.sections,`${at}.sections`,{min:1}).forEach((section,j)=>{
+          const sectionAt=`${at}.sections[${j}]`;text(section.title,`${sectionAt}.title`);strings(section.body,`${sectionAt}.body`);
+          if(section.bullets)strings(section.bullets,`${sectionAt}.bullets`);
+          if(section.links)list(section.links,`${sectionAt}.links`).forEach((entry,n)=>link(entry,`${sectionAt}.links[${n}]`,courseId));
+        });
+        if(item.metrics)list(item.metrics,`${at}.metrics`).forEach((metric,j)=>{text(metric.label,`${at}.metrics[${j}].label`);text(metric.value,`${at}.metrics[${j}].value`);text(metric.note,`${at}.metrics[${j}].note`);});
+        if(item.exercise){text(item.exercise.title,`${at}.exercise.title`);strings(item.exercise.steps,`${at}.exercise.steps`);text(item.exercise.output,`${at}.exercise.output`);}
+      });break;
+    }
   }
 }
 function validateCourse(course,id){
@@ -134,7 +156,7 @@ function validateCourse(course,id){
     if(date(source.checkedAt,`${at}.checkedAt`))check(source.checkedAt<=course.reviewedAt,at,'source check is later than the recorded course review');
   });
   const chapters=list(course.chapters,`${id}.chapters`,{min:9});counts.chapters+=chapters.length;
-  check(chapters.length===9,id,'V1 requires nine complete chapters');unique(chapters.map(chapter=>chapter.id),`${id}.chapters`);
+  check(chapters.length===chapterCounts[id],id,'chapter inventory differs from the reviewed course');unique(chapters.map(chapter=>chapter.id),`${id}.chapters`);
   check(chapters.some(chapter=>chapter.id==='education'),id,'missing the education route chapter');
   const interactiveIds=[];
   let blockCount=0;
@@ -161,14 +183,14 @@ function validateRenderers(courses){
   const registryFile='public/assets/js/platform-modules/module-registry-v1.js';
   const guideFile='public/assets/js/platform-modules/learning-guide-v1.js';
   const subjectFile='public/assets/js/platform-modules/subject-navigation-v1.js';
-  const dependencyFiles=['photo-public-module-source-v1.js','photo-core-modules-v1.js','portable-primitives-v1.js','portable-primitives-extension-v2.js','portable-primitives-composition-v3.js','learning-resource-rail-v1.js'].map(name=>`public/assets/js/platform-modules/${name}`);
+  const dependencyFiles=['photo-public-module-source-v1.js','photo-core-modules-v1.js','portable-primitives-v1.js','portable-primitives-extension-v2.js','portable-primitives-composition-v3.js','learning-resource-rail-v1.js','content-detail-dialog-v1.js','reference-case-rail-v1.js'].map(name=>`public/assets/js/platform-modules/${name}`);
   const source=read(guideFile),registrySource=read(registryFile),subjectSource=read(subjectFile);
   if([source,registrySource,subjectSource].includes(null))return null;
   const cases=new Set([...source.matchAll(/case\s+['"]([^'"]+)['"]\s*:/g)].map(match=>match[1]));
   for(const type of types)if(type!=='prose')check(cases.has(type),guideFile,`missing explicit renderer case ${type}`);
   const context=attempt('canonical modules',()=>execute(`${registrySource}\n${dependencyFiles.map(read).join('\n')}\n${source}\n${subjectSource}`,guideFile));
   const registry=context?.window.PlatformModuleRegistry;if(!registry)return null;
-  for(const id of ['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail']){
+  for(const id of ['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail','reference-case-rail','content-detail-dialog']){
     const definition=registry.get(id);if(!check(definition,id,'not registered'))continue;
     for(const consumer of ['public','library','editor','export'])check(registry.canConsume(id,consumer),id,`unavailable to ${consumer}`);
     for(const file of definition.ownerFiles)fileExists(file,id);
@@ -182,6 +204,7 @@ function validateRenderers(courses){
       check(html.includes(`id="${chapter.id}"`),`${course.id}/${chapter.id}`,'semantic chapter anchor missing');
       check(!/(?:>undefined<|\[object Object\])/.test(html),`${course.id}/${chapter.id}`,'renderer leaked a missing value');
       if(chapter.blocks.some(block=>block.type==='cards'))check(html.includes('data-platform-module="horizontal-rail"'),`${course.id}/${chapter.id}`,'comparison cards must compose the canonical rail');
+      if(chapter.blocks.some(block=>block.type==='case-studies'))check(html.includes('data-platform-module="reference-case-rail"')&&html.includes('data-platform-module="content-detail-dialog"'),`${course.id}/${chapter.id}`,'reference blocks must compose both canonical owners');
       if(discovery.length)check(html.includes('data-platform-module="learning-resource-rail"'),`${course.id}/${chapter.id}`,'discovery module is absent');
       fragments.push(html);counts.renderedChapters++;
     });
@@ -194,7 +217,7 @@ function validateRenderers(courses){
     check(!html.includes('<script>')&&!html.includes('javascript:')&&html.includes('&lt;script&gt;'),'resource content','untrusted content was not escaped/filtered');
   });
   attempt('portable canonical bootstrap order',()=>{
-    const files=registry.assetFiles(['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail'],'export');
+    const files=registry.assetFiles(['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail','reference-case-rail','content-detail-dialog'],'export');
     unique(files,'portable assets');
     const at=name=>files.indexOf(`public/assets/js/platform-modules/${name}.js`);
     check(at('photo-core-modules-v1')<at('portable-primitives-composition-v3'),'portable assets','filter base owner executes after its composition patch');
@@ -239,7 +262,7 @@ function validateCatalog(courses,photoChapters){
   const source=read('public/assets/js/core/subject-catalog.js');if(source===null)return;
   const catalog=attempt('subject catalog',()=>execute(source,'subject-catalog.js').window.PersonalEduSubjects);
   if(!Array.isArray(catalog)){check(false,'subject catalog','missing subject list');return;}
-  check(same(catalog.map(item=>item.id),['photography',...ids]),'subject catalog','expected photography plus five new subjects');
+  check(same(catalog.map(item=>item.id),['photography',...ids]),'subject catalog','expected photography plus the reviewed learning subjects');
   const routes=new Map([['/',new Set(photoChapters)]]);
   for(const course of courses.values())routes.set(course.route,new Set(course.chapters.map(chapter=>chapter.id)));
   for(const item of catalog){const route=item.id==='photography'?'/':`/${item.id}/`;check(item.url===route,'subject catalog','wrong subject destination');text(item.label,`subject catalog ${item.id}.label`);}
@@ -325,13 +348,13 @@ function validateGenerated(courses,rawSources){
     const entry=manifest?.courses?.find(item=>item.id===course.id);
     if(check(entry,base,'manifest entry missing')){
       for(const field of ['label','route','title','reviewedAt'])check(entry[field]===course[field],base,`manifest ${field} mismatch`);
-      check(entry.chapters===9&&entry.blocks===expected[course.id]&&entry.sources===course.sources.length,base,'manifest content counts mismatch');
+      check(entry.chapters===course.chapters.length&&entry.blocks===expected[course.id]&&entry.sources===course.sources.length,base,'manifest content counts mismatch');
       check(entry.sourceSha256===crypto.createHash('sha256').update(rawSources.get(course.id)).digest('hex'),base,'manifest hash does not match reviewed source bytes');
       check(entry.heroImage===versioned(hero),base,'manifest hero slot mismatch');
     }
     validatePage(course);
   });
-  const home=read('public/index.html');if(home!==null)check(home.includes('/content-packs/photography/pack.js')&&!/data-content-pack="(?:video|ai|community|real-estate|auction)"/.test(home),'public/index.html','root route no longer owns photography');
+  const home=read('public/index.html');if(home!==null)check(home.includes('/content-packs/photography/pack.js')&&!/data-content-pack="(?:video|sns|ai|community|real-estate|auction)"/.test(home),'public/index.html','root route no longer owns photography');
 }
 
 const courses=new Map(),rawSources=new Map();
@@ -340,9 +363,9 @@ for(const id of ids){
   const course=attempt(`${id}.json`,()=>JSON.parse(raw));if(!course)continue;
   rawSources.set(id,raw);courses.set(id,course);attempt(`${id} schema`,()=>validateCourse(course,id));
 }
-check(counts.courses===5,'inventory','expected five complete courses');
-check(counts.chapters===45,'inventory',`expected 45 chapters, received ${counts.chapters}`);
-check(counts.blocks===196,'inventory',`expected 196 blocks, received ${counts.blocks}`);
+check(counts.courses===ids.length,'inventory','course inventory mismatch');
+check(counts.chapters===Object.values(chapterCounts).reduce((a,b)=>a+b,0),'inventory',`chapter inventory mismatch: ${counts.chapters}`);
+check(counts.blocks===Object.values(expected).reduce((a,b)=>a+b,0),'inventory',`block inventory mismatch: ${counts.blocks}`);
 const context=validateRenderers(courses);
 const photoChapters=validatePhotography(context);
 validateCatalog(courses,photoChapters);

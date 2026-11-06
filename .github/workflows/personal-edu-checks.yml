@@ -15,6 +15,7 @@ on:
       - 'content/image-status/personal-edu-v1.json'
       - 'public/index.html'
       - 'public/video/**'
+      - 'public/sns/**'
       - 'public/ai/**'
       - 'public/community/**'
       - 'public/real-estate/**'
@@ -30,6 +31,7 @@ on:
       - 'scripts/build-personal-edu.mjs'
       - 'scripts/check-personal-edu-runtime.mjs'
       - 'scripts/check-personal-edu.mjs'
+      - 'scripts/check-reference-cases.mjs'
       - 'scripts/content/**'
       - 'public/_routes.json'
       - 'public/_redirects'
@@ -48,6 +50,7 @@ on:
       - 'content/image-status/personal-edu-v1.json'
       - 'public/index.html'
       - 'public/video/**'
+      - 'public/sns/**'
       - 'public/ai/**'
       - 'public/community/**'
       - 'public/real-estate/**'
@@ -63,6 +66,7 @@ on:
       - 'scripts/build-personal-edu.mjs'
       - 'scripts/check-personal-edu-runtime.mjs'
       - 'scripts/check-personal-edu.mjs'
+      - 'scripts/check-reference-cases.mjs'
       - 'scripts/content/**'
       - 'public/_routes.json'
       - 'public/_redirects'
@@ -89,10 +93,12 @@ jobs:
           node --check scripts/check-personal-edu-runtime.mjs
           git fetch --depth=1 origin 16669aca400a343d772680e47e08a2a48ca708e7
           node scripts/check-personal-edu.mjs
+          node scripts/check-reference-cases.mjs
+          node scripts/check-platform-module-boundaries.mjs
           node scripts/check-learning-videos.mjs
           node scripts/check-learning-opportunities.mjs
           node scripts/build-personal-edu.mjs
-          git diff --exit-code -- functions/lib/learning-discovery-catalog.js public/content-packs public/video public/ai public/community public/real-estate public/auction
+          git diff --exit-code -- functions/lib/learning-discovery-catalog.js public/content-packs public/video public/sns public/ai public/community public/real-estate public/auction
       - name: Install pinned browser QA dependency
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
@@ -114,11 +120,14 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat artifacts/personal-edu-runtime/http-server.log; exit 1; fi
           node scripts/check-personal-edu-runtime.mjs
+          node scripts/check-reference-cases.mjs --runtime
       - name: Upload report, subject screenshots, and export evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: personal-edu-runtime-qa
-          path: artifacts/personal-edu-runtime
+          path: |
+            artifacts/personal-edu-runtime
+            artifacts/reference-cases
           if-no-files-found: warn
           retention-days: 14

@@ -696,5 +696,55 @@
       "verifiedAt": "2026-11-06T04:56:40.881658+00:00",
       "matchesDeployedBytes": true
     }
+  },
+  "edu-sns-hero": {
+    "version": "v1",
+    "promptSha": "2abc902e1861c180ceffb24cdeb6eda76057854c88d978b11dbe2cf33ee10e73",
+    "pngSha": "da71240617c5acc270211d228a1d1b50b5de926d04d884e3541590bb825f7a59",
+    "webpSha": "8e5755e09c3172c8672430821f9463c4346098445f4a9281d9b9a82528072422",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 1982724,
+      "webp": 88454
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pending",
+      "webpDecode": "pass",
+      "webpVisual": "pass",
+      "notes": "원본 장면·인물·손·휴대폰 확인. 실제 앱 메뉴를 재현한 화면은 아닙니다."
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T08:26:24.060950+00:00",
+    "status": "applied",
+    "ready": true
+  },
+  "edu-sns-practice": {
+    "version": "v1",
+    "promptSha": "2678a775489a756351e3a036913d7a0bb45feaa57d545cbf089d7f887e14b482",
+    "pngSha": "b2f11cc4461868528dd67c9779ee9243764526c79f0910b36f8df6903da0cc2f",
+    "webpSha": "3066b9389a63e01395e32b7591353230dcab4ca72a0595a3919c09cbcce8e0d2",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2241597,
+      "webp": 119468
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pending",
+      "webpDecode": "pass",
+      "webpVisual": "pass",
+      "notes": "원본 장면·인물·손·휴대폰 확인. 실제 앱 메뉴를 재현한 화면은 아닙니다."
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T08:26:24.060950+00:00",
+    "status": "applied",
+    "ready": true
   }
 }

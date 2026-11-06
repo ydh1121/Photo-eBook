@@ -14,7 +14,7 @@ const expectedPhoto=['top-chapter-navigation','filter-chip-rail','horizontal-car
 const expectedPortable=['horizontal-rail','accordion','bottom-sheet'];
 const expectedSharedDisplay=['screen-mode-selector'];
 const expectedSharedPortable=['horizontal-rail'];
-const expectedLearning=['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail'];
+const expectedLearning=['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail','reference-case-rail','content-detail-dialog'];
 const expectedNonPublic=['accordion','bottom-sheet'];
 const expectedLibrary=[...expectedPhoto,...expectedPortable,...expectedSharedDisplay,...expectedLearning];
 const report={startedAt:new Date().toISOString(),base:BASE,entryMarker:ENTRY_MARKER,registryMarker:REGISTRY_MARKER,attempts:[],checks:[]};
@@ -37,7 +37,7 @@ async function waitForCanonicalLibrary(){
     try{
       const html=await fetchText(`${BASE}/ui-dashboard/`);
       const entryMatched=html.includes(ENTRY_MARKER)&&[
-        'module-registry-v1.js','learning-guide-v1.js','subject-navigation-v1.js','learning-resource-rail-v1.js'
+        'module-registry-v1.js','learning-guide-v1.js','subject-navigation-v1.js','learning-resource-rail-v1.js','reference-case-rail-v1.js','content-detail-dialog-v1.js'
       ].every(file=>html.includes(`/assets/js/platform-modules/${file}`));
       let dependencyReady=false;
       if(entryMatched){

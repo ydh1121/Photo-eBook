@@ -157,4 +157,19 @@ const lab=read('public/block-lab/index.html');
 expect(lab.includes('RESEARCH ONLY'),'Block Lab must remain explicitly research-only.');
 expect(!lab.includes('/ui-dashboard/module-preview/'),'Block Lab must not consume approved preview runtime directly.');
 
+const referenceRail=read('public/assets/js/platform-modules/reference-case-rail-v1.js');
+const detailDialog=read('public/assets/js/platform-modules/content-detail-dialog-v1.js');
+expect(referenceRail.includes("{id:'horizontal-rail',kind:'composition',required:true}")&&referenceRail.includes("{id:'content-detail-dialog',kind:'composition',required:true}"),'Case cards must declare both canonical dependencies.');
+expect(referenceRail.includes("registry.renderDependency(ID,'horizontal-rail'")&&referenceRail.includes("registry.renderDependency(ID,'content-detail-dialog'"),'Case cards must render canonical children.');
+expect(!referenceRail.includes('setPointerCapture')&&!referenceRail.includes('showModal()'),'Case cards must not duplicate horizontal input or modal behavior.');
+expect(detailDialog.includes('dialog.showModal()')&&detailDialog.includes('dialog.close(reason)'),'Detail dialog must own native modal lifecycle.');
+for(const file of [referenceRail,detailDialog]){
+  expect(file.includes("consumers:['public','library','editor','export']"),'Case modules must be reusable by all four consumers.');
+  expect(!file.includes('/ui-dashboard/')&&!file.includes('/block-lab/'),'Case modules must not import preview or Block Lab owners.');
+}
+for(const [label,entry] of [['Library',dashboard],['Preview',preview],['Editor',editorHtml],['Public Snapshot',publicSnapshot]]){
+  for(const owner of ['content-detail-dialog-v1.js','reference-case-rail-v1.js'])expect(entry.includes(owner),`${label} is missing ${owner}`);
+}
+expect(!publicIndex.includes('content-detail-dialog-v1.js')&&!publicIndex.includes('reference-case-rail-v1.js'),'Photography must not eagerly load learning-only case modules.');
+
 console.log('Canonical reusable UI module boundary and dependency graph contract passed.');

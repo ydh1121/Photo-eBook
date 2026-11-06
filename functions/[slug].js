@@ -109,7 +109,7 @@ export function renderPublicPage(payload,canonical){
   <script src="/assets/js/blocks/block-style-runtime.js?v=1"></script>
   <script src="/assets/js/ui-capabilities/runtime.js?v=1"></script>
   <script src="/assets/js/public-snapshot/interactions.js?v=1"></script>
-  <script src="/assets/js/public-snapshot/runtime-v2.js?v=2"></script>
+  <script src="/assets/js/public-snapshot/runtime-v2.js?v=3"></script>
   <script id="publicSnapshotPayload" type="application/json">${payloadJson}</script>
   <script>
     (function(){

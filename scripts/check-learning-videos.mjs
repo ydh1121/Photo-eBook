@@ -12,7 +12,7 @@ import {collectVideos,extractInitialData} from '../functions/lib/video-discovery
 import {collectLearningVideos,learningInitialData,searchLearningYouTubePage,parseInstagramMetadata,instagramPostUrl,matchesMetadata,extractHashtags,boundedMetadataFetch} from '../functions/lib/learning-video-discovery.js';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const baseline='16669aca400a343d772680e47e08a2a48ca708e7';
-const subjects=['video','ai','community','real-estate','auction'];
+const subjects=['video','ai','community','real-estate','auction','sns'];
 const epoch=Date.parse('2026-11-06T12:00:00.000Z'),failures=[];
 let checks=0;
 async function check(name,fn){checks++;try{await fn();process.stdout.write(`PASS ${name}\n`);}catch(error){failures.push(`${name}: ${error.stack||error}`);process.stdout.write(`FAIL ${name}: ${error.message}\n`);}}
@@ -25,7 +25,7 @@ const request=(search='subject=video',method='GET')=>new Request(`https://exampl
 async function sample(handler,search='subject=video',method='GET'){const result=await handler({request:request(search,method)});return {status:result.status,headers:result.headers,body:await result.json()};}
 function contract(payload){assert.equal(typeof payload.ok,'boolean');assert.ok(Array.isArray(payload.items));for(const item of payload.items){for(const key of ['id','title','channel','url','thumbnail','description','platform','category','query','checkedAt'])assert.equal(typeof item[key],'string',`${key} is serialized`);assert.ok(Number.isFinite(Date.parse(item.checkedAt)));const url=new URL(item.url);assert.equal(url.protocol,'https:');if(item.platform==='Instagram'){assert.match(item.id,/^ig-[\w-]+$/);assert.equal(instagramPostUrl(item.url),item.url);assert.equal(item.metadataOnly,true);}else{assert.equal(item.platform,'YouTube');assert.match(item.id,/^[A-Za-z0-9_-]{11}$/);assert.equal(url.origin,'https://www.youtube.com');assert.ok(url.pathname==='/watch'||url.pathname===`/shorts/${item.id}`);const thumb=new URL(item.thumbnail);assert.equal(thumb.protocol,'https:');assert.ok(['i.ytimg.com','i9.ytimg.com','img.youtube.com'].includes(thumb.hostname));}assert.equal(item.matchScore,undefined);assert.equal(item.isSearchFallback,undefined);}}
 
-await check('all five subjects have a broad, attributable metadata index',()=>{
+await check('all six learning subjects have a broad, attributable metadata index',()=>{
   assert.deepEqual(Object.keys(snapshot.subjects),subjects);assert.equal(snapshot.indexVersion,2);assert.equal(snapshot.source,'public-metadata-index');
   for(const [id,record]of Object.entries(snapshot.subjects)){assert.equal(record.topics.length,12);assert.equal(new Set(record.topics.map(topic=>topic.id)).size,12);assert.ok(record.items.length>=40,`${id}: only ${record.items.length} items`);contract({ok:true,items:record.items});assert.equal(new Set(record.items.map(item=>item.id)).size,record.items.length);for(const item of record.items){assert.ok(['youtube-search-metadata','youtube-page-metadata','provided-screenshot'].includes(item.verification)||item.source==='verified-recommendations');}}
   const instagram=snapshot.subjects['real-estate'].items.filter(item=>item.platform==='Instagram');assert.ok(instagram.length>=8);assert.ok(instagram.every(item=>item.verification==='provided-screenshot'&&item.referenceOnly));assert.ok(!instagram.some(item=>['ig-DfTVJlPsv8P','ig-DcTJPfXTGBI'].includes(item.id)),'ambiguous screenshot URLs must stay private');
@@ -59,6 +59,23 @@ await check('subject-wide fallback cannot leak through the explicit topic cache 
   }
 });
 await check('keyword search returns only matching title, description or hashtag metadata',async()=>{const handler=createLearningVideosHandler({fetchImpl:async()=>response(html([renderer('fixture0001','스마트폰 영상 편집 #가로자막'),renderer('fixture0002','스마트폰 영상 촬영')]))});const result=await sample(handler,'subject=video&q=%23가로자막');assert.equal(result.body.items.length,1);assert.equal(result.body.items[0].id,'fixture0001');});
+await check('SNS keyword search reaches YouTube and Threads beyond the first Instagram topic',async()=>{
+  for(const [query,title] of [['유튜브','유튜브 스튜디오 앱 분석 사용법'],['쓰레드','쓰레드 사용법 초보 SNS 글쓰기']]){
+    const calls=[];
+    const handler=createLearningVideosHandler({catalog:snapshot,fetchImpl:async target=>{calls.push(target);return response(html([renderer('fixture0001',title),renderer('fixture0002','인스타그램 프로필 만들기')]));}});
+    const result=await sample(handler,`subject=sns&q=${encodeURIComponent(query)}`);
+    assert.equal(result.status,200);assert.equal(result.body.source,'youtube-search');assert.deepEqual(result.body.items.map(item=>item.id),['fixture0001']);
+    assert.equal(new URL(calls[0]).searchParams.get('search_query'),`SNS ${query}`);
+  }
+});
+await check('SNS topics retain broad checked lessons and explicit topic fallback stays relevant',async()=>{
+  const record=snapshot.subjects.sns;
+  for(const topic of record.topics){assert.ok(topic.category&&topic.query&&topic.requiredTerms?.length);assert.ok(record.items.filter(item=>item.topic===topic.id||item.topics?.includes(topic.id)).length>=6,`${topic.id}: needs at least six checked lessons`);}
+  const handler=createLearningVideosHandler({catalog:snapshot,fetchImpl:async()=>response('blocked',403)});
+  const result=await sample(handler,'subject=sns&topic=threads-start');
+  assert.equal(result.status,200);assert.equal(result.body.isFallback,true);assert.equal(result.body.fallbackScope,'topic');assert.ok(result.body.items.length>=6);
+  assert.ok(result.body.items.every(item=>item.topic==='threads-start'||item.topics?.includes('threads-start')));
+});
 await check('reviewed exclusions stay excluded when a live source returns them again',async()=>{const catalog=structuredClone(snapshot);catalog.subjects.video.excludedIds=['fixture0001'];const handler=createLearningVideosHandler({catalog,fetchImpl:async()=>response(html([renderer(),renderer('fixture0002')]))});const result=await sample(handler);assert.deepEqual(result.body.items.map(item=>item.id),['fixture0002']);assert.equal(result.body.source,'youtube-search');});
 await check('Instagram search uses observed captions and retains them if public metadata is unavailable',async()=>{let calls=0;const handler=createLearningVideosHandler({fetchImpl:async target=>{calls++;assert.equal(new URL(target).hostname,'www.instagram.com');return response('login',403);}});const result=await sample(handler,'subject=real-estate&platform=instagram&q=%23신림원룸');contract(result.body);assert.ok(result.body.items.length>=1);assert.ok(result.body.items.every(item=>item.platform==='Instagram'&&matchesMetadata(item,'#신림원룸')));assert.ok(calls<=4);assert.equal(result.body.isFallback,true);assert.equal(result.body.nextCursor,null);assert.ok(result.body.items.some(item=>item.availabilityAtCapture==='계약 완료 표기'));});
 await check('Instagram source parser reads only public metadata, not a login page',()=>{const url='https://www.instagram.com/p/abcdef12345/';const item=parseInstagramMetadata('<meta property="og:title" content="집 소개 by room"><meta content="서면의 원룸 &amp; 테라스 #부산원룸 #룸투어" property="og:description">',url);assert.equal(item.description,'서면의 원룸 & 테라스 #부산원룸 #룸투어');assert.deepEqual(item.hashtags,['#부산원룸','#룸투어']);assert.equal(item.url,url);assert.throws(()=>parseInstagramMetadata('<meta property="og:title" content="Instagram"><meta property="og:description" content="Log in to Instagram">',url));assert.equal(instagramPostUrl('https://www.instagram.com.evil.test/p/abcdef12345/'),'');assert.equal(instagramPostUrl('https://www.instagram.com/accounts/login/'),'');});
