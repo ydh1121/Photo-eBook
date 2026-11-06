@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "courses": [
+    {
+      "id": "video",
+      "label": "영상",
+      "route": "/video/",
+      "title": "스마트폰 영상 촬영과 편집",
+      "sourceSha256": "ed65809a7a9f2373de07ebe2b183f01fb18a3a6dc2d74416a74292cc0e34fea9",
+      "chapters": 9,
+      "blocks": 37,
+      "sources": 12,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/video-hero.webp?v=d46f8322e663"
+    },
+    {
+      "id": "ai",
+      "label": "AI 활용",
+      "route": "/ai/",
+      "title": "프롬프트부터 배우는 AI 활용",
+      "sourceSha256": "e854ac262c89a977151b903cbaa4140c748b88d4612c7b07b72294ecbdd30ee1",
+      "chapters": 9,
+      "blocks": 38,
+      "sources": 7,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/ai-hero.webp?v=ed668c03979d"
+    },
+    {
+      "id": "community",
+      "label": "커뮤니티",
+      "route": "/community/",
+      "title": "작은 모임 기획과 커뮤니티 운영",
+      "sourceSha256": "5150a0572011dea01f8659b275222a1905ca340e1fd1b148a27d7d22e6934c7e",
+      "chapters": 9,
+      "blocks": 41,
+      "sources": 8,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/community-hero.webp?v=f09875915fa8"
+    },
+    {
+      "id": "real-estate",
+      "label": "부동산",
+      "route": "/real-estate/",
+      "title": "집과 동네를 읽는 부동산 기초",
+      "sourceSha256": "6c54d07742ea75e0c05a7de4d49b21bcc6292a88f797044013418bb159d41898",
+      "chapters": 9,
+      "blocks": 39,
+      "sources": 10,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp?v=a0587c516c55"
+    },
+    {
+      "id": "auction",
+      "label": "경매",
+      "route": "/auction/",
+      "title": "서류와 비용으로 배우는 첫 경매 공부",
+      "sourceSha256": "fe2abfca7522076da0249ed2c682c2272d5e7af96efc85b4018d7a8e3f7307d1",
+      "chapters": 9,
+      "blocks": 39,
+      "sources": 11,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/auction-hero.webp?v=6dd7d5fed807"
+    }
+  ]
+}

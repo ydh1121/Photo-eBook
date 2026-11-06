@@ -1,0 +1,640 @@
+{
+  "edu-ai-hero": {
+    "version": "v3",
+    "promptSha": "5aec280557bb18e9f18c0c81a913e2fba73e5126ab3aff94ec59918a0a0bb784",
+    "pngSha": "b4cf62d972f4e64dd35dbba63ce48c0ccf1f76b9e765a461c83b82dcc4456e97",
+    "webpSha": "ed668c03979d3289bd5d33072dcf1922f243b208136ff05815a4b56496d09db5",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 1931943,
+      "webp": 77666
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "기존 스마트폰 작업 구도·빛·소품을 유지하며 여성의 얼굴 인상을 자연스럽게 성숙하게 조정했습니다. 손·휴대폰·노트북과 상단 여백을 확인했습니다.",
+      "webpDecode": "pass",
+      "webpVisual": "pass",
+      "layoutEvidence": {
+        "revision": "a769a098c024ff45c47c9eff24286da90a479565",
+        "workflowRun": 42163541942,
+        "artifactId": 13478550572,
+        "screenshots": [
+          "desktop1440-ai-hero.png",
+          "mobile375-ai-hero.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T03:13:35.461157+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "0d7ea266beacacfbe6dcfa4cec6e6e6ff52c7436316994654072f6d3f6bf728f",
+        "pngSha": "e639a2e275443f5f55f52b18309c46c6f9f652d6340e1b340e6c5a34be8d8a83",
+        "webpSha": "d0c491c82fb5b180692bb7d34ce1d7d2774414fdfc04400654bfdd7a20922060",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2249108,
+          "webp": 112704
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "중년 성인이 휴대폰과 노트북으로 행사 이미지를 준비하는 장면이 분명합니다. 읽을 수 있는 화면 문구 없이 왼쪽과 상단 여백이 확보됐습니다."
+        }
+      },
+      {
+        "version": "v2",
+        "promptSha": "13aa67c4c872b2a63df96082d2ba65c8fafaa9cf042a4dc18845f15352e78285",
+        "pngSha": "fc9d1ca36fc65d582b10658a3843267f21e1e3315f973a38b708aaed1bb9d48b",
+        "webpSha": "61beee5e0dbaffd376cfd23f0d1dc1a8e0cdda85f68095d54acc37482e8a1de1",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 1937947,
+          "webp": 75634
+        },
+        "visualQA": {
+          "scene": "pass",
+          "layout": "pending",
+          "notes": "성인 여성이 휴대폰과 노트북으로 작업을 검토합니다. 얼굴·휴대폰·손이 중앙 가까이 있고 화면 속 행사 이미지와 계획 노트가 일상 작업 맥락을 만듭니다.",
+          "webpDecode": "pass"
+        },
+        "driveMirror": "verified",
+        "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+        "status": "generated_pending_layout"
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-ai-practice": {
+    "version": "v2",
+    "promptSha": "a6a489d3a6e2d3ba3049bf7360268c6effa74b20a95814cdad24ec97103c19ee",
+    "pngSha": "77d2587059d0be1e5abf93769d1f8d41b4af7fd8668a85fc4ae93fbaed03165a",
+    "webpSha": "8c84d51ddb92459cfa81e1d18d991f3029ba7e56ee7b6a108b55c92651577c04",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2392600,
+      "webp": 167442
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "태블릿의 꽃 사진과 두 버전 썸네일, 비교용 인쇄물, 체크 노트와 스타일러스가 이미지 수정·검토 과정을 보여줍니다. 중앙에서 주요 이미지와 스타일러스 끝이 유지됩니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-ai-practice.png",
+          "mobile375-ai-practice.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "2f9b925d00f1f8e81aa1b61f02b8806cdc35d1ffaf14fe17d62031a01bc3364f",
+        "pngSha": "304e74a73f497a7b86fd2fa7dcd10941d8811e6f2c1f08c9a40d1125f8d3b425",
+        "webpSha": "dd9c0b64d0701b2879af4cf7503f9f8aec930725de0d982f9335f9020813c284",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2307735,
+          "webp": 153842
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "같은 행사 테이블 장면을 휴대폰과 노트북에서 다른 프레임으로 검토하는 모습입니다. 검토 체크 노트가 보이고, 실제 제품명이나 읽을 수 있는 문구가 없습니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-auction-hero": {
+    "version": "v2",
+    "promptSha": "9f2648d67f4d3629e05305ba147057c2c813a2e099bc8af298eaafed02a2b050",
+    "pngSha": "d1ead64f295036339b39db5354840bb20ced426fe4231c2de72468a7a330d5f0",
+    "webpSha": "6dd7d5fed8074efc5417e20dab79529ae6d8265cc62bb09028a2047c5f4f8c78",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2235057,
+      "webp": 107116
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "성인 남녀가 도면·서류·계산기를 비교합니다. 중앙의 손과 도면이 학습 맥락과 맞고 법률 문구·가격·수익을 주장하는 읽을 수 있는 정보가 없습니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-auction-hero.png",
+          "mobile375-auction-hero.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "a39aef218ecdcfe362b5957c03f5273a69c0799b51992fb2d3c10bee293a6bc9",
+        "pngSha": "a8793020cbeeac9fd59b4ffcac72121f140b701aceca8b96fbe47b6e51e519bc",
+        "webpSha": "27728fddaae65a0e4c8b1cb405b6a0a2964b7b9e6c4f0a5a1f0f2dd213840169",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2289742,
+          "webp": 117216
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "도면과 일반 문서, 계산기를 함께 검토하는 경매 학습 장면입니다. 실제 법률 문서나 수익 숫자로 오해할 가독성 있는 글자가 없고 인물·손·책상 배치가 자연스럽습니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-auction-practice": {
+    "version": "v2",
+    "promptSha": "72afe92a75adf16e45d94928d6930d802d4b2e0e299c74af26d009c0e4f7c52b",
+    "pngSha": "058567e0e674f62cd2d9f2cbe28c8ecb28a227e4ad0854b68f23532078a384d6",
+    "webpSha": "7c3f423d2a8ebfbad7b7f7b52c6525e0ec223e69f8e06807dee9a8043f985fda",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2226449,
+      "webp": 101278
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "손·줄자·노후 창틀·도면 클립보드가 중심에 모인 수리 범위 점검 장면입니다. 창틀 접점과 기록 도구가 함께 보여 이전처럼 점검 대상이 화면 가장자리로 빠지지 않습니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-auction-practice.png",
+          "mobile375-auction-practice.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "a9881d544247a03922c9a6a55b1713b46efb742dcc1d9f57736ac7002ef6ea31",
+        "pngSha": "50bcdaded59d5f18f54af3c118e9421b47b0030fb749ee9bf5c4cea7f3579475",
+        "webpSha": "b5f742eefe377edb3aed57068b6231c8dc11224b97dff5ee403812a6f2edd14e",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2203551,
+          "webp": 109710
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "노후 창틀과 벽면을 살피며 도면에 기록하는 두 성인의 현장 점검입니다. 수리 필요 상태, 줄자와 연필이 보여 비용 검토 실습과 연결되며 과장된 호화 리모델링 장면이 아닙니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-community-hero": {
+    "version": "v2",
+    "promptSha": "d93c2467fa8af6edcd9c57ada7640943552d6b8c71f0cbe438fdbf253c2e4755",
+    "pngSha": "ee66480d110ca71d8b9f088bd3fbcce09f69d46febc6a12276fa29b76d950b33",
+    "webpSha": "f09875915fa880950a5af1f5e47893d966054745f5b02e466556ac95c4183345",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2323394,
+      "webp": 130638
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "성인 남녀 네 명이 노트를 중심으로 자연스럽게 의견을 나눕니다. 중앙의 듣는 사람과 설명하는 손짓이 모임 운영 맥락과 맞고 과장된 행사 포즈가 없습니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-community-hero.png",
+          "mobile375-community-hero.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "ee1dffdcb57a3befd6f58eb34fc49336a22449f5f00c8dc977df45cc052333b5",
+        "pngSha": "2e3f28682a49725fe5998aa399a21d47b5ab108f3f6b8ec6f10fb6b69df3823f",
+        "webpSha": "ec963aabcc8a385617140a77e4521d34bc3c412747c3eb11a7badeb7b513bec4",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2063709,
+          "webp": 94458
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "작은 학습 모임에서 한 사람의 이야기를 듣는 자연스러운 상호작용입니다. 노트와 휴대폰, 다양한 연령대가 보이며 과장된 행사 장면이나 읽을 수 있는 글자가 없습니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-community-practice": {
+    "version": "v3",
+    "promptSha": "110392b165df48da151748533f77095cd644d18bb47d8480e0273c5a42b04f21",
+    "pngSha": "22364504e91867c0321547e8b115502ebd70c39cc9844d02568a0d042cacd78e",
+    "webpSha": "a62e65e522822dc1d4cc2d06e4287a3b3d7025aeccfbfbdf9c00598c89338dad",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2421087,
+      "webp": 139424
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "오른쪽 전경 여성의 얼굴 인상만 자연스럽게 성숙하게 조정했습니다. 남성의 설명 동작, 뒤쪽 여성, 중앙 휴대폰, 삼각대와 빛을 유지했습니다.",
+      "webpDecode": "pass",
+      "webpVisual": "pass",
+      "layoutEvidence": {
+        "revision": "a769a098c024ff45c47c9eff24286da90a479565",
+        "workflowRun": 42163541942,
+        "artifactId": 13478550572,
+        "screenshots": [
+          "desktop1440-community-practice.png",
+          "mobile375-community-practice.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T03:13:35.461157+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "7d1a0df8247b97f2c90e157ed3ccf862eefc128e8469a92ca893306144b4b359",
+        "pngSha": "1d57d49d174bbae4becc8af87a927f4b03d1a07c57b991d3b7c073b96d09d00b",
+        "webpSha": "402a9f563271ff75f77af6ebfb1ce825866c78e0f5c4c864a33d1c90e8266015",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2573191,
+          "webp": 163750
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "한 명의 진행자가 두 성인에게 휴대폰 사용을 보여주는 소규모 실습 장면입니다. 각자의 기기, 노트와 탁상 삼각대가 보이고 손과 시선이 자연스럽습니다."
+        }
+      },
+      {
+        "version": "v2",
+        "promptSha": "7fe4020da847042fdbcc046faeeb61d9c417af4f1895ca04842fb2cbd88fb601",
+        "pngSha": "ea1796d8c98d93460a187b7886843713db61d25fc386bf01d80250032752f53c",
+        "webpSha": "4424002016efa9e9f4b5ece1a2f9fbb42d3988daddc56bc7ba7d5f9307b82976",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2550890,
+          "webp": 154410
+        },
+        "visualQA": {
+          "scene": "pass",
+          "layout": "pending",
+          "notes": "성인 남성이 휴대폰을 보여주고 옆의 성인 여성이 집중해서 보는 소규모 실습 장면입니다. 중앙 기기·손·시선이 뚜렷하며 현대적인 모임 공간과 자연스러운 기기를 확인했습니다.",
+          "webpDecode": "pass"
+        },
+        "driveMirror": "verified",
+        "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+        "status": "generated_pending_layout"
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-real-estate-hero": {
+    "version": "v2",
+    "promptSha": "15904861b04464f4d8be57c24ff8941e7a4e5e300dc24dc41d5681bcb1f3f2a8",
+    "pngSha": "2b703098864864a15695010d3cde113bdd5a5538d37310ed14476dd25070bb53",
+    "webpSha": "a0587c516c55868fbd3d1bc1687d8258aba0b0600ed2546cc75203734ecaf573",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2473766,
+      "webp": 161312
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "완만한 주택가에서 성인 남녀가 노트를 들고 주변을 관찰합니다. 실제 특정 매물을 주장하는 표식 없이 일반적인 생활권·동선 확인 장면을 보여줍니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-real-estate-hero.png",
+          "mobile375-real-estate-hero.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "ad6effde6f41097dfd68163a66d8c79f624c9c060751ab0a9c0e5c79e8c1257b",
+        "pngSha": "6902ed71931ee852be1dd3b068d157b2453980c655ae816226be69683c7ceffd",
+        "webpSha": "48fb7a83697c93131660ce81579c0ceca36c301035697eeabeb592d9557e02f0",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2708877,
+          "webp": 234316
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "부산 산복 주거지 분위기와 노트를 든 두 성인의 동네 관찰 장면이 일치합니다. 구체적인 실매물·랜드마크를 주장할 요소 없이 왼쪽 하단은 비교적 어둡습니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-real-estate-practice": {
+    "version": "v2",
+    "promptSha": "8d8e0f447a683287f0fcdc2a58ec99b507345d744d9d162b78292cf2f4f44460",
+    "pngSha": "3bbb56775acae704ec6fa7fb59d5a25d76090399d8e23898190172d5fd3a4349",
+    "webpSha": "27e026b54223acec2352d3bb0854edab1c5606bb1a4703d48e5a7cc49d3065e5",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2099209,
+      "webp": 86306
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "성인 남성이 창호 잠금장치를 만져 보며 노트를 든 장면입니다. 잠금장치·손·얼굴·노트가 가운데에 가까워 현장 점검 동작이 보이고 방과 도구의 비례가 자연스럽습니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-real-estate-practice.png",
+          "mobile375-real-estate-practice.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "5633735ed97d17435c64c9dca50b1d541157bceb03111846762885b43d40ef37",
+        "pngSha": "b8bea06b90f5ce34119f50578bab418af5e02ef5dce3ca3e3aa3fc48fab285e8",
+        "webpSha": "a04120e66ed70e03d099e135ef1de4156e53f6f20d97b7dbe4fa810ab37afff2",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2145925,
+          "webp": 84354
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "일반 임대 주택의 창틀·벽 상태를 한 사람이 살피고 다른 사람이 기록하는 장면입니다. 평범한 방 크기, 줄자, 관찰 동작이 교육 내용과 맞습니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-video-hero": {
+    "version": "v2",
+    "promptSha": "218771774dd9252050448576ce12b832c797633aac13da8fb6cdfceb27ea84c6",
+    "pngSha": "5f8b0840e9bd2f1664f309084b057a958a725e62246629e40622252f7d9b7eb6",
+    "webpSha": "d46f8322e6630e3561dc08d18ad9e7eabe0f628fc028acc830c2c8291f4d32f7",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 1842895,
+      "webp": 50342
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "휴대폰·삼각대·양손과 얼굴이 중앙에 모여 촬영 준비 동작이 분명합니다. 일반 주거 공간, 어두운 머리의 성인 남성, 자연스러운 손과 기기 형태를 확인했습니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-video-hero.png",
+          "mobile375-video-hero.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "d465b158c3a686bdc43075e2cd1d95454036f7a54a592c12ab7b735a69c8cf95",
+        "pngSha": "710d324b2599f1382b22e107d3b6c2b38bf2b9c938bf35894dcdb74d6bde5295",
+        "webpSha": "247902e468de03dbc8f08b656d0dd749204e865bf2c33a6212fdfa6b8d70455d",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2256665,
+          "webp": 116850
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "일반 주거 공간과 스마트폰 삼각대 촬영 장면이 일치합니다. 인물·손·장비가 자연스럽고 제목을 둘 왼쪽 여백이 있습니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  },
+  "edu-video-practice": {
+    "version": "v2",
+    "promptSha": "fe9e1666ec8780923f6d7264f51a29dfaa3217f2a0ddebec1d04ff1f15ac9065",
+    "pngSha": "54bf7283d22eaf8614dde89bb046ceb4f74b5d9299ad1d3c5b500817390da3b6",
+    "webpSha": "78f2dc26fc5446febca0f836311b3e3e334d9719a5f0cb6f4ae6c3eed7b645bf",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "bytes": {
+      "png": 2507472,
+      "webp": 167864
+    },
+    "visualQA": {
+      "scene": "pass",
+      "layout": "pass",
+      "notes": "중앙 휴대폰의 거리 영상·클립 타임라인·음성 파형과 편집하는 손이 보입니다. 기기와 손가락 형태가 자연스럽고 읽을 수 있는 안내 문구 없이 편집 맥락이 전달됩니다.",
+      "webpDecode": "pass",
+      "layoutEvidence": {
+        "revision": "f37fd524a5eb0cef9b2ccd66dab7207f0b158536",
+        "workflowRun": 42144128802,
+        "artifactId": 13468828532,
+        "screenshots": [
+          "desktop1440-video-practice.png",
+          "mobile375-video-practice.png"
+        ],
+        "reviewedAt": "2026-11-06T04:43:41.206087+00:00",
+        "scope": "Actual page screenshots at desktop 1440 and mobile 375; legible text, intended scene and retained focal action."
+      }
+    },
+    "driveMirror": "verified",
+    "verifiedAt": "2026-11-06T01:06:47.233315+00:00",
+    "status": "applied",
+    "history": [
+      {
+        "version": "v1",
+        "promptSha": "5478a74443b90f8261386faf98ebf414c5ba1aad0eb6cc8e6df4183c3919afc0",
+        "pngSha": "e7efce6698818a6e7a6724b8e89a8d12d88a303aa73759c0b869cd214c82eb8f",
+        "webpSha": "40f5e4eb3be09fc5cd9dd96c9f949127c1252836b5755d3afc344d423fcd3d75",
+        "dimensions": {
+          "width": 1672,
+          "height": 941
+        },
+        "bytes": {
+          "png": 2433974,
+          "webp": 175648
+        },
+        "visualQA": {
+          "scene": "pass",
+          "webpDecode": "pass",
+          "layout": "pending",
+          "notes": "안드로이드 형태 휴대폰의 일반 편집 타임라인, 클립 썸네일, 마이크와 이어폰이 실습 문맥에 맞습니다. 손과 기기 형태가 자연스러우며 특정 앱 조작 화면으로 제시할 이미지는 아닙니다."
+        }
+      }
+    ],
+    "ready": true,
+    "appliedTo": "repository learning-page assets",
+    "deploymentVerification": "pending production release"
+  }
+}

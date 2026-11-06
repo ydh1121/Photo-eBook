@@ -25,6 +25,8 @@ function readCachedSiteData(){
 
 function readBundledSiteData(){
   try{
+    const snapshot=window[activeContentPack()?.data?.bundledKey||''];
+    if(isUsableSiteData(snapshot))return snapshot;
     const parts=window.__SITE_DATA_FALLBACK_PARTS;
     if(!Array.isArray(parts)||!parts.length)return null;
     const parsed=JSON.parse(parts.join(''));
@@ -62,6 +64,13 @@ function delay(ms,value){
 
 async function apiGetSiteData(){
   if(siteDataRequest)return siteDataRequest;
+
+  if(activeContentPack()?.data?.staticSnapshot){
+    const snapshot=readBundledSiteData();
+    if(!snapshot)throw new Error('학습 내용을 불러오지 못했습니다.');
+    siteDataRequest=Promise.resolve(snapshot);
+    return siteDataRequest;
+  }
 
   const fallback=readCachedSiteData()||readBundledSiteData();
   const live=fetchSiteDataOnce();

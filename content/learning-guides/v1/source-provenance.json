@@ -1,0 +1,32 @@
+[
+  {
+    "id": "video",
+    "snapshotSha256": "ed65809a7a9f2373de07ebe2b183f01fb18a3a6dc2d74416a74292cc0e34fea9",
+    "verifiedAt": "2026-11-06T04:34:25.374361+00:00",
+    "sourceKind": "native-google-sheets"
+  },
+  {
+    "id": "ai",
+    "snapshotSha256": "e854ac262c89a977151b903cbaa4140c748b88d4612c7b07b72294ecbdd30ee1",
+    "verifiedAt": "2026-11-06T00:09:00.651Z",
+    "sourceKind": "native-google-sheets"
+  },
+  {
+    "id": "community",
+    "snapshotSha256": "5150a0572011dea01f8659b275222a1905ca340e1fd1b148a27d7d22e6934c7e",
+    "verifiedAt": "2026-11-06T00:10:41.301Z",
+    "sourceKind": "native-google-sheets"
+  },
+  {
+    "id": "real-estate",
+    "snapshotSha256": "6c54d07742ea75e0c05a7de4d49b21bcc6292a88f797044013418bb159d41898",
+    "verifiedAt": "2026-11-06T04:34:25.374361+00:00",
+    "sourceKind": "native-google-sheets"
+  },
+  {
+    "id": "auction",
+    "snapshotSha256": "fe2abfca7522076da0249ed2c682c2272d5e7af96efc85b4018d7a8e3f7307d1",
+    "verifiedAt": "2026-11-06T00:11:54.001Z",
+    "sourceKind": "native-google-sheets"
+  }
+]

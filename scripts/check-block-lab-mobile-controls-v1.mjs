@@ -23,7 +23,11 @@ try{
   const frame=iframe.contentFrame();
   const link=frame.locator(linkSelector);
   const filters=frame.locator('.lab-controls > .lab-filter');
-  const segments=frame.locator('.lab-controls > .lab-segment');
+  // The approved admin surface groups theme/viewport segments under the View menu.
+  await wait(()=>frame.locator('.lab-controls[data-admin-grouped="true"]').count().then(Boolean),'Block Lab control grouping missing');
+  const viewMenu=frame.locator('.lab-controls > .admin-lab-view');
+  await viewMenu.locator('summary').click();
+  const segments=viewMenu.locator('.lab-segment');
   const state=await link.evaluate(node=>{
     const style=getComputedStyle(node);
     const rect=node.getBoundingClientRect();
@@ -46,12 +50,14 @@ try{
   assert(state.height<=44,`Library control stacked vertically to ${state.height}px`);
   const filterShrink=await filters.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).flexShrink));
   assert(filterShrink.length>=1&&filterShrink.every(value=>value==='0'),`Block Lab filters shrink in mobile rail: ${filterShrink.join(',')}`);
-  const segmentShrink=await segments.evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).flexShrink));
-  assert(segmentShrink.length>=2&&segmentShrink.every(value=>value==='0'),`Block Lab segments shrink in mobile rail: ${segmentShrink.join(',')}`);
+  const segmentState=await segments.evaluateAll(nodes=>nodes.map(node=>({width:node.getBoundingClientRect().width,buttons:node.querySelectorAll('button').length,overflow:node.scrollWidth-node.clientWidth})));
+  assert(segmentState.length===2&&segmentState.every(item=>item.width>200&&item.buttons>=2&&item.overflow<=2),`Block Lab grouped view controls are clipped: ${JSON.stringify(segmentState)}`);
+  const menuShrink=await viewMenu.evaluate(node=>getComputedStyle(node).flexShrink);
+  assert(menuShrink==='0',`Block Lab View menu shrinks in mobile rail: ${menuShrink}`);
   assert(state.documentOverflow<=2,`Block Lab document overflow ${state.documentOverflow}px`);
   assert(state.controlsScrollWidth>=state.controlsClientWidth,'Block Lab control rail geometry is invalid');
   await page.screenshot({path:path.join(OUT,'block-lab-mobile-controls.png'),fullPage:false});
-  fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify({status:'pass',state,filterShrink,segmentShrink},null,2)+'\n');
+  fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify({status:'pass',state,filterShrink,segmentState,menuShrink},null,2)+'\n');
   console.log(`Block Lab mobile controls OK: link ${Math.round(state.width)}×${Math.round(state.height)}px, rail ${state.controlsClientWidth}/${state.controlsScrollWidth}px.`);
   await context.close();
 }finally{

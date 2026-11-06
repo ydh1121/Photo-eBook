@@ -1,0 +1,124 @@
+name: Personal Edu Runtime Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'content/learning-guides/**'
+      - 'content/discovery/**'
+      - 'public/content-discovery/**'
+      - 'functions/api/learning-*.js'
+      - 'functions/lib/*discovery*.js'
+      - 'functions/lib/learning-opportunities.js'
+      - 'scripts/check-learning-*.mjs'
+      - 'content/image-prompts/v1/**'
+      - 'content/image-status/personal-edu-v1.json'
+      - 'public/index.html'
+      - 'public/video/**'
+      - 'public/ai/**'
+      - 'public/community/**'
+      - 'public/real-estate/**'
+      - 'public/auction/**'
+      - 'public/content-packs/**'
+      - 'public/assets/js/**'
+      - 'public/assets/styles/**'
+      - 'public/assets/images/generated/personal-edu-v1/**'
+      - 'public/ui-dashboard/**'
+      - 'public/editor-lab/**'
+      - 'public/data/block-registry/**'
+      - 'public/data/ui-capabilities/**'
+      - 'scripts/build-personal-edu.mjs'
+      - 'scripts/check-personal-edu-runtime.mjs'
+      - 'scripts/check-personal-edu.mjs'
+      - 'scripts/content/**'
+      - 'public/_routes.json'
+      - 'public/_redirects'
+      - '.github/workflows/personal-edu-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'content/learning-guides/**'
+      - 'content/discovery/**'
+      - 'public/content-discovery/**'
+      - 'functions/api/learning-*.js'
+      - 'functions/lib/*discovery*.js'
+      - 'functions/lib/learning-opportunities.js'
+      - 'scripts/check-learning-*.mjs'
+      - 'content/image-prompts/v1/**'
+      - 'content/image-status/personal-edu-v1.json'
+      - 'public/index.html'
+      - 'public/video/**'
+      - 'public/ai/**'
+      - 'public/community/**'
+      - 'public/real-estate/**'
+      - 'public/auction/**'
+      - 'public/content-packs/**'
+      - 'public/assets/js/**'
+      - 'public/assets/styles/**'
+      - 'public/assets/images/generated/personal-edu-v1/**'
+      - 'public/ui-dashboard/**'
+      - 'public/editor-lab/**'
+      - 'public/data/block-registry/**'
+      - 'public/data/ui-capabilities/**'
+      - 'scripts/build-personal-edu.mjs'
+      - 'scripts/check-personal-edu-runtime.mjs'
+      - 'scripts/check-personal-edu.mjs'
+      - 'scripts/content/**'
+      - 'public/_routes.json'
+      - 'public/_redirects'
+      - '.github/workflows/personal-edu-checks.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: personal-edu-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check runner syntax and compiled snapshots
+        run: |
+          node --check scripts/check-personal-edu-runtime.mjs
+          git fetch --depth=1 origin 16669aca400a343d772680e47e08a2a48ca708e7
+          node scripts/check-personal-edu.mjs
+          node scripts/check-learning-videos.mjs
+          node scripts/check-learning-opportunities.mjs
+          node scripts/build-personal-edu.mjs
+          git diff --exit-code -- functions/lib/learning-discovery-catalog.js public/content-packs public/video public/ai public/community public/real-estate public/auction
+      - name: Install pinned browser QA dependency
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify public learning and canonical module behavior
+        shell: bash
+        env:
+          UI_DASHBOARD_BASE_URL: http://127.0.0.1:4173
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/personal-edu-runtime
+          python3 -m http.server 4173 --directory public >artifacts/personal-edu-runtime/http-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 30); do
+            if curl -fsS "$UI_DASHBOARD_BASE_URL/video/" >/dev/null; then ready=1; break; fi
+            sleep .3
+          done
+          if [ "$ready" -ne 1 ]; then cat artifacts/personal-edu-runtime/http-server.log; exit 1; fi
+          node scripts/check-personal-edu-runtime.mjs
+      - name: Upload report, subject screenshots, and export evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: personal-edu-runtime-qa
+          path: artifacts/personal-edu-runtime
+          if-no-files-found: warn
+          retention-days: 14

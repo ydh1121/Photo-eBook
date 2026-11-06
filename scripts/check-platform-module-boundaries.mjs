@@ -104,7 +104,7 @@ const dashboard=read('public/ui-dashboard/index.html');
 expect(dashboard.includes('data-builder-view="library"'),'/ui-dashboard/ must remain Library-only.');
 expect(!dashboard.includes('/ui-dashboard/sandbox/'),'Library must not boot old sandbox runtime.');
 expect(dashboard.includes('/assets/js/platform-modules/photo-core-modules-v1.js'),'Library must load the shared Registry definitions.');
-expect(dashboard.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Library must load the transitive dependency-aware Registry cache version.');
+expect(dashboard.includes('/assets/js/platform-modules/module-registry-v1.js?v=6'),'Library must load the transitive dependency-aware Registry cache version.');
 expect(dashboard.includes('/assets/js/platform-modules/portable-primitives-extension-v2.js?v=5'),'Library must load the current dependency-aware extension.');
 
 const preview=read('public/ui-dashboard/module-preview/index.html');
@@ -114,13 +114,13 @@ expect(preview.includes('/assets/js/platform-modules/module-style-runtime-v1.js'
 expect(preview.includes('/assets/js/platform-modules/module-style-runtime-composition-v1.js?v=1'),'Preview must load the composition-aware style adapter.');
 expect(preview.includes('/assets/js/ui/liquid-controller.js?v=3'),'Library/Editor preview must load the same dependency-capable liquid owner as Photography Public.');
 expect(preview.includes('/assets/js/platform-modules/portable-primitives-composition-v3.js?v=6'),'Preview must load dependency-aware module composition.');
-expect(preview.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Preview must load the transitive dependency-aware Registry.');
+expect(preview.includes('/assets/js/platform-modules/module-registry-v1.js?v=6'),'Preview must load the transitive dependency-aware Registry.');
 expect(preview.includes('/assets/js/platform-modules/portable-primitives-extension-v2.js?v=5'),'Preview must load the current dependency-aware extension.');
 
 const publicIndex=read('public/index.html');
 expect(publicIndex.includes('/assets/js/ui/liquid-controller.js?v=3'),'Photography Public must load the current canonical liquid owner.');
-expect(publicIndex.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Photography Public must load the transitive dependency-aware Registry.');
-expect(publicIndex.includes('/assets/js/app/postload-enhancements.js?v=5'),'Photography Public must load the current screen-mode bridge loader.');
+expect(publicIndex.includes('/assets/js/platform-modules/module-registry-v1.js?v=6'),'Photography Public must load the transitive dependency-aware Registry.');
+expect(publicIndex.includes('/assets/js/app/postload-enhancements.js?v=6'),'Photography Public must load the current screen-mode bridge loader and shared bookmark storage.');
 
 const previewJs=read('public/ui-dashboard/module-preview/module-preview-v1.js');
 expect(previewJs.includes("const consumer=params.get('embed')==='editor'?'editor':'library'"),'Library and Editor must share one preview host.');
@@ -142,7 +142,7 @@ expect(publicCollection.includes("modules.mount(host,'collection-bottom-sheet'")
 const editorHtml=read('public/editor-lab/index.html');
 expect(!editorHtml.includes('/assets/js/block-lab/'),'Block Editor must not import Block Lab JavaScript.');
 expect(!editorHtml.includes('/assets/styles/block-lab/'),'Block Editor must not import Block Lab styles.');
-expect(editorHtml.includes('/assets/js/platform-modules/module-registry-v1.js?v=5'),'Block Editor must load the transitive dependency-aware Registry.');
+expect(editorHtml.includes('/assets/js/platform-modules/module-registry-v1.js?v=6'),'Block Editor must load the transitive dependency-aware Registry.');
 expect(editorHtml.includes('/data/block-registry/v1/editor-module-extension-v1.js?v=2'),'Block Editor must load the dependency-validating module extension.');
 const editorExtension=read('public/data/block-registry/v1/editor-module-extension-v1.js');
 expect(editorExtension.includes("modules.validateDependencyGraph?.('editor')"),'Block Editor must validate its dependency graph before exposing variants.');

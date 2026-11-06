@@ -3,12 +3,14 @@ const QUESTION_DEVICE_KEY='photoRoadmapDeviceKeyV1';
 
 function renderApp(data){
   window.__SITE_DATA=data;
-
+  const pack=window.getContentPack?.();
+  if(pack?.id){window.__CONTENT_PACK_ID=pack.id;document.documentElement.dataset.contentPack=pack.id;}
   const navMap=new Map((data.nav||[]).map(n=>[n.id,n]));
-  const order=['intro','market','education','skills','portfolio','gear','plan','scripts','iphone','sources'];
-  const renderers={intro:introSection,market:marketSection,education:educationSection,skills:skillsSection,portfolio:portfolioSection,gear:gearSection,plan:planSection,scripts:scriptsSection,iphone:iphoneSection,sources:sourcesSection};
-
-  const sections=order.filter(id=>navMap.has(id)).map((id,index)=>renderers[id](data,navMap.get(id),index)).join('');
+  const sections=(pack?.sections||[]).filter(item=>navMap.has(item.id)).map((item,index)=>{
+    const renderer=window[item.renderer];
+    if(typeof renderer!=='function')throw new Error('본문을 표시하지 못했습니다.');
+    return renderer(data,navMap.get(item.id),index);
+  }).join('');
   const app=$('#app');
   app.innerHTML=hero(data)+nav(data)+sections;
   app.hidden=false;
@@ -18,6 +20,7 @@ function renderApp(data){
   setupNavigation();
   setupCopyButtons();
   setupQuestionDrawer();
+  document.dispatchEvent(new CustomEvent('content-pack-rendered',{detail:{packId:pack?.id||'photography'}}));
 }
 
 function setupCopyButtons(){
@@ -452,13 +455,15 @@ function setupQuestionDrawer(){
     refreshRemoteHistory();
   });
 
-  ['gesturestart','gesturechange','gestureend'].forEach(type=>document.addEventListener(type,e=>e.preventDefault(),{passive:false}));
-  let lastTouchEnd=0;
-  document.addEventListener('touchend',e=>{
-    const now=Date.now();
-    if(now-lastTouchEnd<=280 && !e.target.closest('input,textarea')) e.preventDefault();
-    lastTouchEnd=now;
-  },{passive:false});
+  if(document.documentElement.dataset.learningGuide!=='true'){
+    ['gesturestart','gesturechange','gestureend'].forEach(type=>document.addEventListener(type,e=>e.preventDefault(),{passive:false}));
+    let lastTouchEnd=0;
+    document.addEventListener('touchend',e=>{
+      const now=Date.now();
+      if(now-lastTouchEnd<=280 && !e.target.closest('input,textarea')) e.preventDefault();
+      lastTouchEnd=now;
+    },{passive:false});
+  }
 
   renderHistory();
 }
@@ -466,7 +471,8 @@ function setupQuestionDrawer(){
 function fail(err){
   const boot=$('#boot');
   if(boot){
-    boot.innerHTML=`<div class="content" style="padding-top:18vh"><div class="eyebrow">연결 오류</div><h2>Google Sheet 내용을 불러오지 못했습니다.</h2><p class="muted">${esc(err&&err.message?err.message:err)}</p><button onclick="location.reload()" style="border:0;background:var(--accent);color:#fff;padding:.75rem 1rem;border-radius:14px;font-weight:650">다시 불러오기</button></div>`;
+    const title=document.documentElement.dataset.learningGuide==='true'?'학습 내용을 불러오지 못했습니다.':'Google Sheet 내용을 불러오지 못했습니다.';
+    boot.innerHTML=`<div class="content" style="padding-top:18vh"><div class="eyebrow">연결 오류</div><h2>${title}</h2><p class="muted">${esc(err&&err.message?err.message:err)}</p><button onclick="location.reload()" style="border:0;background:var(--accent);color:#fff;padding:.75rem 1rem;border-radius:14px;font-weight:650">다시 불러오기</button></div>`;
   }
 }
 

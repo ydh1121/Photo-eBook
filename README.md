@@ -1,6 +1,25 @@
 # Photo-eBook
 
-현재 사진 분야를 첫 번째 content pack으로 사용하는 모바일 우선 `먹고살기` 가이드 웹사이트입니다.
+사진·영상·AI 활용·커뮤니티·부동산·경매를 함께 제공하는 모바일 우선 학습 가이드입니다. 기존 사진 content pack과 공개 주소 `/`를 유지하며 Personal Edu Project로 확장합니다.
+
+## 분야별 페이지
+
+| 분야 | 경로 | 콘텐츠 구성 |
+| --- | --- | --- |
+| 사진 | `/` | 기존 완성본 10개 장 |
+| 영상 | `/video/` | 스마트폰 촬영·편집·AI 제작·발행·교육 |
+| AI 활용 | `/ai/` | 프롬프트·글·이미지·영상·검증·업무 |
+| 커뮤니티 | `/community/` | 주제·모집·운영·모임·수익·교육 |
+| 부동산 | `/real-estate/` | 생활권·가격·서류·현장·계약·콘텐츠 |
+| 경매 | `/auction/` | 검색·권리·현장·입찰가·입찰·취득 |
+
+상단 분야 메뉴는 표지와 함께 스크롤됩니다. 기존 챕터 탐색은 유지하고, 우측 하단 `분야` 버튼으로 다른 분야를 바로 선택합니다. 새로운 다섯 과정은 각각 9개 장입니다.
+
+신규 본문 원본은 분야별 Google Sheets에 있습니다. 검증한 원본을 `content/learning-guides/v1/`에 복원한 뒤 `node scripts/build-personal-edu.mjs`로 공개 snapshot을 생성합니다. 기존 사진 원본은 종전 파이프라인을 사용합니다. 원본 동기화 계약은 [22-personal-edu-content.md](docs/spec-v1/22-personal-edu-content.md)를 따릅니다.
+
+공통 모듈 `learning-guide-hero`, `learning-guide-section`, `subject-navigation`은 Library·Editor·Public·export가 같은 Registry의 렌더러와 상호작용을 사용합니다. 체크리스트는 분야별로 저장하고, 공식 자료 북마크는 기존 `내 모음`과 연결합니다.
+
+진행 상태와 재시작 절차는 [Personal Edu handoff](docs/workstreams/personal-edu-v1/HANDOFF.md)에 기록합니다.
 
 ## 현재 구조
 
@@ -8,7 +27,10 @@
 - `public/assets/styles/` — 분야와 무관한 역할별 CSS 모듈
 - `public/assets/js/` — 공통 브라우저 runtime
 - `public/content-packs/photography/` — 사진 분야 data/runtime/content pack
+- `public/content-packs/{video,ai,community,real-estate,auction}/` — 검증한 신규 분야 snapshot
+- `content/learning-guides/v1/` — native Sheets에서 복원한 공개 원고
 - `public/assets/images/generated/v1/` — 승인된 운영 WebP 이미지
+- `public/assets/images/generated/personal-edu-v1/` — 신규 분야의 승인된 WebP 이미지
 - `functions/api/[[path]].js` — 본문, 질문함용 Cloudflare Pages Function
 - `functions/api/curated.js` — 외부 사진 글 큐레이션과 SEO 메타 파싱
 - `functions/api/discover.js`, `functions/api/videos.js` — 사진 분야 탐색/영상 API

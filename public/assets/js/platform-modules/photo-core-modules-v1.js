@@ -165,8 +165,8 @@
     render:source.navigation.render,hydrate:source.navigation.hydrate
   });
   registry.register({
-    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-core',sourceRoute:'/',consumers,version:9,
-    ownerFiles:[moduleOwner,...origin.liquid,...origin.filterFamilies],previewProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},editorProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},
+    id:'filter-chip-rail',label:'범용 필터칩',category:'navigation',status:'approved',source:'platform-core',sourceRoute:'/',consumers:[...consumers,'export'],version:10,
+    ownerFiles:[...shared,moduleOwner,...origin.liquid,...origin.filterFamilies],previewProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},editorProps:{items:['전체','제품 촬영','인물 촬영','음식 촬영'],activeId:'all'},
     styleDefaults:{family:'ios-liquid',accentColor:'#4c7fdf',fontFamily:'system-sans',fontSize:14,fontWeight:680,letterSpacing:-.28,surfaceOpacity:54,blur:15,response:'standard',overshoot:'medium',gap:8,runway:4},
     render:renderGenericFilterRail,hydrate:hydrateGenericFilterRail
   });

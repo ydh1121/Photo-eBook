@@ -31,15 +31,18 @@
     });
   }
 
-  function renderHorizontalRail(props={}){
+  function renderHorizontalRail(props={},context={}){
     const items=normalizeRailItems(props.items);
+    // A canonical parent can supply an escaped card renderer through runtime
+    // context. JSON props never carry HTML or executable slot content.
+    const renderItem=typeof context.renderItem==='function'?context.renderItem:null;
     const title=String(props.title||'');
     const description=String(props.description||'');
     const ariaLabel=a(props.ariaLabel||title||'가로 콘텐츠');
-    return `<section class="platform-horizontal-rail" data-platform-module="horizontal-rail">
+    return `<section class="platform-horizontal-rail${props.framed===false?' platform-horizontal-rail--unframed':''}" data-platform-module="horizontal-rail">
       ${(title||description)?`<header class="platform-horizontal-rail__head">${title?`<h3>${e(title)}</h3>`:''}${description?`<p>${e(description)}</p>`:''}</header>`:''}
       <div class="platform-horizontal-rail__track" role="list" tabindex="0" aria-label="${ariaLabel}">
-        ${items.map(item=>`<article class="platform-horizontal-rail__card" role="listitem" data-horizontal-rail-item="${a(item.id)}">
+        ${items.map((item,index)=>renderItem?`<div class="platform-horizontal-rail__slot" role="listitem" data-horizontal-rail-item="${a(item.id)}">${renderItem(arr(props.items)[index],index)}</div>`:`<article class="platform-horizontal-rail__card" role="listitem" data-horizontal-rail-item="${a(item.id)}">
           ${item.image?`<div class="platform-horizontal-rail__media"><img src="${a(item.image)}" alt="${a(item.imageAlt)}" loading="lazy" draggable="false"></div>`:''}
           <div class="platform-horizontal-rail__body">${item.eyebrow?`<small>${e(item.eyebrow)}</small>`:''}<h4>${e(item.title)}</h4>${item.description?`<p>${e(item.description)}</p>`:''}${item.tags.length?`<div class="platform-horizontal-rail__tags">${item.tags.map(tag=>`<span>${e(tag)}</span>`).join('')}</div>`:''}${item.meta?`<div class="platform-horizontal-rail__meta">${e(item.meta)}</div>`:''}${item.actionLabel?`<a href="${a(item.actionUrl)}" data-horizontal-rail-action>${e(item.actionLabel)}</a>`:''}</div>
         </article>`).join('')}
@@ -173,7 +176,7 @@
   }
 
   registry.register({
-    id:'horizontal-rail',label:'가로 레일',category:'content',status:'approved',source:'block-lab-approved',sourceRoute:'/block-lab/',consumers,version:1,
+    id:'horizontal-rail',label:'가로 레일',category:'content',status:'approved',source:'block-lab-approved',sourceRoute:'/block-lab/',consumers:['public','library','editor','export'],version:2,
     ownerFiles:[ownerJs,ownerCss],
     previewProps:{title:'가로 콘텐츠',description:'카드 종류와 상관없이 같은 스크롤·드래그 동작을 재사용합니다.',items:[
       {id:'one',eyebrow:'항목 01',title:'첫 번째 카드',description:'가격, 사례, 미디어 등 다양한 카드 내용을 넣을 수 있습니다.',tags:['범용','가로 스크롤'],meta:'샘플 메타'},
