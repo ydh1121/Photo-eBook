@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-06T04:43:41.206087+00:00",
+  "implementationCommit": "a769a098c024ff45c47c9eff24286da90a479565",
+  "implementationTree": "d30800778b6d258bfb22d2212abb51febdc64421",
+  "previewUrl": "https://f082425a.photo-ebook.pages.dev",
+  "checks": {
+    "commitChecks": {
+      "passed": 7,
+      "failed": 0
+    },
+    "staticAssertions": 15504,
+    "videoParser": 40,
+    "officialNotices": 77,
+    "personalEduRuntime": {
+      "passed": 57,
+      "failed": 0,
+      "workflowRun": 42163541942,
+      "artifactId": 13478550572,
+      "artifactSha256": "324a65ac3ef9b920c405db0683b3f6f8f4ca093df80b61ea4209778d24534e7e",
+      "screenshots": 56
+    },
+    "diagnostics": []
+  },
+  "content": {
+    "courses": 5,
+    "chapters": 45,
+    "blocks": 194,
+    "sources": 48,
+    "relatedLinks": 49,
+    "sourceRows": 3731,
+    "primitiveRows": 2733,
+    "dependentFormulaRangesVerified": 212
+  },
+  "images": {
+    "learningSlots": 10,
+    "v2Unchanged": 8,
+    "v3Revised": [
+      "edu-ai-hero",
+      "edu-community-practice"
+    ],
+    "layout": "pass",
+    "photographySlotsPreserved": 48,
+    "evidence": "content/image-status/personal-edu-v1.json"
+  },
+  "previewManualReview": [
+    "Real-estate content chapter renders the six-topic horizontal rail and 45-second storyboard with the authored practice label.",
+    "AI hero and community practice v3 screenshots reviewed at desktop 1440 and mobile 375."
+  ],
+  "limitations": [
+    "Runtime discovery tests use fixtures and do not prove live upstream availability.",
+    "The standalone dependency fixture is not an HTML/ZIP export product.",
+    "Actual Galaxy and Safari hardware were not tested.",
+    "Actual Instagram/YouTube video playback analysis is deferred until user-uploaded files; zero videos have been reviewed."
+  ],
+  "production": {
+    "status": "pending merge and deployed revision verification"
+  }
+}

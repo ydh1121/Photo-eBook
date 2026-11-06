@@ -6,7 +6,7 @@ The reviewed notice handling retains last successful data and never treats fetch
 
 The prepared source revision passes 15,504 static assertions, 40 video-parser checks, 77 official-notice checks, module boundaries, syntax, deterministic rebuilding and diff whitespace checks. Two edited native Sheets were fully read back with content/byte equality and 212 formula ranges verified. There are 45 chapters, 194 blocks and 48 source records.
 
-Previous exact remote HEAD `f37fd524a5eb0cef9b2ccd66dab7207f0b158536` passed all seven checks and 57/57 runtime cases. The new source/image revision still requires its own CI, v3 page screenshots and actual production verification before release completion.
+Exact implementation HEAD `a769a098c024ff45c47c9eff24286da90a479565` passed all seven checks and 57/57 runtime cases. Artifact `13478550572` from run `42163541942` contains 56 screenshots and no runtime diagnostics. AI hero and community practice v3 layouts passed desktop/mobile visual review; the other eight accepted v2 layouts are preserved. Manual preview review confirms the six-topic horizontal rail and 45-second storyboard. Metadata-only final checks and actual production verification remain the release gate. See `qa/release-qa.json`.
 
 ## Historical initial review
 
