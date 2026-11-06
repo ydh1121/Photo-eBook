@@ -1,11 +1,11 @@
 # Personal Edu V1 — handoff
 
 Updated: 2026-11-06 KST
-Phase: implementation complete; final runtime and visual verification
+Phase: follow-up WO implementation, then final runtime and visual verification
 Branch: `feat/personal-edu-subjects-v1`
 PR: https://github.com/ydh1121/Photo-eBook/pull/57
 Baseline: `16669aca400a343d772680e47e08a2a48ca708e7`
-Last pushed checkpoint: `215ed05c25f4bd2fda4469e0f6f8695b959b0c05`
+Last pushed checkpoint: `d2ed2894f924d215c1fda6a9248f10bd7894a94b`
 
 ## Read on resume
 
@@ -41,11 +41,17 @@ The older platform-library workstream is unrelated. Its stale active marker is n
 
 ## Exact next action
 
-1. Inspect pending corrections in subject-navigation and runtime runner; commit coherent changes and update the branch without force-push.
-2. Re-run PR checks. Inspect `personal-edu-runtime-qa` reports and screenshots; fix concrete failures. Required static boundary and Chromium module pipeline must pass before merge.
-3. Visually verify all ten images in actual hero/practice layouts, then mark only the new slots applied and record layout QA.
-4. Update PR and workstream records with actual results. Merge the tested revision, verify production and six public routes, then update Drive `CURRENT.md` and `PROJECT_INDEX.json` with deployed SHA and evidence.
+1. Finish follow-up WO: mobile subject menu one row; FAB centers aligned; active subject filled; remove picker helper labels; SVG close with equal top/right insets. Pending changes are in subject-navigation owners and runtime runner.
+2. Root composes learning cards/sources and new resource discovery UI through canonical horizontal-rail/filter-chip-rail. Video and official-notice backends are independent services; old photo APIs keep their behavior.
+3. Official notices need 부산 / 서구 / 지역 구분 없음 and education/support filters, deadline/source closure, timestamps and honest partial-failure handling. YouTube cards use parsed or verified metadata; do not claim Instagram automation unless implemented.
+4. Ten new image candidates are being regenerated with varied adults and work scenes. Preserve the previous assets in Drive; perform scene, deterministic conversion, hash and actual mobile/desktop crop QA.
+5. Re-run static/backend/browser checks. At d2ed289, the new runtime had 42 passes and 11 failures (Esc-close timing, collection delete selector and offscreen Editor iframe). The existing pipeline additionally exposed an asynchronous reorder-test race; corrections are pending in the runner. This is not a release pass.
+6. Confirm all required checks, update PR/restart records, merge the tested revision and verify production six routes. Record final deployment and evidence in Drive CURRENT/INDEX.
 
 ## Source editing and restart contract
 
 Use the private project Drive index to locate five native Sheets. Edit canonical `콘텐츠` values, read back and validate with `scripts/content/learning-sheet-codec.mjs`, then run `node scripts/build-personal-edu.mjs` and static/runtime gates. Sheet edits do not publish automatically. See spec 22 for the detailed codec/source contract. Keep CODE1/Order read-only.
+
+## Follow-up implementation checkpoint
+
+The pending revision completes one-row mobile navigation, filled selection cards, FAB center alignment, canonical horizontal learning/source rails and `learning-resource-rail` with video/notice services. Ten v2 WebPs are mirrored and hash-verified; builder binds their actual SHA into image URLs. Native course Sheet hashes remain unchanged. Offline verification: 15,200 content/route/module assertions, 40 video tests, 77 notice tests, module-boundary check and syntax pass. New browser checks cover filters, deadline transitions, last-good behavior and collection sync; actual browser results are still pending. The backend snapshots contain nine verified videos and 15 official notices; never infer live source availability from fixture passes.

@@ -343,7 +343,7 @@
         "galaxy-video-editor"
       ],
       "title": "자르고, 붙이고, 자막을 고치세요",
-      "image": "/assets/images/generated/personal-edu-v1/video-practice.webp",
+      "image": "/assets/images/generated/personal-edu-v1/video-practice.webp?v=78f2dc26fc54",
       "imageAlt": "스마트폰에서 영상 장면을 편집하는 실습을 묘사한 AI 생성 이미지"
     },
     {
@@ -783,8 +783,10 @@
       }
     ],
     "title": "휴대폰으로 찍고,\n한 편으로 완성하세요",
-    "image": "/assets/images/generated/personal-edu-v1/video-hero.webp",
-    "imageAlt": "작은 집의 공간을 스마트폰으로 촬영하는 상황을 묘사한 AI 생성 이미지"
+    "image": "/assets/images/generated/personal-edu-v1/video-hero.webp?v=d46f8322e663",
+    "imageAlt": "작은 집의 공간을 스마트폰으로 촬영하는 상황을 묘사한 AI 생성 이미지",
+    "layout": "learning",
+    "mobileImageFocus": 50
   },
   "id": "video",
   "label": "영상",

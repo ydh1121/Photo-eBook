@@ -1,0 +1,402 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-11-06T00:59:11Z",
+  "provenance": "Parsed from official HTTP 200 HTML captured on 2026-11-06. Snapshot is a last-known fallback, not a live recruitment claim.",
+  "providers": {
+    "kcmf-busan": {
+      "checkedAt": "2026-11-06T00:59:11Z",
+      "items": [
+        {
+          "title": "[상설] 현직 유튜버와 함께, OBS스튜디오 제대로 따라하기!",
+          "url": "https://kcmf.or.kr/KCMF/contents/KCMF05011203.do?page=1&viewCount=12&pcode=10009035&schM=view",
+          "region": "busan",
+          "summary": "OBS스튜디오를 활용해, 1인 미디어방송을 제작해보는 교육입니다.",
+          "educationPeriod": "2026-11-30 ~ 2026-12-08",
+          "applicationPeriod": "2026-11-01 일 18:00 ~ 2026-11-25 수 18:00",
+          "startsAt": "2026-11-01T18:00:00+09:00",
+          "endsAt": "2026-11-25T18:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": [
+            "신청하기"
+          ],
+          "id": "kcmf-busan:10009035",
+          "provider": "부산시청자미디어센터",
+          "providerId": "kcmf-busan",
+          "type": "education",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "subjects": [
+            "video"
+          ],
+          "detailVerified": true
+        },
+        {
+          "title": "[찾아가는 상설_북부산 1차] AI 어디까지 써봤니? '나만의 AI 비서 만들기'",
+          "url": "https://kcmf.or.kr/KCMF/contents/KCMF05011204.do?page=1&viewCount=12&pcode=10008997&schM=view",
+          "region": "busan",
+          "summary": "생성형 AI의 특성을 이해하고 실무 프롬프트와 맞춤형 AI 비서를 활용해 업무 효율과 자동화 역량을 높이는 과정입니다.",
+          "educationPeriod": "2026-10-26 ~ 2026-10-26",
+          "applicationPeriod": "2026-10-06 화 18:00 ~ 2026-10-23 금 10:00",
+          "startsAt": "2026-10-06T18:00:00+09:00",
+          "endsAt": "2026-10-23T10:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": [],
+          "id": "kcmf-busan:10008997",
+          "provider": "부산시청자미디어센터",
+          "providerId": "kcmf-busan",
+          "type": "education",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "subjects": [
+            "ai"
+          ],
+          "detailVerified": true
+        },
+        {
+          "title": "부산 인(人) 미디어_[심화과정]나는 미디어 쫌 아는 부산 시민(11월)",
+          "url": "https://kcmf.or.kr/KCMF/contents/KCMF05011203.do?page=1&viewCount=12&pcode=10008984&schM=view",
+          "region": "busan",
+          "summary": "지역사회 정보를 담은 콘텐츠 제작",
+          "educationPeriod": "2026-11-17 ~ 2026-12-18",
+          "applicationPeriod": "2026-11-02 10:00 ~ 2026-11-12 18:00",
+          "startsAt": "2026-11-02T10:00:00+09:00",
+          "endsAt": "2026-11-12T18:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "",
+          "id": "kcmf-busan:10008984",
+          "provider": "부산시청자미디어센터",
+          "providerId": "kcmf-busan",
+          "type": "education",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "subjects": [
+            "video",
+            "community"
+          ],
+          "detailUnverified": true
+        },
+        {
+          "title": "[상설] 퇴근길 미디어 특강 '제미나이 어디까지 써봤니'",
+          "url": "https://kcmf.or.kr/KCMF/contents/KCMF05011203.do?page=1&viewCount=12&pcode=10008999&schM=view",
+          "region": "busan",
+          "summary": "생성형 AI의 무료 기능을 통해 일과 삶의 생산성을 높이는 실전 교육",
+          "educationPeriod": "2026-11-17 ~ 2026-11-17",
+          "applicationPeriod": "2026-10-07 18:00 ~ 2026-11-12 18:00",
+          "startsAt": "2026-10-07T18:00:00+09:00",
+          "endsAt": "2026-11-12T18:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "",
+          "id": "kcmf-busan:10008999",
+          "provider": "부산시청자미디어센터",
+          "providerId": "kcmf-busan",
+          "type": "education",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "subjects": [
+            "video",
+            "ai"
+          ],
+          "detailUnverified": true
+        }
+      ],
+      "status": "partial"
+    },
+    "busan-seo-learning": {
+      "checkedAt": "2026-11-06T00:59:11Z",
+      "items": [],
+      "status": "ok"
+    },
+    "bizinfo": {
+      "checkedAt": "2026-11-06T00:59:11Z",
+      "items": [
+        {
+          "id": "bizinfo:PBLN_000000000122273",
+          "title": "2026년 찾아가는 1:1 디지털 교육 소상공인 모집 공고",
+          "providerId": "bizinfo",
+          "provider": "기업마당",
+          "type": "grant",
+          "subjects": [
+            "ai",
+            "community"
+          ],
+          "region": "any",
+          "regionEvidence": "원문이 지역별 구분 없이 소상공인을 대상으로 안내한다. 신청 조건은 원문 참조.",
+          "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000122273",
+          "summary": "소상공인의 온라인 판로 진출 및 디지털 전환 실현을 위한「’26년 찾아가는 1:1 디지털 교육」에 참여를 희망하는 소상공인을 모집합니다. ☞ 온라인 진출의사가 있으나, 디지털 활용 수준 및 경영여건으로 집체교육 참여가 어려운 디지털 취약계층 소상공인 - ｢소상공인 기본법｣ 제2조에 따른 소상공인으로, 신청일 현재 정상적으로 영업 중인 점포 ☞ 집합교육 참여가 어려운 소상공인을 대상으로 온라인 플랫폼 입점 및 홍보 방법 등 찾아가는 1:1 디지털 교육 지원",
+          "applicationPeriod": "2026.05.20 ~ 2026.11.30",
+          "startsAt": "2026-05-20T00:00:00+09:00",
+          "endsAt": "2026-11-30T23:59:59+09:00",
+          "deadlinePrecision": "day",
+          "conditionalDeadline": false,
+          "sourceStatus": "",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "authority": "중소벤처기업부",
+          "performingAgency": "소상공인시장진흥공단",
+          "detailVerified": true
+        },
+        {
+          "id": "bizinfo:PBLN_000000000123187",
+          "title": "2026년 혁신 소상공인 AI 활용지원 사업 참여 소상공인 모집 공고",
+          "providerId": "bizinfo",
+          "provider": "기업마당",
+          "type": "grant",
+          "subjects": [
+            "ai",
+            "community"
+          ],
+          "region": "any",
+          "regionEvidence": "원문이 지역별 구분 없이 소상공인 지원사업으로 안내한다. 신청 조건은 원문 참조.",
+          "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000123187",
+          "summary": "중소벤처기업부와 소상공인시장진흥공단은 AI를 활용한 제품개발 및 서비스 도입으로 소상공인만의 새로운 가치와 차별화된 제품ㆍ서비스 창출을 지원하고 있습니다.「2026년 혁신 소상공인 AI활용지원사업」에 참여할 소상공인을 다음과 같이 모집합니다. (수정사항 : 동시수행제한정부지원사업 (립스Ⅱ, 생활문화 혁신지원)) ☞「소상공인기본법」제2조에 따른 소상공인으로 신청일 현재 정상적으로 영업 중인 소상공인 - 공동대표가 운영하는 사업체의 경우, 주대표 1인만 신청 가능 ☞ 소상공인이 AI를 활용하여 차별화",
+          "applicationPeriod": "2026.06.12 ~ 2026.07.03",
+          "startsAt": "2026-06-12T00:00:00+09:00",
+          "endsAt": "2026-07-03T23:59:59+09:00",
+          "deadlinePrecision": "day",
+          "conditionalDeadline": false,
+          "sourceStatus": "",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "authority": "중소벤처기업부",
+          "performingAgency": "소상공인시장진흥공단",
+          "detailVerified": true
+        },
+        {
+          "title": "2026년 VP 활용 콘텐츠 제작 인프라 지원 추가 공고",
+          "url": "https://bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000127432",
+          "region": "any",
+          "regionEvidence": "원문 제목에 지역 구분이 없습니다. 신청 조건은 상세 공고를 확인해 주세요.",
+          "summary": "스튜디오큐브 버추얼스튜디오 운영 활성화 및 중소 방송영상콘텐츠 제작사의 제작경쟁력 강화를 위한 VP 활용 콘텐츠 제작 인프라를 지원해드리는 사업입니다. ☞ 국내 드라마, 영화 등 중소 방송영상콘텐츠 제작기업, 신청일 현재 작품 제작에 착수하여 진행 중이고, 버추얼프로덕션 촬영이 필요한 기업 - 지원분야 : VP 기술 적용이 가능한 방송영상콘텐츠 (장르 제한 없음) ☞ VP 스튜디오, VP 에셋, VP 장비지원, VP 기술지원 등 지원 ※ 자세한 지원내용 공고문 참조",
+          "applicationPeriod": "2026.10.22 ~ 2026.11.17",
+          "startsAt": "2026-10-22T00:00:00+09:00",
+          "endsAt": "2026-11-17T23:59:59+09:00",
+          "deadlinePrecision": "day",
+          "conditionalDeadline": false,
+          "sourceStatus": "",
+          "authority": "문화체육관광부",
+          "id": "bizinfo:PBLN_000000000127432",
+          "provider": "기업마당",
+          "providerId": "bizinfo",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "subjects": [
+            "video"
+          ],
+          "performingAgency": "한국콘텐츠진흥원",
+          "detailVerified": true
+        },
+        {
+          "title": "2026년 실감콘텐츠 스튜디오 프로젝트 현물지원기업 모집 공고",
+          "url": "https://bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000118285",
+          "region": "any",
+          "regionEvidence": "원문 제목에 지역 구분이 없습니다. 신청 조건은 상세 공고를 확인해 주세요.",
+          "summary": "실감콘텐츠 제작 스튜디오 시설ㆍ장비의 현물지원을 통한 실감콘텐츠 제작 지원을 위한 사업입니다. ☞ 실감콘텐츠 제작기업(또는 고유번호증을 보유한 단체 단위) - VR, XR, Stage, LED, Wall, MR 페이셜캡쳐 초토그래메트리 기반 기술을 활용한 콘텐츠 제작기업 ☞ 광주실감콘텐츠큐브(GCC) VX스튜디오 및 MR스튜디오 지원 ※ 자세한 지원내용 공고문 참조",
+          "applicationPeriod": "2026.02.02 ~ 2026.12.01",
+          "startsAt": "2026-02-02T00:00:00+09:00",
+          "endsAt": "2026-12-01T23:59:59+09:00",
+          "deadlinePrecision": "day",
+          "conditionalDeadline": false,
+          "sourceStatus": "",
+          "authority": "광주광역시",
+          "id": "bizinfo:PBLN_000000000118285",
+          "provider": "기업마당",
+          "providerId": "bizinfo",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z",
+          "subjects": [
+            "video"
+          ],
+          "performingAgency": "광주정보문화산업진흥원",
+          "detailVerified": true
+        }
+      ],
+      "status": "ok"
+    },
+    "busan-learning-voucher": {
+      "checkedAt": "2026-11-06T00:59:11Z",
+      "items": [
+        {
+          "title": "2026 AI·디지털 평생교육이용권 2차",
+          "url": "https://lllcard.kr/reg/busan/main/mainView.do",
+          "region": "busan",
+          "summary": "부산광역시 평생교육이용권 모집 공고입니다. 지원 유형과 신청 조건은 원문에서 확인해 주세요.",
+          "applicationPeriod": "09.09(수) 10시 ~ 09.22(화) 17시",
+          "startsAt": "2026-09-09T10:00:00+09:00",
+          "endsAt": "2026-09-22T17:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "종료",
+          "subjects": [
+            "video",
+            "ai",
+            "community",
+            "real-estate",
+            "auction"
+          ],
+          "detailVerified": false,
+          "sourceLevel": "official-notice-card",
+          "id": "busan-learning-voucher:7e0644a8",
+          "provider": "부산광역시 평생교육이용권",
+          "providerId": "busan-learning-voucher",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z"
+        },
+        {
+          "title": "2026 일반(지역특화) 평생교육이용권 3차",
+          "url": "https://lllcard.kr/reg/busan/main/mainView.do",
+          "region": "busan",
+          "summary": "부산광역시 평생교육이용권 모집 공고입니다. 지원 유형과 신청 조건은 원문에서 확인해 주세요.",
+          "applicationPeriod": "09.09(수) 10시 ~ 09.22(화) 17시",
+          "startsAt": "2026-09-09T10:00:00+09:00",
+          "endsAt": "2026-09-22T17:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "종료",
+          "subjects": [
+            "video",
+            "ai",
+            "community",
+            "real-estate",
+            "auction"
+          ],
+          "detailVerified": false,
+          "sourceLevel": "official-notice-card",
+          "id": "busan-learning-voucher:7e74985",
+          "provider": "부산광역시 평생교육이용권",
+          "providerId": "busan-learning-voucher",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z"
+        },
+        {
+          "title": "2026 노인 평생교육이용권 2차",
+          "url": "https://lllcard.kr/reg/busan/main/mainView.do",
+          "region": "busan",
+          "summary": "부산광역시 평생교육이용권 모집 공고입니다. 지원 유형과 신청 조건은 원문에서 확인해 주세요.",
+          "applicationPeriod": "09.09(수) 10시 ~ 09.22(화) 17시",
+          "startsAt": "2026-09-09T10:00:00+09:00",
+          "endsAt": "2026-09-22T17:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "종료",
+          "subjects": [
+            "video",
+            "ai",
+            "community",
+            "real-estate",
+            "auction"
+          ],
+          "detailVerified": false,
+          "sourceLevel": "official-notice-card",
+          "id": "busan-learning-voucher:b569f7e3",
+          "provider": "부산광역시 평생교육이용권",
+          "providerId": "busan-learning-voucher",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z"
+        },
+        {
+          "title": "2026 AI·디지털 평생교육이용권 1차",
+          "url": "https://lllcard.kr/reg/busan/main/mainView.do",
+          "region": "busan",
+          "summary": "부산광역시 평생교육이용권 모집 공고입니다. 지원 유형과 신청 조건은 원문에서 확인해 주세요.",
+          "applicationPeriod": "06.10(수) 10시 ~ 06.23(화) 17시",
+          "startsAt": "2026-06-10T10:00:00+09:00",
+          "endsAt": "2026-06-23T17:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "종료",
+          "subjects": [
+            "video",
+            "ai",
+            "community",
+            "real-estate",
+            "auction"
+          ],
+          "detailVerified": false,
+          "sourceLevel": "official-notice-card",
+          "id": "busan-learning-voucher:e28fe2b3",
+          "provider": "부산광역시 평생교육이용권",
+          "providerId": "busan-learning-voucher",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z"
+        },
+        {
+          "title": "2026 일반(지역특화) 평생교육이용권 2차",
+          "url": "https://lllcard.kr/reg/busan/main/mainView.do",
+          "region": "busan",
+          "summary": "부산광역시 평생교육이용권 모집 공고입니다. 지원 유형과 신청 조건은 원문에서 확인해 주세요.",
+          "applicationPeriod": "06.10(수) 10시 ~ 06.23(화) 17시",
+          "startsAt": "2026-06-10T10:00:00+09:00",
+          "endsAt": "2026-06-23T17:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "종료",
+          "subjects": [
+            "video",
+            "ai",
+            "community",
+            "real-estate",
+            "auction"
+          ],
+          "detailVerified": false,
+          "sourceLevel": "official-notice-card",
+          "id": "busan-learning-voucher:21e533dc",
+          "provider": "부산광역시 평생교육이용권",
+          "providerId": "busan-learning-voucher",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z"
+        },
+        {
+          "title": "2026 노인 평생교육이용권 1차",
+          "url": "https://lllcard.kr/reg/busan/main/mainView.do",
+          "region": "busan",
+          "summary": "부산광역시 평생교육이용권 모집 공고입니다. 지원 유형과 신청 조건은 원문에서 확인해 주세요.",
+          "applicationPeriod": "06.10(수) 10시 ~ 06.23(화) 17시",
+          "startsAt": "2026-06-10T10:00:00+09:00",
+          "endsAt": "2026-06-23T17:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "종료",
+          "subjects": [
+            "video",
+            "ai",
+            "community",
+            "real-estate",
+            "auction"
+          ],
+          "detailVerified": false,
+          "sourceLevel": "official-notice-card",
+          "id": "busan-learning-voucher:136ed518",
+          "provider": "부산광역시 평생교육이용권",
+          "providerId": "busan-learning-voucher",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z"
+        },
+        {
+          "title": "2026 일반(지역특화) 평생교육이용권 1차",
+          "url": "https://lllcard.kr/reg/busan/main/mainView.do",
+          "region": "busan",
+          "summary": "부산광역시 평생교육이용권 모집 공고입니다. 지원 유형과 신청 조건은 원문에서 확인해 주세요.",
+          "applicationPeriod": "03.25(수) 10시 ~ 04.17(금) 17시",
+          "startsAt": "2026-03-25T10:00:00+09:00",
+          "endsAt": "2026-04-17T17:00:00+09:00",
+          "deadlinePrecision": "minute",
+          "conditionalDeadline": false,
+          "sourceStatus": "종료",
+          "subjects": [
+            "video",
+            "ai",
+            "community",
+            "real-estate",
+            "auction"
+          ],
+          "detailVerified": false,
+          "sourceLevel": "official-notice-card",
+          "id": "busan-learning-voucher:a3e02447",
+          "provider": "부산광역시 평생교육이용권",
+          "providerId": "busan-learning-voucher",
+          "type": "grant",
+          "checkedAt": "2026-11-06T00:59:11Z"
+        }
+      ],
+      "status": "ok"
+    }
+  }
+}

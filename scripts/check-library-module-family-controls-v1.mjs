@@ -38,7 +38,7 @@ try{
     const groups=[...document.querySelectorAll('[data-module-tree-group]')].filter(group=>!group.hidden).map(group=>({id:group.dataset.moduleTreeGroup,items:[...group.querySelectorAll('[data-kit-ui]')].map(node=>node.dataset.kitUi),hasIcon:Boolean(group.querySelector('summary svg'))}));
     return {ids,buttons,top,groups,duplicates:buttons.length-new Set(buttons).size,toolbar:{theme:Boolean(document.querySelector('.builder-kit-preview-toolbar #kitTheme')),viewport:Boolean(document.querySelector('.builder-kit-preview-toolbar #kitViewport')),settings:Boolean(document.querySelector('.builder-kit-preview-toolbar #kitSettings'))}};
   });
-  const approvedIds=['top-chapter-navigation','filter-chip-rail','horizontal-card-rail','collection-bottom-sheet','device-handoff-accordion','floating-action','horizontal-rail','bottom-sheet','screen-mode-selector','accordion','learning-guide-hero','learning-guide-section','subject-navigation'];
+  const approvedIds=['top-chapter-navigation','filter-chip-rail','horizontal-card-rail','collection-bottom-sheet','device-handoff-accordion','floating-action','horizontal-rail','bottom-sheet','screen-mode-selector','accordion','learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail'];
   assert(tree.ids.length===approvedIds.length&&approvedIds.every(id=>tree.ids.includes(id)),`Approved Library module set differs: ${tree.ids.join(', ')}`);
   assert(tree.buttons.length===tree.ids.length&&tree.ids.every(id=>tree.buttons.includes(id)),'Tree is not driven by all Registry Library entries');
   assert(tree.top.length===0,'Old top horizontal module catalog still owns module buttons');

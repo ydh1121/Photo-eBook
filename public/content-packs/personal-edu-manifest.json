@@ -11,7 +11,7 @@
       "blocks": 36,
       "sources": 12,
       "reviewedAt": "2026-11-06",
-      "heroImage": "/assets/images/generated/personal-edu-v1/video-hero.webp"
+      "heroImage": "/assets/images/generated/personal-edu-v1/video-hero.webp?v=d46f8322e663"
     },
     {
       "id": "ai",
@@ -23,7 +23,7 @@
       "blocks": 38,
       "sources": 7,
       "reviewedAt": "2026-11-06",
-      "heroImage": "/assets/images/generated/personal-edu-v1/ai-hero.webp"
+      "heroImage": "/assets/images/generated/personal-edu-v1/ai-hero.webp?v=61beee5e0dba"
     },
     {
       "id": "community",
@@ -35,7 +35,7 @@
       "blocks": 41,
       "sources": 8,
       "reviewedAt": "2026-11-06",
-      "heroImage": "/assets/images/generated/personal-edu-v1/community-hero.webp"
+      "heroImage": "/assets/images/generated/personal-edu-v1/community-hero.webp?v=f09875915fa8"
     },
     {
       "id": "real-estate",
@@ -47,7 +47,7 @@
       "blocks": 38,
       "sources": 10,
       "reviewedAt": "2026-11-06",
-      "heroImage": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp"
+      "heroImage": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp?v=a0587c516c55"
     },
     {
       "id": "auction",
@@ -59,7 +59,7 @@
       "blocks": 39,
       "sources": 11,
       "reviewedAt": "2026-11-06",
-      "heroImage": "/assets/images/generated/personal-edu-v1/auction-hero.webp"
+      "heroImage": "/assets/images/generated/personal-edu-v1/auction-hero.webp?v=6dd7d5fed807"
     }
   ]
 }

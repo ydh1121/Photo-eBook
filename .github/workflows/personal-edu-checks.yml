@@ -5,6 +5,12 @@ on:
   pull_request:
     paths:
       - 'content/learning-guides/**'
+      - 'content/discovery/**'
+      - 'public/content-discovery/**'
+      - 'functions/api/learning-*.js'
+      - 'functions/lib/*discovery*.js'
+      - 'functions/lib/learning-opportunities.js'
+      - 'scripts/check-learning-*.mjs'
       - 'content/image-prompts/v1/**'
       - 'content/image-status/personal-edu-v1.json'
       - 'public/index.html'
@@ -32,6 +38,12 @@ on:
     branches: [main]
     paths:
       - 'content/learning-guides/**'
+      - 'content/discovery/**'
+      - 'public/content-discovery/**'
+      - 'functions/api/learning-*.js'
+      - 'functions/lib/*discovery*.js'
+      - 'functions/lib/learning-opportunities.js'
+      - 'scripts/check-learning-*.mjs'
       - 'content/image-prompts/v1/**'
       - 'content/image-status/personal-edu-v1.json'
       - 'public/index.html'
@@ -77,6 +89,8 @@ jobs:
           node --check scripts/check-personal-edu-runtime.mjs
           git fetch --depth=1 origin 16669aca400a343d772680e47e08a2a48ca708e7
           node scripts/check-personal-edu.mjs
+          node scripts/check-learning-videos.mjs
+          node scripts/check-learning-opportunities.mjs
           node scripts/build-personal-edu.mjs
           git diff --exit-code -- public/content-packs public/video public/ai public/community public/real-estate public/auction
       - name: Install pinned browser QA dependency

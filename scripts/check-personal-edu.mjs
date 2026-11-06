@@ -161,26 +161,37 @@ function validateRenderers(courses){
   const registryFile='public/assets/js/platform-modules/module-registry-v1.js';
   const guideFile='public/assets/js/platform-modules/learning-guide-v1.js';
   const subjectFile='public/assets/js/platform-modules/subject-navigation-v1.js';
+  const dependencyFiles=['photo-public-module-source-v1.js','photo-core-modules-v1.js','portable-primitives-v1.js','portable-primitives-extension-v2.js','portable-primitives-composition-v3.js','learning-resource-rail-v1.js'].map(name=>`public/assets/js/platform-modules/${name}`);
   const source=read(guideFile),registrySource=read(registryFile),subjectSource=read(subjectFile);
   if([source,registrySource,subjectSource].includes(null))return null;
   const cases=new Set([...source.matchAll(/case\s+['"]([^'"]+)['"]\s*:/g)].map(match=>match[1]));
   for(const type of types)if(type!=='prose')check(cases.has(type),guideFile,`missing explicit renderer case ${type}`);
-  const context=attempt('canonical modules',()=>execute(`${registrySource}\n${source}\n${subjectSource}`,guideFile));
+  const context=attempt('canonical modules',()=>execute(`${registrySource}\n${dependencyFiles.map(read).join('\n')}\n${source}\n${subjectSource}`,guideFile));
   const registry=context?.window.PlatformModuleRegistry;if(!registry)return null;
-  for(const id of ['learning-guide-hero','learning-guide-section','subject-navigation']){
+  for(const id of ['learning-guide-hero','learning-guide-section','subject-navigation','learning-resource-rail']){
     const definition=registry.get(id);if(!check(definition,id,'not registered'))continue;
     for(const consumer of ['public','library','editor','export'])check(registry.canConsume(id,consumer),id,`unavailable to ${consumer}`);
     for(const file of definition.ownerFiles)fileExists(file,id);
+    for(const consumer of ['public','library','editor','export'])attempt(`${id} ${consumer} dependencies`,()=>registry.dependencyClosure(id,consumer));
   }
   for(const course of courses.values())attempt(`${course.id} canonical render`,()=>{
     const fragments=[registry.render('learning-guide-hero',course.hero,{consumer:'public'})];
     course.chapters.forEach((chapter,index)=>{
-      const html=registry.render('learning-guide-section',{packId:course.id,chapter,index,sources:course.sources,showSources:index===course.chapters.length-1},{consumer:'public'});
+      const discovery=chapter.id==='education'?[{kind:'opportunities',live:true}]:index===course.chapters.length-1?[{kind:'videos',live:true}]:[];
+      const html=registry.render('learning-guide-section',{packId:course.id,chapter,index,sources:course.sources,showSources:index===course.chapters.length-1,discovery},{consumer:'public'});
       check(html.includes(`id="${chapter.id}"`),`${course.id}/${chapter.id}`,'semantic chapter anchor missing');
       check(!/(?:>undefined<|\[object Object\])/.test(html),`${course.id}/${chapter.id}`,'renderer leaked a missing value');
+      if(chapter.blocks.some(block=>block.type==='cards'))check(html.includes('data-platform-module="horizontal-rail"'),`${course.id}/${chapter.id}`,'comparison cards must compose the canonical rail');
+      if(discovery.length)check(html.includes('data-platform-module="learning-resource-rail"'),`${course.id}/${chapter.id}`,'discovery module is absent');
       fragments.push(html);counts.renderedChapters++;
     });
     unique([...fragments.join('').matchAll(/\sid="([^"]+)"/g)].map(match=>match[1]),`${course.id} rendered DOM`);
+  });
+  attempt('resource status and escaping',()=>{
+    const html=registry.render('learning-resource-rail',{kind:'opportunities',items:[{id:'past',title:'<script>unsafe</script>',url:'https://example.org/',status:'open',endsAt:'2020-01-01'},{id:'failed',title:'원문 확인 중',url:'https://example.org/unknown',status:'unknown'},{id:'bad',title:'unsafe link',url:'javascript:alert(1)'}]},{consumer:'public'});
+    check(html.includes('data-notice-status="closed"'),'resource status','elapsed deadline did not close');
+    check(html.includes('data-notice-status="unknown"'),'resource status','unknown status became open/closed');
+    check(!html.includes('<script>')&&!html.includes('javascript:')&&html.includes('&lt;script&gt;'),'resource content','untrusted content was not escaped/filtered');
   });
   return context;
 }
@@ -235,7 +246,7 @@ function validateCatalog(courses,photoChapters){
     if(parsed.hash){const anchor=attempt(where,()=>decodeURIComponent(parsed.hash.slice(1)));if(anchor!==null)check(target.has(anchor),where,`unknown chapter anchor ${parsed.hash}`);}
   }
 }
-function stripImages(course){const value=JSON.parse(JSON.stringify(course));delete value.hero.image;delete value.hero.imageAlt;for(const chapter of value.chapters){delete chapter.image;delete chapter.imageAlt;}return value;}
+function stripPresentation(course){const value=JSON.parse(JSON.stringify(course));delete value.hero.image;delete value.hero.imageAlt;delete value.hero.layout;delete value.hero.mobileImageFocus;for(const chapter of value.chapters){delete chapter.image;delete chapter.imageAlt;}return value;}
 function decode(value=''){return value.replace(/&(?:amp|quot|lt|gt|#39|#x27);/g,item=>({'&amp;':'&','&quot;':'"','&lt;':'<','&gt;':'>','&#39;':"'",'&#x27;':"'"}[item]));}
 function tags(html,name){return [...html.matchAll(new RegExp(`<${name}\\b[^>]*>`,'gi'))].map(match=>({raw:match[0],...Object.fromEntries([...match[0].matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)].map(attr=>[attr[1],decode(attr[2]??attr[3])]))}));}
 function validatePage(course){
@@ -257,12 +268,13 @@ function validatePage(course){
   const required=[
     '/assets/js/core/content-pack-runtime.js',`/content-packs/${course.id}/pack.js`,`/content-packs/${course.id}/data/course.js`,
     '/assets/js/core/site-data-client.js','/assets/js/platform-modules/module-registry-v1.js','/assets/js/platform-modules/learning-guide-v1.js',
-    '/assets/js/core/content-bookmark-store.js','/assets/js/platform-modules/subject-navigation-v1.js','/assets/js/app/learning-pack-renderer.js','/assets/js/app/app-shell.js','/assets/js/app/subject-navigation.js'
+    '/assets/js/core/content-bookmark-store.js','/assets/js/platform-modules/subject-navigation-v1.js','/assets/js/platform-modules/learning-resource-rail-v1.js','/assets/js/platform-modules/portable-primitives-v1.js','/assets/js/app/learning-pack-renderer.js','/assets/js/app/app-shell.js','/assets/js/app/subject-navigation.js'
   ];
   for(const src of required){check(scriptPaths.includes(src),file,`missing script ${src}`);const tag=scripts.find(item=>new URL(item.src,origin).pathname===src);if(tag)check(/\bdefer\b/.test(tag.raw),file,`script is not deferred: ${src}`);}
   for(const [before,after] of [
     [required[0],required[1]],[required[1],required[2]],[required[2],required[3]],
-    [required[4],required[5]],[required[6],required[5]],[required[4],required[7]],[required[5],required[8]],[required[8],required[9]]
+    [required[4],required[9]],[required[9],required[8]],[required[8],required[5]],
+    [required[6],required[5]],[required[4],required[7]],[required[5],required[10]],[required[10],required[11]],[required[11],required[12]]
   ])check(scriptPaths.indexOf(before)<scriptPaths.indexOf(after),file,`incorrect script order: ${before} before ${after}`);
   for(const tag of [...scripts,...tags(html,'link').filter(item=>item.rel==='stylesheet')]){
     const url=new URL(tag.src||tag.href,origin);if(url.origin===origin)fileExists(`public${decodeURIComponent(url.pathname)}`,file);
@@ -274,13 +286,16 @@ function validateGenerated(courses,rawSources){
   for(const course of courses.values())attempt(`${course.id} generated output`,()=>{
     const base=`public/content-packs/${course.id}`,compiled=json(`${base}/data/course.json`);
     if(!compiled)return;
-    check(same(stripImages(compiled),stripImages(course)),base,'generated course differs from the reviewed source');
+    check(same(stripPresentation(compiled),stripPresentation(course)),base,'generated course differs from the reviewed source');
     const hero=`/assets/images/generated/personal-edu-v1/${course.id}-hero.webp`;
     const practiceImage=`/assets/images/generated/personal-edu-v1/${course.id}-practice.webp`;
-    check(compiled.hero.image===hero,base,'wrong hero image slot');
+    const versioned=image=>`${image}?v=${crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'public',image))).digest('hex').slice(0,12)}`;
+    check(compiled.hero.image===versioned(hero),base,'wrong hero image slot or stale asset revision');
+    check(compiled.hero.layout==='learning',base,'missing scoped learning hero layout');
+    check(Number.isFinite(compiled.hero.mobileImageFocus)&&compiled.hero.mobileImageFocus>=0&&compiled.hero.mobileImageFocus<=100,base,'invalid mobile image focal position');
     check(compiled.chapters.filter(chapter=>chapter.image).length===1,base,'expected exactly one bound practice image');
     const chapter=compiled.chapters.find(item=>item.id===practice[course.id]);
-    check(chapter?.image===practiceImage,base,'wrong practice image slot');
+    check(chapter?.image===versioned(practiceImage),base,'wrong practice image slot or stale asset revision');
     for(const [image,alt] of [[hero,compiled.hero.imageAlt],[practiceImage,chapter?.imageAlt]]){
       check(typeof alt==='string'&&alt.includes('AI'),base,'generated image alt must disclose AI origin');
       if(fileExists(`public${image}`,base)){const bytes=fs.readFileSync(path.join(root,`public${image}`));check(bytes.length>12&&bytes.toString('ascii',0,4)==='RIFF'&&bytes.toString('ascii',8,12)==='WEBP',image,'invalid WebP asset');}
@@ -298,14 +313,14 @@ function validateGenerated(courses,rawSources){
       check(same(data?.guide,compiled),base,'JS snapshot and JSON snapshot differ');
       check(same(data?.nav,course.chapters.map(item=>({id:item.id,'칩':item.label,'제목':item.title,'설명':item.description}))),base,'snapshot chapter navigation differs from source');
       check(data?.content?.hero_title===course.hero.title&&data?.content?.hero_subtitle===course.hero.description,base,'snapshot hero content mismatch');
-      check(typeof window.contentPackImageFor==='function'&&window.contentPackImageFor()===hero,base,'pack image adapter mismatch');
+      check(typeof window.contentPackImageFor==='function'&&window.contentPackImageFor()===versioned(hero),base,'pack image adapter mismatch');
     }
     const entry=manifest?.courses?.find(item=>item.id===course.id);
     if(check(entry,base,'manifest entry missing')){
       for(const field of ['label','route','title','reviewedAt'])check(entry[field]===course[field],base,`manifest ${field} mismatch`);
       check(entry.chapters===9&&entry.blocks===expected[course.id]&&entry.sources===course.sources.length,base,'manifest content counts mismatch');
       check(entry.sourceSha256===crypto.createHash('sha256').update(rawSources.get(course.id)).digest('hex'),base,'manifest hash does not match reviewed source bytes');
-      check(entry.heroImage===hero,base,'manifest hero slot mismatch');
+      check(entry.heroImage===versioned(hero),base,'manifest hero slot mismatch');
     }
     validatePage(course);
   });

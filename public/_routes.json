@@ -11,6 +11,7 @@
     "/assets/*",
     "/data/*",
     "/content-packs/*",
+    "/content-discovery/*",
     "/photography",
     "/photography/*",
     "/video",

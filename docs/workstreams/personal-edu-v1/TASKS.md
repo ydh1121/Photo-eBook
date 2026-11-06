@@ -24,6 +24,10 @@ This is an independent workstream. Do not resume or modify the older platform-li
 - [x] Run static boundary/content/build checks and existing Chromium module pipeline; passed at `215ed05`.
 - [x] Push reviewable implementation and open draft PR #57.
 - [-] Resolve runtime CI findings, inspect mobile/desktop screenshots and verify actual interactions.
+- [x] Follow-up WO: one-row mobile navigation, aligned FAB centers, filled active subject card, simplified picker and centered SVG close button.
+- [x] Compose comparison/source cards with canonical horizontal rails; add a reusable discovery rail for subject videos and official education/support notices.
+- [x] Parse verified YouTube recommendations and official notices with region/type filters, source checks, deadline closure and partial-failure states.
+- [-] Replace ten learning images with varied adult/work scenes; preserve originals and re-run crop/asset QA.
 - [ ] Record ten image layout passes and applied status after visual review.
 - [ ] Confirm required checks on the final implementation revision; update PR and review record.
 - [ ] Merge tested revision and verify actual production deployment and all six routes.
@@ -39,3 +43,5 @@ This is an independent workstream. Do not resume or modify the older platform-li
 6. No family details or private commercial strategy enter Git, public content, commits or PRs.
 7. CODE1/Order is read-only. Operational documents belong to this workstream.
 8. Do not report production deployment until the deployed revision and behavior have been verified.
+9. A notice fetch failure is never proof of closure. Apply source/deadline evidence, retain successful data and show verification state.
+10. Resource rails compose the canonical horizontal-rail/filter-chip-rail owners across all consumers.

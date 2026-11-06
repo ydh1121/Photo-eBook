@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-06",
+  "source": "verified-recommendations",
+  "verification": "youtube-page-metadata",
+  "subjects": {
+    "video": {
+      "label": "영상",
+      "topics": [
+        {
+          "id": "shooting",
+          "query": "스마트폰 영상 촬영 기초 갤럭시",
+          "category": "모바일 영상 촬영"
+        },
+        {
+          "id": "editing",
+          "query": "갤럭시 스튜디오 동영상 편집 기초",
+          "category": "모바일 영상 편집"
+        },
+        {
+          "id": "publishing",
+          "query": "유튜브 쇼츠 편집 자막 업로드 기초",
+          "category": "영상 게시"
+        }
+      ],
+      "items": [
+        {
+          "id": "5T6J3FyLKAU",
+          "title": "삼성 스튜디오 앱으로 동영상 사진 이미지 편집하기",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=5T6J3FyLKAU",
+          "thumbnail": "https://i.ytimg.com/vi/5T6J3FyLKAU/maxresdefault.jpg",
+          "description": "삼성 스튜디오 앱의 사진·영상 편집 화면을 살펴보는 영상입니다.",
+          "platform": "YouTube",
+          "topic": "editing",
+          "category": "모바일 영상 편집",
+          "query": "갤럭시 스튜디오 동영상 편집 기초",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        },
+        {
+          "id": "sXBJde_qUuk",
+          "title": "스마트폰 갤러리에서 동영상 편집하기 (1부)",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=sXBJde_qUuk",
+          "thumbnail": "https://i.ytimg.com/vi/sXBJde_qUuk/maxresdefault.jpg",
+          "description": "갤럭시 갤러리의 컷 편집, 장면 순서, 재생 속도와 화면 자르기를 다룹니다. One UI 6.1 기준 영상입니다.",
+          "platform": "YouTube",
+          "topic": "editing",
+          "category": "모바일 영상 편집",
+          "query": "갤럭시 스튜디오 동영상 편집 기초",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        }
+      ]
+    },
+    "ai": {
+      "label": "AI 활용",
+      "topics": [
+        {
+          "id": "prompts",
+          "query": "챗GPT 초보 프롬프트 질문법",
+          "category": "프롬프트 기초"
+        },
+        {
+          "id": "images",
+          "query": "챗GPT 이미지 생성 수정 기초",
+          "category": "AI 이미지"
+        },
+        {
+          "id": "workflows",
+          "query": "챗GPT 문서 작성 요약 업무 활용",
+          "category": "AI 작업 흐름"
+        }
+      ],
+      "items": [
+        {
+          "id": "Lr30qDcMcJE",
+          "title": "챗GPT 초보자가이드 2026 | 이 영상 하나로 끝내세요.",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=Lr30qDcMcJE",
+          "thumbnail": "https://i.ytimg.com/vi/Lr30qDcMcJE/maxresdefault.jpg",
+          "description": "처음 사용하는 사람을 대상으로 ChatGPT의 기본 기능을 설명합니다.",
+          "platform": "YouTube",
+          "topic": "prompts",
+          "category": "프롬프트 기초",
+          "query": "챗GPT 초보 프롬프트 질문법",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        },
+        {
+          "id": "LJRuDthi_nY",
+          "title": "챗GPT 초보 탈출하는 질문법 공식",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=LJRuDthi_nY",
+          "thumbnail": "https://i.ytimg.com/vi/LJRuDthi_nY/maxresdefault.jpg",
+          "description": "질문을 구체화하고 프롬프트를 구성하는 방법을 소개합니다.",
+          "platform": "YouTube",
+          "topic": "prompts",
+          "category": "프롬프트 기초",
+          "query": "챗GPT 초보 프롬프트 질문법",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        }
+      ]
+    },
+    "community": {
+      "label": "커뮤니티",
+      "topics": [
+        {
+          "id": "operations",
+          "query": "네이버 밴드 만들기 모임 운영 기초",
+          "category": "모임 운영"
+        },
+        {
+          "id": "meetings",
+          "query": "소모임 운영 진행 방법 회고",
+          "category": "모임 진행"
+        },
+        {
+          "id": "education",
+          "query": "스마트폰 소규모 수업 강의 운영",
+          "category": "작은 수업"
+        }
+      ],
+      "items": [
+        {
+          "id": "6ndARCxa6fI",
+          "title": "네이버 밴드만들기",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=6ndARCxa6fI",
+          "thumbnail": "https://i.ytimg.com/vi/6ndARCxa6fI/maxresdefault.jpg",
+          "description": "밴드 만들기와 탈퇴·삭제 화면을 살펴보는 영상입니다.",
+          "platform": "YouTube",
+          "topic": "operations",
+          "category": "모임 운영",
+          "query": "네이버 밴드 만들기 모임 운영 기초",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        },
+        {
+          "id": "hYXnDR32BbY",
+          "title": "네이버 '밴드'로 다양한 모임 만들기",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=hYXnDR32BbY",
+          "thumbnail": "https://i.ytimg.com/vi/hYXnDR32BbY/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGBMgYyh_MA8=&rs=AOn4CLCgXjMVQqI02d0LPKAbWg_TG2gYGQ",
+          "description": "밴드에서 모임을 만드는 과정을 소개하는 디지털 교육 영상입니다.",
+          "platform": "YouTube",
+          "topic": "operations",
+          "category": "모임 운영",
+          "query": "네이버 밴드 만들기 모임 운영 기초",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        }
+      ]
+    },
+    "real-estate": {
+      "label": "부동산",
+      "topics": [
+        {
+          "id": "inspection",
+          "query": "부산 원룸 룸투어 집 보러갈때 체크",
+          "category": "공간 관찰 예시"
+        },
+        {
+          "id": "prices",
+          "query": "국토교통부 실거래가 공개시스템 조회 방법",
+          "category": "실거래 자료 읽기"
+        },
+        {
+          "id": "contracts",
+          "query": "주택 임대차 계약 전 확인 서류",
+          "category": "계약 서류 기초"
+        }
+      ],
+      "items": [
+        {
+          "id": "-llzh8XpInI",
+          "title": "부산 서면 원룸 투어 자취녀_룸투어",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=-llzh8XpInI",
+          "thumbnail": "https://i.ytimg.com/vi/-llzh8XpInI/maxresdefault.jpg",
+          "description": "부산 서면의 원룸 공간을 살펴보는 룸투어입니다.",
+          "platform": "YouTube",
+          "topic": "inspection",
+          "category": "공간 관찰 예시",
+          "query": "부산 원룸 룸투어 집 보러갈때 체크",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        },
+        {
+          "id": "KDVB7Z44d08",
+          "title": "부산 9평 오피스텔 룸투어🧡 인스타 감성 자취방 꾸미기 | 오늘의집 Room Tour",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=KDVB7Z44d08",
+          "thumbnail": "https://i.ytimg.com/vi/KDVB7Z44d08/maxresdefault.jpg",
+          "description": "부산의 9평 오피스텔 배치와 인테리어를 관찰할 수 있는 룸투어입니다.",
+          "platform": "YouTube",
+          "topic": "inspection",
+          "category": "공간 관찰 예시",
+          "query": "부산 원룸 룸투어 집 보러갈때 체크",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        }
+      ]
+    },
+    "auction": {
+      "label": "경매",
+      "topics": [
+        {
+          "id": "rights",
+          "query": "법원경매 권리분석 기초 매각물건명세서",
+          "category": "권리분석 기초"
+        },
+        {
+          "id": "inspection",
+          "query": "부동산 경매 현장조사 체크리스트",
+          "category": "경매 현장조사"
+        },
+        {
+          "id": "bidding",
+          "query": "법원경매 입찰표 작성 방법 기초",
+          "category": "입찰 절차"
+        }
+      ],
+      "items": [
+        {
+          "id": "FA-RdPjs7PY",
+          "title": "경매 권리분석 기초! 이걸 몇십만원 돈주고 듣는다고? 유료급 강의 무료로 풉니다! l 부동산 경매 아파트 매매",
+          "channel": "",
+          "url": "https://www.youtube.com/watch?v=FA-RdPjs7PY",
+          "thumbnail": "https://i.ytimg.com/vi/FA-RdPjs7PY/maxresdefault.jpg",
+          "description": "부동산 경매의 권리분석 기초를 다루는 영상입니다.",
+          "platform": "YouTube",
+          "topic": "rights",
+          "category": "권리분석 기초",
+          "query": "법원경매 권리분석 기초 매각물건명세서",
+          "checkedAt": "2026-11-06",
+          "source": "verified-recommendations"
+        }
+      ]
+    }
+  }
+}

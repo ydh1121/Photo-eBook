@@ -715,7 +715,7 @@
         "community-sbiz-howto"
       ],
       "title": "운영하며 부족한 부분을 배우세요",
-      "image": "/assets/images/generated/personal-edu-v1/community-practice.webp",
+      "image": "/assets/images/generated/personal-edu-v1/community-practice.webp?v=4424002016ef",
       "imageAlt": "스마트폰 활용법을 함께 배우는 작은 수업을 묘사한 AI 생성 이미지"
     },
     {
@@ -928,8 +928,10 @@
       }
     ],
     "title": "사람이 다시 찾아오는\n작은 모임 만들기",
-    "image": "/assets/images/generated/personal-edu-v1/community-hero.webp",
-    "imageAlt": "지역의 작은 모임에서 서로의 이야기를 듣는 상황을 묘사한 AI 생성 이미지"
+    "image": "/assets/images/generated/personal-edu-v1/community-hero.webp?v=f09875915fa8",
+    "imageAlt": "지역의 작은 모임에서 서로의 이야기를 듣는 상황을 묘사한 AI 생성 이미지",
+    "layout": "learning",
+    "mobileImageFocus": 50
   },
   "id": "community",
   "label": "커뮤니티",

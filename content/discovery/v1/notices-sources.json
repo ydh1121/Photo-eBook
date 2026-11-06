@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-11-06T00:59:11Z",
+  "timezone": "Asia/Seoul",
+  "regionLabels": {"all": "전체", "busan": "부산", "seo-gu": "부산 서구", "any": "지역 구분 없음"},
+  "regionMeaning": "공고의 지역 분류이며 개인의 신청 자격을 판정하지 않는다. any는 지역별로 구분하지 않은 공고다.",
+  "providers": [
+    {
+      "id": "kcmf-busan",
+      "name": "부산시청자미디어센터",
+      "adapter": "kcmf",
+      "type": "education",
+      "regions": ["busan"],
+      "listUrls": [
+        "https://kcmf.or.kr/KCMF/contents/KCMF05011203.do",
+        "https://kcmf.or.kr/KCMF/contents/KCMF05011204.do"
+      ],
+      "allowedHosts": ["kcmf.or.kr", "www.kcmf.or.kr"],
+      "allowedPaths": ["/KCMF/contents/KCMF05011203.do", "/KCMF/contents/KCMF05011204.do"],
+      "verifiedCapability": "public_html_list_and_detail",
+      "detailLinkEvidence": "목록의 fn_goView(pcode)는 현재 경로에 page, viewCount, pcode, schM=view를 붙인다.",
+      "fields": ["강좌명", "신청기간", "강의기간", "정원", "개요", "신청하기 또는 마감 버튼"],
+      "examples": [
+        "https://kcmf.or.kr/KCMF/contents/KCMF05011203.do?page=1&viewCount=12&pcode=10009035&schM=view",
+        "https://kcmf.or.kr/KCMF/contents/KCMF05011204.do?page=1&viewCount=12&pcode=10008997&schM=view"
+      ]
+    },
+    {
+      "id": "busan-seo-learning",
+      "name": "부산 서구 평생학습",
+      "adapter": "seo-platform",
+      "type": "education",
+      "regions": ["seo-gu"],
+      "listUrls": ["https://lll.busan.go.kr/yeyak/ilms/learning/learningList.do?inst_id=OFFICE_00002641"],
+      "allowedHosts": ["lll.busan.go.kr", "www.bsseogu.go.kr", "bsseogu.go.kr"],
+      "allowedPaths": ["/yeyak/ilms/learning/learningList.do", "/edu/index.bsseogu"],
+      "verifiedCapability": "public_platform_list_detail_temporarily_unavailable",
+      "detailLinkEvidence": "부산시 평생학습플랫폼 서구청 목록이 서구 평생학습관의 el_code별 상세 URL을 공개한다.",
+      "fields": ["강좌명", "기관명", "일반접수", "교육기간", "모집인원", "접수 상태"],
+      "notes": "서구 상세 요청은 확인 시점에 upstream 연결 시간 초과였다. 플랫폼의 접수중 배지만으로 상세의 정원 마감을 확정할 수 없어 상세 실패 시 open을 unknown으로 내보낸다. 교육기간을 접수기간으로 사용하지 않는다.",
+      "examples": [
+        "https://www.bsseogu.go.kr/edu/index.bsseogu?el_code=1923&menuCd=DOM_000000703001004000",
+        "https://www.bsseogu.go.kr/edu/index.bsseogu?el_code=1986&menuCd=DOM_000000703001004000"
+      ]
+    },
+    {
+      "id": "bizinfo",
+      "name": "기업마당",
+      "adapter": "bizinfo",
+      "type": "grant",
+      "regions": ["busan", "seo-gu", "any"],
+      "listUrls": [
+        "https://bizinfo.go.kr/sii/siia/selectSIIA200View.do?condition=searchPblancNm&condition1=AND&keyword=%EC%BD%98%ED%85%90%EC%B8%A0&schEndAt=N&rows=15&cpage=1",
+        "https://bizinfo.go.kr/sii/siia/selectSIIA200View.do?schJrsdCodeTy=2&schEndAt=N&rows=15"
+      ],
+      "allowedHosts": ["bizinfo.go.kr", "www.bizinfo.go.kr"],
+      "allowedPaths": ["/sii/siia/selectSIIA200View.do", "/sii/siia/selectSIIA200Detail.do"],
+      "verifiedCapability": "public_html_list_and_detail",
+      "fields": ["지원사업명", "신청기간", "소관부처·지자체", "사업수행기관", "사업개요", "사업신청 방법"],
+      "notes": "grant는 지원사업 분류다. 현물·교육 지원과 현금 지원을 구분하지 않고 지급액이나 개인의 자격을 추정하지 않는다. 지역 분류는 제목 및 원문에 명시된 지역만 사용한다. 중앙부처라는 이유만으로 전국 신청 가능이라고 쓰지 않는다.",
+      "reviewedDetails": [
+        {"id": "PBLN_000000000122273", "region": "any", "regionEvidence": "원문이 지역별 구분 없이 소상공인을 대상으로 안내한다. 신청 조건은 원문 참조.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000122273"},
+        {"id": "PBLN_000000000123187", "region": "any", "regionEvidence": "원문이 지역별 구분 없이 소상공인 지원사업으로 안내한다. 신청 조건은 원문 참조.", "url": "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000123187"}
+      ],
+      "examples": [
+        "https://bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000127432",
+        "https://www.bizinfo.go.kr/sii/siia/selectSIIA200Detail.do?pblancId=PBLN_000000000117016"
+      ]
+    },
+    {
+      "id": "busan-learning-voucher",
+      "name": "부산광역시 평생교육이용권",
+      "adapter": "voucher",
+      "type": "grant",
+      "regions": ["busan"],
+      "listUrls": ["https://lllcard.kr/reg/busan/main/mainView.do"],
+      "allowedHosts": ["lllcard.kr", "www.lllcard.kr"],
+      "allowedPaths": ["/reg/busan/main/mainView.do"],
+      "verifiedCapability": "public_html_notice_cards",
+      "fields": ["공고명", "종료 상태", "신청기간", "지원금액", "발표일"],
+      "notes": "공개 모집 카드만 파싱한다. 로그인 또는 POST 방식 신청 화면에 접근하지 않는다. 공고 연도에서 신청기간의 연도를 보완하며 발표일을 마감일로 읽지 않는다. 최근 이용권 모집 7건은 확인 당시 모두 종료였다. 신청 대상과 수급 자격을 판정하지 않는다."
+    }
+  ],
+  "researchOnly": [
+    {"name": "부산시 통합 공지사항", "url": "https://www.busan.go.kr/nbnews", "status": "not_implemented", "reason": "서술형 본문과 이미지 공고의 신청기간을 추가 검증해야 한다."},
+    {"name": "고용24", "url": "https://www.work24.go.kr/hr/a/a/3100/selectTracseDetl.do?crseTracseSe=C0061&tracseId=AIG20250000512682&tracseTme=5&trainstCstmrId=500020045419", "status": "not_implemented", "reason": "공개 상세 확인. 훈련기간과 모집 마감은 다르며 실제 모집마감 여부는 기관 확인 문구가 있다. 인증 API나 자동 수집 지원을 구현했다고 주장하지 않는다."}
+  ]
+}

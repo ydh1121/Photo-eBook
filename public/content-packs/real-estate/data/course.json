@@ -393,7 +393,7 @@
       "outcome": "현장 점검표, 촬영 목록, 미확인 항목 목록",
       "sourceIds": [],
       "title": "보여줄 장면과 질문을 나누세요",
-      "image": "/assets/images/generated/personal-edu-v1/real-estate-practice.webp",
+      "image": "/assets/images/generated/personal-edu-v1/real-estate-practice.webp?v=27e026b54223",
       "imageAlt": "집의 창과 상태를 확인하는 임장 실습을 묘사한 AI 생성 이미지"
     },
     {
@@ -758,8 +758,10 @@
       }
     ],
     "title": "집과 동네를 읽고,\n쓸모 있는 정보를 전하세요",
-    "image": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp",
-    "imageAlt": "부산의 주거 생활권을 둘러보는 상황을 묘사한 AI 생성 이미지"
+    "image": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp?v=a0587c516c55",
+    "imageAlt": "부산의 주거 생활권을 둘러보는 상황을 묘사한 AI 생성 이미지",
+    "layout": "learning",
+    "mobileImageFocus": 50
   },
   "id": "real-estate",
   "label": "부동산",

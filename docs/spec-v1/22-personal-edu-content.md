@@ -79,7 +79,7 @@ V1의 다섯 과정은 각각 9개 장으로 구성했다. 장의 수와 순서�
 
 출처는 `id`, `title`, `publisher`, `url`, `checkedAt`, `description`을 가진다. `kind`, `status`, `note`는 자료의 성격과 시점·조건을 설명한다. 교육 공고의 접수 기간과 현재 잔여석을 구분한다. 가격·법률·제도·제품 기능 등 변동 정보는 공식 원문과 확인일을 함께 갱신한다.
 
-이미지 경로와 대체 텍스트는 현재 `scripts/build-personal-edu.mjs`가 공개 pack을 만들 때 연결한다. 원본 snapshot에 이미지를 임시로 덧붙인 뒤 원고 SHA를 바꾸지 않는다. 이미지 제작과 검증은 기존 이미지 파이프라인 계약을 따른다.
+이미지 경로와 대체 텍스트는 현재 `scripts/build-personal-edu.mjs`가 공개 pack을 만들 때 연결한다. 공통 히어로의 `layout`과 모바일 이미지 초점(`mobileImageFocus`, 0~100)도 이 단계에서 연결하는 표시 설정이다. 공통 모듈이 같은 props를 받아 Library·Editor·Public·독립 소비자에서 렌더링한다. 원본 snapshot에 표시 설정을 임시로 덧붙인 뒤 원고 SHA를 바꾸지 않는다. 공개 데이터의 캐시 버전은 표시 설정을 포함한 생성 데이터에서 계산한다. 이미지 URL의 버전 쿼리도 실제 WebP SHA-256에서 계산한다. 이미지 제작과 검증은 기존 이미지 파이프라인 계약을 따른다.
 
 ## EDU-CONTENT-004 — Sheet 읽기
 

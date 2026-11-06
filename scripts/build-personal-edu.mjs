@@ -13,7 +13,9 @@ const sha=value=>crypto.createHash('sha256').update(value).digest('hex');
 const html=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const write=(file,text)=>{fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,text);};
 const imageBase='/assets/images/generated/personal-edu-v1';
+const imageUrl=(id,kind)=>{const file=`${imageBase}/${id}-${kind}.webp`;return `${file}?v=${sha(fs.readFileSync(path.join(root,'public',file))).slice(0,12)}`;};
 const practiceChapter={video:'editing',ai:'images',community:'education','real-estate':'inspection',auction:'inspection'};
+const heroMobileFocus={video:50,ai:50,community:50,'real-estate':50,auction:50};
 const imageAlts={
   video:['작은 집의 공간을 스마트폰으로 촬영하는 상황을 묘사한 AI 생성 이미지','스마트폰에서 영상 장면을 편집하는 실습을 묘사한 AI 생성 이미지'],
   ai:['휴대폰과 노트북으로 모임 자료를 만드는 상황을 묘사한 AI 생성 이미지','안내 이미지의 수정 결과를 비교하는 상황을 묘사한 AI 생성 이미지'],
@@ -30,10 +32,11 @@ for(const id of ids){
   if(chapterIds.size!==course.chapters.length)throw new Error(`Duplicate chapter ids: ${id}`);
   const sourceIds=new Set(course.sources.map(s=>s.id));
   for(const chapter of course.chapters){for(const ref of chapter.sourceIds||[]){if(!sourceIds.has(ref))throw new Error(`Unknown evidence: ${id}/${ref}`);}}
-  course.hero.image=`${imageBase}/${id}-hero.webp`;
+  course.hero.image=imageUrl(id,'hero');
   course.hero.imageAlt=imageAlts[id][0];
+  course.hero.layout='learning';course.hero.mobileImageFocus=heroMobileFocus[id];
   const practice=course.chapters.find(c=>c.id===practiceChapter[id]);
-  practice.image=`${imageBase}/${id}-practice.webp`;practice.imageAlt=imageAlts[id][1];
+  practice.image=imageUrl(id,'practice');practice.imageAlt=imageAlts[id][1];
   const nav=course.chapters.map(c=>({id:c.id,'칩':c.label,'제목':c.title,'설명':c.description}));
   const data={guide:course,nav,content:{hero_title:course.hero.title,hero_subtitle:course.hero.description}};
   const pack={id,kind:'learning-guide',routes:[`/${id}/`],bootMessage:`${course.label} 가이드를 불러오는 중`,data:{cacheKey:`personalEduSiteDataV1:${id}`,bundledKey:'__LEARNING_GUIDE_SITE_DATA',staticSnapshot:true},sections:course.chapters.map(c=>({id:c.id,renderer:'learningSection'}))};
@@ -44,8 +47,8 @@ for(const id of ids){
   let page=template.split('\n').filter(line=>!line.includes('src="/content-packs/photography/')).join('\n');
   page=page.replace('<html lang="ko">',`<html lang="ko" data-content-pack="${id}" data-learning-guide="true">`);
   page=page.replace(', minimum-scale=1, maximum-scale=1, user-scalable=no','');
-  page=page.replace('  <script src="/assets/js/core/content-pack-runtime.js?v=1" defer></script>',`  <script src="/assets/js/core/content-pack-runtime.js?v=1" defer></script>\n  <script src="/content-packs/${id}/pack.js?v=1" defer></script>\n  <script src="/content-packs/${id}/data/course.js?v=${sha(source).slice(0,10)}" defer></script>`);
-  page=page.replace('  <script src="/assets/js/core/render-helpers.js?v=1" defer></script>','  <script src="/assets/js/core/render-helpers.js?v=1" defer></script>\n  <script src="/assets/js/app/learning-pack-renderer.js?v=1" defer></script>');
+  page=page.replace('  <script src="/assets/js/core/content-pack-runtime.js?v=1" defer></script>',`  <script src="/assets/js/core/content-pack-runtime.js?v=1" defer></script>\n  <script src="/content-packs/${id}/pack.js?v=1" defer></script>\n  <script src="/content-packs/${id}/data/course.js?v=${sha(JSON.stringify(data)).slice(0,10)}" defer></script>`);
+  page=page.replace('  <script src="/assets/js/core/render-helpers.js?v=1" defer></script>','  <script src="/assets/js/core/render-helpers.js?v=1" defer></script>\n  <script src="/assets/js/app/learning-pack-renderer.js?v=2" defer></script>');
   const canonical=`https://photo-ebook.pages.dev/${id}/`;
   const metadata=`  <title>${html(course.title)} | Personal Edu</title>\n  <meta name="description" content="${html(course.description)}">\n  <link rel="canonical" href="${canonical}">\n  <meta property="og:type" content="website">\n  <meta property="og:title" content="${html(course.title)}">\n  <meta property="og:description" content="${html(course.description)}">\n  <meta property="og:url" content="${canonical}">\n  <meta property="og:image" content="https://photo-ebook.pages.dev${course.hero.image}">\n`;
   page=page.replace('  <meta charset="utf-8">','  <meta charset="utf-8">\n'+metadata);

@@ -55,7 +55,11 @@
     await loadScript('/assets/js/platform-modules/module-registry-v1.js');
     await loadScript('/assets/js/platform-modules/photo-public-module-source-v1.js');
     await loadScript('/assets/js/platform-modules/photo-core-modules-v1.js');
+    await loadScript('/assets/js/platform-modules/portable-primitives-v1.js');
+    await loadScript('/assets/js/platform-modules/portable-primitives-extension-v2.js');
+    await loadScript('/assets/js/platform-modules/portable-primitives-composition-v3.js');
     await loadScript('/assets/js/core/content-bookmark-store.js');
+    await loadScript('/assets/js/platform-modules/learning-resource-rail-v1.js');
     await loadScript('/assets/js/platform-modules/learning-guide-v1.js');
     await loadScript('/assets/js/platform-modules/subject-navigation-v1.js');
     await loadScript('/assets/js/platform-modules/module-style-runtime-v1.js');
@@ -88,7 +92,7 @@
         if(host){host.dataset.platformPublicModuleError='unsupported';host.textContent='지원하지 않는 UI 모듈입니다.';}
         continue;
       }
-      await ensureDefinitionAssets(definition);
+      for(const id of modules.dependencyClosure(moduleId,'public'))await ensureDefinitionAssets(modules.get(id));
       try{
         const instance=modules.mount(host,moduleId,block.content&&typeof block.content==='object'?block.content:{},{consumer:'public'});
         window.PlatformModuleStyleRuntime?.apply?.(moduleId,host,moduleStyle(block));
