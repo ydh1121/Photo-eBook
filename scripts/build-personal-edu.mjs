@@ -51,8 +51,8 @@ for(const id of ids){
   let page=template.split('\n').filter(line=>!line.includes('src="/content-packs/photography/')).join('\n');
   // New learning consumers need portable dependencies; the completed photo
   // entry keeps its original eager-loading boundary.
-  const learningCss=['components/learning-resource-rail-v1.css?v=3','platform-modules/portable-primitives-v1.css?v=2','platform-modules/portable-primitives-extension-v2.css?v=2','platform-modules/portable-primitives-canonical-repairs-v3.css?v=1','platform-modules/filter-chip-rail-v1.css?v=6','platform-modules/filter-chip-rail-edge-repair-v1.css?v=1'];
-  const learningJs=['portable-primitives-v1.js?v=2','portable-primitives-extension-v2.js?v=5','portable-primitives-composition-v3.js?v=6','filter-chip-rail-edge-repair-v1.js?v=1','learning-resource-rail-v1.js?v=3'];
+  const learningCss=['components/learning-resource-rail-v1.css?v=4','platform-modules/portable-primitives-v1.css?v=2','platform-modules/portable-primitives-extension-v2.css?v=2','platform-modules/portable-primitives-canonical-repairs-v3.css?v=1','platform-modules/filter-chip-rail-v1.css?v=6','platform-modules/filter-chip-rail-edge-repair-v1.css?v=1'];
+  const learningJs=['portable-primitives-v1.js?v=2','portable-primitives-extension-v2.js?v=5','portable-primitives-composition-v3.js?v=6','filter-chip-rail-edge-repair-v1.js?v=1','learning-resource-rail-v1.js?v=4'];
   page=page.replace(/(  <link rel="stylesheet" href="\/assets\/styles\/components\/learning-guide-v1\.css[^"]*">)/,match=>match+'\n'+learningCss.map(file=>`  <link rel="stylesheet" href="/assets/styles/${file}">`).join('\n'));
   page=page.replace(/(  <script src="\/assets\/js\/platform-modules\/learning-guide-v1\.js[^"]*" defer><\/script>)/,match=>learningJs.map(file=>`  <script src="/assets/js/platform-modules/${file}" defer></script>`).join('\n')+'\n'+match);
   page=page.replace('<html lang="ko">',`<html lang="ko" data-content-pack="${id}" data-learning-guide="true">`);

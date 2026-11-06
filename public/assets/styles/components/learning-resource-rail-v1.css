@@ -18,6 +18,12 @@
 .edu-discovery__filter>span{font-size:12px;flex:none;color:var(--resource-muted);width:25px}
 .edu-discovery__filter-control{flex:1;min-width:0;padding-inline:20px}
 .edu-resource-status{font-size:12px;line-height:1.75;color:var(--resource-muted);margin:1rem 0}
+.edu-resource-stage{display:grid;min-width:0}
+.edu-resource-stage>.edu-discovery__results,.edu-resource-stage>.edu-resource-empty{grid-area:1/1;min-width:0;align-self:start}
+/* Reserve the same notice slot before and after lazy data arrives. This keeps
+   a chapter destination stable while the existing navigation scrolls past it. */
+.edu-discovery[data-resource-live="true"][data-resource-kind="opportunities"] .edu-resource-stage{min-block-size:32rem}
+.edu-discovery[data-resource-live="true"][data-resource-kind="opportunities"] .edu-resource-status{min-block-size:3.5em}
 .edu-resource-empty{padding:1.5rem;border:1px dashed var(--resource-line);border-radius:18px;font-size:14px;line-height:1.8;color:var(--resource-muted)}
 .edu-discovery-card{background:var(--resource-surface);border:1px solid var(--resource-line);border-radius:22px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 26px rgba(32,48,78,.06);color:var(--resource-ink)}
 .edu-discovery-card__image{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;background:#e4eaf2}
@@ -58,3 +64,4 @@ html[data-theme="dark"] .edu-discovery-card__tags>.edu-notice-state[data-state="
 html[data-theme="dark"] .edu-discovery-card__tags>.edu-notice-state[data-state="upcoming"]{background:#49371d;color:#f3d59f}
 html[data-theme="dark"] .edu-discovery-card__image--instagram{background:linear-gradient(135deg,#35253d,#202d46);color:#e0c2f4}
 @media(max-width:640px){.edu-discovery__head{gap:.7rem}.edu-discovery__head h3{font-size:22px}.edu-discovery__head p{font-size:14px}.edu-resource-refresh{font-size:12px;padding:.55rem .7rem}.edu-discovery__filter{gap:.4rem}.edu-discovery-card h4{font-size:18px}}
+@media(max-width:640px){.edu-discovery[data-resource-live="true"][data-resource-kind="opportunities"] .edu-resource-status{min-block-size:7em}}

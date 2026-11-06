@@ -230,7 +230,12 @@ async function discoveryModules(browser){
 
 async function videoDiscoveryPaging(browser){
   const context=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true}),page=await context.newPage();observe(page,'video-discovery-paging');page.setDefaultTimeout(15000);
-  const checkedAt='2026-11-06T12:00:00Z',calls=[];let failPage=false;
+  const checkedAt='2026-11-06T12:00:00Z',calls=[];let failPage=false,noticeRequests=0,releaseNotices;
+  const noticesReady=new Promise(resolve=>{releaseNotices=resolve;});
+  const lateNotices=Array.from({length:3},(_,index)=>({id:`late-notice-${index}`,title:`QA 늦게 도착한 스마트폰 촬영과 영상 편집 실습 교육 공고 ${index+1}`,summary:'촬영할 주제를 고르고 여러 장면을 편집한 뒤 자막과 목소리를 넣어 완성하는 교육입니다. '.repeat(4),url:'https://kcmf.or.kr/',provider:'QA 지역 교육기관',region:'busan',type:'education',status:'unknown',startsAt:'2026-11-01T00:00:00+09:00',endsAt:'2026-11-30T23:59:59+09:00',checkedAt}));
+  const delayedNotices=async route=>{noticeRequests++;await noticesReady;await route.fulfill({contentType:'application/json',body:JSON.stringify({ok:true,items:lateNotices,lastCheckedAt:checkedAt,providers:[{id:'fixture',status:'ok',checkedAt}]})});};
+  await page.route('**/content-discovery/learning-opportunities.json',delayedNotices);
+  await page.route('**/api/learning-opportunities?**',delayedNotices);
   const videos=Array.from({length:40},(_,i)=>({id:`qavideo${String(i).padStart(4,'0')}`,title:`QA 촬영 영상 ${i+1}`,url:`https://www.youtube.com/watch?v=qavideo${String(i).padStart(4,'0')}`,platform:'YouTube',description:i===0?'자막과 컷편집을 연습하는 자료입니다.':'촬영 순서와 편집 구성을 살펴보는 테스트 자료입니다.',hashtags:i===0?['#컷편집']:['#촬영'],checkedAt}));
   const instagram=Array.from({length:8},(_,i)=>({id:`ig-qa-post-${i}`,title:`QA 임장 게시물 ${i+1}`,url:`https://www.instagram.com/p/qa_post_${i}/`,platform:'Instagram',description:i===0?'테라스와 창문이 보이는 집':'복층 구조와 실내 공간',caption:i===0?'테라스와 창문이 보이는 집':'복층 구조와 실내 공간',hashtags:['#원룸'],checkedAt}));
   await page.route('**/content-discovery/learning-videos.json',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({checkedAt,subjects:{video:{items:[...videos,...instagram]}}})}));
@@ -247,9 +252,12 @@ async function videoDiscoveryPaging(browser){
       await openPack(page,PACKS.find(p=>p.id==='video'));const feed=page.locator('#app [data-resource-kind="videos"]');
       const chapterId=await feed.evaluate(node=>node.closest('.chapter[data-chapter]')?.dataset.chapter),lastChapter=await page.locator('#app .chapter[data-chapter]').last().getAttribute('data-chapter');
       assert(chapterId&&chapterId===lastChapter,'video recommendations are not in the final rendered chapter');
-      const chapterMenu=page.locator(`.nav-shell .nav-chip[data-target="${chapterId}"]`);await chapterMenu.click();await feed.scrollIntoViewIfNeeded();await settledScroll(page);
-      await wait(()=>chapterMenu.evaluate(node=>node.classList.contains('is-active')),'video recommendation chapter did not become active');
-      await wait(()=>feed.evaluate(node=>{const rect=node.getBoundingClientRect();return rect.top<innerHeight&&rect.bottom>90;}),'video recommendation rail did not enter the viewport');
+      const chapterMenu=page.locator(`.nav-shell .nav-chip[data-target="${chapterId}"]`),chapter=page.locator(`#app .chapter[data-chapter="${chapterId}"]`);await jump(page,chapterId);
+      const landingTop=await chapter.evaluate(node=>node.getBoundingClientRect().top);assert(noticeRequests>0,'first chapter jump did not encounter the delayed education notices');
+      releaseNotices();const noticeFeed=page.locator('#app [data-resource-kind="opportunities"]');await wait(async()=>await noticeFeed.locator('.edu-discovery-card').count()===lateNotices.length&&await noticeFeed.getAttribute('aria-busy')==='false','delayed education notices never settled');await settledScroll(page);
+      const loadedTop=await chapter.evaluate(node=>node.getBoundingClientRect().top);assert(Math.abs(loadedTop-landingTop)<=2,`late notices moved the first chapter destination: ${landingTop} → ${loadedTop}`);
+      assert(await chapterMenu.evaluate(node=>node.classList.contains('is-active')),'late notices changed the selected chapter after the first menu click');
+      await feed.scrollIntoViewIfNeeded();
       await wait(async()=>await feed.getAttribute('aria-busy')==='false'&&await feed.locator('.edu-discovery-card').count()>=12,'initial metadata page did not settle with at least twelve cards');
       const before=await feed.locator('.edu-discovery-card').count(),track=feed.locator('.platform-horizontal-rail__track');await track.scrollIntoViewIfNeeded();await track.hover();await page.mouse.wheel(10000,0);
       await wait(()=>calls.some(call=>call.cursor===3),'horizontal end did not trigger the next cursor');await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'append did not settle');
@@ -259,7 +267,7 @@ async function videoDiscoveryPaging(browser){
       const retained=await feed.locator('.edu-discovery-card').count();assert(retained>=ids.length,'failed page discarded earlier metadata');assert(await feed.locator('.edu-resource-more').isVisible(),'failed page removed the retry control');
       failPage=false;await feed.locator('.edu-resource-more').click();await wait(()=>calls.filter(call=>call.cursor===6).length>=2,'retry skipped or discarded the failed cursor');await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'retry did not settle');
       assert(await feed.locator('.edu-discovery-card').count()>=retained,'retry discarded the retained index');await feed.locator('.edu-resource-more').click();await wait(()=>feed.locator('.edu-resource-more').isHidden(),'exhausted source keeps a fake endless cursor');
-      assert(await feed.locator('.edu-resource-end').isVisible(),'end of metadata has no clear state');await overflow(page,'video metadata pagination');await shot(page,'mobile375-video-metadata-pagination');return {initial:before,final:await feed.locator('.edu-discovery-card').count(),cursors:calls.map(call=>call.cursor)};
+      assert(await feed.locator('.edu-resource-end').isVisible(),'end of metadata has no clear state');await overflow(page,'video metadata pagination');await shot(page,'mobile375-video-metadata-pagination');return {initial:before,final:await feed.locator('.edu-discovery-card').count(),cursors:calls.map(call=>call.cursor),firstChapterJump:{landingTop,loadedTop,lateNotices:lateNotices.length}};
     },page);
     await check('discovery/platform-caption-and-hashtag-search',async()=>{
       const feed=page.locator('#app [data-resource-kind="videos"]'),instagramFilter=feed.locator('[data-resource-filter="platform"]').getByRole('button',{name:'Instagram',exact:true});await instagramFilter.click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'Instagram filter did not settle');
@@ -268,7 +276,7 @@ async function videoDiscoveryPaging(browser){
       await feed.locator('.edu-resource-tag').first().click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'hashtag search did not settle');assert(await input.inputValue()==='#원룸','clicking a hashtag did not update the search');assert(await feed.locator('.edu-discovery-card').count()===8,'hashtag search lost matching posts');
       await feed.locator('.edu-resource-reset').click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'search reset did not settle');assert(await input.inputValue()==='','search reset kept a hidden query');assert(await instagramFilter.getAttribute('aria-pressed')==='true','reset unexpectedly changed the chosen platform');await overflow(page,'Instagram metadata search');await shot(page,'mobile375-instagram-caption-search');return {instagram:8,captionMatches:1,hashtagMatches:8};
     },page);
-  }finally{await context.close();}
+  }finally{releaseNotices();await context.close();}
 }
 
 async function publicMatrix(browser){

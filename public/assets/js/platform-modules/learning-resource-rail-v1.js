@@ -45,13 +45,13 @@
     const notice=props.kind==='opportunities',items=cleanItems(props.items),title=props.title||(notice?'교육·지원사업 공고':'함께 볼 영상');
     const live=props.live===true&&context.consumer==='public';
     const description=props.description||(notice?'지역과 종류를 골라 공고를 확인하세요. 접수 기간이 지나거나 원문에서 종료되면 마감으로 표시됩니다.':'실습에 참고할 영상을 찾아보세요. 제목·내용·해시태그로 검색하고, 마음에 드는 영상을 저장하세요.');
-    return `<section class="edu-discovery" data-platform-module="${ID}" data-resource-kind="${notice?'opportunities':'videos'}" data-resource-pack="${attr(props.packId||'guide')}">
+    return `<section class="edu-discovery" data-platform-module="${ID}" data-resource-kind="${notice?'opportunities':'videos'}" data-resource-pack="${attr(props.packId||'guide')}" data-resource-live="${live}">
       <header class="edu-discovery__head"><div><h3>${esc(title)}</h3><p>${esc(description)}</p></div>${live?'<button type="button" class="edu-resource-refresh">새로고침</button>':''}</header>
       ${!notice?'<form class="edu-resource-search" role="search"><label><span class="edu-search-label">영상 검색</span><input type="search" name="q" maxlength="80" placeholder="제목·내용·해시태그" autocomplete="off"></label><button type="submit">검색</button><button type="button" class="edu-resource-reset" hidden>초기화</button></form>':''}
       ${filters(props).map(([key,options,label])=>`<div class="edu-discovery__filter" data-resource-filter="${key}"><span>${label}</span><div class="edu-discovery__filter-control">${registry.renderDependency(ID,'filter-chip-rail',filterProps(options,label),context)}</div></div>`).join('')}
       <p class="edu-resource-status" role="status">${items.length?`${items.length}개 자료${props.sample?' · 미리보기 예시':''}`:live?(notice?'공고를 확인하고 있습니다.':'추천 영상을 불러오고 있습니다.'):'0개 자료'}</p>
-      <div class="edu-discovery__results">${items.length?rail(items,props,context):''}</div>
-      <p class="edu-resource-empty"${items.length?' hidden':''}>${live?'':notice?'이 조건에 맞는 공고가 없습니다.':'추천 영상이 없습니다.'}</p>
+      <div class="edu-resource-stage"><div class="edu-discovery__results">${items.length?rail(items,props,context):''}</div>
+      <p class="edu-resource-empty"${items.length?' hidden':''}>${live?'':notice?'이 조건에 맞는 공고가 없습니다.':'추천 영상이 없습니다.'}</p></div>
       <button type="button" class="edu-resource-more" hidden>영상 더 보기</button>
       ${!notice?'<p class="edu-resource-end" hidden>찾은 영상을 모두 표시했습니다. 다른 검색어로도 찾아보세요.</p>':''}
     </section>`;
