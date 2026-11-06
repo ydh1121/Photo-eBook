@@ -124,7 +124,7 @@ class Renderer:
         fs = size if size is not None else s.font
         lead = leading if leading is not None else s.leading
         return ParagraphStyle(name, fontName=BOLD if bold else FONT, fontSize=fs,
-                              leading=lead, textColor=color or INK, wordWrap='CJK',
+                              leading=lead, textColor=color or INK, wordWrap=None,
                               splitLongWords=True, allowWidows=0, allowOrphans=0,
                               alignment=TA_LEFT, spaceBefore=0, spaceAfter=0)
 

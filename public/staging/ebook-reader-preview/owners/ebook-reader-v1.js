@@ -138,7 +138,7 @@
         const page=await loadPage(descriptor,controller.signal);if(state.disposed||token!==state.nonce)return false;
         state.page=page;state.descriptor=descriptor;state.index=state.manifest.pages.indexOf(descriptor);state.saveBlocked=preservePosition;
         if(saved?.contentHash&&saved.contentHash!==descriptor.contentHash){saved=null;state.saveBlocked=true;notice('같은 편집판의 본문이 바뀌어 읽던 문단을 자동으로 복원하지 않았습니다. 목차에서 읽을 쪽을 선택하면 새 위치를 저장합니다.','error');}
-        reading.innerHTML=pageHtml(page,descriptor);root.dataset.readerPage=page.pageId;
+        reading.innerHTML=pageHtml(page,descriptor);root.dataset.readerCurrentPage=page.pageId;
         await restorePosition(saved);if(state.disposed||token!==state.nonce)return false;
         state.loading=false;state.ready=true;root.dataset.readerReady='true';reading.setAttribute('aria-busy','false');buttons();retryPageId='';if(focus)find('[data-reader-page-title]')?.focus({preventScroll:true});
         if(!state.saveBlocked)persistPosition();
@@ -173,7 +173,7 @@
       if(!anchors.length){clearSelection();return;}
       const quote=anchors.map(anchor=>anchor.quote.exact).join('\n');
       if(quote.length>100000){clearSelection();notice('선택한 문장이 너무 깁니다. 한 쪽 안에서 필요한 부분을 나눠 저장해 주세요.');return;}
-      state.selection={schemaVersion:1,id:model.uuid(),bookId:state.manifest.bookId,editionId:state.manifest.editionId,pageId:state.page.pageId,pageNumberAtSave:state.page.pageNumber,contentHash:state.descriptor.contentHash,quote,anchors,note:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+      state.selection={schemaVersion:1,id:model.uuid(),bookId:state.manifest.bookId,editionId:state.manifest.editionId,editionLabel:readableEditionLabel(state.manifest),pageId:state.page.pageId,pageNumberAtSave:state.page.pageNumber,contentHash:state.descriptor.contentHash,quote,anchors,note:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
       const button=find('[data-reader-action="selection"]');button.disabled=false;button.setAttribute('aria-hidden','false');find('[data-reader-selection-label]').textContent=`${model.pointLength(quote)}자 선택됨`;
     }
     function scheduleSelection(){clearTimeout(selectionTimer);selectionTimer=setTimeout(selectedText,90);}
@@ -191,15 +191,17 @@
       openDialog('표지·목차',body,'toc',opener);
     }
     function questionsResult(){const result=store.listQuestions(state.manifest?.bookId);storageNotice(result);find('[data-reader-question-count]').textContent=String(result.values.length);return result;}
+    function readableEditionLabel(value){const label=typeof value?.editionLabel==='string'?value.editionLabel.trim():'';return label&&label!==value.editionId?label:'';}
+    function questionEditionLabel(item){return item.editionId===state.manifest.editionId?readableEditionLabel(state.manifest)||'현재 판본':readableEditionLabel(item)||'다른 판본';}
     function questionList(opener){
       const saved=questionsResult().values;
-      const body=`<p class="ebook-reader__storage-help">이 책에서 저장한 질문 ${saved.length}개입니다. 다른 편집판의 원문과 메모도 보관합니다.</p>${saved.length?`<ol class="ebook-reader__questions">${saved.map(item=>`<li data-reader-note-id="${attr(item.id)}"><header><span>${esc(item.pageNumberAtSave)}쪽</span><small>${esc(item.editionId===state.manifest.editionId?'현재 편집판':`다른 편집판 · ${item.editionId}`)}</small></header><blockquote>${esc(item.quote)}</blockquote><p>${esc(item.note||'아직 메모가 없습니다.')}</p><div><button type="button" data-reader-note-open="${attr(item.id)}">원문으로</button><button type="button" data-reader-note-edit="${attr(item.id)}">메모 편집</button><button type="button" data-reader-note-delete="${attr(item.id)}">삭제</button></div><p data-reader-delete-confirm hidden>이 질문을 삭제할까요? <button type="button" data-reader-note-confirm="${attr(item.id)}">질문 삭제</button><button type="button" data-reader-note-cancel>취소</button></p></li>`).join('')}</ol>`:'<p class="ebook-reader__empty">본문에서 문장을 선택한 뒤 ‘질문으로 저장’을 눌러 보세요.</p>'}`;
+      const body=`<p class="ebook-reader__storage-help">이 책에서 저장한 질문 ${saved.length}개입니다. 다른 판본의 원문과 메모도 보관합니다.</p>${saved.length?`<ol class="ebook-reader__questions">${saved.map(item=>`<li data-reader-note-id="${attr(item.id)}"><header><span>${esc(item.pageNumberAtSave)}쪽</span><small>${esc(item.editionId===state.manifest.editionId?'현재 판본':readableEditionLabel(item)?`다른 판본 · ${readableEditionLabel(item)}`:'다른 판본')}</small></header><blockquote>${esc(item.quote)}</blockquote><p>${esc(item.note||'아직 메모가 없습니다.')}</p><div><button type="button" data-reader-note-open="${attr(item.id)}">원문으로</button><button type="button" data-reader-note-edit="${attr(item.id)}">메모 편집</button><button type="button" data-reader-note-delete="${attr(item.id)}">삭제</button></div><p data-reader-delete-confirm hidden>이 질문을 삭제할까요? <button type="button" data-reader-note-confirm="${attr(item.id)}">질문 삭제</button><button type="button" data-reader-note-cancel>취소</button></p></li>`).join('')}</ol>`:'<p class="ebook-reader__empty">본문에서 문장을 선택한 뒤 ‘질문으로 저장’을 눌러 보세요.</p>'}`;
       openDialog('저장한 질문',body,'questions',opener);
     }
     function questionById(id){return store.listQuestions(state.manifest.bookId).values.find(item=>item.id===id);}
     function editQuestion(item,opener){
       if(!item)return;state.editing={...item,anchors:item.anchors.map(anchor=>({...anchor}))};
-      openDialog('질문 메모',`<p class="ebook-reader__note-location">${esc(item.pageNumberAtSave)}쪽 · ${esc(item.editionId)}</p><blockquote class="ebook-reader__quote">${esc(item.quote)}</blockquote><form data-reader-note-form><label>궁금한 점이나 메모<textarea data-reader-memo rows="5" maxlength="20000" placeholder="메모 없이 문장만 저장해도 됩니다.">${esc(item.note)}</textarea></label><p data-reader-form-status role="status"></p><button type="submit" class="ebook-reader__primary">질문 저장</button></form>`,'edit',opener);
+      openDialog('질문 메모',`<p class="ebook-reader__note-location">${esc(item.pageNumberAtSave)}쪽 · ${esc(questionEditionLabel(item))}</p><blockquote class="ebook-reader__quote">${esc(item.quote)}</blockquote><form data-reader-note-form><label>궁금한 점이나 메모<textarea data-reader-memo rows="5" maxlength="20000" placeholder="메모 없이 문장만 저장해도 됩니다.">${esc(item.note)}</textarea></label><p data-reader-form-status role="status"></p><button type="submit" class="ebook-reader__primary">질문 저장</button></form>`,'edit',opener);
     }
     function saveQuestion(event){
       if(!event.target.matches('[data-reader-note-form]'))return;event.preventDefault();if(!state.editing)return;
@@ -212,8 +214,8 @@
       const item=questionById(id);if(!item)return;
       if(item.editionId!==state.manifest.editionId){
         const address=props.editionLinks?.[item.editionId]||context.readerEditionUrl?.({bookId:item.bookId,editionId:item.editionId,pageId:item.pageId}),url=model.safeUrl(address,baseUrl);
-        const body=`<p>이 질문은 ${esc(item.editionId)} 편집판에서 저장했습니다. 현재 편집판의 다른 문장으로 이동하지 않습니다.</p><blockquote class="ebook-reader__quote">${esc(item.quote)}</blockquote><p>${esc(item.note)}</p>${url?`<a href="${attr(url)}" target="_blank" rel="noopener noreferrer">저장 당시 편집판 열기</a>`:'<p>저장 당시 편집판이 제공되면 그 원문에서 다시 확인할 수 있습니다. 원문과 메모는 그대로 보관합니다.</p>'}<button type="button" data-reader-note-edit="${attr(item.id)}">메모 편집</button>`;
-        openDialog('다른 편집판의 질문',body,'edition',state.dialogOpener);return;
+        const body=`<p>다른 판본에서 저장한 질문입니다. 현재 판본에서는 원문 위치로 이동할 수 없습니다.</p>${readableEditionLabel(item)?`<p class="ebook-reader__note-location">저장한 판본 · ${esc(readableEditionLabel(item))}</p>`:''}<blockquote class="ebook-reader__quote">${esc(item.quote)}</blockquote><p>${esc(item.note)}</p>${url?`<a href="${attr(url)}" target="_blank" rel="noopener noreferrer">저장 당시 판본 열기</a>`:'<p>저장 당시 판본이 제공되면 그 원문에서 다시 확인할 수 있습니다. 원문과 메모는 그대로 보관합니다.</p>'}<button type="button" data-reader-note-edit="${attr(item.id)}">메모 편집</button>`;
+        openDialog('다른 판본의 질문',body,'edition',state.dialogOpener);return;
       }
       const descriptor=state.manifest.pages.find(value=>value.pageId===item.pageId);
       if(!descriptor||descriptor.contentHash!==item.contentHash){notice('저장 당시 본문과 현재 본문이 달라 원문 위치로 이동하지 않았습니다. 인용문과 메모는 그대로 남아 있습니다.','error');return;}

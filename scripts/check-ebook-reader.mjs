@@ -31,7 +31,7 @@ model.manifest(preview.publication.manifest);
 pass('canonical-consumers-assets-and-real-inline-publication');
 
 function publication(editionId='sample-v1'){
-  const manifest={schemaVersion:1,bookId:'sns-entry',editionId,status:'sample',subjectId:'sns',levelId:'entry',title:'읽기 검증용 샘플',subtitle:'문장 선택과 읽던 위치를 확인합니다.',editionLabel:editionId,chapters:[{chapterId:'sns-entry-start',title:'게시물의 목적 정하기'}],pages:[]},pages={};
+  const manifest={schemaVersion:1,bookId:'sns-entry',editionId,status:'sample',subjectId:'sns',levelId:'entry',title:'읽기 검증용 샘플',subtitle:'문장 선택과 읽던 위치를 확인합니다.',editionLabel:editionId==='sample-v1'?'첫 번째 검토 판본':'두 번째 검토 판본',chapters:[{chapterId:'sns-entry-start',title:'게시물의 목적 정하기'}],pages:[]},pages={};
   for(let index=1;index<=6;index++){
     const pageId=`sns-entry-sample-${index}`,page={schemaVersion:1,bookId:manifest.bookId,editionId,pageId,pageNumber:index,chapterId:'sns-entry-start',title:`검증용 본문 ${index}쪽`,blocks:[
       {blockId:`intro-${index}`,type:'paragraph',text:`한글과 📚 이모지를 함께 선택해 보세요. ${editionId}의 ${index}쪽에서 저장한 질문은 책과 편집판을 기억합니다.`},
@@ -124,6 +124,7 @@ async function runtime(){
     await page.goto(`${base}/__reader-fixture/`);await ready();
     assert(requests.filter(url=>/\/sns-entry-sample-\d\.json$/.test(url)).length===1,'Opening one page downloaded the whole publication');
     assert(await page.locator('[data-reader-page]').count()===1,'Reader mounts more than the current authored page');
+    assert(await page.locator('[data-reader-page]').evaluate(node=>node.tagName==='ARTICLE'&&node.closest('[data-reader-reading]')!==null),'Authored-page marker is shared with a state-only host');
     assert((await page.locator('[data-reader-badge]').textContent()).includes('샘플 · 본문 6쪽'),'Sample/page count missing');
     assert(await page.locator('a[href^="javascript:"]').count()===0,'Unsafe source link rendered');
     assert(await page.locator('.ebook-reader__sources a').evaluateAll(nodes=>nodes.every(node=>node.target==='_blank'&&node.rel.includes('noopener'))),'Sources do not open safely in a new tab');
@@ -134,8 +135,9 @@ async function runtime(){
     assert(await page.locator('dialog[open]').count()===0,'Selection automatically opens a dialog');
     const selected=await page.evaluate(()=>getSelection().toString());assert(selected.includes('📚'),'Native Unicode selection damaged');
     await page.locator('[data-reader-action="selection"]').click();await page.locator('dialog').waitFor({state:'visible'});
+    assert((await page.locator('.ebook-reader__note-location').textContent()).includes(fixture.manifest.editionLabel)&&!(await page.locator('.ebook-reader__note-location').textContent()).includes(fixture.manifest.editionId),'Question dialog exposes an edition ID instead of its reader-facing label');
     await page.locator('[data-reader-memo]').fill('어떤 문장을 고칠까요?');await page.locator('[data-reader-note-form] button[type="submit"]').click();
-    const saved=await page.evaluate(()=>readerQa.mount.api.exportQuestions().data.questions);assert(saved.length===1&&saved[0].anchors.length===2&&saved[0].quote.includes('📚'),'Cross-block quote not persisted exactly');
+    const saved=await page.evaluate(()=>readerQa.mount.api.exportQuestions().data.questions);assert(saved.length===1&&saved[0].anchors.length===2&&saved[0].quote.includes('📚'),'Cross-block quote not persisted exactly');assert(saved[0].editionId===fixture.manifest.editionId&&saved[0].editionLabel===fixture.manifest.editionLabel,'Readable edition label replaced or lost the stable edition metadata');
     const noteId=saved[0].id;await page.reload();await ready();
     await page.locator('[data-reader-action="questions"]').click();assert((await page.locator('.ebook-reader__questions').textContent()).includes('어떤 문장을 고칠까요?'),'Question did not survive reload');
     await page.locator(`[data-reader-note-edit="${noteId}"]`).click();await page.locator('[data-reader-memo]').fill('수정한 질문 메모');await page.locator('[data-reader-note-form] button[type="submit"]').click();
@@ -163,7 +165,7 @@ async function runtime(){
     pass('browser-download-delete-import-round-trip');
 
     await page.goto(`${base}/__reader-fixture/?edition=sample-v2`);await ready();assert(await page.locator('[data-reader-page="sns-entry-sample-1"]').count()===1,'New edition inherited a position from another edition');
-    await page.locator('[data-reader-action="questions"]').click();await page.locator(`[data-reader-note-open="${noteId}"]`).click();assert((await page.locator('dialog').textContent()).includes('현재 편집판의 다른 문장으로 이동하지 않습니다.'),'Old-edition quote silently migrated');
+    await page.locator('[data-reader-action="questions"]').click();await page.locator(`[data-reader-note-open="${noteId}"]`).click();assert((await page.locator('dialog').textContent()).includes('현재 판본에서는 원문 위치로 이동할 수 없습니다.'),'Old-edition quote silently migrated');assert((await page.locator('.ebook-reader__note-location').textContent()).includes(fixture.manifest.editionLabel)&&!(await page.locator('.ebook-reader__note-location').textContent()).includes(fixture.manifest.editionId),'Old-edition dialog lost the saved reader-facing label');
     assert(await page.locator('[data-reader-page="sns-entry-sample-1"]').count()===1,'Old question navigated the new edition');
     assert(await page.evaluate(()=>Boolean(localStorage.getItem('personalEduReaderV1.position:sns-entry:sample-v1'))),'New edition deleted previous position');
     await page.keyboard.press('Escape');pass('browser-edition-change-preserves-questions-and-old-position');
