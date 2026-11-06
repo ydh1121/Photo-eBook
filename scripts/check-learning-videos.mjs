@@ -8,137 +8,69 @@ import {fileURLToPath} from 'node:url';
 import snapshot from '../public/content-discovery/learning-videos.json' with {type:'json'};
 import {createLearningVideosHandler,onRequestGet} from '../functions/api/learning-videos.js';
 import {onRequestGet as photographyHandler} from '../functions/api/videos.js';
-import {collectVideos,extractInitialData,searchLearningYouTube} from '../functions/lib/video-discovery.js';
-
-// Transport fixtures are deliberately synthetic. The committed recommendation
-// snapshot contains separately verified public YouTube page metadata.
+import {collectVideos,extractInitialData} from '../functions/lib/video-discovery.js';
+import {collectLearningVideos,learningInitialData,searchLearningYouTubePage,parseInstagramMetadata,instagramPostUrl,matchesMetadata,extractHashtags,boundedMetadataFetch} from '../functions/lib/learning-video-discovery.js';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const baseline='16669aca400a343d772680e47e08a2a48ca708e7';
 const subjects=['video','ai','community','real-estate','auction'];
-const epoch=Date.parse('2026-11-06T12:00:00.000Z');
-const failures=[];
+const epoch=Date.parse('2026-11-06T12:00:00.000Z'),failures=[];
 let checks=0;
 async function check(name,fn){checks++;try{await fn();process.stdout.write(`PASS ${name}\n`);}catch(error){failures.push(`${name}: ${error.stack||error}`);process.stdout.write(`FAIL ${name}: ${error.message}\n`);}}
-function renderer(id='fixture0001',title='스마트폰 영상 촬영 기초 갤럭시',extra={}){
-  return {videoId:id,title:{runs:[{text:title}]},ownerText:{runs:[{text:'검증용 학습 채널'}]},viewCountText:{simpleText:'조회수 1.2만회'},publishedTimeText:{simpleText:'3일 전'},lengthText:{simpleText:'12:34'},detailedMetadataSnippets:[{snippetText:{runs:[{text:'검증용 설명: {중괄호}와 "따옴표"'}]}}],thumbnail:{thumbnails:[{url:`https://i.ytimg.com/vi/${id}/hqdefault.jpg`}]},...extra};
-}
-function initial(renderers){return {contents:{sectionListRenderer:{contents:renderers.map(videoRenderer=>({videoRenderer}))}}};}
-function html(renderers,marker='var ytInitialData = '){return `<html><script>${marker}${JSON.stringify(initial(renderers))};</script></html>`;}
+function renderer(id='fixture0001',title='스마트폰 영상 촬영 기초 갤럭시',extra={}){return {videoId:id,title:{runs:[{text:title}]},ownerText:{runs:[{text:'검증용 학습 채널'}]},viewCountText:{simpleText:'조회수 1.2만회'},publishedTimeText:{simpleText:'3일 전'},lengthText:{simpleText:'12:34'},detailedMetadataSnippets:[{snippetText:{runs:[{text:'검증용 설명: {중괄호}와 "따옴표" #영상편집'}]}}],thumbnail:{thumbnails:[{url:`https://i.ytimg.com/vi/${id}/hqdefault.jpg`}]},...extra};}
+function initial(renderers,continuation=''){return {contents:{sectionListRenderer:{contents:[...renderers.map(videoRenderer=>({videoRenderer})),...(continuation?[{continuationItemRenderer:{continuationEndpoint:{commandMetadata:{webCommandMetadata:{apiUrl:'/youtubei/v1/search'}},continuationCommand:{token:continuation}}}}]:[])]}}};}
+function html(renderers,marker='var ytInitialData = ',continuation=''){return `<html><script>ytcfg.set({"INNERTUBE_CLIENT_VERSION":"2.20261030.02.00","INNERTUBE_API_KEY":"fixture_public_key_1234"});${marker}${JSON.stringify(initial(renderers,continuation))};</script></html>`;}
 const response=(body,status=200,headers={})=>new Response(body,{status,headers:{'Content-Type':'text/html; charset=utf-8',...headers}});
 function liveFetch(calls=[]){return async(target,options)=>{calls.push({target,options});const query=new URL(target).searchParams.get('search_query');return response(html([renderer('fixture0001',query)]));};}
 const request=(search='subject=video',method='GET')=>new Request(`https://example.test/api/learning-videos?${search}`,{method});
 async function sample(handler,search='subject=video',method='GET'){const result=await handler({request:request(search,method)});return {status:result.status,headers:result.headers,body:await result.json()};}
-function contract(payload){
-  assert.equal(typeof payload.ok,'boolean');assert.ok(Array.isArray(payload.items));
-  for(const item of payload.items){
-    for(const key of ['id','title','channel','url','thumbnail','description','platform','category','query','checkedAt'])assert.equal(typeof item[key],'string',`${key} is serialized`);
-    assert.match(item.id,/^[A-Za-z0-9_-]{11}$/);assert.equal(item.platform,'YouTube');assert.ok(Number.isFinite(Date.parse(item.checkedAt)));
-    const target=new URL(item.url);assert.equal(target.origin,'https://www.youtube.com');assert.equal(target.pathname,'/watch');assert.equal(target.searchParams.get('v'),item.id);
-    const thumb=new URL(item.thumbnail);assert.equal(thumb.protocol,'https:');assert.ok(['i.ytimg.com','i9.ytimg.com','img.youtube.com'].includes(thumb.hostname));
-    assert.equal(item.matchScore,undefined);assert.equal(item.isSearchFallback,undefined);
-  }
-}
+function contract(payload){assert.equal(typeof payload.ok,'boolean');assert.ok(Array.isArray(payload.items));for(const item of payload.items){for(const key of ['id','title','channel','url','thumbnail','description','platform','category','query','checkedAt'])assert.equal(typeof item[key],'string',`${key} is serialized`);assert.ok(Number.isFinite(Date.parse(item.checkedAt)));const url=new URL(item.url);assert.equal(url.protocol,'https:');if(item.platform==='Instagram'){assert.match(item.id,/^ig-[\w-]+$/);assert.equal(instagramPostUrl(item.url),item.url);assert.equal(item.metadataOnly,true);}else{assert.equal(item.platform,'YouTube');assert.match(item.id,/^[A-Za-z0-9_-]{11}$/);assert.equal(url.origin,'https://www.youtube.com');assert.ok(url.pathname==='/watch'||url.pathname===`/shorts/${item.id}`);const thumb=new URL(item.thumbnail);assert.equal(thumb.protocol,'https:');assert.ok(['i.ytimg.com','i9.ytimg.com','img.youtube.com'].includes(thumb.hostname));}assert.equal(item.matchScore,undefined);assert.equal(item.isSearchFallback,undefined);}}
 
-await check('five subject snapshots contain nine URLs with verified page metadata',()=>{
-  assert.equal(snapshot.schemaVersion,1);assert.equal(snapshot.source,'verified-recommendations');assert.equal(snapshot.verification,'youtube-page-metadata');
-  assert.deepEqual(Object.keys(snapshot.subjects),subjects);let count=0;
-  for(const [subject,record] of Object.entries(snapshot.subjects)){
-    assert.equal(record.topics.length,3);assert.equal(new Set(record.topics.map(topic=>topic.id)).size,3);assert.ok(record.items.length>0);
-    contract({ok:true,items:record.items});count+=record.items.length;
-    for(const item of record.items){assert.ok(record.topics.some(topic=>topic.id===item.topic));assert.equal(item.source,'verified-recommendations');assert.equal(item.checkedAt,snapshot.checkedAt);assert.equal(item.channel,'');assert.equal(item.published,undefined);assert.equal(item.views,undefined);assert.equal(item.duration,undefined);}
-  }
-  assert.equal(count,9);
+await check('all five subjects have a broad, attributable metadata index',()=>{
+  assert.deepEqual(Object.keys(snapshot.subjects),subjects);assert.equal(snapshot.indexVersion,2);assert.equal(snapshot.source,'public-metadata-index');
+  for(const [id,record]of Object.entries(snapshot.subjects)){assert.equal(record.topics.length,12);assert.equal(new Set(record.topics.map(topic=>topic.id)).size,12);assert.ok(record.items.length>=40,`${id}: only ${record.items.length} items`);contract({ok:true,items:record.items});assert.equal(new Set(record.items.map(item=>item.id)).size,record.items.length);for(const item of record.items){assert.ok(['youtube-search-metadata','youtube-page-metadata','provided-screenshot'].includes(item.verification)||item.source==='verified-recommendations');}}
+  const instagram=snapshot.subjects['real-estate'].items.filter(item=>item.platform==='Instagram');assert.ok(instagram.length>=8);assert.ok(instagram.every(item=>item.verification==='provided-screenshot'&&item.referenceOnly));assert.ok(!instagram.some(item=>['ig-DfTVJlPsv8P','ig-DcTJPfXTGBI'].includes(item.id)),'ambiguous screenshot URLs must stay private');
+  const estate=snapshot.subjects['real-estate'];assert.deepEqual(estate.items.slice(0,estate.featuredIds.length).map(item=>item.id),estate.featuredIds);assert.ok(estate.items.every(item=>!estate.excludedIds.includes(item.id)));assert.deepEqual(estate.topics.slice(-2).map(topic=>topic.id),['prices','contracts']);
+  assert.ok(!JSON.stringify(snapshot).includes('drive.google.com'));assert.ok(!JSON.stringify(snapshot).includes('download_url'));
 });
-await check('parser keeps quoted braces and deduplicates different renderer variants',()=>{
-  const record=renderer('fixture0001','영상 "설명 {내용}"');
-  const page={one:{videoRenderer:record},nested:[{compactVideoRenderer:record},{gridVideoRenderer:renderer('fixture0002','영상 두 번째')}]};
-  for(const marker of ['var ytInitialData = ','window["ytInitialData"] = ','ytInitialData = ']){
-    const parsed=extractInitialData(`<script>${marker}${JSON.stringify(page)};</script><div>{noise}</div>`);
-    assert.deepEqual(parsed,page);const items=collectVideos(parsed,'영상','검증');assert.equal(items.length,2);assert.equal(items[0].title,'영상 "설명 {내용}"');
-  }
-  assert.equal(extractInitialData('<html>consent page</html>'),null);
-});
-
-const invalidCases=[
-  ['','unsupported_subject'],['subject=photo','unsupported_subject'],['subject=__proto__','unsupported_subject'],
-  ['subject=video&topic=rights','unsupported_topic'],['subject=video&topic=','unsupported_topic'],
-  ['subject=video&cursor=-1','invalid_cursor'],['subject=video&cursor=1.5','invalid_cursor'],['subject=video&cursor=01','invalid_cursor'],['subject=video&cursor=1000000','invalid_cursor'],
-  ['subject=video&subject=ai','invalid_request'],['subject=video&cursor=0&cursor=1','invalid_request'],
-  ['subject=video&q=arbitrary','invalid_request'],['subject=video&url=https://example.org','invalid_request']
-];
-for(const [query,code] of invalidCases)await check(`invalid request is rejected before fetching: ${query||'(missing)'}`,async()=>{
-  let fetched=false;const handler=createLearningVideosHandler({fetchImpl:async()=>{fetched=true;throw Error('unexpected network');}});
-  const result=await sample(handler,query);assert.equal(result.status,400);assert.equal(result.body.ok,false);assert.equal(result.body.code,code);assert.deepEqual(result.body.items,[]);assert.equal(result.headers.get('Cache-Control'),'no-store');assert.equal(fetched,false);
-});
-await check('method validation and deployed handler share understandable errors',async()=>{
-  const result=await sample(createLearningVideosHandler(),'subject=video','POST');assert.equal(result.status,405);assert.equal(result.body.code,'method_not_allowed');
-  assert.equal((await sample(onRequestGet,'subject=unsupported')).status,400);
-});
-await check('live API response preserves source metadata and canonical transport',async()=>{
-  const calls=[];const result=await sample(createLearningVideosHandler({fetchImpl:liveFetch(calls),now:()=>epoch}));contract(result.body);
-  assert.equal(result.status,200);assert.equal(result.body.source,'youtube-search');assert.equal(result.body.isFallback,false);assert.equal(result.body.stale,false);assert.equal(result.body.checkedAt,new Date(epoch).toISOString());assert.equal(result.body.nextCursor,1);
-  assert.equal(result.body.items[0].channel,'검증용 학습 채널');assert.equal(result.body.items[0].views,'조회수 1.2만회');assert.equal(result.body.items[0].duration,'12:34');assert.equal(result.body.items[0].published,'3일 전');
-  assert.equal(calls.length,1);const target=new URL(calls[0].target);assert.equal(target.origin,'https://www.youtube.com');assert.equal(target.pathname,'/results');assert.equal(target.searchParams.get('search_query'),snapshot.subjects.video.topics[0].query);assert.equal(calls[0].options.redirect,'error');assert.ok(calls[0].options.signal instanceof AbortSignal);
-});
-await check('learning ranking uses relevance, validates IDs and thumbnails, and caps cards',async()=>{
-  const records=[renderer('invalid/id','영상 편집'),renderer('fixture0001','영상 편집 원금 보장'),renderer('fixture0002','완전히 관계없는 내용'),renderer('fixture0003','영상',{ownerText:{simpleText:'권학봉'},viewCountText:{simpleText:'조회수 10회'}})];
-  for(let index=0;index<15;index++)records.push(renderer(`sample${String(index).padStart(5,'0')}`,'영상 편집',{viewCountText:{simpleText:`조회수 ${index}회`},thumbnail:{thumbnails:[{url:'https://example.org/tracking'}]}}));
-  const items=await searchLearningYouTube('영상 편집','영상',{fetchImpl:async()=>response(html(records))});
-  assert.equal(items.length,12);assert.equal(items[0].id,'sample00014');assert.ok(items.every(item=>item.id.startsWith('sample')));assert.equal(items[0].thumbnail,'https://i.ytimg.com/vi/sample00014/hqdefault.jpg');assert.ok(items.every(item=>item.matchScore===undefined));
-});
-await check('cursor visits only fixed topics and finishes without another fetch',async()=>{
-  const calls=[],handler=createLearningVideosHandler({fetchImpl:liveFetch(calls)});
-  for(let index=0;index<3;index++){
-    const result=await sample(handler,`subject=ai&cursor=${index}`);assert.equal(result.body.topic,snapshot.subjects.ai.topics[index].id);assert.equal(result.body.nextCursor,index<2?index+1:null);
-  }
-  const end=await sample(handler,'subject=ai&cursor=3');assert.equal(end.status,200);assert.deepEqual(end.body.items,[]);assert.equal(end.body.nextCursor,null);assert.equal(end.body.source,'end');assert.equal(calls.length,3);
-  const one=await sample(handler,'subject=ai&topic=images');assert.equal(one.body.topic,'images');assert.equal(one.body.nextCursor,null);assert.equal(calls.length,3);
-  assert.equal((await sample(handler,'subject=ai&topic=images&cursor=1')).body.items.length,0);assert.equal(calls.length,3);
-});
-for(const subject of subjects)await check(`blocked search returns verified recommendations for ${subject}`,async()=>{
-  const handler=createLearningVideosHandler({fetchImpl:async()=>response('blocked',403),now:()=>epoch});const result=await sample(handler,`subject=${subject}`);contract(result.body);
-  assert.equal(result.status,200);assert.equal(result.body.source,'verified-recommendations');assert.equal(result.body.isFallback,true);assert.equal(result.body.checkedAt,snapshot.checkedAt);assert.equal(result.body.nextCursor,null);assert.ok(result.body.items.length>0);assert.ok(result.body.items.every(item=>snapshot.subjects[subject].items.some(seed=>seed.id===item.id)));
-});
-for(const [name,body] of [['unrecognized HTML','<html>blocked</html>'],['empty renderer list',html([])],['irrelevant results',html([renderer('fixture0001','관계없는 내용')])]])await check(`${name} falls back without extra upstream requests`,async()=>{
-  let calls=0;const handler=createLearningVideosHandler({fetchImpl:async()=>{calls++;return response(body);}});const result=await sample(handler);assert.equal(result.body.source,'verified-recommendations');assert.equal(calls,1);
-});
-await check('fresh cache preserves verification time and expires after ten minutes',async()=>{
-  let time=epoch;const calls=[],handler=createLearningVideosHandler({fetchImpl:liveFetch(calls),now:()=>time});const first=(await sample(handler)).body;
-  time+=599999;assert.deepEqual((await sample(handler)).body,first);assert.equal(calls.length,1);
-  time+=2;const renewed=(await sample(handler)).body;assert.equal(calls.length,2);assert.notEqual(renewed.checkedAt,first.checkedAt);
-});
-await check('simultaneous identical requests share one upstream fetch',async()=>{
-  let calls=0,release;const gate=new Promise(resolve=>{release=resolve;});
-  const handler=createLearningVideosHandler({fetchImpl:async target=>{calls++;await gate;return liveFetch()(target,{});}});
-  const first=sample(handler),second=sample(handler);assert.equal(calls,1);release();const [a,b]=await Promise.all([first,second]);assert.deepEqual(a.body,b.body);assert.equal(calls,1);
-});
-await check('failed refresh preserves prior search time, then ages out to verified seeds',async()=>{
-  let time=epoch,fail=false,calls=0;const handler=createLearningVideosHandler({now:()=>time,fetchImpl:async target=>{calls++;if(fail)throw Error('offline');return liveFetch()(target,{});}});
-  const first=(await sample(handler)).body;time+=600001;fail=true;const stale=(await sample(handler)).body;
-  assert.equal(stale.source,'cached-youtube-search');assert.equal(stale.stale,true);assert.equal(stale.isFallback,false);assert.equal(stale.checkedAt,first.checkedAt);assert.deepEqual(stale.items,first.items);
-  time+=119999;assert.equal((await sample(handler)).body.checkedAt,first.checkedAt);assert.equal(calls,2);
-  time=epoch+86400001;const fallback=(await sample(handler)).body;assert.equal(fallback.source,'verified-recommendations');assert.equal(fallback.checkedAt,snapshot.checkedAt);assert.equal(calls,3);
-});
-await check('failure backoff prevents immediate retries and later recovers',async()=>{
-  let time=epoch,fail=true,calls=0;const handler=createLearningVideosHandler({now:()=>time,fetchImpl:async target=>{calls++;return fail?response('unavailable',503):liveFetch()(target,{});}});
-  assert.equal((await sample(handler)).body.isFallback,true);fail=false;time+=119999;assert.equal((await sample(handler)).body.isFallback,true);assert.equal(calls,1);
-  time+=2;assert.equal((await sample(handler)).body.source,'youtube-search');assert.equal(calls,2);
-});
-await check('bounded topic cache evicts older entries without unbounded URL keys',async()=>{
-  const calls=[],handler=createLearningVideosHandler({maxEntries:2,fetchImpl:liveFetch(calls)});
-  await sample(handler,'subject=video&cursor=0');await sample(handler,'subject=video&cursor=1');await sample(handler,'subject=video&cursor=2');await sample(handler,'subject=video&cursor=0');assert.equal(calls.length,4);
-});
-await check('deadline aborts a stalled request and serves verified seeds',async()=>{
-  let aborted=false,calls=0;const handler=createLearningVideosHandler({timeoutMs:15,fetchImpl:async(target,{signal})=>{calls++;return new Promise((resolve,reject)=>{signal.addEventListener('abort',()=>{aborted=true;reject(new Error('aborted'));},{once:true});});}});
-  const result=await sample(handler);assert.equal(result.body.source,'verified-recommendations');assert.equal(aborted,true);assert.equal(calls,1);
-});
-await check('byte budget rejects declared or streamed oversized pages',async()=>{
-  for(const headers of [{},{'Content-Length':'400'}]){
-    let calls=0;const handler=createLearningVideosHandler({maxBytes:128,fetchImpl:async()=>{calls++;return response('x'.repeat(400),200,headers);}});
-    assert.equal((await sample(handler)).body.source,'verified-recommendations');assert.equal(calls,1);
+await check('legacy parser keeps quoted braces and renderer deduplication',()=>{const record=renderer('fixture0001','영상 "설명 {내용}"');const page={one:{videoRenderer:record},nested:[{compactVideoRenderer:record},{gridVideoRenderer:renderer('fixture0002','영상 두 번째')}]};for(const marker of ['var ytInitialData = ','window["ytInitialData"] = ','ytInitialData = ']){const parsed=extractInitialData(`<script>${marker}${JSON.stringify(page)};</script>`);assert.deepEqual(parsed,page);assert.equal(collectVideos(parsed,'영상','검증').length,2);}assert.equal(extractInitialData('<html>consent page</html>'),null);});
+await check('compact initial-data assignments and modern Shorts expose actual metadata',()=>{const data={contents:[{shortsLockupViewModel:{entityId:'shorts-shelf-item-fixture0001',onTap:{innertubeCommand:{reelWatchEndpoint:{videoId:'fixture0001'}}},overlayMetadata:{primaryText:{content:'스마트폰 영상 #원룸 #룸투어'},secondaryText:{content:'조회수 3만회'}},thumbnailViewModel:{image:{sources:[{url:'https://i.ytimg.com/vi/fixture0001/frame0.jpg'}]}}}},{reelItemRenderer:{videoId:'fixture0001',headline:{simpleText:'중복 영상'}}},{reelItemRenderer:{videoId:'fixture0002',headline:{simpleText:'스마트폰 영상 편집'},viewCountText:{simpleText:'조회수 2천회'}}}]};assert.deepEqual(learningInitialData(`<script>var ytInitialData=${JSON.stringify(data)};</script>`),data);const items=collectLearningVideos(data,'스마트폰 영상','영상');assert.equal(items.length,2);assert.ok(items.every(item=>item.format==='shorts'&&item.metadataOnly));assert.deepEqual(items[0].hashtags,['#원룸','#룸투어']);assert.equal(items[0].channel,'');assert.equal(items[0].url,'https://www.youtube.com/shorts/fixture0001');});
+await check('modern video lockups are parsed without turning playlists into videos',()=>{const row={lockupContentMetadataRowExtension:{contentType:'METADATA_ROW_CONTENT_TYPE_BYLINE'},metadataParts:[{text:{content:'학습 채널'}}]};const model={contentId:'fixture0001',contentType:'LOCKUP_CONTENT_TYPE_VIDEO',metadata:{lockupMetadataViewModel:{title:{content:'영상 편집 기초'},metadata:{contentMetadataViewModel:{metadataRows:[row,{metadataParts:[{text:{content:'조회수 1만회'}}]}]}}}},contentImage:{thumbnailViewModel:{image:{sources:[{url:'https://invalid.test/pixel'}]}}}};const items=collectLearningVideos({a:{lockupViewModel:model},b:{lockupViewModel:{...model,contentId:'playlist000',contentType:'LOCKUP_CONTENT_TYPE_PLAYLIST'}}},'영상 편집','기초');assert.equal(items.length,1);assert.equal(items[0].channel,'학습 채널');assert.equal(items[0].thumbnail,'https://i.ytimg.com/vi/fixture0001/hqdefault.jpg');});
+await check('caption and hashtag search normalizes Korean text and hash prefixes',()=>{const item={title:'분리형 원룸',caption:'신림역과 테라스를 함께 소개합니다.',hashtags:['#신림원룸','#집투어']};assert.equal(matchesMetadata(item,'#신림원룸'),true);assert.equal(matchesMetadata(item,'테라스 신림역'),true);assert.equal(matchesMetadata(item,'부산'),false);assert.deepEqual(extractHashtags('#원룸 #원룸 #집투어 #room_tour'),['#원룸','#집투어','#room_tour']);});
+const invalidCases=[['','unsupported_subject'],['subject=photo','unsupported_subject'],['subject=__proto__','unsupported_subject'],['subject=video&topic=rights','unsupported_topic'],['subject=video&topic=','unsupported_topic'],['subject=video&cursor=-1','invalid_cursor'],['subject=video&cursor=1.5','invalid_cursor'],['subject=video&cursor=01','invalid_cursor'],['subject=video&cursor=1000000','invalid_cursor'],['subject=video&subject=ai','invalid_request'],['subject=video&cursor=0&cursor=1','invalid_request'],['subject=video&url=https://example.org','invalid_request'],['subject=video&platform=private','unsupported_platform'],['subject=video&q=https://example.org','invalid_query'],[`subject=video&q=${'a'.repeat(81)}`,'invalid_query']];
+for(const [query,code]of invalidCases)await check(`invalid query is rejected before fetching: ${query||'(missing)'}`,async()=>{let fetched=false;const handler=createLearningVideosHandler({fetchImpl:async()=>{fetched=true;throw Error('unexpected network');}});const result=await sample(handler,query);assert.equal(result.status,400);assert.equal(result.body.code,code);assert.equal(result.headers.get('Cache-Control'),'no-store');assert.equal(fetched,false);});
+await check('method validation and deployed handler expose structured failures',async()=>{assert.equal((await sample(createLearningVideosHandler(),'subject=video','POST')).status,405);assert.equal((await sample(onRequestGet,'subject=unsupported')).status,400);});
+await check('live search preserves source metadata, hashtags and bounded transport',async()=>{const calls=[],result=await sample(createLearningVideosHandler({fetchImpl:liveFetch(calls),now:()=>epoch}));contract(result.body);assert.equal(result.body.source,'youtube-search');assert.equal(result.body.isFallback,false);assert.equal(result.body.nextCursor,3);assert.equal(result.body.items[0].views,'조회수 1.2만회');assert.equal(result.body.items[0].duration,'12:34');assert.deepEqual(result.body.items[0].hashtags,['#영상편집']);assert.equal(calls.length,1);assert.equal(calls[0].options.redirect,'manual');assert.ok(calls[0].options.signal instanceof AbortSignal);assert.equal(result.body.client,undefined);assert.equal(result.body.continuation,undefined);});
+await check('real continuation advances inside a query, then moves to a different topic',async()=>{const calls=[];const handler=createLearningVideosHandler({fetchImpl:async(target,options)=>{calls.push({target,options});if(options.method==='POST'){assert.equal(JSON.parse(options.body).continuation,'next-page-token');return response(JSON.stringify(initial([renderer('fixture0002','스마트폰 영상 촬영 갤럭시')])));}return response(html([renderer()],undefined,'next-page-token'));}});const a=await sample(handler),b=await sample(handler,'subject=video&cursor=1');assert.equal(a.body.nextCursor,1);assert.equal(b.body.nextCursor,3);assert.equal(b.body.items[0].id,'fixture0002');assert.equal(calls.length,2);assert.equal(new URL(calls[1].target).pathname,'/youtubei/v1/search');});
+await check('direct continuation cursors replay only the bounded public page chain',async()=>{let calls=0;const data=initial([renderer()], 'next-page-token');await searchLearningYouTubePage('스마트폰 영상','영상',{page:2,fetchImpl:async(target,options)=>{calls++;return options.method==='POST'?response(JSON.stringify(data)):response(html([renderer()],undefined,'next-page-token'));}});assert.equal(calls,3);await assert.rejects(()=>searchLearningYouTubePage('영상','영상',{page:3}));});
+await check('valid public web configuration can supply a search result after empty shell HTML',async()=>{let calls=0;const result=await searchLearningYouTubePage('스마트폰 영상','영상',{fetchImpl:async(target,options)=>{calls++;if(options.method==='POST'){assert.equal(JSON.parse(options.body).query,'스마트폰 영상');return response(JSON.stringify(initial([renderer()])));}return response('<script>ytcfg.set({"INNERTUBE_CLIENT_VERSION":"2.20261030.02.00","INNERTUBE_API_KEY":"fixture_public_key_1234"});</script>');}});assert.equal(result.items.length,1);assert.equal(calls,2);});
+await check('a sign-in or bot wall never triggers a second endpoint',async()=>{for(const body of ['accounts.google.com/ServiceLogin','unusual traffic','confirm you’re not a bot']){let calls=0;const handler=createLearningVideosHandler({fetchImpl:async()=>{calls++;return response(`<script>{"INNERTUBE_CLIENT_VERSION":"2.20261030.02.00","INNERTUBE_API_KEY":"fixture_public_key_1234"}</script>${body}`);}});const result=await sample(handler);assert.equal(result.body.isFallback,true);assert.equal(calls,1);}});
+for(const subject of subjects)await check(`blocked search keeps pagination and verified metadata for ${subject}`,async()=>{let calls=0;const handler=createLearningVideosHandler({fetchImpl:async()=>{calls++;return response('blocked',403);},now:()=>epoch});const result=await sample(handler,`subject=${subject}`);contract(result.body);assert.equal(result.status,200);assert.equal(result.body.source,'public-metadata-index');assert.equal(result.body.isFallback,true);assert.equal(result.body.provider.reason,'blocked');assert.equal(result.body.nextCursor,3);assert.ok(result.body.items.length>=6);assert.equal(calls,1);});
+await check('twelve topic cursors finish instead of cycling back to the beginning',async()=>{const calls=[],handler=createLearningVideosHandler({fetchImpl:liveFetch(calls)});for(let index=0;index<12;index++){const result=await sample(handler,`subject=ai&cursor=${index*3}`);assert.equal(result.body.topic,snapshot.subjects.ai.topics[index].id);assert.equal(result.body.nextCursor,index<11?(index+1)*3:null);}const end=await sample(handler,'subject=ai&cursor=36');assert.equal(end.body.source,'end');assert.equal(end.body.nextCursor,null);assert.equal(calls.length,12);});
+await check('explicit topic selection remains confined to that topic',async()=>{const calls=[],handler=createLearningVideosHandler({fetchImpl:liveFetch(calls)});const result=await sample(handler,'subject=ai&topic=images');assert.equal(result.body.topic,'images');assert.equal(result.body.nextCursor,null);assert.equal((await sample(handler,'subject=ai&topic=images&cursor=3')).body.items.length,0);assert.equal(calls.length,1);});
+await check('subject-wide fallback cannot leak through the explicit topic cache in either request order',async()=>{
+  const catalog=structuredClone(snapshot),record=catalog.subjects.auction,first=record.topics[0].id;
+  record.items=record.items.slice(0,9).map((item,index)=>({...item,topic:index===0?first:'other',topics:[index===0?first:'other']}));
+  for(const reverse of [false,true]){
+    let calls=0;const handler=createLearningVideosHandler({catalog,fetchImpl:async()=>{calls++;return response('blocked',403);}}),queries=['subject=auction',`subject=auction&topic=${first}`];
+    if(reverse)queries.reverse();const results=[];for(const query of queries)results.push(await sample(handler,query));
+    const broad=results[reverse?1:0].body,narrow=results[reverse?0:1].body;
+    assert.equal(broad.fallbackScope,'subject');assert.equal(broad.items.length,9);assert.equal(narrow.fallbackScope,'topic');assert.equal(narrow.items.length,1);assert.equal(calls,2);
+    assert.equal((await sample(handler,`subject=auction&topic=${first}`)).body.items.length,1);assert.equal(calls,2);
   }
 });
-
+await check('keyword search returns only matching title, description or hashtag metadata',async()=>{const handler=createLearningVideosHandler({fetchImpl:async()=>response(html([renderer('fixture0001','스마트폰 영상 편집 #가로자막'),renderer('fixture0002','스마트폰 영상 촬영')]))});const result=await sample(handler,'subject=video&q=%23가로자막');assert.equal(result.body.items.length,1);assert.equal(result.body.items[0].id,'fixture0001');});
+await check('reviewed exclusions stay excluded when a live source returns them again',async()=>{const catalog=structuredClone(snapshot);catalog.subjects.video.excludedIds=['fixture0001'];const handler=createLearningVideosHandler({catalog,fetchImpl:async()=>response(html([renderer(),renderer('fixture0002')]))});const result=await sample(handler);assert.deepEqual(result.body.items.map(item=>item.id),['fixture0002']);assert.equal(result.body.source,'youtube-search');});
+await check('Instagram search uses observed captions and retains them if public metadata is unavailable',async()=>{let calls=0;const handler=createLearningVideosHandler({fetchImpl:async target=>{calls++;assert.equal(new URL(target).hostname,'www.instagram.com');return response('login',403);}});const result=await sample(handler,'subject=real-estate&platform=instagram&q=%23신림원룸');contract(result.body);assert.ok(result.body.items.length>=1);assert.ok(result.body.items.every(item=>item.platform==='Instagram'&&matchesMetadata(item,'#신림원룸')));assert.ok(calls<=4);assert.equal(result.body.isFallback,true);assert.equal(result.body.nextCursor,null);assert.ok(result.body.items.some(item=>item.availabilityAtCapture==='계약 완료 표기'));});
+await check('Instagram source parser reads only public metadata, not a login page',()=>{const url='https://www.instagram.com/p/abcdef12345/';const item=parseInstagramMetadata('<meta property="og:title" content="집 소개 by room"><meta content="서면의 원룸 &amp; 테라스 #부산원룸 #룸투어" property="og:description">',url);assert.equal(item.description,'서면의 원룸 & 테라스 #부산원룸 #룸투어');assert.deepEqual(item.hashtags,['#부산원룸','#룸투어']);assert.equal(item.url,url);assert.throws(()=>parseInstagramMetadata('<meta property="og:title" content="Instagram"><meta property="og:description" content="Log in to Instagram">',url));assert.equal(instagramPostUrl('https://www.instagram.com.evil.test/p/abcdef12345/'),'');assert.equal(instagramPostUrl('https://www.instagram.com/accounts/login/'),'');});
+for(const [name,body]of [['unrecognized HTML','<html>blocked</html>'],['empty renderer list',html([])],['irrelevant results',html([renderer('fixture0001','관계없는 내용',{detailedMetadataSnippets:[]})])]])await check(`${name} returns the index with a reason`,async()=>{let calls=0;const handler=createLearningVideosHandler({fetchImpl:async()=>{calls++;return response(body);}});const result=await sample(handler);assert.equal(result.body.source,'public-metadata-index');assert.equal(calls,1);assert.ok(result.body.provider.reason);});
+await check('fresh cache keeps its verification time and expires after ten minutes',async()=>{let time=epoch;const calls=[],handler=createLearningVideosHandler({fetchImpl:liveFetch(calls),now:()=>time});const first=(await sample(handler)).body;time+=599999;assert.deepEqual((await sample(handler)).body,first);assert.equal(calls.length,1);time+=2;assert.notEqual((await sample(handler)).body.checkedAt,first.checkedAt);assert.equal(calls.length,2);});
+await check('single-flight shares an identical request while it is loading',async()=>{let calls=0,release;const gate=new Promise(resolve=>{release=resolve;});const handler=createLearningVideosHandler({fetchImpl:async target=>{calls++;await gate;return liveFetch()(target,{});}});const first=sample(handler),second=sample(handler);assert.equal(calls,1);release();assert.deepEqual((await first).body,(await second).body);assert.equal(calls,1);});
+await check('failed refresh keeps earlier successful metadata and its original date',async()=>{let time=epoch,fail=false,calls=0;const handler=createLearningVideosHandler({now:()=>time,fetchImpl:async target=>{calls++;if(fail)throw Error('offline');return liveFetch()(target,{});}});const first=(await sample(handler)).body;time+=600001;fail=true;const stale=(await sample(handler)).body;assert.equal(stale.source,'cached-youtube-search');assert.equal(stale.stale,true);assert.equal(stale.checkedAt,first.checkedAt);assert.deepEqual(stale.items,first.items);time+=119999;assert.equal((await sample(handler)).body.checkedAt,first.checkedAt);assert.equal(calls,2);time=epoch+86400001;assert.equal((await sample(handler)).body.source,'public-metadata-index');assert.equal(calls,3);});
+await check('failed searches back off briefly, then recover',async()=>{let time=epoch,fail=true,calls=0;const handler=createLearningVideosHandler({now:()=>time,fetchImpl:async target=>{calls++;return fail?response('unavailable',503):liveFetch()(target,{});}});assert.equal((await sample(handler)).body.isFallback,true);fail=false;time+=119999;assert.equal((await sample(handler)).body.isFallback,true);assert.equal(calls,1);time+=2;assert.equal((await sample(handler)).body.source,'youtube-search');assert.equal(calls,2);});
+await check('bounded query cache evicts old entries',async()=>{const calls=[],handler=createLearningVideosHandler({maxEntries:2,fetchImpl:liveFetch(calls)});await sample(handler,'subject=video&cursor=0');await sample(handler,'subject=video&cursor=3');await sample(handler,'subject=video&cursor=6');await sample(handler,'subject=video&cursor=0');assert.equal(calls.length,4);});
+await check('stalled transport aborts and preserves a usable next cursor',async()=>{let aborted=false;const handler=createLearningVideosHandler({timeoutMs:15,fetchImpl:async(target,{signal})=>new Promise((resolve,reject)=>{signal.addEventListener('abort',()=>{aborted=true;reject(Error('aborted'));},{once:true});})});const result=await sample(handler);assert.equal(aborted,true);assert.equal(result.body.provider.reason,'timeout');assert.equal(result.body.nextCursor,3);});
+await check('declared and streamed response budgets are enforced',async()=>{for(const headers of [{},{'Content-Length':'400'}]){const handler=createLearningVideosHandler({maxBytes:128,fetchImpl:async()=>response('x'.repeat(400),200,headers)});assert.equal((await sample(handler)).body.provider.reason,'oversized');}});
+await check('canonical redirects are bounded and foreign redirects are never followed',async()=>{let calls=0;const value=await boundedMetadataFetch('https://www.youtube.com/results?search_query=video',{fetchImpl:async()=>{calls++;return calls===1?response('',302,{Location:'/results?search_query=video&hl=ko'}):response('public metadata');}});assert.equal(value,'public metadata');assert.equal(calls,2);calls=0;await assert.rejects(()=>boundedMetadataFetch('https://www.youtube.com/results',{fetchImpl:async()=>{calls++;return response('',302,{Location:'https://accounts.google.com/login'});}}),error=>error.code==='blocked');assert.equal(calls,1);await assert.rejects(()=>boundedMetadataFetch('https://evil.test/results'),error=>error.code==='blocked');});
 let original='';
 await check('photography implementation extraction is identical to the pinned baseline',()=>{
   original=execFileSync('git',['show',`${baseline}:functions/api/videos.js`],{cwd:root,encoding:'utf8'});

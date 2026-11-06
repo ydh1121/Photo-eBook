@@ -1,0 +1,49 @@
+{
+  "checkedAt": "2026-11-06T06:06:59.197686+00:00",
+  "phase": "local-static-passed-runtime-and-deployment-pending",
+  "baselineCommit": "2d3eb05a55de303d349ba0c8caadb86dfde3bb09",
+  "course": {
+    "chapters": 45,
+    "blocks": 196,
+    "sources": 52,
+    "relatedLinks": 57,
+    "realEstateChapters": 9,
+    "realEstateBlocks": 41,
+    "realEstateSnapshotSha256": "50a7c47836bb01694f992aa166053b13f00559d2cfee467dfb0d62f3d4b85e31",
+    "nativeChangedRows": 1016,
+    "primitiveValues": 735,
+    "sourceReadbackByteIdentical": true
+  },
+  "metadataIndex": {
+    "video": 138,
+    "ai": 126,
+    "community": 85,
+    "real-estate": 107,
+    "auction": 61,
+    "total": 517,
+    "realEstateYouTube": 99,
+    "realEstateInstagram": 8
+  },
+  "localChecks": {
+    "staticAssertions": 16531,
+    "videoContractsPassed": 55,
+    "noticeChecksPassed": 77,
+    "canonicalModuleBoundary": "passed",
+    "syntax": "passed",
+    "diffWhitespace": "passed"
+  },
+  "liveBefore": {
+    "video": 2,
+    "ai": 2,
+    "community": 2,
+    "real-estate": 2,
+    "auction": 1,
+    "photoSameQueryApiCount": 12,
+    "learningSameQueryNextCursor": null
+  },
+  "notes": [
+    "Metadata verification does not claim playback of every discovered video.",
+    "Instagram items are verified public post metadata, not a profile-wide authenticated crawler.",
+    "Native source/evidence identifiers and supplied media remain private."
+  ]
+}

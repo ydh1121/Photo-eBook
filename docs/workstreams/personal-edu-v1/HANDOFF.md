@@ -1,7 +1,7 @@
 # Personal Edu V1 — handoff
 
 Updated: 2026-11-06 UTC
-Phase: product release verified; actual video analysis deferred to user uploads
+Phase: source rewrite verified; discovery integration and release validation active
 PR: https://github.com/ydh1121/Photo-eBook/pull/57 — merged
 Tested PR HEAD: `9834fafc020d65375f736571ebc06a61b22a1353`
 Deployed code: `7ce547910893eb819e712df3620063edc2980e5d`
@@ -11,7 +11,11 @@ Deployed at: 2026-11-06T04:47:43.013488Z
 
 ## Next action
 
-The requested product work is deployed and verified. Continue actual video analysis after the user supplies files in the designated Drive upload folder. Find the folder and reference archive through the private PROJECT_INDEX.json. Do not retry local Dot or cloud Instagram/YouTube playback. Do not poll the folder or configure recurring tasks. Actual videos reviewed: zero.
+Uploaded media analysis is complete. The revised real-estate course covers planning, filming, presenter-led tours, AI voice/captions, publication, local content, property basics, education, and inquiry operations. Native Sheet readback restores all 1,016 rows byte-identically to the updated 9-chapter / 41-block snapshot. Detailed media evidence remains in the private project folder.
+
+Continue integration and release verification on `feat/personal-edu-video-evidence-v2`, based on main `2d3eb05a55de303d349ba0c8caadb86dfde3bb09`. Discovery now has an expanded public metadata index, modern YouTube result parsing, source filters, caption/hashtag search, continuation cursors, and end-of-rail loading. Build with the v3 resource-module cache keys, run static/runtime/module gates, inspect actual preview counts and interactions, then merge and verify production before marking this follow-up complete.
+
+Live baseline: the five new subject rails exposed 2/2/2/2/1 videos. The learning API stopped at a two-item fallback while the photography API returned 12 for the same query. Preserve photography behavior and the working official-notice pipeline. Do not publish private source identifiers/media in Git or retry local Dot/cloud social-media playback.
 
 The user's stray period was not a task change. This workstream is independent of CODE1/Order and the older platform-library backlog. CODE1/Order remains read-only.
 

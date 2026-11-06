@@ -19,8 +19,8 @@
   },
   {
     "id": "real-estate",
-    "snapshotSha256": "6c54d07742ea75e0c05a7de4d49b21bcc6292a88f797044013418bb159d41898",
-    "verifiedAt": "2026-11-06T04:34:25.374361+00:00",
+    "snapshotSha256": "50a7c47836bb01694f992aa166053b13f00559d2cfee467dfb0d62f3d4b85e31",
+    "verifiedAt": "2026-11-06T06:05:06.985416+00:00",
     "sourceKind": "native-google-sheets"
   },
   {
