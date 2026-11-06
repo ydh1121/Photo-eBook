@@ -19,7 +19,7 @@ write(path.join(root,'functions/lib/learning-discovery-catalog.js'),'/* Generate
 const imageBase='/assets/images/generated/personal-edu-v1';
 const imageUrl=(id,kind)=>{const file=`${imageBase}/${id}-${kind}.webp`;return `${file}?v=${sha(fs.readFileSync(path.join(root,'public',file))).slice(0,12)}`;};
 const practiceChapter={video:'editing',ai:'images',community:'education','real-estate':'inspection',auction:'inspection'};
-const heroMobileFocus={video:50,ai:50,community:50,'real-estate':50,auction:50};
+const heroMobileFocus={video:50,ai:50,community:68,'real-estate':50,auction:50};
 const imageAlts={
   video:['작은 집의 공간을 스마트폰으로 촬영하는 상황을 묘사한 AI 생성 이미지','스마트폰에서 영상 장면을 편집하는 실습을 묘사한 AI 생성 이미지'],
   ai:['휴대폰과 노트북으로 모임 자료를 만드는 상황을 묘사한 AI 생성 이미지','안내 이미지의 수정 결과를 비교하는 상황을 묘사한 AI 생성 이미지'],

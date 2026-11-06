@@ -13,6 +13,14 @@
 
 부모는 필터 내부의 선택 색상이나 indicator를 다시 구현하지 않는다. `platform-filter-select` 이벤트로 표시할 자료만 바꾼다. Library, Editor, Public, dependency export가 같은 module ID와 owner를 소비한다. Library/Editor 예시는 명시적으로 예시라고 표시하며 원격 조회나 영구 저장을 하지 않는다. Portable consumer는 제공된 자료로 동작한다. 자동 수집 서비스는 호스팅 API가 있는 Public에서 `live:true`일 때만 실행한다.
 
+## Public 사용 범위
+
+사용자가 요청한 신규 분야의 가로 카드 적용에 따라 `horizontal-rail`의 Public 소비를 승인 범위에 포함한다. 적용 경로는 `/video/`, `/ai/`, `/community/`, `/real-estate/`, `/auction/`이며, `learning-guide-section`과 `learning-resource-rail`이 required composition dependency로 같은 rail을 사용한다.
+
+사진 경로 `/`는 기존 10개 장을 유지한다. 사진 초기 페이지에 `portable-primitives-v1.js`를 연결하거나 범용 rail 본문을 추가하지 않는다. 기존 사진 설정의 `screen-mode-selector`와 `filter-chip-rail` 사용 범위는 유지한다. 범용 `accordion`과 `bottom-sheet`의 Public 소비는 이번 승인에 포함하지 않는다.
+
+`scripts/check-library-runtime-feedback-v1.mjs`는 Registry의 승인 상태·소비자·부모 dependency, 사진 페이지의 primitive 미연결, 신규 5개 경로의 실제 rail 배치와 hydration을 검증한다. 승인되지 않은 accordion/bottom-sheet 소비자 또는 DOM이 생기면 실패한다.
+
 ## 배치와 저장
 
 다섯 신규 분야의 교육 장에 공고 레일, 마지막 장에 영상 레일을 배치한다. 배치 설정은 `learning-pack-renderer.js`가 소유한다. 수집 결과는 편집 원고인 native Sheet와 구분하며, 원고 snapshot SHA를 변경하지 않는다.

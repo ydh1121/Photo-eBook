@@ -32,6 +32,51 @@ async function openInspector(page){if(await page.locator('.builder-kit-inspector
 async function setControl(page,id,value){await openInspector(page);const control=page.locator(`[data-style-control="${id}"]`);assert(await control.count()===1,`Missing control: ${id}`);const tag=await control.evaluate(node=>node.tagName);if(tag==='SELECT')await control.selectOption(String(value));else if((await control.getAttribute('type'))==='checkbox'){if(Boolean(value)!==await control.isChecked())await control.click();}else await control.evaluate((node,next)=>{node.value=String(next);node.dispatchEvent(new Event('input',{bubbles:true}));node.dispatchEvent(new Event('change',{bubbles:true}));},value);await sleep(160);}
 async function setViewport(page,value){const button=page.locator(`[data-kit-viewport="${value}"]`);if(await button.getAttribute('aria-pressed')!=='true')await button.click();await wait(()=>page.locator('.builder-kit-workspace').evaluate((node,v)=>node.dataset.viewport===v,value),`Viewport did not become ${value}`);await sleep(120);}
 
+async function auditApprovedPublicRails(){
+  // Spec 23 scopes the approved horizontal-rail use to learning composition.
+  // A fresh context keeps the Library edits above out of the public-page audit.
+  const context=await browser.newContext({viewport:{width:1440,height:1000}});
+  const page=await context.newPage();
+  try{
+    await page.goto(`${BASE}/`,{waitUntil:'domcontentloaded'});
+    await wait(()=>page.locator('#app').isVisible(),'Photography app did not become visible');
+    const photo=await page.evaluate(()=>({
+      chapters:document.querySelectorAll('#app .chapter').length,
+      primitiveScripts:document.querySelectorAll('script[src*="/portable-primitives-v1.js"]').length,
+      primitiveRoots:document.querySelectorAll('[data-platform-module="horizontal-rail"],[data-platform-module="accordion"],[data-platform-module="bottom-sheet"]').length
+    }));
+    assert(photo.chapters===10,`Photography chapter baseline changed: ${photo.chapters}`);
+    assert(photo.primitiveScripts===0,'Portable primitive base was linked into Photography');
+    assert(photo.primitiveRoots===0,'Portable primitive content was mounted into Photography');
+    pass('Photography portable isolation','10 chapters; no primitive base script or primitive content roots');
+
+    for(const subject of ['video','ai','community','real-estate','auction']){
+      await page.goto(`${BASE}/${subject}/`,{waitUntil:'domcontentloaded'});
+      await wait(()=>page.locator('#app').isVisible(),`${subject}: learning app did not become visible`);
+      await wait(()=>page.locator('#app .edu-chapter[data-learning-bound="true"] .platform-horizontal-rail__track[data-platform-rail-bound-v2="true"]').count().then(Boolean),`${subject}: canonical horizontal rail did not hydrate`);
+      const mounted=await page.evaluate(()=>{
+        const modules=window.PlatformModuleRegistry;
+        const rails=[...document.querySelectorAll('#app [data-platform-module="horizontal-rail"]')];
+        return {
+          chapters:document.querySelectorAll('#app .edu-chapter').length,
+          railCount:rails.length,
+          allowed:modules?.canConsume('horizontal-rail','public')===true,
+          forbiddenConsumers:['accordion','bottom-sheet'].filter(id=>modules?.canConsume(id,'public')),
+          forbiddenRoots:document.querySelectorAll('[data-platform-module="accordion"],[data-platform-module="bottom-sheet"]').length,
+          approvedPlacement:rails.every(rail=>Boolean(rail.closest('[data-platform-module="learning-guide-section"],[data-platform-module="learning-resource-rail"]'))),
+          bound:rails.every(rail=>rail.querySelector('.platform-horizontal-rail__track')?.dataset.platformRailBoundV2==='true'),
+          canonicalOwner:modules?.get('horizontal-rail')?.ownerFiles.includes('public/assets/js/platform-modules/portable-primitives-v1.js')===true
+        };
+      });
+      assert(mounted.chapters===9,`${subject}: expected nine learning chapters, got ${mounted.chapters}`);
+      assert(mounted.allowed&&mounted.canonicalOwner,`${subject}: approved rail lost its public canonical owner`);
+      assert(mounted.railCount>0&&mounted.approvedPlacement&&mounted.bound,`${subject}: rail is missing, outside approved learning composition, or not hydrated`);
+      assert(mounted.forbiddenConsumers.length===0&&mounted.forbiddenRoots===0,`${subject}: unapproved accordion/bottom-sheet public exposure`);
+      pass(`approved Public rail ${subject}`,`${mounted.railCount} hydrated canonical rails inside approved learning parents`);
+    }
+  }finally{await context.close();}
+}
+
 try{
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   await openLibrary(page);
@@ -121,8 +166,8 @@ try{
 
   const registryAudit=await page.evaluate(()=>{
     const modules=window.PlatformModuleRegistry;
-    const pick=id=>{const def=modules.get(id);return {id,source:def?.source,consumers:def?.consumers||[],ownerFiles:def?.ownerFiles||[],render:typeof def?.render,hydrate:typeof def?.hydrate};};
-    return {photo:pick('top-chapter-navigation'),filter:pick('filter-chip-rail'),rail:pick('horizontal-rail'),accordion:pick('accordion'),sheet:pick('bottom-sheet')};
+    const pick=id=>{const def=modules.get(id);return {id,status:def?.status,source:def?.source,consumers:def?.consumers||[],dependencies:def?.dependencies||[],ownerFiles:def?.ownerFiles||[],render:typeof def?.render,hydrate:typeof def?.hydrate};};
+    return {photo:pick('top-chapter-navigation'),filter:pick('filter-chip-rail'),rail:pick('horizontal-rail'),accordion:pick('accordion'),sheet:pick('bottom-sheet'),learning:pick('learning-guide-section'),resources:pick('learning-resource-rail')};
   });
   assert(registryAudit.photo.consumers.includes('public')&&registryAudit.photo.consumers.includes('library')&&registryAudit.photo.consumers.includes('editor'),'Photography canonical module consumer contract broken');
   assert(registryAudit.filter.ownerFiles.includes('public/assets/js/platform-modules/photo-core-modules-v1.js'),'Filter canonical definition owner missing from provenance');
@@ -131,8 +176,16 @@ try{
     assert(registryAudit[key].consumers.includes('library')&&registryAudit[key].consumers.includes('editor'),`${key} Library/Editor shared consumer contract broken`);
     assert(!registryAudit[key].ownerFiles.some(file=>file.includes('/block-lab/')),`${key} imports Block Lab runtime directly`);
   }
-  assert(!registryAudit.rail.consumers.includes('public')&&!registryAudit.accordion.consumers.includes('public')&&!registryAudit.sheet.consumers.includes('public'),'Portable primitives were connected to Public without approval');
-  pass('canonical ownership audit','same Registry render/hydrate owners; portable Public boundary remains closed');
+  assert(registryAudit.rail.status==='approved'&&registryAudit.rail.consumers.includes('public')&&registryAudit.rail.consumers.includes('export'),'Approved learning horizontal rail is unavailable to Public/export');
+  assert(registryAudit.rail.hydrate==='function'&&registryAudit.rail.ownerFiles.includes('public/assets/js/platform-modules/portable-primitives-v1.js'),'Approved rail lost its canonical runtime owner');
+  for(const key of ['learning','resources']){
+    const parent=registryAudit[key];
+    assert(parent.status==='approved'&&parent.consumers.includes('public'),`${parent.id} is not an approved Public parent`);
+    assert(parent.dependencies.some(item=>item.id==='horizontal-rail'&&item.kind==='composition'&&item.required===true),`${parent.id} lost its required canonical horizontal-rail dependency`);
+  }
+  assert(!registryAudit.accordion.consumers.includes('public')&&!registryAudit.sheet.consumers.includes('public'),'Unapproved accordion/bottom-sheet primitives were connected to Public');
+  pass('canonical ownership audit','approved learning horizontal-rail composition; accordion/bottom-sheet Public boundary remains closed');
+  await auditApprovedPublicRails();
 
   report.status='pass';
   report.completedAt=new Date().toISOString();
