@@ -244,9 +244,14 @@ async function videoDiscoveryPaging(browser){
   });
   try{
     await check('discovery/automatic-pagination-deduplication-and-retry',async()=>{
-      await openPack(page,PACKS.find(p=>p.id==='video'));await jump(page,'resources');const feed=page.locator('#app [data-resource-kind="videos"]');await feed.scrollIntoViewIfNeeded();
-      await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'initial metadata page never settled');await wait(()=>feed.locator('.edu-discovery-card').count().then(count=>count>=12),'initial metadata index is still sparse');
-      const before=await feed.locator('.edu-discovery-card').count();await feed.locator('.platform-horizontal-rail__track').evaluate(node=>{node.scrollLeft=node.scrollWidth;});
+      await openPack(page,PACKS.find(p=>p.id==='video'));const feed=page.locator('#app [data-resource-kind="videos"]');
+      const chapterId=await feed.evaluate(node=>node.closest('.chapter[data-chapter]')?.dataset.chapter),lastChapter=await page.locator('#app .chapter[data-chapter]').last().getAttribute('data-chapter');
+      assert(chapterId&&chapterId===lastChapter,'video recommendations are not in the final rendered chapter');
+      const chapterMenu=page.locator(`.nav-shell .nav-chip[data-target="${chapterId}"]`);await chapterMenu.click();await feed.scrollIntoViewIfNeeded();await settledScroll(page);
+      await wait(()=>chapterMenu.evaluate(node=>node.classList.contains('is-active')),'video recommendation chapter did not become active');
+      await wait(()=>feed.evaluate(node=>{const rect=node.getBoundingClientRect();return rect.top<innerHeight&&rect.bottom>90;}),'video recommendation rail did not enter the viewport');
+      await wait(async()=>await feed.getAttribute('aria-busy')==='false'&&await feed.locator('.edu-discovery-card').count()>=12,'initial metadata page did not settle with at least twelve cards');
+      const before=await feed.locator('.edu-discovery-card').count(),track=feed.locator('.platform-horizontal-rail__track');await track.scrollIntoViewIfNeeded();await track.hover();await page.mouse.wheel(10000,0);
       await wait(()=>calls.some(call=>call.cursor===3),'horizontal end did not trigger the next cursor');await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'append did not settle');
       assert(await feed.locator('.edu-discovery-card').count()>before,'automatic page did not add cards');
       const ids=await feed.locator('.edu-discovery-card').evaluateAll(nodes=>nodes.map(node=>node.dataset.resourceId));assert(new Set(ids).size===ids.length,'overlapping metadata pages duplicated cards');
@@ -257,11 +262,11 @@ async function videoDiscoveryPaging(browser){
       assert(await feed.locator('.edu-resource-end').isVisible(),'end of metadata has no clear state');await overflow(page,'video metadata pagination');await shot(page,'mobile375-video-metadata-pagination');return {initial:before,final:await feed.locator('.edu-discovery-card').count(),cursors:calls.map(call=>call.cursor)};
     },page);
     await check('discovery/platform-caption-and-hashtag-search',async()=>{
-      const feed=page.locator('#app [data-resource-kind="videos"]');await feed.locator('[data-resource-filter="platform"] [data-platform-filter-id="instagram"]').click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'Instagram filter did not settle');
+      const feed=page.locator('#app [data-resource-kind="videos"]'),instagramFilter=feed.locator('[data-resource-filter="platform"]').getByRole('button',{name:'Instagram',exact:true});await instagramFilter.click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'Instagram filter did not settle');
       assert(await feed.locator('.edu-discovery-card').count()===8,'platform selection did not isolate Instagram metadata');assert(await feed.locator('.edu-discovery-card__image--instagram').count()===8,'missing Instagram thumbnails have no stable placeholder');
       const input=feed.getByRole('searchbox',{name:'영상 검색'});await input.fill('테라스');await input.press('Enter');await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'caption search did not settle');assert(await feed.locator('.edu-discovery-card').count()===1,'caption text is not searchable');
       await feed.locator('.edu-resource-tag').first().click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'hashtag search did not settle');assert(await input.inputValue()==='#원룸','clicking a hashtag did not update the search');assert(await feed.locator('.edu-discovery-card').count()===8,'hashtag search lost matching posts');
-      await feed.locator('.edu-resource-reset').click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'search reset did not settle');assert(await input.inputValue()==='','search reset kept a hidden query');assert(await feed.locator('[data-resource-filter="platform"] [data-platform-filter-id="instagram"]').getAttribute('aria-pressed')==='true','reset unexpectedly changed the chosen platform');await overflow(page,'Instagram metadata search');await shot(page,'mobile375-instagram-caption-search');return {instagram:8,captionMatches:1,hashtagMatches:8};
+      await feed.locator('.edu-resource-reset').click();await wait(()=>feed.getAttribute('aria-busy').then(value=>value==='false'),'search reset did not settle');assert(await input.inputValue()==='','search reset kept a hidden query');assert(await instagramFilter.getAttribute('aria-pressed')==='true','reset unexpectedly changed the chosen platform');await overflow(page,'Instagram metadata search');await shot(page,'mobile375-instagram-caption-search');return {instagram:8,captionMatches:1,hashtagMatches:8};
     },page);
   }finally{await context.close();}
 }
