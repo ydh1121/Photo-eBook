@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "courses": [
+    {
+      "id": "video",
+      "label": "영상",
+      "route": "/video/",
+      "title": "스마트폰 영상 촬영과 편집",
+      "sourceSha256": "dcbe727c54ee7bf3f079d31efd8a4475a5e26270e0b7e35f6ef00791b2b5abe9",
+      "chapters": 9,
+      "blocks": 36,
+      "sources": 12,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/video-hero.webp"
+    },
+    {
+      "id": "ai",
+      "label": "AI 활용",
+      "route": "/ai/",
+      "title": "프롬프트부터 배우는 AI 활용",
+      "sourceSha256": "e854ac262c89a977151b903cbaa4140c748b88d4612c7b07b72294ecbdd30ee1",
+      "chapters": 9,
+      "blocks": 38,
+      "sources": 7,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/ai-hero.webp"
+    },
+    {
+      "id": "community",
+      "label": "커뮤니티",
+      "route": "/community/",
+      "title": "작은 모임 기획과 커뮤니티 운영",
+      "sourceSha256": "5150a0572011dea01f8659b275222a1905ca340e1fd1b148a27d7d22e6934c7e",
+      "chapters": 9,
+      "blocks": 41,
+      "sources": 8,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/community-hero.webp"
+    },
+    {
+      "id": "real-estate",
+      "label": "부동산",
+      "route": "/real-estate/",
+      "title": "집과 동네를 읽는 부동산 기초",
+      "sourceSha256": "8a50730aed90be5e4a777bcde170da1801e59563373a0a527eaff28e81420052",
+      "chapters": 9,
+      "blocks": 38,
+      "sources": 10,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp"
+    },
+    {
+      "id": "auction",
+      "label": "경매",
+      "route": "/auction/",
+      "title": "서류와 비용으로 배우는 첫 경매 공부",
+      "sourceSha256": "fe2abfca7522076da0249ed2c682c2272d5e7af96efc85b4018d7a8e3f7307d1",
+      "chapters": 9,
+      "blocks": 39,
+      "sources": 11,
+      "reviewedAt": "2026-11-06",
+      "heroImage": "/assets/images/generated/personal-edu-v1/auction-hero.webp"
+    }
+  ]
+}

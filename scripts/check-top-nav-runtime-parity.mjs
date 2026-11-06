@@ -54,8 +54,15 @@ async function moveIndicator(frameOrPage,index=2){
   const indicator=frameOrPage.locator('.nav-v33-indicator');
   const before=await indicator.evaluate(node=>node.style.transform);
   await frameOrPage.locator('.nav-chip').nth(index).click();
+  // Scrollspy can briefly return to the first chip while smooth scrolling starts.
+  // Observe the requested destination before reading its motion, not that EDGE frame.
+  await wait(()=>frameOrPage.locator('.nav-chip').nth(index).evaluate(node=>node.classList.contains('is-active')),'top-nav destination did not become active');
   await wait(()=>indicator.evaluate((node,old)=>node.style.transform!==old,before),'top-nav liquid indicator did not move');
-  await wait(()=>indicator.evaluate(node=>getComputedStyle(node).transitionDuration!=='0s'&&getComputedStyle(node).transitionTimingFunction!=='ease'),'top-nav liquid transition did not settle');
+  await wait(()=>indicator.evaluate((node,targetIndex)=>{
+    const active=node.parentElement.querySelectorAll('.nav-chip')[targetIndex];
+    const style=getComputedStyle(node);
+    return active?.classList.contains('is-active')&&Math.abs(Number(node.dataset.x)-active.offsetLeft)<1&&style.transitionDuration!=='0s'&&style.transitionTimingFunction.includes('cubic-bezier(0.34, 1.56, 0.64, 1)');
+  },index),'top-nav destination liquid transition did not settle');
   return indicator.evaluate(node=>({
     transform:node.style.transform,
     duration:getComputedStyle(node).transitionDuration,

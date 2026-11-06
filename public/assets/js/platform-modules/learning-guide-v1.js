@@ -93,7 +93,7 @@
     const root=host.matches?.('[data-learning-pack]')?host:host.querySelector('[data-learning-pack]');
     if(!root||root.dataset.learningBound==='true')return;
     root.dataset.learningBound='true';
-    const key=`personalEduPracticeV1:${props.packId||root.dataset.learningPack||'guide'}`;
+    const key=`personalEduPracticeV1:${props.packId||root.dataset.learningPack||'guide'}${props.instanceId?`:${props.instanceId}`:''}`;
     const persist=context.consumer==='public'||context.consumer==='export';
     let saved={};
     try{if(persist)saved=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch{}
@@ -109,7 +109,7 @@
       const field=input.closest('[data-practice-id]');
       try{if(persist){const current=JSON.parse(localStorage.getItem(key)||'{}');if(current&&typeof current==='object'&&!Array.isArray(current))saved=current;}}catch{}
       saved[`${field.dataset.practiceId}:${input.dataset.practiceItem}`]=input.checked;
-      try{if(persist)localStorage.setItem(key,JSON.stringify(saved));}catch{}
+      try{if(persist)localStorage.setItem(key,JSON.stringify(saved));}catch{field.querySelector('.edu-checklist__meta span').textContent='이 기기에 저장하지 못했습니다.';}
       sync(field);
     };
     const click=async event=>{

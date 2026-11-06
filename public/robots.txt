@@ -1,4 +1,5 @@
 User-agent: *
+Sitemap: https://photo-ebook.pages.dev/sitemap.xml
 Allow: /
 Disallow: /block-lab/
 Disallow: /editor-lab/

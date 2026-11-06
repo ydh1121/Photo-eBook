@@ -386,6 +386,96 @@
       "source_class": "preserve_external",
       "path": null,
       "ready": true
+    },
+    {
+      "slot_id": "edu-ai-hero",
+      "group": "hero",
+      "source_class": "generate",
+      "pack_id": "ai",
+      "path": "/assets/images/generated/personal-edu-v1/ai-hero.webp",
+      "prompt_file": "slots/edu-ai-hero.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-ai-practice",
+      "group": "practice",
+      "source_class": "generate",
+      "pack_id": "ai",
+      "path": "/assets/images/generated/personal-edu-v1/ai-practice.webp",
+      "prompt_file": "slots/edu-ai-practice.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-auction-hero",
+      "group": "hero",
+      "source_class": "generate",
+      "pack_id": "auction",
+      "path": "/assets/images/generated/personal-edu-v1/auction-hero.webp",
+      "prompt_file": "slots/edu-auction-hero.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-auction-practice",
+      "group": "practice",
+      "source_class": "generate",
+      "pack_id": "auction",
+      "path": "/assets/images/generated/personal-edu-v1/auction-practice.webp",
+      "prompt_file": "slots/edu-auction-practice.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-community-hero",
+      "group": "hero",
+      "source_class": "generate",
+      "pack_id": "community",
+      "path": "/assets/images/generated/personal-edu-v1/community-hero.webp",
+      "prompt_file": "slots/edu-community-hero.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-community-practice",
+      "group": "practice",
+      "source_class": "generate",
+      "pack_id": "community",
+      "path": "/assets/images/generated/personal-edu-v1/community-practice.webp",
+      "prompt_file": "slots/edu-community-practice.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-real-estate-hero",
+      "group": "hero",
+      "source_class": "generate",
+      "pack_id": "real-estate",
+      "path": "/assets/images/generated/personal-edu-v1/real-estate-hero.webp",
+      "prompt_file": "slots/edu-real-estate-hero.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-real-estate-practice",
+      "group": "practice",
+      "source_class": "generate",
+      "pack_id": "real-estate",
+      "path": "/assets/images/generated/personal-edu-v1/real-estate-practice.webp",
+      "prompt_file": "slots/edu-real-estate-practice.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-video-hero",
+      "group": "hero",
+      "source_class": "generate",
+      "pack_id": "video",
+      "path": "/assets/images/generated/personal-edu-v1/video-hero.webp",
+      "prompt_file": "slots/edu-video-hero.md",
+      "ready": true
+    },
+    {
+      "slot_id": "edu-video-practice",
+      "group": "practice",
+      "source_class": "generate",
+      "pack_id": "video",
+      "path": "/assets/images/generated/personal-edu-v1/video-practice.webp",
+      "prompt_file": "slots/edu-video-practice.md",
+      "ready": true
     }
   ]
 }

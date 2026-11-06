@@ -10,7 +10,7 @@
     const view=props.view||'both';
     return `<div class="subject-navigation-module" data-platform-module="subject-navigation" data-subject-instance="${attr(id)}">
       ${view!=='picker'?`<nav class="subject-nav ${props.placement==='hero'?'subject-nav--hero':''}" aria-label="분야">${links(props)}</nav>`:''}
-      ${view!=='bar'?`<button id="${attr(id)}Fab" class="subject-fab" type="button" aria-label="분야 선택" aria-haspopup="dialog" aria-controls="${attr(id)}Picker">${icon}<span>분야</span></button>
+      ${view!=='bar'?`<button id="${attr(id)}Fab" class="subject-fab" type="button" aria-label="분야 선택" aria-haspopup="dialog" aria-expanded="false" aria-controls="${attr(id)}Picker">${icon}<span>분야</span></button>
       <dialog id="${attr(id)}Picker" class="subject-picker" aria-labelledby="${attr(id)}Title"><div class="subject-picker__head"><div><div class="subject-picker__eyebrow">배우고 실천하는 여섯 분야</div><h2 id="${attr(id)}Title">분야 선택</h2></div><button class="subject-picker__close" type="button" aria-label="분야 선택 닫기">×</button></div><nav class="subject-picker__grid" aria-label="이동할 분야">${links(props,true)}</nav></dialog>`:''}
     </div>`;
   }
@@ -42,7 +42,8 @@
     function alignFab(){
       const collection=document.getElementById('collectionFab');if(!fab||!collection||context.consumer!=='public')return false;
       const rect=collection.getBoundingClientRect();if(rect.width===0)return false;
-      fab.style.right=`${Math.max(12,innerWidth-rect.right)}px`;
+      fab.style.right=`${Math.max(12,document.documentElement.clientWidth-rect.right)}px`;
+      fab.style.width=`${rect.width}px`;fab.style.height=`${rect.height}px`;
       fab.style.bottom=`${Math.max(78,innerHeight-rect.top+12)}px`;
       return true;
     }

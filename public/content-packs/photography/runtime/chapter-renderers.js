@@ -1,19 +1,16 @@
 function hero(data){
   const c=data.content||{};
-  return `<header class="hero">
-    <img class="hero__image" src="${imageFor('hero')}" alt="촬영용 카메라와 작업 공간">
-    <div class="hero__body">
-      <div class="hero__eyebrow">사진 수익화 로드맵</div>
-      <h1>${esc(c.hero_title||'사진으로 먹고살기: 첫 12개월')}</h1>
-      <p>${esc(c.hero_subtitle||'국비로 배우고, 필요한 장비만 사고, 반복 고객을 만든다. 월 순수익 300만 원까지의 실행 순서.')}</p>
-      <div class="hero__facts">
-        <div class="hero__fact"><span>월 순수익 목표</span><strong>${esc(c.goal_profit||'300만 원+')}</strong></div>
-        <div class="hero__fact"><span>교육</span><strong>${esc(c.education_route||'국비 실무 + 현장 보조')}</strong></div>
-        <div class="hero__fact"><span>초기 장비</span><strong>${esc(c.gear_budget||'230~310만 원')}</strong></div>
-        <div class="hero__fact"><span>12개월 핵심</span><strong>${esc(c.year_core||'반복 B2B 5곳+')}</strong></div>
-      </div>
-    </div>
-  </header>`;
+  return window.PlatformModuleRegistry.render('learning-guide-hero',{
+    image:imageFor('hero'),imageAlt:'촬영용 카메라와 작업 공간',eyebrow:'사진 수익화 로드맵',
+    title:c.hero_title||'사진으로 먹고살기: 첫 12개월',
+    description:c.hero_subtitle||'국비로 배우고, 필요한 장비만 사고, 반복 고객을 만든다. 월 순수익 300만 원까지의 실행 순서.',
+    facts:[
+      {label:'월 순수익 목표',value:c.goal_profit||'300만 원+'},
+      {label:'교육',value:c.education_route||'국비 실무 + 현장 보조'},
+      {label:'초기 장비',value:c.gear_budget||'230~310만 원'},
+      {label:'12개월 핵심',value:c.year_core||'반복 B2B 5곳+'}
+    ]
+  },{consumer:'public'});
 }
 
 function nav(data){
