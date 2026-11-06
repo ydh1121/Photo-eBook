@@ -46,7 +46,17 @@ try{
       pass(book.bookId+'-24-mobile-pages-cover-contents-resume',{bodyPages:24});
     }
     await page.setViewportSize({width:1280,height:900});await page.goto(server.url+catalog.books.find(b=>b.bookId==='video-entry').readerUrl);await page.locator('[data-reader-ready="true"]').waitFor();await page.screenshot({path:path.join(out,'reader-desktop.png')});report.screenshots.push('reader-desktop.png');
-    for(const book of catalog.books){await page.goto(server.url+`/staging/ebook-reader-preview/${book.bookId}.html`);await page.locator('[data-reader-ready="true"]').waitFor();assert.equal(await page.locator('[data-reader-page]').count(),1);await page.locator('[data-reader-page] img').first().evaluate(img=>img.decode());}
+    for(const book of catalog.books){
+      const firstPage=json('public'+book.manifestUrl).pages[0].pageId;
+      await page.goto(server.url+`/staging/ebook-reader-preview/${book.bookId}.html`);await page.locator('[data-reader-ready="true"]').waitFor();
+      // The same-origin review correctly resumes the page saved above. Use the
+      // visible contents control to reach the known illustrated opening page.
+      await page.locator('[data-reader-action="toc"]').click();await page.locator(`[data-reader-go="${firstPage}"]`).click();
+      await page.waitForFunction(id=>{const el=document.querySelector('[data-reader-ready="true"]');return el?.dataset.readerCurrentPage===id&&el.querySelector('[data-reader-reading]')?.getAttribute('aria-busy')==='false';},firstPage);
+      assert.equal(await page.locator('[data-reader-page]').count(),1);
+      const image=page.locator('[data-reader-page] img').first();await image.evaluate(img=>img.decode());
+      assert((await image.getAttribute('src')).startsWith('assets/'),'Portable review did not use its explicit local image adapter');
+    }
     pass('portable-review-uses-same-owner-and-local-original-images',{editions:3});
     assert.deepEqual(report.errors,[]);pass('no-uncaught-reader-page-errors');
   }
