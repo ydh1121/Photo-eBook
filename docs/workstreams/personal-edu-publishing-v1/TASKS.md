@@ -1,8 +1,10 @@
 # Personal Edu — publishing programme
 
 Started: 2026-11-06 KST
-Baseline: `b26fbad86238c327960ea12cef9a3268cbdd3173`
-Branch: `feat/personal-edu-publishing-foundation-20261106`
+Programme baseline: `b26fbad86238c327960ea12cef9a3268cbdd3173`
+Active branch: `feat/personal-edu-reader-wo02-20261106`
+WO02 baseline: `983500848d50f9cf8a4290b348e47866515229e5`
+Checkpoint candidate: `3e0ebd901d33f7fc12f256578ee4b842ce9f3f08` ([PR #60](https://github.com/ydh1121/Photo-eBook/pull/60))
 
 ## Scope and sequencing
 
@@ -53,22 +55,35 @@ The new request is a staged programme. Do not claim that the complete multi-volu
 ## Current WO — WO02 active
 
 - [x] Resolve IDs: `sns-entry`, `video-entry`, `ai-entry`; sample edition `sample-20261106-v1`. Page and block IDs are semantic and stable; page numbers are editorial positions.
-- [x] Implement the common reader with selection-to-question saving and last-position restoration across page/edition changes; canonical ownership and static model checks pass.
-- [-] D1 serving/publisher and enforced budgets implemented; actual local SQLite integration passes 38 cases. Actual Workers plan verification, remote binding/import and production activation remain gated by unavailable Billing Read.
-- [-] Author three real sample chapters (24 body pages each), preserve/read back all sources and original visuals, then complete fixed-page PDF and Chromium validation.
+- [x] Implement the common reader with selection-to-question saving and last-position restoration across page/edition changes. Canonical ownership and local model/storage checks pass; final browser CI is a separate gate below.
+- [x] Implement guarded D1 serving, immutable-image publication and bounded storage/read/write budgets; actual local SQLite integration passes 38 cases.
+- [x] Author three real sample chapters, each with 24 body pages, and preserve/read back the six JSON/Markdown originals before copying repository snapshots.
+- [x] Create and preserve five original photographs and eight teaching diagrams, with 13 delivery WebP files and full byte readback.
+- [x] Build and inspect the explicitly labelled review adapter at the candidate preview URL below.
+- [x] Create three review PDFs, each with a cover, contents and 24 body pages; complete text/link/layout checks and the recorded visual review.
 - [x] Record official mobile-tool evidence separately. Physical Android menu execution is explicitly unverified and remains a regular-volume release gate.
+- [x] Correct the reader owner and sample test assumptions, then pass the exact final candidate's reader, asset and sample workflows; preserve the full CI artifact with complete byte readback.
+- [x] Close all seven final-candidate workflow runs; existing Personal Edu runtime passes 69/69 and reference-case browser checks pass 12/12.
+- [x] Preserve all three final PDFs in their subject folders and verify every downloaded byte against the approved originals.
+- [ ] Verify the actual Workers plan and complete account usage; establish and verify daily budget-proof renewal before remote image activation.
+- [ ] Create/migrate/bind only the dedicated project D1 database, import verified images, and verify remote byte delivery after the account gates pass.
+- [ ] Verify the final production revision and preserve final release/operational records before closing WO02.
 
-Regular textbooks completed/published: **0/18**. The foundation closes WO01 only. WO03–20 and the final subject-page editorial integration remain planned work.
+Regular textbooks completed/published: **0/18**. WO01 is complete; WO02 remains active. The three sample chapters do not count as regular volumes.
 
-## WO02 working checkpoint
+## WO02 candidate checkpoint — 2026-11-06
 
-- Branch: `feat/personal-edu-reader-wo02-20261106`, baseline `983500848d50f9cf8a4290b348e47866515229e5`.
-- Three sample chapters target 24 substantive pages each; cover/contents excluded; not regular textbooks.
-- Shared example: a fictional local bookmark workshop, explicitly labelled as an independent learning exercise.
-- Reader owner: `ebook-reader` canonical module plus explicit publication adapter.
-- Initial D1 account read: no project binding; Billing Read unavailable through current OAuth connection; analytics initially rate limited. Keep remote image activation gated until account conditions are verified.
-- Authored samples: SNS 104 blocks, video 113 blocks, AI 112 blocks; 72 substantive body pages total. Cover/contents excluded. Final JSON and Markdown files (six) were preserved and byte-readback verified before snapshots were copied.
-- Visuals: five generated photographs and eight original diagrams; 13 WebP files total 1,309,798 bytes. Full readback verifies 13 delivery files, five PNG masters and the 16-file SVG/PNG diagram archive. No D1 production upload is claimed.
-- Exact-byte local HTTP verification covers every WebP and all 72 page payloads. Local actual SQLite allocation is 1,343,488 bytes. Existing Personal Edu static checks pass (24,900 assertions).
-- Added a clearly labelled offline/review adapter with the same Registry owner. Production manifests retain D1 asset URLs; the review bundle supplies its own copied images for inspection while activation is gated.
-- Next: run the Chromium reader and sample-page workflow, review PDF pages, preserve evidence and update same-ID operational records. Do not mark WO02 production-complete without the remaining account and remote D1 evidence.
+- PR #60 implementation candidate: `3e0ebd901d33f7fc12f256578ee4b842ce9f3f08`. The new reader workflow passes: 17 reader checks, 38 actual SQLite asset checks and seven sample groups covering all 72 mobile pages, desktop layout and the portable review image. All seven workflow runs pass, including existing Personal Edu runtime 69/69 and reference-case browser checks 12/12.
+- Verified review preview: [ebook reader preview](https://03b475ac.photo-ebook.pages.dev/staging/ebook-reader-preview/). This route uses the shared Registry owner and an explicit copied-image review adapter. It does not certify remote D1 delivery or a WO02 production release.
+- Authored samples: SNS 24 pages / 104 blocks, video 24 / 113, AI 24 / 112; 72 substantive body pages and 329 blocks total. Cover and contents are excluded. All three use the fictional bookmark workshop and carry the practice/not-recruitment label.
+- Six JSON/Markdown source originals were preserved in Drive and fully byte-readback verified before repository publication. Private source identifiers remain outside Git.
+- Visuals: five generated photographs and eight original diagrams; 13 WebP files total 1,309,798 bytes. Full readback covers all delivery files, five PNG masters and the 16-file SVG/PNG diagram archive.
+- Local evidence: 38 actual SQLite asset cases, four reader model/storage groups, every WebP HTTP hash, all 72 exact page payloads, canonical boundaries and 24,900 existing Personal Edu static assertions. The local SQLite file occupies 1,343,488 bytes. These are local results.
+- PDF review editions: three A4 PDFs, 26 physical pages each (cover + contents + 24 body pages), 78 physical pages total. Text comparison covers 1,449 source items with no missing item; link and page-number checks pass. All 78 pages were rendered and reviewed as contact sheets, with recorded full-size spot checks. All three PDFs have durable same-file preservation and complete byte readback evidence. A4 is the review format, not a finalized regular-volume trim size.
+- Remote D1 remains blocked. Account usage reads recovered, but subscription reads return 403: the current OAuth connection cannot cover that endpoint and an authorized Billing Read-capable API token would be required. The actual Workers plan is unknown. No dedicated remote database, migration, binding, image import, paid-plan change or WO02 production activation has been performed.
+
+## Remaining activation and next volume
+
+Follow the ordered activation steps in `HANDOFF.md` and the current [publication contract](../../library/platform-modules/EBOOK-PUBLICATION-V1.md). `EBOOK_BUDGET_ATTESTATION` must come from real plan and complete account observations, be no more than 24 hours old, and belong to the same UTC day as the request. UTC midnight (09:00 KST) invalidates the preceding day's proof even when it is less than 24 hours old. Production activation requires a proven renewal/monitoring process, not a single static proof or the local preview's fixture.
+
+WO03 starts the first regular volume from the preserved eighteen-volume programme only after WO02's final runtime, artifact-preservation, account and remote-delivery gates are resolved. It must deliver at least 400 substantive authored body pages, original visuals, complete exercises and solutions, verified current app-menu evidence and full-edition QA. The saved blueprints remain the starting point; do not repeat the completed research or relabel a 24-page sample as a regular book.
