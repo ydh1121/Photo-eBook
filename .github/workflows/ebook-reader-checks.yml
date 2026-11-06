@@ -59,13 +59,15 @@ jobs:
           node scripts/check-ebook-reader.mjs
           node scripts/check-platform-module-boundaries.mjs
       - name: Install pinned Chromium test environment
+        id: browser
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Exercise canonical reader and every authored sample page
-        run: |
-          node scripts/check-ebook-reader.mjs --runtime
-          node scripts/check-ebook-samples.mjs --runtime
+      - name: Exercise canonical reader interactions
+        run: node scripts/check-ebook-reader.mjs --runtime
+      - name: Verify every authored sample page
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: node scripts/check-ebook-samples.mjs --runtime
       - name: Preserve reader and manuscript evidence
         if: always()
         uses: actions/upload-artifact@v4

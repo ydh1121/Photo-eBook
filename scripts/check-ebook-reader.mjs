@@ -142,6 +142,7 @@ async function runtime(){
     await page.locator('[data-reader-action="questions"]').click();assert((await page.locator('.ebook-reader__questions').textContent()).includes('어떤 문장을 고칠까요?'),'Question did not survive reload');
     await page.locator(`[data-reader-note-edit="${noteId}"]`).click();await page.locator('[data-reader-memo]').fill('수정한 질문 메모');await page.locator('[data-reader-note-form] button[type="submit"]').click();
     await page.locator('[data-reader-action="questions"]').click();await page.locator(`[data-reader-note-open="${noteId}"]`).click();await page.locator('dialog').waitFor({state:'hidden'});
+    await page.waitForFunction(()=>{const state=readerQa.mount.api.getState();return !state.loading&&!state.restoring;});
     assert((await page.evaluate(()=>getSelection().toString())).includes('📚'),'Saved question did not restore native selection');
     pass('browser-selection-quote-save-reload-edit-and-exact-return');
 
