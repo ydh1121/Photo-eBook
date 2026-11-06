@@ -1,14 +1,35 @@
 # Personal Edu publishing — review record
 
-## Current revision — 2026-11-07 KST
+## WO02 production release complete — 2026-11-07 KST
 
-The user supplied Workers Free plan proof and authorized an appropriate storage design after clarifying the earlier D1 choice. Pages static image delivery now supersedes the never-activated D1 prototype. The active revision preserves manuscript/page bytes and reader anchors, connects catalog-driven sample entries through the canonical hero and checks whole-deployment file/size limits. Fresh candidate and production verification are pending; the historical results below are not substituted for them. Regular textbooks completed/published remain **0/18**.
+PR #60 is merged and the three explicitly labelled sample books are available from the SNS, video and AI subject pages. The shared reader, catalog, page JSON and immutable WebP use the existing Pages static deployment. The user-supplied Workers Free proof and storage clarification superseded the never-activated D1 prototype. Manuscript/page bytes and reader anchors are preserved. Regular textbooks completed/published remain **0/18**; WO03 is the SNS entry regular volume, with a 400-body-page minimum and a 420-page target.
 
-The authoritative remaining release steps are in [HANDOFF.md](HANDOFF.md#static-publication--ordered-remaining-steps). The old D1 budget-attestation and database-import steps below are retained only as historical checkpoint evidence.
+| Item | Verified current evidence and boundary |
+| --- | --- |
+| Exact candidate | `08ceb4da5ee177f99a0ba3190fcca889a2d47ad3`; all seven candidate workflows pass, including the PR-only UI Visual Matrix |
+| Merge / released implementation | `bd03c5ded77946a95d720800771a8a4df026a1af`; identical candidate/merge tree `9224e9828bba61b88c8df31976a985d5538d4532` |
+| Preview | Successful deployment `3874107d-669a-48f8-93cd-e38e622a0232`, [candidate preview](https://3874107d.photo-ebook.pages.dev/reader/) |
+| Production | Successful deployment `3eeabb99-68e3-4bc9-a8fe-f2c6f7d197fb` at 2026-11-06T15:43:14.142258Z, [public reader](https://photo-ebook.pages.dev/reader/) |
+| Post-merge workflows | Six normal push workflows plus the live workflow pass. UI Visual Matrix is PR-only; the live workflow separately checks the production UI matrix |
+| Reader / static assets / samples | 17/17 reader checks, 33/33 static asset checks and 7/7 sample groups; these replace the old SQLite delivery evidence for the current publication path |
+| Candidate mobile coverage | All 72 authored pages at 375 × 812, zero overflow and zero uncaught sample errors; cover, contents, resume, desktop and portable-image paths are included in the sample groups |
+| Existing Personal Edu coverage | CI browser fixtures pass 69/69; reference-case contract/browser checks pass 12/12. They are not additional manual production sessions |
+| Real production HTTP | 23/23, covering all 13 delivered WebP hashes, 72 exact page payloads, entries and cache/conditional handling |
+| Persisted live gate | [Git live report](../platform-library-v1/qa/live-deploy-status.json), source `bd03c5d`, recorded by `2779ed6ef87680ffde78bc191fc2a317e88f6c7f`: prior 11 checks plus the ebook gate, 12/12 total; [live run](https://github.com/ydh1121/Photo-eBook/actions/runs/42245654836) |
+| Production interaction | Cloud Chromium at 1363 × 936: SNS/video/AI hero links and reader; 135-character quote saved and retained after reload; page 4 and scroll position 936 restored after reload and generic subject-link reentry |
+| Source / anchor integrity | All 81 files in the source/body preservation baseline retain exact byte lengths and SHA-256; 13 original/published WebP pairs match approved hashes; book, edition, page and block IDs remain stable |
+| Preserved review originals | Six JSON/Markdown originals, five photo masters, eight teaching diagrams, 13 WebP files (1,309,798 bytes) and three 26-page PDFs retain complete preservation/readback evidence |
+| Measured publication budget | 522 files / 13,030,546 bytes; 19,478 file slots remain against the 20,000-file limit; no warning or failure. The per-file limit is 25 MiB, with separate reader/image project budgets |
+
+The current release contains SNS 24 body pages / 104 blocks, video 24 / 113 and AI 24 / 112: **72 body pages / 329 blocks**, excluding covers and contents. All remain `sample-20261106-v1`, not regular editions. See [qa/wo02-static-release.json](qa/wo02-static-release.json) for the structured release record and workflow links.
+
+The current candidate received three direct mobile-PNG spot checks (SNS 13, video 17 and AI 19), with no blocking layout defect observed in those viewports. This is not a claim that every page was manually reread at full size. Production mobile-width execution was not repeated: its exact page/image bytes match the candidate tested at 375 × 812. Physical Android/Galaxy app execution and Safari remain unperformed; current mobile-menu evidence is official documentation plus browser checks.
+
+Final private report/archive preservation and same-ID CURRENT/PROJECT_INDEX updates are handled separately by the release owner, with an external readback receipt completed before the final project handoff. This public release record does not assert that those final operational readbacks have already completed. No production merge, daily D1 attestation or database activation remains pending. The next manuscript and its acceptance criteria are in [HANDOFF.md](HANDOFF.md#wo03-acceptance-criteria).
 
 ## Historical WO02 — candidate checkpoint, 2026-11-06
 
-Status: implementation, all seven final-candidate workflows and review artifacts verified; remote D1 activation pending. This is not a production-completion record. Regular textbooks completed/published: **0/18**.
+Historical status at this checkpoint: implementation, all seven then-final candidate workflows and review artifacts verified; remote D1 activation was pending. That activation path was later superseded. This section is not the current production-completion record. Regular textbooks completed/published at the checkpoint: **0/18**.
 
 | Item | Recorded evidence and boundary |
 | --- | --- |
@@ -33,17 +54,19 @@ Status: implementation, all seven final-candidate workflows and review artifacts
 | Remote account gate | Actual Workers plan unknown; subscription reads return 403 because OAuth cannot cover the endpoint and an authorized Billing Read-capable token would be required. `usage_model: standard` and a website zone's Free label are not plan proof |
 | Remote delivery state | No WO02 production deployment, dedicated remote D1 creation, migration, binding, image import or activation has been performed |
 
-The review preview proves the reviewed adapter and candidate presentation. Production manifests still address `/api/ebook-assets/<sha256>.webp`; image copies in the review bundle do not prove remote D1 service. Local synthetic budget attestations are fixtures and cannot be promoted to real account evidence. Private source identifiers and account observations stay outside Git.
+At that checkpoint, the review preview proved the reviewed adapter and candidate presentation. The then-production manifests addressed `/api/ebook-assets/<sha256>.webp`; image copies in the review bundle did not prove remote D1 service. That API path is retired in the current static release. Local synthetic budget attestations are fixtures and cannot be promoted to real account evidence. Private source identifiers and account observations stay outside Git.
 
-### Open acceptance gates
+### Historical acceptance gates — superseded
+
+These were the outstanding steps for the old D1 design. They are preserved as history and are not instructions for the current static release.
 
 1. Attach the passing final-candidate CI and artifact evidence to the same-ID operational record. All seven workflow runs, final PDFs and full byte readbacks are complete.
 2. Keep the tested implementation SHA separate from documentation-only follow-up commits.
 3. Establish the actual Workers Free plan and complete account-wide usage evidence through authorized read access. Keep serving disabled while proof is missing, incomplete or outside the enforced budget.
 4. Prove the attestation renewal and serving-environment update process before activation. Proof is valid only on the same UTC day and for at most 24 hours. It expires at the UTC day boundary (00:00 UTC / 09:00 KST) even if issued shortly beforehand; a one-time configuration value does not provide renewal.
-5. After those gates pass, prepare the dedicated project database and binding with serving disabled, import verified bytes within the publisher limits, remeasure usage, and verify actual remote hashes and conditional responses. Complete candidate UI checks and actual production verification before closing WO02. The ordered procedure is in [HANDOFF.md](HANDOFF.md#remote-d1-activation--ordered-remaining-steps).
+5. After those gates pass, prepare the dedicated project database and binding with serving disabled, import verified bytes within the publisher limits, remeasure usage, and verify actual remote hashes and conditional responses. Complete candidate UI checks and actual production verification before closing WO02. This former D1 activation sequence was superseded by the static publication decision; it must not be resumed for this release.
 
-Current mobile/menu evidence comes from official documentation and browser-width checks. Physical Android/Galaxy app execution and Safari coverage remain unperformed. WO03 starts the first approved regular volume after the WO02 quality, preservation and remote-delivery gates; it must satisfy the substantive 400-page minimum, complete practice/solutions and full-edition review. The preserved eighteen-volume blueprints remain the starting material; the three sample chapters do not increment the regular-volume count.
+At this checkpoint, mobile/menu evidence came from official documentation and browser-width checks. Physical Android/Galaxy app execution and Safari coverage were unperformed and remain outside current coverage. The planned regular-volume gates required the substantive 400-page minimum, complete practice/solutions and full-edition review. The preserved eighteen-volume blueprints remain the starting material; the three sample chapters do not increment the regular-volume count.
 
 ## WO01 — research and foundation review (preserved release history)
 
@@ -87,7 +110,7 @@ Desktop/mobile candidate screenshots of the new hero, practice section and dialo
 
 ### Remaining programme scope at the WO01 release
 
-The following scope boundary records the WO01 release. The current WO02 implementation and remaining gates are recorded above.
+The following scope boundary records the WO01 release. The completed WO02 production release and next WO03 scope are recorded above.
 
 WO01 does not deliver any regular 400-page textbook, the new common ebook reader, selection-to-question reader persistence, or D1 image serving. All eighteen manuscripts remain unproduced. Research covers publicly available contents, descriptions and curricula, not full access to paid books or course videos.
 

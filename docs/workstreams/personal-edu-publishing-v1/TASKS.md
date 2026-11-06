@@ -2,9 +2,12 @@
 
 Started: 2026-11-06 KST
 Programme baseline: `b26fbad86238c327960ea12cef9a3268cbdd3173`
-Active branch: `feat/personal-edu-reader-wo02-20261106`
+Current phase: WO02 production release complete; next WO03 — SNS entry regular volume
+Documentation branch: `docs/personal-edu-wo02-closeout-20261107`
 WO02 baseline: `983500848d50f9cf8a4290b348e47866515229e5`
-Historical tested candidate: `3e0ebd901d33f7fc12f256578ee4b842ce9f3f08` ([PR #60](https://github.com/ydh1121/Photo-eBook/pull/60))
+Released implementation: `bd03c5ded77946a95d720800771a8a4df026a1af` ([PR #60](https://github.com/ydh1121/Photo-eBook/pull/60))
+Tested candidate: `08ceb4da5ee177f99a0ba3190fcca889a2d47ad3`; identical release tree `9224e9828bba61b88c8df31976a985d5538d4532`
+Recorded live-proof commit: `2779ed6ef87680ffde78bc191fc2a317e88f6c7f` (documentation only)
 
 ## Scope and sequencing
 
@@ -52,25 +55,33 @@ The new request is a staged programme. Do not claim that the complete multi-volu
 - Production HTTP: seven subject routes, both changed course snapshots and both SNS images match the verified files. Public SNS recommendations grew from 24 to 49 unique watch links after scrolling to the horizontal end. These are observed live values, not guaranteed counts.
 - Final editorial readback: SNS 1,008 rows and real estate 2,128 rows; one approved wording change in each source, with adjacent cells and formats preserved. The corrected snapshots are byte-identical to the restored source.
 
-## Current WO — WO02 active
+## WO02 production release complete — 2026-11-07 KST
 
 - [x] Resolve IDs: `sns-entry`, `video-entry`, `ai-entry`; sample edition `sample-20261106-v1`. Page and block IDs are semantic and stable; page numbers are editorial positions.
-- [x] Implement the common reader with selection-to-question saving and last-position restoration across page/edition changes. Canonical ownership and local model/storage checks pass; final browser CI is a separate gate below.
-- [x] Implement guarded D1 serving, immutable-image publication and bounded storage/read/write budgets; actual local SQLite integration passes 38 cases.
+- [x] Deliver the canonical reader with selection-to-question saving, last-position restoration and accessible controls across Library, Editor, Public and portable consumers.
 - [x] Author three real sample chapters, each with 24 body pages, and preserve/read back the six JSON/Markdown originals before copying repository snapshots.
 - [x] Create and preserve five original photographs and eight teaching diagrams, with 13 delivery WebP files and full byte readback.
-- [x] Build and inspect the explicitly labelled review adapter at the candidate preview URL below.
-- [x] Create three review PDFs, each with a cover, contents and 24 body pages; complete text/link/layout checks and the recorded visual review.
+- [x] Preserve all three review PDFs, each with a cover, contents and 24 body pages; complete text/link/layout checks, the recorded visual review and full byte readback.
 - [x] Record official mobile-tool evidence separately. Physical Android menu execution is explicitly unverified and remains a regular-volume release gate.
-- [x] Correct the reader owner and sample test assumptions, then pass the exact final candidate's reader, asset and sample workflows; preserve the full CI artifact with complete byte readback.
-- [x] Close all seven final-candidate workflow runs; existing Personal Edu runtime passes 69/69 and reference-case browser checks pass 12/12.
-- [x] Preserve all three final PDFs in their subject folders and verify every downloaded byte against the approved originals.
 - [x] Accept the user-supplied Workers Free plan screen and the clarification allowing the appropriate storage product.
-- [x] Select Pages static delivery for immutable WebP and preserve manuscript/page IDs; supersede the never-activated D1-image design.
-- [ ] Publish the static-delivery candidate, enforce file/size budgets, and verify all real Cloudflare image bytes plus reader links on SNS/video/AI.
-- [ ] Verify the final production revision and preserve final release/operational records before closing WO02.
+- [x] Publish immutable WebP through Pages static files and retire the never-activated ebook-only D1 path. All 81 files in the source/body preservation baseline and 13 WebP source/delivery hashes remain unchanged; stable reader anchors are preserved.
+- [x] Enforce the whole-publication budget: 522 files, 13,030,546 bytes, no warnings or failures against the 20,000-file / 25 MiB-per-file Free limits and project reader/image budgets.
+- [x] Pass all seven exact-candidate workflows: reader 17/17, static assets 33/33, sample groups 7/7, all 72 mobile pages at 375 × 812 with no overflow. Existing Personal Edu and reference-case CI fixtures pass 69/69 and 12/12.
+- [x] Verify preview deployment `3874107d-669a-48f8-93cd-e38e622a0232`, merge PR #60 with the same tested tree, and verify successful production deployment `3eeabb99-68e3-4bc9-a8fe-f2c6f7d197fb`.
+- [x] Pass six post-merge push workflows plus the live workflow. The persisted live report contains the existing 11 checks and the ebook gate: 12/12 overall, with ebook HTTP 23/23 covering all 13 image hashes and all 72 page payloads.
+- [x] Inspect production SNS/video/AI sample entries and the common reader at 1363 × 936. A 135-character quote survives question save/reload; page 4 and scroll position 936 restore after reload and reentry through the generic subject link.
 
-Regular textbooks completed/published: **0/18**. WO01 is complete; WO02 remains active. The three sample chapters do not count as regular volumes.
+Regular textbooks completed/published: **0/18**. WO01 and the WO02 production release are complete. The three published sample chapters contain 72 body pages / 329 blocks and do not count as regular volumes. See [current release evidence](qa/wo02-static-release.json) and [REVIEW.md](REVIEW.md).
+
+## Next WO — WO03 SNS entry regular volume
+
+- [-] active: Begin the SNS entry regular volume from the preserved eighteen-volume blueprints and approved editorial contracts; retain the 24-page sample as its own edition.
+- [ ] Author at least 400 substantive body pages, targeting 420, with complete worked examples, independent tasks and solutions. Exclude cover, contents, blank pages and filler from the count.
+- [ ] Produce the teaching visuals needed by the actual manuscript and preserve reviewed originals before publication.
+- [ ] Verify current tool/menu evidence, address physical Android execution before claiming a verified mobile walkthrough, and complete full-edition editorial, source, image, reader and publication-budget QA.
+- [ ] Publish the first regular volume only after these gates pass; increment the regular-volume count at that release.
+
+The release owner is finishing the separate private operational closeout: final report/archive preservation, same-ID CURRENT/PROJECT_INDEX updates and a separate external readback receipt. This public tracker does not assert that final readback has already completed. Finish that record before the final project handoff; no production merge or D1 activation remains pending.
 
 ## Historical WO02 candidate checkpoint — 2026-11-06
 
@@ -83,12 +94,10 @@ Regular textbooks completed/published: **0/18**. WO01 is complete; WO02 remains 
 - PDF review editions: three A4 PDFs, 26 physical pages each (cover + contents + 24 body pages), 78 physical pages total. Text comparison covers 1,449 source items with no missing item; link and page-number checks pass. All 78 pages were rendered and reviewed as contact sheets, with recorded full-size spot checks. All three PDFs have durable same-file preservation and complete byte readback evidence. A4 is the review format, not a finalized regular-volume trim size.
 - At that checkpoint, remote D1 was blocked. Account usage reads recovered, but subscription reads returned 403: the current OAuth connection cannot cover that endpoint and an authorized Billing Read-capable API token would be required. The actual Workers plan was then unknown. No dedicated remote database, migration, binding, image import, paid-plan change or WO02 production activation had been performed at that checkpoint. The later user-supplied Free screen and storage clarification supersede this activation path.
 
-## Current resume — 2026-11-07 KST
+## Current storage and continuation rules
 
 The user supplied a Workers plan screen showing Free / Current plan and clarified that the earlier D1 instruction was based on unfamiliarity with storage products. Use the existing Pages deployment for book JSON and immutable WebP. Keep original files in Drive and current reading/question records in browser storage. No remote D1 provisioning, daily D1 attestation or Billing Read permission is required for this static route.
 
-The active implementation removes the never-activated ebook-only D1 path, keeps exact source and page bytes, and exposes catalog-driven sample links through the canonical learning hero. Follow the current [publication contract](../../library/platform-modules/EBOOK-PUBLICATION-V1.md). The prior SQLite results remain historical; obtain fresh static-delivery and actual deployment evidence before closing WO02.
+The released implementation removes the never-activated ebook-only D1 path, keeps exact source and page bytes, and exposes catalog-driven sample links through the canonical learning hero. Follow the current [publication contract](../../library/platform-modules/EBOOK-PUBLICATION-V1.md). The prior SQLite results remain historical; current static and production evidence is recorded above.
 
-Remaining work: finish the static file budget checks; validate the exact candidate and production reader/image paths; merge PR #60 after required checks; preserve release evidence and update the same private CURRENT/PROJECT_INDEX files.
-
-WO03 starts the first regular volume from the preserved eighteen-volume programme after WO02's final runtime, preservation and production-delivery checks. It must deliver at least 400 substantive authored body pages, original visuals, complete exercises and solutions, verified current app-menu evidence and full-edition QA. The saved blueprints remain the starting point; do not repeat completed research or relabel a 24-page sample as a regular book.
+WO03 is the SNS entry regular volume, with a 400-body-page minimum and a 420-page target. Use the saved blueprints and research; do not repeat completed research or relabel a 24-page sample as a regular book. Production cloud Chromium and candidate mobile-width checks do not establish physical Android/Galaxy app execution or Safari coverage.

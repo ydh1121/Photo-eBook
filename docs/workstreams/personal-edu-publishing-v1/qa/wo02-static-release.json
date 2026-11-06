@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 1,
+  "workOrder": "WO02",
+  "status": "production_released",
+  "releaseDateKst": "2026-11-07",
+  "releaseScope": "Three explicitly labelled 24-body-page samples and the shared reader on SNS/video/AI subject routes; no regular volume is completed.",
+  "candidate": {
+    "commit": "08ceb4da5ee177f99a0ba3190fcca889a2d47ad3",
+    "treeSha": "9224e9828bba61b88c8df31976a985d5538d4532",
+    "status": "pass",
+    "workflows": [
+      {
+        "name": "Platform Library Architecture Checks",
+        "status": "pass",
+        "id": 42244892800,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42244892800"
+      },
+      {
+        "name": "Canonical Admin Parity",
+        "status": "pass",
+        "id": 42244892947,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42244892947"
+      },
+      {
+        "name": "Platform Library Generalization Checks",
+        "status": "pass",
+        "id": 42244892976,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42244892976"
+      },
+      {
+        "name": "UI Visual Matrix",
+        "status": "pass",
+        "id": 42244892820,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42244892820"
+      },
+      {
+        "name": "Platform Library Checks",
+        "status": "pass",
+        "id": 42244892908,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42244892908"
+      },
+      {
+        "name": "Ebook Reader and Sample Checks",
+        "status": "pass",
+        "id": 42244892795,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42244892795"
+      },
+      {
+        "name": "Personal Edu Runtime Checks",
+        "status": "pass",
+        "id": 42244892900,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42244892900"
+      }
+    ]
+  },
+  "merge": {
+    "pullRequest": "https://github.com/ydh1121/Photo-eBook/pull/60",
+    "commit": "bd03c5ded77946a95d720800771a8a4df026a1af",
+    "treeSha": "9224e9828bba61b88c8df31976a985d5538d4532",
+    "matchesTestedCandidateTree": true
+  },
+  "preview": {
+    "status": "pass",
+    "commit": "08ceb4da5ee177f99a0ba3190fcca889a2d47ad3",
+    "deploymentId": "3874107d-669a-48f8-93cd-e38e622a0232",
+    "deploymentUrl": "https://3874107d.photo-ebook.pages.dev",
+    "deployedAt": "2026-11-06T15:38:09.614215Z",
+    "verifiedAt": "2026-11-06T15:44:21.964Z",
+    "observation": "Cloudflare API deployment success; exact commit matched"
+  },
+  "production": {
+    "status": "pass",
+    "commit": "bd03c5ded77946a95d720800771a8a4df026a1af",
+    "treeSha": "9224e9828bba61b88c8df31976a985d5538d4532",
+    "url": "https://photo-ebook.pages.dev/",
+    "deploymentId": "3eeabb99-68e3-4bc9-a8fe-f2c6f7d197fb",
+    "deploymentUrl": "https://3eeabb99.photo-ebook.pages.dev",
+    "deployedAt": "2026-11-06T15:43:14.142258Z",
+    "verifiedAt": "2026-11-06T15:51:55.543Z"
+  },
+  "postMergeCi": {
+    "status": "pass",
+    "normalPushWorkflows": 6,
+    "liveWorkflows": 1,
+    "workflows": [
+      {
+        "name": "Platform Library Generalization Checks",
+        "status": "pass",
+        "id": 42245654798,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654798"
+      },
+      {
+        "name": "Ebook Reader and Sample Checks",
+        "status": "pass",
+        "id": 42245654771,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654771"
+      },
+      {
+        "name": "Platform Library Checks",
+        "status": "pass",
+        "id": 42245654754,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654754"
+      },
+      {
+        "name": "Platform Library Architecture Checks",
+        "status": "pass",
+        "id": 42245654824,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654824"
+      },
+      {
+        "name": "Canonical Admin Parity",
+        "status": "pass",
+        "id": 42245654664,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654664"
+      },
+      {
+        "name": "Platform Live Deploy Check",
+        "status": "pass",
+        "id": 42245654836,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654836"
+      },
+      {
+        "name": "Personal Edu Runtime Checks",
+        "status": "pass",
+        "id": 42245654855,
+        "url": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654855"
+      }
+    ],
+    "note": "UI Visual Matrix is PR-only and passed on the exact candidate; the production live workflow separately ran its live matrix."
+  },
+  "verification": {
+    "reader": {
+      "passed": 17,
+      "total": 17
+    },
+    "staticAssets": {
+      "passed": 33,
+      "total": 33,
+      "scope": "Current static publication sources, immutable delivery bytes, budget guards and local HTTP; remote production is recorded separately."
+    },
+    "samples": {
+      "passed": 7,
+      "total": 7,
+      "mobileBodyPages": 72,
+      "mobileViewport": {
+        "width": 375,
+        "height": 812
+      },
+      "overflowPages": 0,
+      "uncaughtSampleErrors": 0
+    },
+    "existingCiFixtures": {
+      "personalEdu": {
+        "passed": 69,
+        "total": 69
+      },
+      "referenceCases": {
+        "passed": 12,
+        "total": 12
+      },
+      "scope": "CI browser fixtures, not a separate manual production session."
+    },
+    "productionHttp": {
+      "checks": 23,
+      "passed": 23,
+      "images": 13,
+      "bodyPages": 72
+    },
+    "persistedProductionGate": {
+      "status": "pass",
+      "priorChecks": 11,
+      "ebookGatesAdded": 1,
+      "totalChecks": 12,
+      "passed": 12,
+      "sourceSha": "bd03c5ded77946a95d720800771a8a4df026a1af",
+      "reportPath": "docs/workstreams/platform-library-v1/qa/live-deploy-status.json",
+      "reportSha256AtRelease": "c821b90b4ac6192a1d8ff937e23af507bae0204846c14dcfb8e5f691a72ed6c4",
+      "recordCommit": "2779ed6ef87680ffde78bc191fc2a317e88f6c7f",
+      "workflowRunUrl": "https://github.com/ydh1121/Photo-eBook/actions/runs/42245654836"
+    },
+    "productionUi": {
+      "status": "pass",
+      "checkedAt": "2026-11-06T15:51:55.543Z",
+      "browser": "Cloud Chromium",
+      "viewport": {
+        "width": 1363,
+        "height": 936
+      },
+      "subjects": [
+        "sns",
+        "video",
+        "ai"
+      ],
+      "selectedQuoteCharacters": 135,
+      "questionSavedAndSurvivedReload": true,
+      "resume": {
+        "page": 4,
+        "scrollBefore": 936,
+        "scrollAfterReload": 936,
+        "scrollAfterReentry": 936
+      },
+      "genericSubjectLinkReentryVerified": true,
+      "productionMobileWidthExecuted": false,
+      "candidateMobileWidthEvidence": true,
+      "productionPageAndImageBytesMatchCandidate": true
+    },
+    "candidateManualVisualReview": {
+      "inspectedMobileViewportPngs": [
+        "sns-entry-13-mobile.png",
+        "video-entry-17-mobile.png",
+        "ai-entry-19-mobile.png"
+      ],
+      "blockingDefectObserved": false,
+      "scope": "Three viewport images were opened directly. This does not claim a full-size manual reread of all 72 pages or their full scroll content."
+    }
+  },
+  "publication": {
+    "sampleEditionId": "sample-20261106-v1",
+    "books": [
+      {
+        "bookId": "ai-entry",
+        "status": "sample",
+        "bodyPages": 24,
+        "blocks": 112
+      },
+      {
+        "bookId": "sns-entry",
+        "status": "sample",
+        "bodyPages": 24,
+        "blocks": 104
+      },
+      {
+        "bookId": "video-entry",
+        "status": "sample",
+        "bodyPages": 24,
+        "blocks": 113
+      }
+    ],
+    "sampleBooks": 3,
+    "sampleBodyPages": 72,
+    "sampleBlocks": 329,
+    "frontMatterCountedAsBody": false,
+    "regularBooksCompleted": 0,
+    "plannedRegularBooks": 18,
+    "sourcePreservation": {
+      "byteIdenticalFiles": 81,
+      "publishedPageJson": 72,
+      "repositorySourceJson": 3,
+      "privateJsonMarkdownOriginals": 6,
+      "bookEditionPageAndBlockIdsUnchanged": true,
+      "pageContentHashesUnchanged": true
+    },
+    "visuals": {
+      "photographs": 5,
+      "teachingDiagrams": 8,
+      "webpFiles": 13,
+      "webpBytes": 1309798,
+      "sourceAndStaticCopyHashesMatch": true,
+      "approvedIndexPath": "content/ebooks/v1/assets.json"
+    },
+    "reviewPdfs": {
+      "files": 3,
+      "physicalPagesEach": 26,
+      "bodyPagesEach": 24,
+      "totalPhysicalPages": 78,
+      "priorFullByteReadbackCompleted": true,
+      "format": "A4 review format; regular-volume trim size is not finalized."
+    }
+  },
+  "storage": {
+    "delivery": "Cloudflare Pages static files",
+    "images": "/assets/ebooks/v1/<sha256>.webp",
+    "originals": "Private project Drive folders",
+    "questionsAndReadingPosition": "Current browser local storage",
+    "ebookD1Active": false,
+    "supersededD1GateRequired": false,
+    "userSuppliedWorkersFreeProofAccepted": true,
+    "paidServiceActivatedForThisRelease": false
+  },
+  "publicationBudget": {
+    "ok": true,
+    "fileCount": 522,
+    "remainingFiles": 19478,
+    "totalBytes": 13030546,
+    "largestFile": {
+      "path": "content-discovery/learning-videos.json",
+      "bytes": 762437
+    },
+    "ebook": {
+      "bodyPages": 72,
+      "bodyBytes": 207429,
+      "manifests": 3,
+      "manifestBytes": 47710,
+      "webpFiles": 13,
+      "webpBytes": 1309798
+    },
+    "limits": {
+      "maxFiles": 20000,
+      "warnFiles": 18000,
+      "maxFileBytes": 26214400,
+      "warnFileBytes": 23592960,
+      "maxManifestBytes": 262144,
+      "maxPageBytes": 524288,
+      "maxWebpBytes": 1500000
+    },
+    "warnings": [],
+    "failures": []
+  },
+  "next": {
+    "workOrder": "WO03",
+    "subject": "SNS entry",
+    "editionType": "regular",
+    "minimumSubstantiveBodyPages": 400,
+    "targetSubstantiveBodyPages": 420,
+    "basis": "Preserved eighteen-volume blueprints and approved editorial contracts",
+    "requirements": [
+      "Complete worked examples, independent tasks and solutions",
+      "Original teaching visuals and source preservation",
+      "Current menu evidence with physical Android execution addressed before claiming a verified mobile walkthrough",
+      "Full-edition editorial, reader and publication-budget verification"
+    ]
+  },
+  "operationalRecordBoundary": {
+    "productionReleaseComplete": true,
+    "finalPrivateCurrentAndIndexReadbackClaimedHere": false,
+    "separateExternalReceiptRequired": true,
+    "ownerAction": "Complete final report/archive preservation, same-ID CURRENT/PROJECT_INDEX updates and their separate readback receipt before the final project handoff. Private identifiers and receipts remain outside Git."
+  },
+  "limitations": [
+    "No physical Android/Galaxy app or Safari execution is claimed.",
+    "Production mobile-width execution was not repeated; exact candidate mobile checks and production byte comparisons are distinct evidence.",
+    "Historical 38-case SQLite checks belong to the retired D1 prototype and do not certify static production delivery.",
+    "Future regular-volume file/byte budgets are estimates, not completed books."
+  ]
+}
